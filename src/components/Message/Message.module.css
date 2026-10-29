@@ -1,0 +1,82 @@
+/* Values come from the two Figma "Message" sets (neutral, and Type = Info / Caution / Error / Success). */
+.message {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --close-hover: var(--color-gray-fill-hover);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-16);
+  border-radius: var(--radius-4);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  flex: 1;
+  min-width: 0;
+}
+
+.icon {
+  color: var(--fg);
+}
+.message[data-type='neutral'] .icon {
+  color: var(--color-gray-fill-strong);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+}
+.title,
+.body {
+  margin: 0;
+}
+.title {
+  font-weight: 700;
+}
+
+/* The close button takes the message's text color for its icon and a matching hover tint */
+.message {
+  --message-fg: var(--fg);
+}
+.message .close {
+  --fg: var(--message-fg);
+}
+.message .close:hover {
+  --bg: var(--close-hover);
+}
+
+/*
+ * Figma colors the typed messages with Foundation primitives;
+ * these are the semantic tokens that resolve to the same light-mode values.
+ */
+.message[data-type='info'] {
+  --bg: var(--color-semantic-fill-info-weak);
+  --fg: var(--color-semantic-text-information);
+  --close-hover: var(--color-semantic-fill-info-weak);
+}
+.message[data-type='success'] {
+  --bg: var(--color-semantic-fill-success-weak);
+  --fg: var(--color-semantic-text-success);
+  --close-hover: var(--color-semantic-fill-success-weak);
+}
+.message[data-type='caution'] {
+  /* Figma uses Semantic Amber/200 (20%); the warning-weak token is Amber/100 (10%) */
+  --bg: var(--color-semantic-fill-warning-weak);
+  --fg: var(--color-semantic-text-warning);
+  --close-hover: var(--color-semantic-fill-warning-weak);
+}
+.message[data-type='error'] {
+  --bg: var(--color-semantic-fill-error-weak);
+  --fg: var(--color-semantic-text-error);
+  --close-hover: var(--color-semantic-fill-error-weak);
+}

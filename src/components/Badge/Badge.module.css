@@ -1,0 +1,46 @@
+/* Values come from the Figma Badge sets (Round, Pill). */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--space-20);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge[data-shape='round'] {
+  min-width: var(--space-20);
+  border-radius: 50%;
+}
+
+.badge[data-shape='pill'] {
+  padding: 0 var(--space-8);
+  border-radius: var(--radius-12);
+}
+
+.badge[data-color='amber'] {
+  --bg: var(--color-semantic-fill-warning-strong);
+  --fg: var(--color-gray-text-inverse-strong);
+}
+.badge[data-color='blue'] {
+  --bg: var(--color-semantic-fill-info-strong);
+  --fg: var(--color-gray-text-inverse-strong);
+}
+.badge[data-color='green'] {
+  --bg: var(--color-semantic-fill-success-strong);
+  --fg: var(--color-gray-text-inverse-strong);
+}
+/* Figma uses Foundation/Solid primitives for the Red text and the Black badge */
+.badge[data-color='red'] {
+  --bg: var(--color-semantic-fill-error-strong);
+  --fg: var(--color-foundation-solid-white);
+}
+.badge[data-color='black'] {
+  --bg: var(--color-foundation-solid-black);
+  --fg: var(--color-foundation-solid-white);
+}
