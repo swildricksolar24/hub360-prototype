@@ -19,7 +19,7 @@
 }
 
 .pad {
-  /* Figma binds the remote «Corner Radius/4» variable; mapped to the local --radius-4 */
+  /* Figma: Corner Radius/4 */
   border-radius: var(--radius-4);
   background: var(--pad-bg);
   box-shadow: var(--pad-shadow);

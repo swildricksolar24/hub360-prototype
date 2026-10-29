@@ -203,7 +203,7 @@
   line-height: var(--line-height-medium);
   /* Gray Fill/Weaker is translucent; in Figma it sits on the page, so lay it over Surfaces/Base */
   background: linear-gradient(var(--color-gray-fill-weaker), var(--color-gray-fill-weaker)), var(--color-surfaces-base);
-  /* Figma's "Text/Weakest" (10% opacity, not exported as a token) mapped to Gray Text/Weak for legibility */
+  /* Figma: Gray Text/Weak */
   color: var(--color-gray-text-weak);
 }
 

@@ -129,7 +129,7 @@
   background: var(--color-gray-fill-inverse-weak);
 }
 .avatar[data-type='photo'] {
-  /* Figma "Icon/Brand Teal" behind the photo; that variable isn't in tokens.css, nearest is Brand Teal Fill/Strong */
+  /* Figma: Brand Teal Fill/Strong behind the photo */
   background: var(--color-brand-teal-fill-strong);
 }
 
