@@ -75,15 +75,16 @@ Use the semantic tokens below. Pick the group that matches the property: **fill*
 2. **Semantic over primitive.** Use `--color-gray-text-strong`, not `--color-foundation-transparent-1000`. Known exceptions, copied from Figma because no semantic token exists yet:
    - white text, icons and strokes on brand fills (`--color-foundation-solid-white`)
    - the Brand Secondary button fills (`solid-white`, `solid-100`)
-   - the red and black Badges (`solid-white` text, `solid-black` fill)
+   - the black Badge (`solid-white` text, `solid-black` fill)
 
    Each exception is commented in the component CSS.
 3. **Match the token to the property.** Fill tokens for backgrounds, stroke tokens for borders, text tokens for text.
 4. **Contrast limits.** `--color-brand-orange-text-strong` is about 2.4:1 on white and `--color-brand-teal-text-weak` about 1.6:1; both fail WCAG AA. Use them only for decorative or large text. `--color-brand-teal-text-strongest` and `-strong` pass.
 5. **Disabled text is very faint.** `--color-gray-text-disabled` is 20% opacity. Use it only for disabled controls.
-6. **Some colors don't change in dark mode.** Brand Orange and the semantic error red are the same in light and dark. Check those combinations in dark mode.
-7. **Avoid `.text-super-tiny-regular`.** It is 8px with an 8px line height.
-8. **Spacing is not a strict 4px grid.** `--space-10` exists because the components use 10px gaps. Prefer the scale steps the Figma components use.
+6. **Some colors don't change in dark mode.** Brand Orange is the same in light and dark. Check orange combinations in dark mode.
+7. **Status tints are weaker on the dark overlay surface.** In dark mode, status text on its own weak fill passes AA (about 5.2:1) on `--color-surfaces-base`. On `--color-surfaces-overlay` (modals, cards) it drops to about 3.5:1 for all four hues (info, success, warning, error). Avoid long status text inside overlays.
+8. **Avoid `.text-super-tiny-regular`.** It is 8px with an 8px line height.
+9. **Spacing is not a strict 4px grid.** `--space-10` exists because the components use 10px gaps. Prefer the scale steps the Figma components use.
 
 ## Components
 
