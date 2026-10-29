@@ -14,6 +14,8 @@ It contains:
 
 There is no application yet. The git remote is `origin` → https://github.com/swildricksolar24/hub360-prototype (public), branch `main`.
 
+Every push to `main` rebuilds Storybook and publishes it to GitHub Pages at https://swildricksolar24.github.io/hub360-prototype/. The workflow is `.github/workflows/storybook-pages.yml`; it runs the type check before building, and a failure stops the deploy.
+
 ## Commands
 
 ```bash
