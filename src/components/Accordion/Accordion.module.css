@@ -1,0 +1,100 @@
+/*
+ * Values come from the Figma "Categories" (476:5) and "Drop Down - Accordion*" (477:64) sets.
+ * Strokes are inset box-shadows so state changes never shift layout.
+ */
+.accordion {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  font-family: var(--font-family-inter);
+}
+
+.header,
+.item {
+  --bg: var(--color-surfaces-overlay);
+  --stroke: 0 0 0 0 transparent;
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  background: var(--bg);
+  /* Figma colors these labels with Gray Fill/Strong; the text token is the semantic match */
+  color: var(--color-gray-text-strong);
+  box-shadow: var(--stroke), inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: inherit;
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.icon {
+  color: var(--color-gray-fill-strong);
+}
+
+/* ---------- Category header ---------- */
+
+.header {
+  --stroke: inset 0 var(--stroke-width-2) 0 0 var(--color-gray-stroke-strong);
+
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+}
+.accordion[data-open] .header {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  min-width: 0;
+}
+
+/* ---------- Item ---------- */
+
+.item {
+  --stroke: inset 0 var(--stroke-width-1) 0 0 var(--color-gray-stroke-disabled),
+    inset 0 calc(-1 * var(--stroke-width-1)) 0 0 var(--color-gray-stroke-disabled);
+
+  gap: var(--space-10);
+  padding: var(--space-12) var(--space-24) var(--space-12) var(--space-56);
+}
+.item:hover:not(:disabled) {
+  --stroke: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weak);
+}
+
+/* ---------- States ---------- */
+
+.header:hover,
+.item:hover:not(:disabled) {
+  --bg: var(--color-gray-fill-hover);
+}
+/* Press and Focus are not in Figma; they follow Button › Primary */
+.header:active,
+.item:active {
+  --bg: var(--color-gray-fill-press);
+}
+.header:focus-visible,
+.item:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.item:disabled {
+  color: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+.item:disabled .icon {
+  color: var(--color-gray-fill-disabled);
+}

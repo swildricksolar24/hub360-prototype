@@ -1,0 +1,158 @@
+/*
+ * Values come from the Figma Main Nav "Tier 3" page: Tier 3 (2644:3738), Tier 3 Labels (2642:3610),
+ * Tier 3 Label (2642:3631), Tier 3 Icon (2648:4086).
+ */
+.tier3 {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+}
+.tier3[data-collapsed] {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+/* ---------- Expanded: top row ---------- */
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.trail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-12);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+/* ---------- Identity: icon + title ---------- */
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.identity[data-expanded] {
+  padding-bottom: var(--space-24);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-10);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-heading-2);
+  line-height: var(--line-height-heading-2);
+  font-weight: 700;
+}
+/* Collapsed: the title truncates (Figma "WAREHO...") */
+.titleCollapsed {
+  max-width: 172px; /* Figma title box width; no token */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Tier 3 Labels ---------- */
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin: 0;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+}
+/* Figma tightens the gap to 8 for four labels */
+.labels[data-many] {
+  gap: var(--space-8);
+}
+
+.labelItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-gray-text-strong);
+}
+
+.labelValue {
+  font-weight: 700;
+}
+
+.labelSeparator {
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Tier 3 Icon ---------- */
+
+.recordIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-fill-strong);
+}
+.recordIcon[data-size='large'] {
+  width: 98px; /* Figma circle size; no token */
+  height: 98px;
+}
+.recordIcon[data-size='small'] {
+  width: 62px; /* Figma circle size; no token */
+  height: 62px;
+}
+
+/* Figma `State=Hover`: a tiny brand "View Photo" button over the icon */
+.viewPhoto {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+.recordIcon:is(:hover, :focus-within) .viewPhoto {
+  opacity: 1;
+}

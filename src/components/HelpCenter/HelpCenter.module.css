@@ -1,0 +1,134 @@
+/* Values come from the Figma Help Center sets: Help Article Row (2903:53) and Help Category Card (2921:7899). */
+.card {
+  --bg: var(--color-surfaces-overlay);
+  --ring: var(--color-gray-stroke-disabled);
+
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  /* Figma includes the 2px stroke in the auto-layout, so it adds to the 20px padding (720x84 compact row) */
+  padding: calc(var(--space-20) + var(--stroke-width-2));
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  /* Figma: 2px stroke, drawn as an inset shadow */
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  text-align: start;
+  text-decoration: none;
+  outline: none;
+}
+
+/* Figma State=Hover */
+:is(a, button).card:hover {
+  --bg: var(--color-brand-teal-fill-weaker);
+  cursor: pointer;
+}
+/* Not in Figma: keyboard focus ring */
+:is(a, button).card:focus-visible {
+  --bg: var(--color-brand-teal-fill-weaker);
+  --ring: var(--color-brand-teal-stroke-weak);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.meta {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+}
+
+/* ---------- Help Article Row ---------- */
+
+.article {
+  width: 100%;
+}
+
+.compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+}
+
+.compactTitle {
+  color: var(--color-brand-teal-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.path {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+}
+
+.resultTitle {
+  color: var(--color-brand-teal-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+
+.snippet {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+/* ---------- Help Category Card ---------- */
+
+.category {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+  /* Figma card width; component dimension, no token */
+  width: 360px;
+  max-width: 100%;
+}
+
+.category .stack {
+  align-self: stretch;
+}
+
+.tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Figma icon tile size; component dimension, no token */
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-8);
+  background: var(--color-brand-teal-fill-weak);
+}
+
+.categoryTitle {
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+
+.count {
+  color: var(--color-brand-teal-text-strong);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+}

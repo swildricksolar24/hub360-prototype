@@ -1,0 +1,94 @@
+/*
+ * Values come from the Figma Button Group sets (Part - Horizontal, Part - Vertical,
+ * Button Group / Horizontal, Button Group / Vertical).
+ * Dividers and focus rings are inset box-shadows so state changes never shift layout.
+ */
+.group {
+  display: inline-flex;
+}
+.group[data-orientation='vertical'] {
+  flex-direction: column;
+}
+
+.item {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --divider: 0 0 0 0 transparent;
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24) var(--space-40);
+  border: 0;
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: var(--divider), inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 400;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ---------- Horizontal: Left / Center / Right ---------- */
+
+.group[data-orientation='horizontal'] > .item:first-child {
+  border-top-left-radius: var(--radius-12);
+  border-bottom-left-radius: var(--radius-12);
+}
+.group[data-orientation='horizontal'] > .item:last-child {
+  border-top-right-radius: var(--radius-12);
+  border-bottom-right-radius: var(--radius-12);
+}
+/* Left and Center parts draw a hairline on their right edge */
+.group[data-orientation='horizontal'] > .item:not(:last-child) {
+  --divider: inset calc(-1 * var(--stroke-width-outline)) 0 0 0 var(--color-gray-stroke-disabled);
+}
+/* Center Hover outlines the whole part */
+.group[data-orientation='horizontal'] > .item:not(:first-child, :last-child):hover {
+  --divider: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-disabled);
+}
+
+/* ---------- Vertical: Top / Center / Bottom ---------- */
+
+.group[data-orientation='vertical'] > .item:first-child {
+  border-top-left-radius: var(--radius-12);
+  border-top-right-radius: var(--radius-12);
+}
+.group[data-orientation='vertical'] > .item:last-child {
+  border-bottom-left-radius: var(--radius-12);
+  border-bottom-right-radius: var(--radius-12);
+}
+/* Top and Center parts draw a hairline on their bottom edge */
+.group[data-orientation='vertical'] > .item:not(:last-child) {
+  --divider: inset 0 calc(-1 * var(--stroke-width-outline)) 0 0 var(--color-gray-stroke-disabled);
+}
+/* Center Hover thickens it to 1px */
+.group[data-orientation='vertical'] > .item:not(:first-child, :last-child):hover {
+  --divider: inset 0 calc(-1 * var(--stroke-width-1)) 0 0 var(--color-gray-stroke-disabled);
+}
+
+/* ---------- States ---------- */
+
+.item:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+/* Press, Focus and Disabled are not in Figma; they follow Button › Primary */
+.item:active {
+  --bg: var(--color-gray-fill-press);
+}
+.item:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.item:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

@@ -1,0 +1,71 @@
+/*
+ * small: Figma Primitive "Breadcrumb › Parts / Default" (1537:1525, 1537:1545).
+ * default: Figma Web "Breadcrumb" (483:1252).
+ */
+.breadcrumb {
+  font-family: var(--font-family-inter);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.home {
+  display: inline-flex;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-4);
+  outline: none;
+}
+.link:hover .label,
+.link.label:hover {
+  text-decoration: underline;
+}
+.link:focus-visible {
+  box-shadow: 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* ---------- small (Primitive) ---------- */
+
+.breadcrumb[data-size='small'] {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 500;
+}
+.breadcrumb[data-size='small'] :is(.home, .separator) {
+  color: var(--color-gray-fill-weak);
+}
+
+/* ---------- default (Web) ---------- */
+
+.breadcrumb[data-size='default'] {
+  padding: var(--space-8) 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+.breadcrumb[data-size='default'] :is(.list, .item) {
+  gap: var(--space-8);
+}
+.breadcrumb[data-size='default'] .home {
+  color: var(--color-gray-fill-strong);
+}

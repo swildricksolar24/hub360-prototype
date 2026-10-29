@@ -1,0 +1,129 @@
+/* Values come from the Figma "Text Input - Numeric*" set. */
+.field {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: transparent;
+  --ring-w: 0px;
+  --label: var(--color-gray-text-weak);
+  --text: var(--color-gray-text-strong);
+  --step-bg: var(--color-gray-fill-weaker);
+  --step-fg: var(--color-gray-fill-strong);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+.label,
+.error {
+  margin: 0;
+  padding: 0 var(--space-4);
+}
+.label {
+  color: var(--label);
+}
+.error {
+  color: var(--color-semantic-text-error);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+/* The Figma steppers replace the browser's spin buttons */
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Figma shows placeholder text in the same color as entered text */
+.input::placeholder {
+  color: var(--text);
+  opacity: 1;
+}
+
+.steppers {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex: none;
+}
+
+.stepper {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: var(--step-bg);
+  color: var(--step-fg);
+  cursor: pointer;
+}
+.stepper:disabled {
+  cursor: default;
+}
+
+/* States */
+.field[data-required] {
+  --ring: var(--color-brand-teal-stroke-weak);
+  --ring-w: var(--stroke-width-2);
+}
+.control:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.control:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.control:focus-within {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+.field[data-error] {
+  --label: var(--color-semantic-text-error);
+  --text: var(--color-semantic-text-error);
+  --step-bg: var(--color-semantic-fill-error-weak);
+  --step-fg: var(--color-semantic-fill-error-strong);
+}
+.field[data-error] .control {
+  --bg: var(--color-semantic-fill-error-weak);
+  --ring: var(--color-semantic-stroke-error-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.field[data-disabled] {
+  --label: var(--color-gray-text-disabled);
+  --text: var(--color-gray-text-disabled);
+  --step-bg: var(--color-gray-fill-disabled);
+  --step-fg: var(--color-gray-fill-disabled);
+}
+.field[data-disabled] .control {
+  --bg: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+}
+.field[data-disabled] :is(.input, .stepper) {
+  cursor: not-allowed;
+}

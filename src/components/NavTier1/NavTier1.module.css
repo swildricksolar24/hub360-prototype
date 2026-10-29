@@ -1,0 +1,82 @@
+/* Values come from the Figma Main Nav "Tier 1" page: Tier 1 (708:1635), Side Sub Menu (2131:4190), Top Navigation (2172:4052). */
+
+/* ---------- Tier 1 ---------- */
+
+.tier1 {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-16);
+  background: var(--color-surfaces-base);
+}
+.tier1[data-compact] {
+  padding: var(--space-16) var(--space-8);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tier1[data-compact] .list {
+  gap: var(--space-8);
+}
+
+.item {
+  display: flex;
+}
+
+/* ---------- Side Sub Menu ---------- */
+
+.sideSub {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 218px; /* Figma panel width; no token */
+  padding: var(--space-24) var(--space-12);
+  background: var(--color-surfaces-base);
+  /* Figma: 1px right stroke */
+  box-shadow: inset calc(var(--stroke-width-1) * -1) 0 0 0 var(--color-gray-stroke-disabled);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+
+.subList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-12) 0 0;
+  list-style: none;
+}
+
+/* Figma stretches the small icon buttons to the panel width and left-aligns them */
+.subList .subItem {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* ---------- Top Navigation ---------- */
+
+.topNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.topNav[data-size='small'] {
+  gap: var(--space-8);
+  padding-bottom: var(--space-4);
+}

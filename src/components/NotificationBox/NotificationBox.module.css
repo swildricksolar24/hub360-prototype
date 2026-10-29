@@ -1,0 +1,52 @@
+/* Values come from the Figma "Notification Box*" set (744:4494). */
+.box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  box-sizing: border-box;
+  /* Box width is a component dimension (442px in Figma); it shrinks in narrow containers */
+  width: 442px;
+  max-width: 100%;
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+  font-family: var(--font-family-inter);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.text p {
+  margin: 0;
+}
+.name {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 400;
+}
+.message {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 600;
+}
+/* Size comes from the global .text-super-tiny-regular class (Figma "Super Tiny/Regular", 8/8).
+   design-system.md asks to avoid it; kept to match the design. */
+.time {
+  color: var(--color-gray-text-weak);
+}
+
+/* Action button: IconButton base (80px) is shrunk toward Figma's 70px for Alert; compact (40px) stands in for 38px */
+.box .action.action {
+  flex: none;
+}
+.box[data-type='alert'] .action.action {
+  padding: var(--space-20);
+}
+.box[data-type='email'] .action:not(:hover):not(:focus-visible):not(:active) {
+  --bg: var(--color-semantic-fill-success-weak);
+}

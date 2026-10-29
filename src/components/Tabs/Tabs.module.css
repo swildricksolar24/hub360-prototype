@@ -1,0 +1,85 @@
+/*
+ * Values come from the Figma Tab Bar* page (Web Components): Tab / Small, Tab / Tiny*, Tab Content, Tab Bar*.
+ * The label is the Hyperlink "Medium"/"Small" instance, which is underlined in every state.
+ * Strokes are inset box-shadows so state changes never shift layout.
+ */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-family-inter);
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.tab {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: inline-flex;
+  flex-direction: column;
+  padding: 0 var(--space-12);
+  border: 0;
+  /* Figma rounds only the top corners so the current tab joins the content panel */
+  border-radius: var(--radius-4) var(--radius-4) 0 0;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: inherit;
+  font-weight: 400;
+  cursor: pointer;
+  outline: none;
+}
+
+.label {
+  padding: var(--space-4) var(--space-2);
+  white-space: nowrap;
+  text-decoration: underline;
+}
+
+.tab[data-size='small'] {
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+.tab[data-size='tiny'] {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+.tab:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.tab:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-outline);
+}
+.tab[aria-selected='true'] {
+  --bg: var(--color-surfaces-overlay);
+}
+.tab:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --ring-w: 0px;
+  cursor: not-allowed;
+}
+
+/* Figma "Tab Content" */
+.panel {
+  padding: var(--space-12);
+  border-radius: 0 var(--radius-4) var(--radius-4) var(--radius-4);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  outline: none;
+}
+.panel:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-strong);
+}

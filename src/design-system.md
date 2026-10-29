@@ -88,17 +88,29 @@ Use the semantic tokens below. Pick the group that matches the property: **fill*
 
 ## Components
 
-Coded components live in `src/components/`, and each has a Storybook story file (run `npm run storybook`, port 6007). Use these before building anything new.
+Coded components live in `src/components/<Name>/<Name>.tsx`. Every one has a Storybook story file (run `npm run storybook`, port 6007), grouped the same way as the Figma file. Each component's props are documented in its stories and in the Storybook MCP docs tools. Use these before building anything new.
 
-| Component | Import | Figma sets it covers | Key props |
-|---|---|---|---|
-| Icon | `components/Icon/Icon` | Icon / Material, Chevron, Arrow, Last (109 icons) | `name`, `size` (20 / 24 / 32), `color`, `label` |
-| Button | `components/Button/Button` | Button Base (8), Button Block (5), Button Small (10), Button Tiny (2) | `variant`, `size` (base / small / tiny), `block`, `icon`, `iconPosition`, `selected`, `disabled` |
-| IconButton | `components/IconButton/IconButton` | Button Icon: Icon, Brand, Number | `label` (required), `icon` or `number`, `variant` (default / brand), `size` (base 80px / compact 40px), `selected` |
-| Badge | `components/Badge/Badge` | Badge: Round, Pill | `shape`, `color` (amber / blue / green / red / black) |
-| Checkbox | `components/Checkbox/Checkbox` | Checkbox: Default, Default - Icon, Small, Small - Icon | `label`, `size`, `error`, `infoIcon`, plus native checkbox props |
-| TextInput | `components/TextInput/TextInput` | Text Input - Label: Default, Left Icon, Right Icon, Right Double Icon | `label`, `error` (message), `leftIcon`, `rightIcons`, plus native input props (`required`, `disabled`, …) |
-| Message | `components/Message/Message` | Message (neutral) and Message (Type: Info / Caution / Error / Success) | `title`, `body`, `type`, `onClose` |
+Every Figma set on the library pages has a coded component. The exceptions are the pages marked "not used", the Testing page and the Holder scaffolding.
+
+| Storybook group | Components |
+|---|---|
+| Foundations | Icon (109 icons), Logo (9 logos) |
+| Primitives | Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Dropdown (Drop Down Label + Drop Down Button), EditableCell, Hyperlink, IconButton, LastModified, ListBox (plus TreeList), NumericInput, AutocompleteInput, OtpInput, Overlay, RadioButton, Skeleton, Tag, TextArea, TextInput, Toggle, Tooltip |
+| Web Components | Accordion, Captcha, Card, ContextMenu, DropdownSelector, DropdownTree, FilterChipDropdown, Message, Modal (plus ModalPanel), MultiselectDropdown, NotificationBox, Progress, RangeSlider, Rating, Scrollbar, SearchBar, SignaturePad, Timeline, UploadFile |
+| Custom | DataHeader, DataRow, HelpCenter, MainDropDown, PageTracker |
+| Navigation | AppBar, Breadcrumb, Footer, Header, MenuSidebar, NavTabBar, NavTier1, NavTier2, NavTier3, SideMenuButton, SubMenu, Tabs |
+
+Most-used APIs:
+
+| Component | Key props |
+|---|---|
+| Icon | `name`, `size` (20 / 24 / 32), `color`, `label` |
+| Button | `variant`, `size` (base / small / tiny), `block`, `icon`, `iconPosition`, `selected`, `disabled` |
+| IconButton | `label` (required), `icon` or `number`, `variant` (default / brand), `size` (base 80px / compact 40px), `selected` |
+| TextInput | `label`, `error` (message), `leftIcon`, `rightIcons`, plus native input props (`required`, `disabled`, …) |
+| Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
+| Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm) |
+| Message | `title`, `body`, `type`, `onClose` |
 
 Button variants that exist in Figma, by size:
 - **base:** `primary`, `outline`, `brand` (teal), `brand-orange`
@@ -107,11 +119,9 @@ Button variants that exist in Figma, by size:
 
 Other combinations render, but have no Figma design.
 
-States follow Figma: hover, press (`:active`) and focus (`:focus-visible`) are CSS states. `selected` sets `aria-pressed`, and `disabled` and `error` are props.
+States follow Figma:
+- **Hover, press and focus:** CSS states (`:hover`, `:active`, `:focus-visible`).
+- **Selected:** `aria-pressed` on toggle-style controls, and `aria-current="page"` on navigation items (SideMenuButton, NavTier1, NavTier2).
+- **Disabled and error:** props.
 
-The rest of the Figma library is listed in `design-system/components.md`, with node IDs, variants and properties. When you build a component in code:
-
-- Match the Figma component's name, variant axes and states.
-- Build it only from the tokens above.
-- Add a `<Name>.stories.tsx` with one story per Figma set, each linked with `figma(nodeId, name)` from `src/storybook/figma.ts`.
-- Check `design-system/AUDIT.md` for known issues with that component before copying its structure.
+Every Figma set is listed in `design-system/components.md`, with node IDs, variants and properties. To build or change a component, follow `design-system/component-build-guide.md`.

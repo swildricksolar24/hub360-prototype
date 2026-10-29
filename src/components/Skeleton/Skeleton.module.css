@@ -1,0 +1,50 @@
+/* Values come from the Figma "Skeleton*" set (521:345). */
+.skeleton {
+  /*
+   * Figma paints a raw-hex gradient (#d9d9d9 → #989696 → #d9d9d9, no variables);
+   * these are the nearest gray fill tokens, which also adapt to dark mode.
+   */
+  --edge: var(--color-gray-fill-hover);
+  --mid: var(--color-gray-fill-press);
+
+  display: block;
+  flex: none;
+  background: linear-gradient(90deg, var(--edge) 0%, var(--mid) 50%, var(--edge) 100%);
+  background-size: 200% 100%;
+  background-position: 50% 0;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Shape sizes are component dimensions from Figma */
+.skeleton[data-shape='circle'] {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+.skeleton[data-shape='square'] {
+  width: 100px;
+  height: 100px;
+}
+.skeleton[data-shape='bar'] {
+  width: 360px;
+  height: 40px;
+}
+.skeleton[data-shape='block'] {
+  width: 360px;
+  height: 200px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

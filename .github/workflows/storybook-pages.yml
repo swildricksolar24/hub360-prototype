@@ -28,6 +28,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build-storybook
+        env:
+          # Published Storybook opens in dark mode (UI, stories and docs); see .storybook/preview.tsx
+          STORYBOOK_THEME: dark
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

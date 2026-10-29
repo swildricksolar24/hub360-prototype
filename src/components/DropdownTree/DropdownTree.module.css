@@ -1,0 +1,101 @@
+/* Values come from the Figma "Dropdown Tree*" set (Default, Active, Active Open, Active Hover, Selected). */
+.root {
+  position: relative;
+  width: 100%;
+  font-family: var(--font-family-inter);
+}
+
+/* "Input": 8px padding, Small text, square corners */
+.field {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: transparent;
+  --ring-w: 0px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background: var(--bg);
+  box-shadow: 0 0 0 var(--ring-w) var(--ring);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  cursor: pointer;
+}
+.field[data-has-value] {
+  --bg: var(--color-surfaces-raised);
+}
+
+.trigger {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: var(--space-8);
+  min-width: 24px; /* room for the chevron; a component dimension */
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-gray-text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+.field[data-has-value] .trigger {
+  justify-content: flex-end;
+}
+.chevron {
+  color: var(--color-gray-fill-strong);
+  transition: transform 120ms ease;
+}
+.field[data-has-value] .chevron {
+  color: var(--color-gray-fill-weak);
+}
+.trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.field:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+/* Not in Figma: press */
+.field:active {
+  --bg: var(--color-gray-fill-press);
+}
+/* State=Active Open: Info Strong outline (Figma draws it outside the field) */
+.field:has(.trigger[aria-expanded='true']),
+.field:has(.trigger:focus-visible) {
+  --ring: var(--color-semantic-stroke-info-strong);
+  --ring-w: var(--stroke-width-2);
+}
+/* State=Active: the placeholder dims while the menu is open */
+.trigger[aria-expanded='true'] .text {
+  color: var(--color-gray-text-weak);
+}
+.root[data-disabled] .field {
+  --bg: var(--color-gray-fill-disabled);
+  cursor: not-allowed;
+}
+.root[data-disabled] :is(.trigger, .chevron) {
+  color: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Dropdown Holder: Surfaces/Overlay, 4px vertical padding and gaps, 1px Info Strong outline */
+.popup {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 252px; /* six 36px rows plus padding; a component dimension with no token */
+  padding: var(--space-4) 0;
+  overflow-y: auto;
+  background: var(--color-surfaces-overlay);
+  box-shadow:
+    0 0 0 var(--stroke-width-1) var(--color-semantic-stroke-info-strong),
+    var(--shadow-drop);
+}
+.popup > ul {
+  gap: var(--space-4);
+}

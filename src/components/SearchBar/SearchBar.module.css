@@ -1,0 +1,182 @@
+/* Values come from the Figma "Search Bar" page: Search Input and Searched List Type. */
+
+/* ---------- Search Input ---------- */
+
+.field {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+.field[data-compact] {
+  --bg: var(--color-surfaces-sunken);
+  padding: var(--space-12);
+}
+.icon {
+  color: var(--icon);
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  outline: none;
+}
+/* Figma shows the placeholder in the same color as entered text */
+.input::placeholder {
+  color: var(--fg);
+  opacity: 1;
+}
+.input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.field:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.field:focus-within {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+/* State=Active: results open */
+.field[data-active] {
+  --bg: var(--color-gray-fill-inverse-strong);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-1);
+  border-radius: var(--radius-12) var(--radius-12) 0 0;
+}
+.field[data-disabled] {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+}
+.field[data-disabled] .input {
+  cursor: not-allowed;
+}
+
+/* ---------- SearchBar ---------- */
+
+.bar {
+  position: relative;
+  width: 100%;
+}
+/* Figma `State=Active`: 1px Gray Stroke/Strong outline around field and results, plus the drop shadow */
+.bar[data-open] .field {
+  box-shadow:
+    inset 0 0 0 var(--ring-w) var(--ring),
+    0 0 0 var(--stroke-width-1) var(--color-gray-stroke-strong);
+}
+
+.results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px; /* about four result rows; a component dimension with no token */
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: 0 0 var(--radius-12) var(--radius-12);
+  box-shadow:
+    0 0 0 var(--stroke-width-1) var(--color-gray-stroke-strong),
+    var(--shadow-drop);
+}
+.results[hidden] {
+  display: none;
+}
+
+/* ---------- Searched List Type ---------- */
+
+.row {
+  --bg: var(--color-surfaces-overlay);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+  padding: var(--space-12) var(--space-24);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weaker);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  cursor: pointer;
+}
+.row:hover,
+.row[data-active] {
+  --bg: var(--color-surfaces-sunken);
+}
+
+.rowBody {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.name {
+  font-size: var(--font-size-heading-3);
+  line-height: var(--line-height-heading-3);
+  font-weight: 700;
+}
+.description {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* Type=Default right column: the Drop Down Label-style read-only value */
+.detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+.detailLabel {
+  padding: 0 var(--space-4);
+  color: var(--color-gray-text-weak);
+}
+.detailValue {
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+}
+
+/* Type=With Icon right column */
+.tag {
+  flex: 1;
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-12);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  text-align: center;
+}

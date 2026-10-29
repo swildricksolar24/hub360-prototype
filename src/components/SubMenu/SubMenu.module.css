@@ -1,0 +1,14 @@
+/* Values come from the Figma Interior Nav "Sub Menu" set (708:1502). */
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.subMenu:is([data-variant='tiny'], [data-variant='text']) .list {
+  gap: var(--space-8);
+}

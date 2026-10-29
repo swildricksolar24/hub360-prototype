@@ -1,0 +1,95 @@
+/* Values come from the Figma Data Headers* page: User Headers, Header Item, Tenant Headers*. */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  /* 36px content + 8px padding top and bottom = Figma's 52px header */
+  min-height: 52px;
+  padding: var(--space-8) var(--space-24) var(--space-8) 0;
+  background: var(--color-surfaces-sunken);
+  border-radius: var(--radius-12);
+}
+.header[data-corners='bottom'] {
+  border-radius: 0 0 var(--radius-12) var(--radius-12);
+}
+.header[data-corners='none'] {
+  border-radius: 0;
+}
+
+.leading {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding-left: var(--space-8);
+}
+
+/* Spacer for the rows' "More" button column (Figma "box", 44px, opacity 0) */
+.actions {
+  flex: 0 0 44px;
+}
+
+/* ---------- Header Item ---------- */
+
+.item {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-8);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 700;
+}
+.item[data-align='center'] {
+  justify-content: center;
+}
+.item[data-align='end'] {
+  justify-content: flex-end;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon {
+  color: var(--color-gray-fill-strong);
+}
+
+/* Interactive sort / filter icons. Figma has no states for them; hover and focus are added. */
+.iconButton {
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-fill-strong);
+  cursor: pointer;
+  outline: none;
+}
+.iconButton:hover {
+  background: var(--color-gray-fill-hover);
+}
+.iconButton:active {
+  background: var(--color-gray-fill-press);
+}
+.iconButton:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

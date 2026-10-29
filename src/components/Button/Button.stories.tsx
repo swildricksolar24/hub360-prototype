@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Components/Button',
+  title: 'Primitives/Button',
   component: Button,
   args: { children: 'Label', variant: 'primary', size: 'base' },
   argTypes: {

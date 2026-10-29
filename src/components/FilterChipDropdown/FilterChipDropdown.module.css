@@ -1,0 +1,15 @@
+/* Values come from the Figma "Drop Down - Filter Chip › Default" set; the field itself is Dropdown. */
+
+/* Figma stacks the chip panel directly under the field (no gap) */
+.root .chips {
+  margin-top: calc(-1 * var(--space-4));
+}
+
+/* Figma `State=Press`: while chips are shown the field carries a 2px Gray Stroke/Weaker outline */
+.root:has(.chips) button[aria-haspopup]:not(:focus-visible, :disabled) {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.root[data-required]:has(.chips) button[aria-haspopup]:not(:focus-visible, :disabled) {
+  --ring: var(--color-brand-teal-stroke-strong);
+}

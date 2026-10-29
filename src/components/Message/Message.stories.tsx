@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Components/Message',
+  title: 'Web Components/Message',
   component: Message,
   args: { title: 'Title', body: 'Body', type: 'neutral', onClose: () => {} },
   decorators: [Story => <div style={{ maxWidth: 357 }}><Story /></div>],

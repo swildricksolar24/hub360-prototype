@@ -8,6 +8,8 @@ A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. No component in the file has an INSTANCE_SWAP property.
 
+**In code:** every set below has a coded component in `src/components/`, except those under "Scaffolding, testing and unused", and `_Fake logo`. Several Figma sets usually map to one component with props. Each Storybook story names the Figma set it shows and links to it. `src/design-system.md` lists the components by Storybook group.
+
 ## Foundations
 
 | Page | Component | ID | Variants | Axes | Props |

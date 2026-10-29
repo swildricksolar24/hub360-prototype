@@ -1,0 +1,217 @@
+/*
+ * Values come from the Figma "Drop Down - Selector" page: Autocomplete / Dropdown (+ Chips,
+ * Photo Library), Dropdown Selector, Dropdown Holder and Chip.
+ */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  font-family: var(--font-family-inter);
+}
+
+.anchor {
+  position: relative;
+}
+
+/* ---------- Trigger ("Drop Down Menu") ---------- */
+
+.trigger {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  width: 100%;
+  padding: var(--space-24);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: inherit;
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chevron {
+  color: var(--icon);
+  transition: transform 120ms ease;
+}
+
+.trigger:hover {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+/* Not in Figma: press and keyboard focus */
+.trigger:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.trigger:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+/* State=Active / Active Input: menu open */
+.trigger[aria-expanded='true'] {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+/* Photo Library State=Selected */
+.root[data-display='gallery'][data-has-value] .trigger:not([aria-expanded='true']) {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.trigger:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+  cursor: not-allowed;
+}
+
+/* ---------- Menu ("box") ---------- */
+
+.popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+}
+
+/* Autocomplete search field: 40px, 4px radius, Small text on Surfaces/Base */
+.root .popup .search {
+  --bg: var(--color-surfaces-base);
+  --ring-w: 0px;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-4);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.root .popup .search:focus-within {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+
+/* Dropdown Holder: four 36px rows, then it scrolls (State=Scrollbar) */
+.holder {
+  max-height: 144px; /* Figma Dropdown Holder height; a component dimension with no token */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-fill-weak) var(--color-gray-fill-weaker);
+}
+.popup[data-display='gallery'] .holder {
+  max-height: none;
+}
+
+/* ---------- Gallery (Dropdown Holder › Gallery) ---------- */
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-10);
+  outline: none;
+}
+.tile {
+  flex: none;
+  overflow: hidden;
+  /* Figma thumbnail size; a component dimension with no token */
+  width: 43px;
+  height: 43px;
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-strong);
+  cursor: pointer;
+  outline: none;
+}
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Not in Figma: hover, focus and selected thumbnails */
+.tile:hover {
+  opacity: 0.85;
+}
+.tile:focus-visible {
+  box-shadow: 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+}
+.tile[aria-selected='true'] {
+  box-shadow: 0 0 0 var(--stroke-width-4) var(--color-brand-teal-stroke-strong);
+}
+.tile[aria-disabled='true'] {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ---------- Selected chips under the button (Autocomplete / Dropdown / Chips › Selected) ---------- */
+
+.root .selectedChips {
+  --chips-ring-w: 0px;
+  padding: var(--space-4) var(--space-8);
+}
+
+/* ---------- Chip ---------- */
+
+.chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+  cursor: pointer;
+  outline: none;
+}
+.chip span {
+  padding: 0 var(--space-4);
+}
+/* Not in Figma: chip hover, press and focus */
+.chip:hover {
+  background: var(--color-surfaces-raised);
+}
+.chip:active {
+  background: var(--color-surfaces-sunken);
+}
+.chip:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+}
+.chip:disabled {
+  color: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

@@ -1,0 +1,9 @@
+/* Values come from the Figma "Last Modified › Date" set (2328:3773). */
+.lastModified {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}

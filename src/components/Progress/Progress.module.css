@@ -1,0 +1,67 @@
+/* Values come from the Figma "Progress Bar*" (520:583) and "Progress Circle" (520:588) sets. */
+.progress {
+  font-family: var(--font-family-inter);
+}
+
+.value {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 700;
+}
+
+/* ---------- bar ---------- */
+.progress[data-variant='bar'] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  /* Figma bar width is a component dimension */
+  width: 240px;
+}
+.bar {
+  align-self: stretch;
+  /* Bar height is a component dimension (10px in Figma) */
+  height: 10px;
+  background: var(--color-gray-fill-disabled);
+}
+.fill {
+  height: 100%;
+  background: var(--color-gray-fill-inverse-weak);
+  transition: width 200ms ease-out;
+}
+
+/* ---------- circle ---------- */
+.progress[data-variant='circle'] {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  /* Circle diameter is a component dimension (141px in Figma) */
+  width: 141px;
+  height: 141px;
+}
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  rotate: -90deg;
+}
+.track,
+.arc {
+  fill: none;
+  stroke-width: var(--stroke-width-8);
+}
+.track {
+  stroke: var(--color-gray-stroke-disabled);
+}
+.arc {
+  stroke: var(--color-gray-stroke-inverse-disabled);
+  transition: stroke-dasharray 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .arc {
+    transition: none;
+  }
+}

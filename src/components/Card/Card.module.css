@@ -1,0 +1,85 @@
+/* Values come from the Figma "Card*" set (2220:3790), Mode = Edit / Save / Active / Title. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  font-family: var(--font-family-inter);
+  color: var(--color-gray-text-strong);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-12) 0;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  min-width: 0;
+}
+
+.media {
+  display: flex;
+  flex: none;
+  width: 66px; /* Figma logo size; no token */
+  height: 66px;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-2);
+  line-height: var(--line-height-heading-2);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+/* Figma's busy button is a 44px "Button Icon" instance */
+.busy {
+  width: 44px;
+  height: 44px;
+  cursor: progress;
+}
+.busy svg {
+  animation: card-spin 1s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .busy svg {
+    animation: none;
+  }
+}
+@keyframes card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Title mode: a section heading with a bottom rule ---------- */
+
+.card[data-mode='title'] {
+  padding: var(--space-12);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-2)) 0 0 var(--color-gray-stroke-disabled);
+}
+.card[data-mode='title'] .header {
+  justify-content: flex-start;
+  padding: 0;
+}
+.card[data-mode='title'] .title {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+}

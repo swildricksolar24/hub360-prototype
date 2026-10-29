@@ -1,0 +1,24 @@
+/* Values come from the Figma "Rating*" component (408:370). */
+.rating {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-10);
+  font-family: var(--font-family-inter);
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  color: var(--color-gray-fill-strong);
+}
+
+.label {
+  margin: 0;
+  /* Figma uses Foundation/Solid/White, which disappears in light mode; the semantic text token matches it in dark */
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
