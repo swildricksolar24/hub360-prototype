@@ -1,0 +1,271 @@
+/*
+ * Values come from the Figma Button Base / Block / Small / Tiny sets.
+ * Strokes are drawn as inset box-shadows so state changes never shift layout
+ * (Figma mixes inside and center alignment between states).
+ */
+.button {
+  --bg: transparent;
+  --fg: var(--color-gray-text-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-10);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  cursor: pointer;
+  outline: none;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* ---------- Sizes ---------- */
+
+.button[data-size='base'] {
+  padding: var(--space-24) var(--space-40);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+.button[data-size='base'][data-icon='left'] {
+  padding-left: var(--space-24);
+}
+.button[data-block] {
+  display: flex;
+  width: 100%;
+}
+
+.button[data-size='small'] {
+  padding: var(--space-12) var(--space-20);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+}
+.button[data-size='small'][data-icon] {
+  gap: var(--space-4);
+}
+.button[data-size='small'][data-icon='left'] {
+  padding: var(--space-12) var(--space-16) var(--space-12) var(--space-12);
+}
+.button[data-size='small'][data-icon='right'] {
+  padding: var(--space-12) var(--space-12) var(--space-12) var(--space-16);
+}
+/* Small labels go bold when selected, focused or disabled */
+.button[data-size='small']:is([aria-pressed='true'], :focus-visible, :disabled) {
+  font-weight: 700;
+}
+
+.button[data-size='tiny'] {
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 400;
+}
+
+/* ---------- primary ---------- */
+
+.button[data-variant='primary'] {
+  --bg: var(--color-gray-fill-weaker);
+}
+.button[data-variant='primary']:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.button[data-variant='primary']:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='primary']:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='primary'][aria-pressed='true'] {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-brand-teal-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='primary'][data-block]:is(:focus-visible, [aria-pressed='true']) {
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-variant='primary'][data-block][aria-pressed='true'] {
+  --ring: var(--color-brand-teal-stroke-weak);
+}
+.button[data-variant='primary'][data-size='small'][aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-weaker);
+  --ring: var(--color-brand-teal-stroke-weak);
+}
+.button[data-variant='primary'][data-size='tiny']:active {
+  --bg: var(--color-gray-fill-weaker);
+}
+.button[data-variant='primary'][data-size='tiny'][aria-pressed='true'] {
+  --bg: var(--color-gray-fill-weaker);
+}
+.button[data-variant='primary']:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+}
+
+/* ---------- outline ---------- */
+
+.button[data-variant='outline'] {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='outline']:is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-hover);
+}
+.button[data-variant='outline']:active {
+  --bg: var(--color-gray-fill-press);
+}
+.button[data-variant='outline'][aria-pressed='true'] {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-brand-teal-stroke-weaker);
+}
+.button[data-variant='outline'][data-size='small'][aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+/* Block outline (Figma "Primary / Outline") thickens its stroke instead of filling */
+.button[data-variant='outline'][data-block] {
+  --ring: var(--color-gray-stroke-weak);
+}
+.button[data-variant='outline'][data-block]:is(:hover, :active, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-gray-fill-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-variant='outline'][data-block]:active {
+  --ring-w: var(--stroke-width-6);
+}
+.button[data-variant='outline'][data-block][aria-pressed='true'] {
+  --ring: var(--color-brand-teal-stroke-weak);
+}
+.button[data-variant='outline']:disabled {
+  --bg: transparent;
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-2);
+}
+
+/* Small and tiny gray buttons use the weak text color until interacted with */
+.button:is([data-variant='primary'], [data-variant='outline'], [data-variant='text']):is([data-size='small'], [data-size='tiny']) {
+  --fg: var(--color-gray-text-weak);
+}
+.button:is([data-variant='primary'], [data-variant='outline'], [data-variant='text']):is([data-size='small'], [data-size='tiny']):is(:hover, :active, :focus-visible, [aria-pressed='true']) {
+  --fg: var(--color-gray-text-strong);
+}
+.button:is([data-variant='primary'], [data-variant='outline'], [data-variant='text']):disabled {
+  --fg: var(--color-gray-text-disabled);
+}
+
+/* ---------- text (tiny) ---------- */
+
+.button[data-variant='text']:active {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='text']:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='text'][aria-pressed='true'] {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: var(--color-brand-teal-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+
+/* Tiny buttons underline the label on hover (a 0.5px line in Figma) */
+.button[data-size='tiny']:hover:not(:disabled) .label {
+  text-decoration: underline;
+  text-decoration-thickness: var(--stroke-width-outline);
+  text-decoration-color: var(--color-gray-stroke-strong);
+  text-underline-offset: var(--space-2);
+}
+
+/* ---------- brand (teal) and brand-orange ---------- */
+
+.button:is([data-variant='brand'], [data-variant='brand-orange']) {
+  /* Figma uses Foundation/Solid/White directly; there is no semantic "text on brand" token */
+  --fg: var(--color-foundation-solid-white);
+}
+.button[data-variant='brand'] {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-variant='brand']:is(:hover, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-teal-fill-hover);
+}
+.button[data-variant='brand']:active {
+  --bg: var(--color-brand-teal-fill-press);
+}
+.button[data-variant='brand']:disabled {
+  --bg: var(--color-brand-teal-fill-disabled);
+}
+.button[data-variant='brand-orange'] {
+  --bg: var(--color-brand-orange-fill-strong);
+}
+.button[data-variant='brand-orange']:is(:hover, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-orange-fill-hover);
+}
+.button[data-variant='brand-orange']:active {
+  --bg: var(--color-brand-orange-fill-press);
+}
+.button[data-variant='brand-orange']:disabled {
+  --bg: var(--color-brand-orange-fill-disabled);
+}
+.button:is([data-variant='brand'], [data-variant='brand-orange']):is(:active, :focus-visible, [aria-pressed='true']) {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button:is([data-variant='brand'], [data-variant='brand-orange'])[data-size='base']:focus-visible {
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-variant='brand'][data-size='small']:disabled {
+  --fg: var(--color-gray-text-inverse-weak);
+}
+.button:is([data-variant='brand'], [data-variant='brand-orange']):disabled {
+  --ring-w: 0px;
+}
+
+/* ---------- brand-secondary (small) ---------- */
+
+.button[data-variant='brand-secondary'] {
+  /* Figma uses Foundation/Solid/White and /100 directly for this button's fills */
+  --bg: var(--color-foundation-solid-white);
+  --fg: var(--color-brand-teal-text-strongest);
+  --ring: var(--color-brand-teal-stroke-strongest);
+  --ring-w: var(--stroke-width-2);
+  font-weight: 700;
+}
+.button[data-variant='brand-secondary']:hover {
+  --bg: var(--color-foundation-solid-100);
+}
+.button[data-variant='brand-secondary']:active {
+  --bg: var(--color-foundation-solid-100);
+}
+.button[data-variant='brand-secondary']:is(:active, :focus-visible) {
+  --ring: var(--color-brand-teal-stroke-strong);
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-variant='brand-secondary'][aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-strong);
+  --fg: var(--color-foundation-solid-white);
+  --ring: var(--color-foundation-solid-white);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='brand-secondary']:disabled {
+  --bg: var(--color-foundation-solid-100);
+  --fg: var(--color-brand-teal-text-weak);
+  --ring: var(--color-brand-teal-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}

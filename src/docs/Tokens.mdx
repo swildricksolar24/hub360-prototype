@@ -1,0 +1,54 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ColorTokens, ScaleTokens, TypeTokens, ShadowTokens } from './TokenTables';
+
+<Meta title="Foundations/Tokens" />
+
+# Design tokens
+
+Every token below is read from `design-system/tokens/tokens.json`, which is generated from the
+[Figma design system](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base).
+Use them as CSS custom properties from `design-system/tokens/tokens.css`. The rules for using them are in `src/design-system.md`.
+
+Swatches show both Figma modes, whichever theme the toolbar is set to.
+Switch **Theme** in the toolbar to see the components in dark mode.
+
+## Color: semantic
+
+[Open the Colors page in Figma](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base?node-id=3-229) ·
+[Surfaces page](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base?node-id=22-97)
+
+Use these in components. Pick the group that matches the property: fill for backgrounds, stroke for borders, text for text.
+
+<ColorTokens kind="semantic" />
+
+## Color: primitives
+
+These feed the semantic tokens and are hidden from Figma's pickers. Don't use them directly in components.
+
+<ColorTokens kind="primitive" />
+
+## Spacing
+
+[Open the Spacing page in Figma](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base?node-id=1-238)
+
+<ScaleTokens group="space" />
+
+## Corner radius
+
+<ScaleTokens group="radius" />
+
+## Stroke width
+
+<ScaleTokens group="stroke-width" />
+
+## Typography
+
+[Open the Typography page in Figma](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base?node-id=8-583)
+
+Sizes switch to the Mobile values at `max-width: 767px`.
+
+<TypeTokens />
+
+## Shadow
+
+<ShadowTokens />
