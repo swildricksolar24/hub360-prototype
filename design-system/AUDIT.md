@@ -66,6 +66,42 @@ Left as it was on purpose: the **Caution** Message background stays on `Foundati
 - **Error Message:** its title and body are now bound to `Semantic Text/Error`.
 - **Light mode (not changed):** error text on an error background over `Surfaces/Base` is 3.67:1. Red's light `/200` is a 14% tint where the other hues use 20%.
 
+**Figma synced to the code (2026-10-29):** applied to every component set on the 67 library pages. A re-scan afterwards found **no bindings to variables outside this file**.
+
+*Part 1 — switched to local variables* (no visible change, or a 10% shift where noted):
+
+| Was bound to | Now bound to | Bindings |
+|---|---|---|
+| Remote `Strokes/Thin` (2) | `Strokes/2` | 88 |
+| Remote `Spacing/24` used as a **font size** | `Font Size/Heading 3` (24) | 80 |
+| Remote `Corner Radius/4`, `Spacing/12` | local `Corner Radius/4`, `Spacing/12` | 66 |
+| Remote `Solid/White` | `Foundation/Solid/White` | 109 |
+| Remote `Small` (16px font size) | `Font Size/Large` | 18 |
+| Deleted `Icon/System Blue` | `Semantic Stroke/Info Strong` | 15 |
+| Deleted `Icon/Brand Teal`, `Icon/Error` | `Brand Teal Fill/Strong`, `Semantic Fill/Error Strong` | 3 |
+| Deleted `Semantic Text/strong`, `Semantic Fill/disabled` | `Gray Text/Strong`, `Gray Fill/Disabled` | 4 |
+| Deleted `Semantic Fill/strong` (100%) | `Gray Fill/Strong` (90%) | 1 |
+| Deleted `Stroke/Strong` (50%) | `Gray Stroke/Weaker` (40%) | 1 |
+| Deleted `Semantic Text/weak` (70%) | `Gray Text/Weak` (80%) | 2 |
+
+*Part 2 — light-mode fixes* (visible changes, matching the code):
+
+| Fix | Where |
+|---|---|
+| White text and icons → `Gray Text/Strong` / `Gray Fill/Strong` | Accordion (Categories, Drop Down - Accordion), Rating |
+| Hover digit `Gray Text/Inverse Strong` → `Gray Text/Strong` | OTP Input |
+| Artwork `Gray Fill/Inverse Strong` (white in light) → `Gray Fill/Strong`, with the same change in the coded Logo | Equal Housing Lender, Face ID |
+| 18 near-invisible strokes bound to deleted 0.4% variables (`Stroke/Weak`, `Stroke/Disabled`) removed | Checkbox, Radio, OTP, Text Input, Numeric, Selector |
+| `Semantic Fill/weaker` → `Gray Fill/Weaker`; `Text/Weakest` (10% text) → `Gray Text/Weak` | ListBox Category |
+| `Semantic Text/disabled` (10%) → `Gray Text/Disabled` (20%) | Tag Outline (Disabled) |
+
+Not synced, on purpose:
+- The extra code states (focus, press, disabled, open).
+- The Caution message background (20% in Figma, 10% in code).
+- Tooltip direction and stroke-alignment normalizations.
+
+None of this is published until the Figma library is published.
+
 ## Token coverage
 
 | Category | Defined | Bound in components | Hardcoded / off-scale |

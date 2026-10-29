@@ -11,9 +11,9 @@
   height: 100%;
 }
 
-/* Fills Figma binds to "Gray Fill/Inverse Strong" (exported as currentColor) */
+/* Fills Figma binds to "Gray Fill/Strong" (exported as currentColor): dark in light mode, white in dark mode */
 .logo:is([data-name='equal-housing-lender'], [data-name='face-id']) {
-  color: var(--color-gray-fill-inverse-strong);
+  color: var(--color-gray-fill-strong);
 }
 
 /* ---------- Logo Side: icon + live text, all bound to "Logo Color" ---------- */

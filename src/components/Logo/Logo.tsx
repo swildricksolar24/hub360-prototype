@@ -6,7 +6,7 @@ import sideIcon from './parts/logo-side-icon.svg?raw';
  * SVGs in `svg/` are exported from the Figma "Logos*" page with Framelink and kept as brand artwork.
  * Fills Figma binds to a variable were rewritten to `currentColor` so the variable can be applied in CSS:
  *  - parts/logo-side-icon.svg (Logo Side's icon): the four segments use "Logo Color"
- *  - equal-housing-lender.svg, face-id.svg: "Gray Fill/Inverse Strong"
+ *  - equal-housing-lender.svg, face-id.svg: "Gray Fill/Strong"
  */
 const svgs = import.meta.glob('./svg/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const byName = Object.fromEntries(Object.entries(svgs).map(([path, svg]) => [path.slice('./svg/'.length, -'.svg'.length), svg]));
