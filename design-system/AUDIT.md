@@ -30,7 +30,41 @@ Applied to the Figma file and **not yet published** to library consumers. The ta
 **Message close button (fixed):** the close button in both **Message** sets used `Button / Icon Only / Small / Secondary` (`430:701`), a set deleted from the canvas. That set was bound to a retired token set (`Semantic Fill/weaker` at 0.2%).
 - **Done:** the Default and Hover buttons in Message (`503:3082`, `503:3094`) now use the live **Button Icon › Icon** (`25:356` / `25:359`) and are renamed `Close Button`. Default uses the standard `Gray Fill/Weaker` 10% background. The Close Small icon is kept, and each colored Message's ✕ is re-colored to its Title color (Semantic Blue/Green/Amber/Red 1000).
 - **Size:** the button is now **40×40** (32px icon, padding bound to `Spacing/4`), down from 44×44, so each Message is 72px tall instead of 76px. The old 24px icon wasn't possible: Button Icon's icon layer has a 32px minimum size that can't be overridden on an instance, and the shared component was left unchanged.
-- **Also found:** the four Hover-state close buttons in the colored Messages are tinted with `System Blue/300`, `System Amber/300` and `System Red/300`. Those come from a retired token set, not this file's variables.
+- **Also found:** the four Hover-state close buttons in the colored Messages are tinted with `System Blue/300`, `System Amber/300` and `System Red/300`. Those come from a retired token set, not this file's variables. Fixed in the token rebinding below.
+
+**Token rebinding to match the code (2026-10-29):** this applied to the batch-1 component pages: Button Base, Block, Small, Tiny, Button Icon, Badge, Checkbox, Text Input and Message. Every binding now points to a variable in this file. The values are identical, so nothing changes visually except the three close-button hover tints.
+
+| Was bound to | Now bound to | Where |
+|---|---|---|
+| Remote `Brand Teal Fill/Strong, Hover, Press, Disabled` | Local `Brand Teal Fill/*` | Brand buttons (Base, Block, Small) |
+| Remote `Brand Orange Fill/*` | Local `Brand Orange Fill/*` | Brand / Orange buttons |
+| Remote `Spacing/12`, `Corner Radius/4` | Local `Spacing/12`, `Corner Radius/4` | Small checkboxes |
+| Remote `Strokes/Thin` (2px) | Local `Strokes/2` | Text Input borders (60 bindings) |
+| Remote `Solid/White` | Local `Foundation/Solid/White` | Page header frames and labels |
+| Remote `Spacing/24` as a **font size** | Local `Font Size/Heading 3` (24px) | State labels on the Badge, Checkbox and Text Input pages |
+| `Foundation/Semantic Blue / Green / Red/200` | `Semantic Fill/Info / Success / Error Weak` | Typed Message backgrounds |
+| `Foundation/Semantic */1000` on text | `Semantic Text/Information / Success / Warning` | Typed Message title and body |
+| `Foundation/Semantic */1000` on icons | `Semantic Fill/* Strong` | Typed Message icons and close ✕ |
+| Retired `System Blue / Amber / Red/300` | `Semantic Fill/Info / Warning / Error Weak` | Message close-button hover |
+
+Left as it was on purpose: the **Caution** Message background stays on `Foundation/Semantic Amber/200` (20%). No semantic token has that value; `Warning Weak` is 10%.
+
+**Dark-mode error colors (fixed 2026-10-29):** in Dark mode, `Semantic Text/Error` and `Semantic Fill/Error Weak` both resolved to the same solid `#ff9c94`. Error text on an error background was invisible (1.0:1). That affected the Text Input Error state in Figma, and the coded Checkbox, TextInput and Message error states. Red now follows the same Dark pattern as blue, green and amber; light mode is unchanged.
+
+| Variable | Dark before | Dark after |
+|---|---|---|
+| `Foundation/Semantic Red/1000` | `#c73a3a` | `#ff9c94` |
+| `Foundation/Semantic Red/800` | `#c73a3acc` | `#ff9c94cc` |
+| `Foundation/Semantic Red/200` | `#ff9c94` (solid) | `#ff9c9433` (20% tint) |
+| `Semantic Text/Error` (Dark) | → Red/200 | → Red/1000 (same `#ff9c94` text color) |
+
+- **Contrast in Dark:**
+  - Error text on the error background over `Surfaces/Base` goes from 1.0:1 to **5.2:1**.
+  - Error icons on that background go from 2.6:1 to 5.2:1.
+  - Over the darker `Surfaces/Overlay` both reach 3.5:1. That's the same as blue, green and amber there, so it's a system-wide issue to solve separately.
+- **Red Badge:** its text switched from `Foundation/Solid/White` to `Gray Text/Inverse Strong` (white in light, black in dark; 10.4:1 on the new red), matching the other Badge colors.
+- **Error Message:** its title and body are now bound to `Semantic Text/Error`.
+- **Light mode (not changed):** error text on an error background over `Surfaces/Base` is 3.67:1. Red's light `/200` is a 14% tint where the other hues use 20%.
 
 ## Token coverage
 

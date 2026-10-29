@@ -1,6 +1,6 @@
 {
   "source": "https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base",
-  "exported": "2026-10-29 (after token fixes)",
+  "exported": "2026-10-29 (after token fixes and the dark-mode error red fix)",
   "format": "Each variable row is [name, type, scopes, ...valuePerMode], in Figma's collection order. \"{Path/To/Var}\" is an alias. Colors are #rrggbb or #rrggbbaa.",
   "collections": [
     {
@@ -79,9 +79,9 @@
         ["Foundation/Transparent/100", "COLOR", [], "#191b261a", "#ffffff1a"],
         ["Foundation/Transparent/Black - 40", "COLOR", [], {"alias": "Foundation/Solid/Black", "opacity": 0.44}, {"alias": "Foundation/Solid/Black", "opacity": 0.6}],
         ["Foundation/Semantic Amber/1000", "COLOR", [], "#8f6c1a", "#e0be70"],
-        ["Foundation/Semantic Red/1000", "COLOR", [], "#c73a3a", "#c73a3a"],
-        ["Foundation/Semantic Red/800", "COLOR", [], "#c73a3acc", "#c73a3acc"],
-        ["Foundation/Semantic Red/200", "COLOR", [], "#c73a3a24", "#ff9c94"],
+        ["Foundation/Semantic Red/1000", "COLOR", [], "#c73a3a", "#ff9c94"],
+        ["Foundation/Semantic Red/800", "COLOR", [], "#c73a3acc", "#ff9c94cc"],
+        ["Foundation/Semantic Red/200", "COLOR", [], "#c73a3a24", "#ff9c9433"],
         ["Foundation/Semantic Amber/800", "COLOR", [], "#8f6c1acc", "#e0be70cc"],
         ["Foundation/Semantic Amber/200", "COLOR", [], "#8f6c1a33", "#e0be7033"],
         ["Foundation/Semantic Amber/100", "COLOR", [], "#8f6c1a1a", "#e0be701a"],
@@ -147,7 +147,7 @@
         ["Semantic Fill/Warning Strong", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Semantic Amber/1000}", "{Foundation/Semantic Amber/1000}"],
         ["Semantic Fill/Warning Weak", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Semantic Amber/100}", "{Foundation/Semantic Amber/100}"],
         ["Semantic Stroke/Error Strong", "COLOR", ["STROKE_COLOR"], "{Foundation/Semantic Red/800}", "{Foundation/Semantic Red/800}"],
-        ["Semantic Text/Error", "COLOR", ["TEXT_FILL"], "{Foundation/Semantic Red/1000}", "{Foundation/Semantic Red/200}"],
+        ["Semantic Text/Error", "COLOR", ["TEXT_FILL"], "{Foundation/Semantic Red/1000}", "{Foundation/Semantic Red/1000}"],
         ["Semantic Text/Warning", "COLOR", ["TEXT_FILL"], "{Foundation/Semantic Amber/1000}", "{Foundation/Semantic Amber/1000}"],
         ["Semantic Text/Success", "COLOR", ["TEXT_FILL"], "{Foundation/Semantic Green/1000}", "{Foundation/Semantic Green/1000}"],
         ["Semantic Text/Information", "COLOR", ["TEXT_FILL"], "{Foundation/Semantic Blue/1000}", "{Foundation/Semantic Blue/1000}"],

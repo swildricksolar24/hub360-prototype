@@ -206,7 +206,9 @@
   --color-foundation-transparent-100: #ffffff1a;
   --color-foundation-transparent-black-40: color-mix(in srgb, var(--color-foundation-solid-black) 60%, transparent);
   --color-foundation-semantic-amber-1000: #e0be70;
-  --color-foundation-semantic-red-200: #ff9c94;
+  --color-foundation-semantic-red-1000: #ff9c94;
+  --color-foundation-semantic-red-800: #ff9c94cc;
+  --color-foundation-semantic-red-200: #ff9c9433;
   --color-foundation-semantic-amber-800: #e0be70cc;
   --color-foundation-semantic-amber-200: #e0be7033;
   --color-foundation-semantic-amber-100: #e0be701a;
@@ -237,7 +239,6 @@
   --color-surfaces-raised: var(--color-foundation-solid-700);
   --color-surfaces-overlay: var(--color-foundation-solid-800);
   --color-surfaces-inverse: var(--color-foundation-solid-200);
-  --color-semantic-text-error: var(--color-foundation-semantic-red-200);
   --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
 }
 
@@ -255,7 +256,9 @@
     --color-foundation-transparent-100: #ffffff1a;
     --color-foundation-transparent-black-40: color-mix(in srgb, var(--color-foundation-solid-black) 60%, transparent);
     --color-foundation-semantic-amber-1000: #e0be70;
-    --color-foundation-semantic-red-200: #ff9c94;
+    --color-foundation-semantic-red-1000: #ff9c94;
+    --color-foundation-semantic-red-800: #ff9c94cc;
+    --color-foundation-semantic-red-200: #ff9c9433;
     --color-foundation-semantic-amber-800: #e0be70cc;
     --color-foundation-semantic-amber-200: #e0be7033;
     --color-foundation-semantic-amber-100: #e0be701a;
@@ -286,7 +289,6 @@
     --color-surfaces-raised: var(--color-foundation-solid-700);
     --color-surfaces-overlay: var(--color-foundation-solid-800);
     --color-surfaces-inverse: var(--color-foundation-solid-200);
-    --color-semantic-text-error: var(--color-foundation-semantic-red-200);
     --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
   }
 }

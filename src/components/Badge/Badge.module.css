@@ -35,11 +35,11 @@
   --bg: var(--color-semantic-fill-success-strong);
   --fg: var(--color-gray-text-inverse-strong);
 }
-/* Figma uses Foundation/Solid primitives for the Red text and the Black badge */
 .badge[data-color='red'] {
   --bg: var(--color-semantic-fill-error-strong);
-  --fg: var(--color-foundation-solid-white);
+  --fg: var(--color-gray-text-inverse-strong);
 }
+/* Figma uses Foundation/Solid primitives for the Black badge */
 .badge[data-color='black'] {
   --bg: var(--color-foundation-solid-black);
   --fg: var(--color-foundation-solid-white);
