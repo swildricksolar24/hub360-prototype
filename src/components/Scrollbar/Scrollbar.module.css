@@ -1,0 +1,76 @@
+/* Values come from the Figma "Scrollbar" set (431:266) and its use in "Dialog / Modal › Style=Scrollbar". */
+.root {
+  display: flex;
+  gap: var(--space-8);
+  min-height: 0;
+}
+
+.viewport {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  /* The Figma bar replaces the native scrollbar */
+  scrollbar-width: none;
+  outline: none;
+}
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+.viewport:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Bar width is a component dimension (12px in Figma) */
+  width: 12px;
+  /* Figma radius is a raw 2px; --radius-4 is the smallest radius token */
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-weaker);
+  overflow: hidden;
+}
+
+.step {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-fill-strong);
+  cursor: pointer;
+}
+.step:hover {
+  background: var(--color-gray-fill-hover);
+}
+.step:active {
+  background: var(--color-gray-fill-press);
+}
+
+.track {
+  position: relative;
+  flex: 1;
+}
+
+/* Figma draws no thumb; it uses the hover fill so it reads against the track */
+.thumb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-hover);
+  cursor: grab;
+  touch-action: none;
+}
+.thumb:hover {
+  background: var(--color-gray-fill-press);
+}
+.thumb:active {
+  cursor: grabbing;
+}

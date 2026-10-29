@@ -1,0 +1,114 @@
+/* Values come from the Figma "Text Area › Default" set. */
+.field {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: transparent;
+  --ring-w: 0px;
+  --label: var(--color-gray-text-weak);
+  --text: var(--color-gray-text-strong);
+  /* Figma fills the resize icon with Gray Fill/Weaker, so it only shows as a faint mark */
+  --grip: var(--color-gray-fill-weaker);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+.label,
+.error {
+  margin: 0;
+  padding: 0 var(--space-4);
+}
+.label {
+  color: var(--label);
+}
+.error {
+  color: var(--color-semantic-text-error);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  color: var(--grip);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  /* 100px tall in Figma: 76px of text area plus 12px padding top and bottom */
+  min-height: 100px;
+  margin: 0;
+  padding: var(--space-12);
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  resize: none;
+}
+.input[data-resizable] {
+  resize: vertical;
+}
+/* Hide the native grip; the Figma resize icon is drawn on top of it */
+.input[data-resizable]::-webkit-resizer {
+  background: transparent;
+}
+/* Figma shows placeholder text in the same color as entered text */
+.input::placeholder {
+  color: var(--text);
+  opacity: 1;
+}
+
+.grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* States */
+.field[data-required] {
+  --ring: var(--color-brand-teal-stroke-weak);
+  --ring-w: var(--stroke-width-2);
+}
+.control:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.control:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.control:focus-within {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+.field[data-error] {
+  --label: var(--color-semantic-text-error);
+  --text: var(--color-semantic-text-error);
+  --grip: var(--color-semantic-fill-error-weak);
+}
+.field[data-error] .control {
+  --bg: var(--color-semantic-fill-error-weak);
+}
+.field[data-disabled] {
+  --label: var(--color-gray-text-disabled);
+  --text: var(--color-gray-text-disabled);
+  --grip: var(--color-gray-fill-disabled);
+}
+.field[data-disabled] .control {
+  --bg: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+}
+.field[data-disabled] .input {
+  cursor: not-allowed;
+}

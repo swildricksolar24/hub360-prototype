@@ -1,0 +1,15 @@
+/* Values come from the Figma "Overlay" component (717:18047). */
+.overlay {
+  inset: 0;
+  /*
+   * Figma fills the scrim with the Foundation primitive "Transparent/Black - 40" (44% light, 60% dark);
+   * no semantic scrim token exists yet (see AUDIT T5).
+   */
+  background: var(--color-foundation-transparent-black-40);
+}
+.overlay[data-position='fixed'] {
+  position: fixed;
+}
+.overlay[data-position='absolute'] {
+  position: absolute;
+}

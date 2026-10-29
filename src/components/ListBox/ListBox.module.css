@@ -1,0 +1,248 @@
+/*
+ * Values come from the Figma ListBox page (List Item / Default, Icon, Avatar, Tree, Checkbox, Category,
+ * ListViews, Tree List) and, for the `selector` appearance, the "Dropdown Selector" and
+ * "Dropdown Holder" sets on the Drop Down - Selector page.
+ */
+
+/* ---------- Container (ListViews / Tree List / Dropdown Holder) ---------- */
+
+.listbox {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  outline: none;
+}
+
+/* ListViews: 1px gaps between rows and a 0.5px Gray Stroke/Weak outline */
+.listbox[data-appearance='list']:not([data-tree]) {
+  gap: var(--stroke-width-1);
+  /* Figma leaves the gaps transparent (the page shows through); Surfaces/Base reproduces that inside popups */
+  background: var(--color-surfaces-base);
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weak);
+}
+
+/* Dropdown Holder: rows sit directly on the overlay surface */
+.listbox[data-appearance='selector'] {
+  background: var(--color-surfaces-overlay);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stroke-width-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.groupWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stroke-width-1);
+}
+
+.empty {
+  padding: var(--space-12);
+  color: var(--color-gray-text-weak);
+  background: var(--color-surfaces-overlay);
+}
+
+/* ---------- Item ---------- */
+
+.item {
+  --bg: var(--color-surfaces-overlay);
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+.item[data-type='tree'] {
+  gap: var(--space-4);
+}
+/* Nested tree rows: one chevron slot (24px icon + 4px gap) per level, so labels line up */
+.item[data-appearance='list'][data-level] {
+  padding-left: calc(var(--space-12) + var(--level) * (var(--space-24) + var(--space-4)));
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  color: var(--icon);
+}
+.spacer {
+  flex: none;
+  /* Icon slot sizes (20 / 24px) are component dimensions with no token */
+  width: 24px;
+  height: 24px;
+}
+.spacer[data-size='20'] {
+  width: 20px;
+  height: 20px;
+}
+
+/* List states (List Item / *) */
+.item[data-appearance='list']:is(:hover, :focus-visible) {
+  --bg: var(--color-surfaces-raised);
+}
+.item[data-appearance='list']:active {
+  --bg: var(--color-surfaces-sunken);
+}
+/* Not in Figma: a selected row in a single-select list */
+.item[data-appearance='list'][aria-selected='true']:not([data-type='checkbox']) {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+.item[data-error] {
+  --bg: var(--color-semantic-fill-error-weak);
+  --fg: var(--color-semantic-text-error);
+  --icon: var(--color-semantic-fill-error-strong);
+}
+.item[aria-disabled='true'] {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  cursor: not-allowed;
+}
+
+/* ---------- Checkbox item: a decorative 24px box (the option carries the state) ---------- */
+
+/* :where keeps this below the error and disabled colors */
+.item:where([data-type='checkbox'][data-appearance='list']) {
+  --fg: var(--color-gray-text-weak);
+}
+.box {
+  --box-bg: var(--color-gray-fill-weaker);
+  --check: var(--color-gray-fill-strong);
+  display: inline-flex;
+  flex: none;
+  /* Checkbox / Small box size */
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-4);
+  background: var(--box-bg);
+}
+.check {
+  color: var(--check);
+  visibility: hidden;
+}
+.item[aria-selected='true'] .check {
+  visibility: visible;
+}
+.item[data-error] .box {
+  --box-bg: var(--color-semantic-fill-error-weak);
+  --check: var(--color-semantic-fill-error-strong);
+}
+.item[aria-disabled='true'] .box {
+  --box-bg: var(--color-gray-fill-disabled);
+  --check: var(--color-gray-fill-disabled);
+}
+
+/* ---------- Avatar ---------- */
+
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Avatar sizes (Figma Avatar Small 32px, Large 50px) are component dimensions */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-strong);
+  /* Figma uses Foundation/Solid/White for text on brand fills; there is no semantic token */
+  color: var(--color-foundation-solid-white);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 700;
+}
+.avatar[data-size='50'] {
+  width: 50px;
+  height: 50px;
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Category ---------- */
+
+.category {
+  padding: var(--space-12);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  /* Gray Fill/Weaker is translucent; in Figma it sits on the page, so lay it over Surfaces/Base */
+  background: linear-gradient(var(--color-gray-fill-weaker), var(--color-gray-fill-weaker)), var(--color-surfaces-base);
+  /* Figma's "Text/Weakest" (10% opacity, not exported as a token) mapped to Gray Text/Weak for legibility */
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Selector appearance (Dropdown Selector rows) ---------- */
+
+.item[data-appearance='selector'] {
+  --bg: transparent;
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-outline);
+  gap: var(--space-8);
+  padding: var(--space-8);
+}
+.item[data-appearance='selector']:is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: var(--color-gray-stroke-disabled);
+}
+/* Not in Figma: press and keyboard focus for selector rows */
+.item[data-appearance='selector']:active {
+  --bg: var(--color-gray-fill-hover);
+}
+.item[data-appearance='selector']:focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.item[data-appearance='selector'][aria-selected='true']:not([data-type='checkbox']) {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+/* State=Indent / Indent Hover */
+.item[data-appearance='selector'][data-level] {
+  --ring-w: 0px;
+  padding-left: var(--space-40);
+}
+.item[data-appearance='selector'][data-level]:hover {
+  --bg: var(--color-surfaces-raised);
+}
+.item[data-appearance='selector'][data-level]:focus-visible {
+  --bg: var(--color-surfaces-raised);
+  --ring-w: var(--stroke-width-2);
+}
+.item[data-appearance='selector'][aria-disabled='true'] {
+  --bg: var(--color-gray-fill-disabled);
+}

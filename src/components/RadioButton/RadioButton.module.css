@@ -1,0 +1,91 @@
+/* Values come from the Figma Radio Button sets (Default*, Hint*). */
+.radio {
+  --box-bg: var(--color-gray-fill-weaker);
+  --box-ring: transparent;
+  --box-ring-w: 0px;
+  --dot: var(--color-gray-fill-strong);
+  --text: var(--color-gray-text-strong);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--text);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+/* Visually hidden native input keeps keyboard and screen-reader behavior */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* 24px circle with a 12px dot: component dimensions, no size tokens */
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--box-bg);
+  box-shadow: inset 0 0 0 var(--box-ring-w) var(--box-ring);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--dot);
+  visibility: hidden;
+}
+.input:checked + .box .dot {
+  visibility: visible;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+}
+.description {
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+
+/* States */
+.radio:hover {
+  --box-bg: var(--color-gray-fill-hover);
+}
+.radio:active {
+  --box-bg: var(--color-gray-fill-press);
+  --box-ring: var(--color-gray-stroke-weaker);
+  --box-ring-w: var(--stroke-width-2);
+}
+.radio:has(.input:focus-visible) {
+  --box-bg: var(--color-gray-fill-hover);
+  --box-ring: var(--color-gray-stroke-weaker);
+  --box-ring-w: var(--stroke-width-2);
+}
+.radio[data-error] {
+  --box-bg: var(--color-semantic-fill-error-weak);
+  --box-ring-w: 0px;
+  --dot: var(--color-semantic-fill-error-strong);
+  --text: var(--color-semantic-text-error);
+}
+.radio:has(.input:disabled) {
+  --box-bg: var(--color-gray-fill-disabled);
+  --box-ring-w: 0px;
+  --dot: var(--color-gray-fill-disabled);
+  --text: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

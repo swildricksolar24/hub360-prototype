@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Components/IconButton',
+  title: 'Primitives/IconButton',
   component: IconButton,
   args: { label: 'Go up', icon: 'arrow-up', variant: 'default', size: 'base' },
   argTypes: { icon: { control: 'select', options: iconNames } },

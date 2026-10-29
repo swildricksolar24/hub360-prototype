@@ -1,0 +1,247 @@
+/*
+ * Values come from the Figma "Drop Down Label" (Default, chips) and "Drop Down Button"
+ * (Icon, Icon and Label, Default, Small) sets.
+ */
+.dropdown {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+.dropdown[data-variant='field'] {
+  width: 100%;
+}
+.dropdown:not([data-variant='field']) {
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.label,
+.error {
+  margin: 0;
+  padding: 0 var(--space-4);
+}
+.label {
+  color: var(--color-gray-text-weak);
+}
+.error {
+  color: var(--color-semantic-text-error);
+}
+.dropdown[data-disabled] .label {
+  color: var(--color-gray-text-disabled);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.anchor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Trigger ---------- */
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+.value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.icon,
+.chevron {
+  color: var(--icon);
+}
+.chevron {
+  transition: transform 120ms ease;
+}
+.trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+/* field: Drop Down Label › Default */
+.dropdown[data-variant='field'] .trigger {
+  padding: var(--space-12);
+}
+
+/* button: Drop Down Button › Default and Icon and Label */
+.dropdown[data-variant='button'] .trigger,
+.dropdown[data-variant='icon'] .trigger {
+  padding: var(--space-24);
+}
+.dropdown[data-variant='button'] .trigger {
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+/* Icon and Label uses strong text (Figma binds Gray Fill/Strong to the text) */
+/* :where keeps the variant text colors below the state colors */
+.dropdown:where([data-variant='button'], [data-variant='small']) .trigger {
+  --fg: var(--color-gray-text-weak);
+}
+.dropdown:where([data-variant='button']) .trigger:where(:has(.icon)) {
+  --fg: var(--color-gray-text-strong);
+}
+
+/* small: Drop Down Button › Small */
+.dropdown[data-variant='small'] .trigger {
+  padding: var(--space-12) var(--space-8) var(--space-12) var(--space-12);
+  font-weight: 600;
+}
+.dropdown[data-variant='small']:is([data-error], [data-disabled]) .trigger {
+  font-weight: 700;
+}
+
+/* ---------- States ---------- */
+
+.dropdown[data-light] .trigger:not(:hover, :active, :focus-visible) {
+  --bg: var(--color-gray-fill-press);
+}
+.trigger:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.trigger:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+/* Not in Figma: while the menu is open the button keeps a 2px outline */
+.trigger[aria-expanded='true'] {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.dropdown[data-required] .trigger {
+  --ring: var(--color-brand-teal-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.dropdown .trigger:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+}
+.dropdown[data-error] .trigger {
+  --bg: var(--color-semantic-fill-error-weak);
+  --fg: var(--color-semantic-text-error);
+  --icon: var(--color-semantic-fill-error-strong);
+}
+.dropdown .trigger:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+  cursor: not-allowed;
+}
+
+/* ---------- Menu ---------- */
+
+.popup {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  left: 0;
+  z-index: 10;
+  min-width: 100%;
+  max-height: 320px; /* about seven rows; a component dimension with no token */
+  overflow-y: auto;
+  box-shadow: var(--shadow-drop);
+}
+.dropdown:not([data-variant='field']) .popup {
+  min-width: 200px; /* Figma ListViews width */
+}
+
+/* ---------- chips (Drop Down Label › chips) ---------- */
+
+.chips {
+  --chips-bg: var(--color-brand-teal-fill-weaker);
+  --chips-ring: var(--color-gray-stroke-weaker);
+  --chips-ring-w: var(--stroke-width-1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-12) var(--space-8);
+  list-style: none;
+  background: var(--chips-bg);
+  box-shadow: inset 0 0 0 var(--chips-ring-w) var(--chips-ring);
+}
+.chips[data-appearance='plain'] {
+  --chips-bg: transparent;
+}
+.chips[data-required] {
+  --chips-ring: var(--color-brand-teal-stroke-strong);
+}
+.chips[data-error] {
+  --chips-bg: var(--color-semantic-fill-error-weak);
+}
+.chips[data-disabled] {
+  --chips-bg: var(--color-gray-fill-disabled);
+}
+
+/* Chip Tiny / Icon Right (teal pill), drawn here because the Chip component lives elsewhere */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8) var(--space-4) var(--space-12);
+  border: 0;
+  border-radius: var(--radius-40);
+  background: var(--color-brand-teal-fill-strong);
+  /* Figma uses Foundation/Solid/White for text and icons on brand fills; there is no semantic token */
+  color: var(--color-foundation-solid-white);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+.chip:hover {
+  background: var(--color-brand-teal-fill-hover);
+}
+.chip:active {
+  background: var(--color-brand-teal-fill-press);
+}
+.chip:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+}
+.chip:disabled {
+  background: var(--color-brand-teal-fill-disabled);
+  cursor: not-allowed;
+}

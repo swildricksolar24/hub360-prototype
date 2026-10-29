@@ -1,0 +1,50 @@
+/* Values come from the Figma Menu Sidebar* page: Menu Sidebar Item (490:750), Menu Sidebar* (490:809). */
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  --bg: transparent;
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-12);
+  border: 0;
+  background: var(--bg);
+  /* 0.5px hairline around every row, drawn inside so rows don't shift */
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-disabled);
+  color: var(--fg);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.icon {
+  flex: none;
+  color: var(--icon);
+}
+
+.item:is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-hover);
+}
+.item:active {
+  --bg: var(--color-gray-fill-press);
+}
+.item:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  cursor: not-allowed;
+}

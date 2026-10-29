@@ -1,0 +1,111 @@
+/* Values come from the Figma "Range Slider*" set. */
+.slider {
+  /* Track and thumb sizes are component dimensions; the token scale has no size tokens */
+  --track-h: 12px;
+  --thumb: 30px;
+  --thumb-ring: transparent;
+  --thumb-ring-w: 0px;
+  --track-bg: var(--color-gray-fill-disabled);
+  --fill: var(--color-gray-fill-strong);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  width: 100%;
+  font-family: var(--font-family-inter);
+}
+
+.rail {
+  position: relative;
+  height: var(--track-h);
+}
+
+.track,
+.range {
+  position: absolute;
+  inset: 0;
+}
+.track {
+  background: var(--track-bg);
+}
+.range {
+  right: auto;
+  width: var(--pct);
+  background: var(--fill);
+  box-shadow: var(--shadow-drop);
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--pct);
+  box-sizing: border-box;
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: 50%;
+  background: var(--fill);
+  box-shadow: var(--shadow-drop), 0 0 0 var(--thumb-ring-w) var(--thumb-ring);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/*
+ * The native input sits on top, invisible, and reaches half a thumb past each end
+ * so its thumb centre travels exactly from 0% to 100% of the drawn track.
+ */
+.input {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--thumb) / -2);
+  width: calc(100% + var(--thumb));
+  height: var(--thumb);
+  margin: 0;
+  transform: translateY(-50%);
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input::-webkit-slider-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 0;
+}
+
+.marks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+/* State=Active: a smaller thumb with an 8px Gray Stroke/Weaker ring, while dragged or focused */
+.rail:has(.input:active) .thumb,
+.rail:has(.input:focus-visible) .thumb {
+  /* 25px in Figma; the ring is drawn outside the thumb */
+  --thumb-active: 25px;
+  width: var(--thumb-active);
+  height: var(--thumb-active);
+  --thumb-ring: var(--color-gray-stroke-weaker);
+  --thumb-ring-w: var(--stroke-width-8);
+}
+
+/* Disabled is a code-only state: Figma's slider has none */
+.slider[data-disabled] {
+  --fill: var(--color-gray-fill-disabled);
+}
+.slider[data-disabled] .range,
+.slider[data-disabled] .thumb {
+  box-shadow: none;
+}
+.slider[data-disabled] .input {
+  cursor: not-allowed;
+}

@@ -1,0 +1,99 @@
+/* Values come from the Figma Toggle sets (Label, Large, Small, Toggle Button). */
+.toggle {
+  --track-bg: var(--color-gray-fill-weaker);
+  --knob-bg: var(--color-gray-fill-hover);
+  --text: var(--color-gray-text-weak);
+  /* Track and knob sizes are component dimensions; the token scale has no size tokens */
+  --track-w: 54px;
+  --track-h: 24px;
+  --knob: 16px;
+  --knob-x: 6px; /* Figma centres the knob in the space left by the 26px track padding */
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  color: var(--text);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  cursor: pointer;
+}
+.toggle[data-size='large'] {
+  --track-w: 98px;
+  --track-h: 44px;
+  --knob: 32px;
+  --knob-x: 8px;
+}
+
+/* Toggle Button: the switch and label inside a filled box */
+.toggle[data-contained] {
+  padding: var(--space-12) var(--space-16) var(--space-12) var(--space-12);
+  gap: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+}
+
+/* Visually hidden native input keeps keyboard and screen-reader behavior */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.track {
+  position: relative;
+  flex: none;
+  width: var(--track-w);
+  height: var(--track-h);
+  border-radius: var(--radius-24);
+  background: var(--track-bg);
+}
+
+.knob {
+  position: absolute;
+  top: calc((var(--track-h) - var(--knob)) / 2);
+  left: var(--knob-x);
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: var(--radius-24);
+  background: var(--knob-bg);
+  transition: transform 120ms ease;
+}
+
+/* State=On */
+.toggle:has(.input:checked) {
+  --track-bg: var(--color-brand-teal-fill-strong);
+  /* Figma uses Foundation/Solid/White directly; there is no semantic "on brand" token */
+  --knob-bg: var(--color-foundation-solid-white);
+  --text: var(--color-gray-text-strong);
+}
+.input:checked ~ .track .knob {
+  transform: translateX(calc(var(--track-w) - var(--knob) - 2 * var(--knob-x)));
+}
+
+/* Focus: Figma has no focus state; a ring outside the track keeps keyboard focus visible */
+.input:focus-visible ~ .track {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weaker);
+  outline-offset: var(--stroke-width-2);
+}
+
+/* State=Disabled */
+.toggle:has(.input:disabled) {
+  --track-bg: var(--color-gray-fill-disabled);
+  --knob-bg: var(--color-gray-fill-disabled);
+  --text: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knob {
+    transition: none;
+  }
+}

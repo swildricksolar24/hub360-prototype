@@ -1,0 +1,91 @@
+/* Values come from the Figma "Editable Cell" set. */
+.cell {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: transparent;
+  --ring-w: 0px;
+  --text: var(--color-gray-text-strong);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  width: 100%;
+  /* 120px wide in Figma; fills its table column here */
+  min-width: 0;
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  color: var(--text);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+
+.value,
+.field {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+  appearance: none;
+}
+/* The select fills the whole cell so the icon area is clickable too */
+.cell[data-type='select'] .field {
+  position: absolute;
+  inset: 0;
+  padding: var(--space-12) calc(var(--space-12) + var(--space-16) + var(--space-4)) var(--space-12) var(--space-12);
+  cursor: pointer;
+}
+.cell[data-type='select'] .field option {
+  /* Native option popups ignore transparent backgrounds; use the overlay surface */
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+}
+.icon {
+  margin-left: auto;
+  color: var(--color-gray-fill-strong);
+  pointer-events: none;
+}
+/* Keeps the cell height when the select is absolutely positioned */
+.cell[data-type='select']::before {
+  content: '';
+  height: var(--line-height-medium);
+}
+
+/* States */
+.cell:is([data-type='input'], [data-type='select']):hover {
+  --bg: var(--color-gray-fill-hover);
+}
+/* Figma has no focus state; the input-family focus ring keeps keyboard focus visible */
+.cell:focus-within {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.cell[data-error] {
+  --ring: var(--color-semantic-stroke-error-strong);
+  /* Figma uses an unbound 1.5px stroke; the nearest token is 2px */
+  --ring-w: var(--stroke-width-2);
+}
+.cell[data-type='read-only'] {
+  --bg: var(--color-gray-fill-press);
+  --text: var(--color-gray-text-weak);
+}
+.field:disabled {
+  color: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

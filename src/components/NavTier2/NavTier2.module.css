@@ -1,0 +1,32 @@
+/* Values come from the Figma Main Nav "Tier 2" set (708:1647). */
+.tier2 {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-16);
+  background: var(--color-surfaces-sunken);
+}
+.tier2:is([data-variant='collapsed'], [data-variant='label']) {
+  padding: var(--space-16) var(--space-8);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tier2[data-variant='collapsed'] .list {
+  gap: var(--space-8);
+}
+
+.item {
+  display: flex;
+}
+
+/* Default buttons fill the rail width (Figma: 112px in a 144px rail) */
+.tier2[data-variant='default'] .button {
+  flex: 1;
+  min-width: 112px; /* Figma button width; no token */
+}

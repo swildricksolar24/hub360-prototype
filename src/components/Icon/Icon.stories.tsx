@@ -3,7 +3,7 @@ import { Icon, iconNames } from './Icon';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Components/Icon',
+  title: 'Foundations/Icon',
   component: Icon,
   args: { name: 'account', size: 24 },
   argTypes: {

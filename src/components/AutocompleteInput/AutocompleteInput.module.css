@@ -1,0 +1,119 @@
+/* Values come from the Figma "Text Input - Autocomplete*" set. */
+.field {
+  --ring: transparent;
+  --text: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-weak);
+
+  position: relative;
+  width: 100%;
+  font-family: var(--font-family-inter);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  /* 40px tall in Figma: a 24px line plus 8px above and below */
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  outline: none;
+}
+.input::placeholder {
+  color: var(--color-gray-text-weak);
+  opacity: 1;
+}
+/* The inline completion is drawn as a selection (Figma fills it with Semantic Stroke/Info Strong) */
+.input::selection {
+  background: var(--color-semantic-stroke-info-strong);
+  /* Figma uses Foundation/Solid/White for the completed text; no semantic token exists */
+  color: var(--color-foundation-solid-white);
+}
+
+.clear {
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--icon);
+  cursor: pointer;
+}
+.clear:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weaker);
+}
+
+.list {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 180px; /* Figma's list shows four 40px options */
+  margin: 0;
+  padding: var(--space-4) var(--space-12) var(--space-4) 0;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.list[hidden] {
+  display: none;
+}
+
+.option {
+  padding: var(--space-8);
+  border-radius: var(--radius-8);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  cursor: pointer;
+}
+/* Figma has no hover or keyboard-active option state; Gray Fill/Hover marks it */
+.option:hover,
+.option[aria-selected='true'] {
+  background: var(--color-gray-fill-hover);
+}
+
+/* State=Activated Search / Active Input: focused field gets the teal ring and strong icon */
+.field:focus-within {
+  --ring: var(--color-brand-teal-stroke-strong);
+  --icon: var(--color-gray-fill-strong);
+}
+/* State=Selected: no ring, weak icon, strong text */
+.field[data-selected]:not(:focus-within) {
+  --ring: transparent;
+}
+
+.field[data-disabled] {
+  --text: var(--color-gray-text-disabled);
+}
+.field[data-disabled] .control {
+  background: var(--color-gray-fill-disabled);
+}
+.field[data-disabled] .input {
+  cursor: not-allowed;
+}
+.field[data-disabled] .input::placeholder {
+  color: var(--color-gray-text-disabled);
+}

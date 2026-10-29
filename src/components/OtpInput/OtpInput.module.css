@@ -1,0 +1,54 @@
+/* Values come from the Figma "OTP Input*" set (one 40×60 cell per character). */
+.otp {
+  display: inline-flex;
+  /* Figma has a single cell; the gap between cells is not specified */
+  gap: var(--space-8);
+}
+
+.cell {
+  --bg: var(--color-surfaces-raised);
+  --ring: transparent;
+  --ring-w: 0px;
+  --text: var(--color-gray-text-strong);
+
+  box-sizing: border-box;
+  /* Cell size is a component dimension; the token scale has no size tokens */
+  width: 40px;
+  height: 60px;
+  padding: 0 var(--space-12);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  color: var(--text);
+  caret-color: var(--text);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  text-align: center;
+  outline: none;
+}
+
+/* States */
+.cell:hover {
+  --ring: var(--color-gray-stroke-weak);
+  --ring-w: var(--stroke-width-2);
+}
+.cell:active,
+.cell:focus-visible,
+.cell:focus {
+  --ring: var(--color-gray-stroke-weak);
+  --ring-w: var(--stroke-width-4);
+}
+.otp[data-error] .cell {
+  --bg: var(--color-semantic-fill-error-weak);
+  --ring: var(--color-semantic-stroke-error-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.otp .cell:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+  --text: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

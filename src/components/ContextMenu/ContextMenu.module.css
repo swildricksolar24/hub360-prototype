@@ -1,0 +1,65 @@
+/* Values come from the Figma "Menu Item" (485:1008) and "Context Menu*" (486:92) sets. */
+.menu {
+  display: flex;
+  flex-direction: column;
+  width: 240px; /* Figma menu width; no token */
+  overflow: hidden;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-raised);
+  box-shadow: var(--shadow-drop);
+}
+
+.item {
+  --bg: transparent;
+  --fg: var(--color-gray-text-strong);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  width: 100%;
+  padding: var(--space-8);
+  border: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  color: var(--color-gray-fill-strong);
+}
+
+.item:is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-hover);
+}
+.item:active {
+  --bg: var(--color-gray-fill-press);
+}
+.item[aria-disabled='true'] {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+.item[aria-disabled='true'] .icon {
+  color: var(--color-gray-fill-disabled);
+}

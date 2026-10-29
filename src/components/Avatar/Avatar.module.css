@@ -1,0 +1,71 @@
+/* Values come from the Figma Avatar sets: Large, Medium, Small (Type) and Icon* (Size). */
+.avatar {
+  --bg: var(--color-gray-fill-inverse-weak);
+
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-weight: 700;
+}
+
+/* Avatar diameters are component dimensions; the token scale has no size tokens */
+.avatar[data-size='large'] {
+  width: 124px;
+  height: 124px;
+  font-size: var(--font-size-heading-1);
+  line-height: var(--line-height-heading-1);
+}
+.avatar[data-size='medium'] {
+  width: 62px;
+  height: 62px;
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+}
+.avatar[data-size='small'] {
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+
+.initials {
+  text-transform: uppercase;
+}
+
+/* Photo: Figma masks the image to the circle over a teal backdrop and adds a 2px inner ring (Large, Medium) */
+.avatar[data-type='photo'] {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.avatar[data-type='photo']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
+  pointer-events: none;
+}
+.avatar[data-type='photo'][data-size='small']::after {
+  content: none;
+}
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+svg.photo {
+  background: var(--color-gray-fill-inverse-weak);
+  fill: var(--color-gray-fill-inverse-strong);
+}
+
+/* Icon* set */
+.avatar[data-type='icon'] {
+  --bg: var(--color-gray-fill-weaker);
+  color: var(--color-gray-fill-strong);
+}

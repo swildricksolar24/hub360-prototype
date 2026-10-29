@@ -3,7 +3,7 @@ import { Badge, type BadgeColor } from './Badge';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Components/Badge',
+  title: 'Primitives/Badge',
   component: Badge,
   args: { children: '4', shape: 'round', color: 'amber' },
 } satisfies Meta<typeof Badge>;

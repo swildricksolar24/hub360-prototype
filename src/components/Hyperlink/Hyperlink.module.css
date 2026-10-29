@@ -1,0 +1,47 @@
+/* Values come from the Figma Hyperlink sets (Large*, Medium, Small). */
+.link {
+  --fg: var(--color-gray-text-strong);
+  --ring: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-2);
+  border-radius: var(--radius-4);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+  color: var(--fg);
+  font-family: var(--font-family-inter);
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+  cursor: pointer;
+  outline: none;
+}
+
+.link[data-size='large'] {
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+}
+.link[data-size='medium'] {
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+.link[data-size='small'] {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  text-decoration-skip-ink: none;
+}
+/* Figma's Small link drops the underline on hover, press, focus and disabled */
+.link[data-size='small']:is(:hover, :active, :focus-visible, [aria-disabled='true']) {
+  text-decoration: none;
+}
+
+/* States: Hover and Press look like Default (Large / Medium) in Figma */
+.link:focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+}
+.link[aria-disabled='true'] {
+  --fg: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}

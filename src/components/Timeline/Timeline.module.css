@@ -1,0 +1,105 @@
+/* Values come from the Figma Timeline sets: TimeLine (440:1994), Status Step (2899:7484), Status Connector (2900:5). */
+.timeline {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* In TimeLine every step gets an equal share of the width (116px each in Figma) */
+.fill {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.step {
+  /* Marker diameter is a component dimension (28px in Figma) */
+  --marker: 28px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+/* ---------- connector ---------- */
+.connector {
+  display: block;
+  /* Standalone connector length is a component dimension (80px in Figma) */
+  width: 80px;
+  height: var(--stroke-width-2);
+  background: var(--color-brand-teal-fill-strong);
+}
+.connector[data-state='upcoming'] {
+  background: var(--color-gray-stroke-disabled);
+}
+.before,
+.after {
+  position: absolute;
+  top: calc(var(--marker) / 2 - var(--stroke-width-2) / 2);
+  width: 50%;
+}
+.before {
+  left: 0;
+}
+.after {
+  right: 0;
+}
+
+/* ---------- marker ---------- */
+.marker {
+  --bg: var(--color-surfaces-overlay);
+  --ring: var(--color-gray-stroke-disabled);
+
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--marker);
+  height: var(--marker);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+  /* Figma uses Foundation/Solid/White for the check on the teal fill; no semantic "on brand" token exists */
+  color: var(--color-foundation-solid-white);
+}
+.step[data-state='done'] .marker {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.step[data-state='current'] .marker {
+  --bg: var(--color-surfaces-base);
+  --ring: var(--color-brand-teal-stroke-strong);
+}
+.dot {
+  /* Dot diameter is a component dimension (10px in Figma) */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-strong);
+}
+
+/* ---------- label ---------- */
+.label {
+  color: var(--color-gray-text-weak);
+  font-weight: 400;
+  text-align: center;
+}
+.step:is([data-state='done'], [data-state='current']) .label {
+  color: var(--color-gray-text-strong);
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

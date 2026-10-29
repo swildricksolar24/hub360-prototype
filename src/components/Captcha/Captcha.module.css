@@ -1,0 +1,34 @@
+/* Values come from the Figma "Captcha" set (544:60). */
+.captcha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  box-sizing: border-box;
+  /* Widget width is a component dimension (280px in Figma) */
+  width: 280px;
+  padding: var(--space-12) var(--space-24);
+  background: var(--color-surfaces-base);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-strong);
+}
+
+/* Logo placeholder: 47×45 like the Figma Recaptcha instance */
+.mark {
+  flex: none;
+  width: 47px;
+  height: 45px;
+}
+.markArc {
+  fill: none;
+  stroke: var(--color-semantic-fill-info-strong);
+  stroke-width: var(--stroke-width-4);
+}
+.markHead {
+  fill: var(--color-semantic-fill-info-strong);
+}
+.markText {
+  fill: var(--color-gray-text-weak);
+  font-family: var(--font-family-inter);
+  /* Text inside the 47px logo artwork; scaled with the SVG, not a type style */
+  font-size: 7px;
+}

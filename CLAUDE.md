@@ -8,7 +8,7 @@ hub360-prototype is a React component library and Storybook built from the Figma
 
 It contains:
 - the design tokens as CSS variables and DTCG JSON
-- the first batch of coded components (Icon, Button, IconButton, Badge, Checkbox, TextInput, Message)
+- 61 coded React components covering every set on the Figma library pages (all except the "not used" pages, the Testing page and the Holder scaffolding)
 - a Storybook that documents them, with a link from each story to its Figma component
 - an inventory and an audit of the Figma system
 
@@ -35,6 +35,8 @@ design-system/
   figma-export/variables.json   Snapshot of Figma variables + text/effect/paint styles (input)
   scripts/build-tokens.mjs      Turns the snapshot into the token files below
   scripts/normalize-icons.mjs   Strips Figma's icon background and makes icon paints currentColor
+  scripts/figma-spec.js         Read-only Figma spec extractor to paste into a use_figma call
+  component-build-guide.md      How to build a component from its Figma set (rules, stories, checks)
   tokens/tokens.json            W3C DTCG tokens; Figma modes and scopes under $extensions["com.figma"]
   tokens/tokens.css             CSS custom properties, theme switching, .text-* classes
   components.md                 Inventory of all Figma components (node IDs, variants, properties)
@@ -43,9 +45,11 @@ src/
   design-system.md              How to use the tokens and components; read before any UI work
   components/<Name>/            <Name>.tsx, <Name>.module.css, <Name>.stories.tsx
   components/Icon/svg/          109 icons exported from the Figma Icon Library
+  components/Logo/svg/          Logos exported from the Figma Logos page
   docs/Tokens.mdx               "Foundations/Tokens" docs page (reads tokens.json via TokenTables.tsx)
   storybook/                    Story helpers: figma.ts (Figma links), StateGrid.tsx (state grids)
-.storybook/                     main.ts, preview.tsx (tokens.css + theme toolbar), preview-head.html (Inter font)
+.storybook/                     main.ts, preview.tsx (tokens.css, theme toolbar, dark docs theme),
+                                manager.ts (dark UI theme), preview-head.html (Inter font, base background)
 ```
 
 Token data flows one way: **Figma → `variables.json` → `build-tokens.mjs` → `tokens.json` + `tokens.css`**.
@@ -59,6 +63,7 @@ Token data flows one way: **Figma → `variables.json` → `build-tokens.mjs` �
 - **Generated files:** never hand-edit `design-system/tokens/*`. Change the token in Figma, re-export `variables.json`, then rebuild.
 - **Figma is the source of truth:** for token values and component structure. Writes to the Figma file go through the Figma MCP (`use_figma`). Ask before changing an existing main component in Figma, because the change reaches every instance of it.
 - **Theme attribute:** `data-theme` must go on `<html>`, or semantic color tokens won't switch to dark values. Storybook's Theme toolbar sets it.
+- **Storybook dark mode:** `STORYBOOK_THEME=dark` makes Storybook open dark: the UI, the stories' default theme, and docs pages on the base surface color. The deploy workflow sets it, so the published site is dark. Locally it comes from a `.env.local`, which is ignored through `.git/info/exclude`. Without it, Storybook opens light.
 - **Component styling:** CSS Modules using only `tokens.css` variables. Strokes are inset `box-shadow`s, so state changes don't shift layout. States use real CSS (`:hover`, `:active`, `:focus-visible`); Figma's `Selected` maps to `aria-pressed`, and `Disabled` to the native `disabled` attribute.
 - **Stories:** one `<Name>.stories.tsx` per component, with a `Playground` story plus one story per Figma component set. Each set story spreads `figma(nodeId, name)` from `src/storybook/figma.ts` (Design panel + "Open in Figma" link). It renders every Figma `State` with `StateGrid`, and spreads `pseudoStates` so Hover / Press / Focus render without a mouse.
 - **Validating changes:** after changing `build-tokens.mjs` or `variables.json`, check that every `var()` in `tokens.css` points to a defined variable and every alias in `tokens.json` resolves. After component changes, run `npm run typecheck` and look at the affected stories in Storybook.

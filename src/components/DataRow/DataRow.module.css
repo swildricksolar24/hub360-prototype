@@ -1,0 +1,176 @@
+/* Values come from the Figma Data Rows* page: Data Rows, Row Item, Slot*, Tenant Rows*. */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-12) var(--space-24) var(--space-12) 0;
+  /* Figma: bottom stroke only, 0.5px, Gray Stroke/Weaker. Drawn as an inset shadow. */
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-weaker);
+}
+
+.leading {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-4);
+  padding-left: var(--space-8);
+}
+
+/* ---------- Row Item ---------- */
+
+.item {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-4);
+  /*
+   * Figma: 8px padding around 20px text = 36px. Pills (36px) and icons sit in 36px cells without that padding,
+   * so the vertical padding is expressed as a 36px minimum height (component dimension); wrapping cells keep it.
+   */
+  min-height: 36px;
+  padding: 0 var(--space-8);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+}
+.item[data-align='center'] {
+  justify-content: center;
+  text-align: center;
+}
+.item[data-align='end'] {
+  justify-content: flex-end;
+  text-align: end;
+}
+
+.value {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+.item[data-wrap] {
+  padding-block: var(--space-8);
+}
+.item[data-wrap] .value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Slot* ---------- */
+
+.slot {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* ---------- Status pill (Figma Tag "Small") ---------- */
+
+.pill {
+  --bg: var(--color-semantic-fill-success-weak);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-20);
+  border-radius: var(--radius-40);
+  background: var(--bg);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.pill[data-tone='info'] {
+  --bg: var(--color-semantic-fill-info-weak);
+}
+.pill[data-tone='warning'] {
+  --bg: var(--color-semantic-fill-warning-weak);
+}
+.pill[data-tone='error'] {
+  --bg: var(--color-semantic-fill-error-weak);
+}
+.pill[data-tone='neutral'] {
+  --bg: var(--color-gray-fill-weaker);
+}
+
+/* ---------- Avatar (Figma Avatar "Small") ---------- */
+
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Figma Avatar Small size; component dimension, no token */
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 700;
+}
+.avatar[data-type='initial'] {
+  background: var(--color-gray-fill-inverse-weak);
+}
+.avatar[data-type='photo'] {
+  /* Figma "Icon/Brand Teal" behind the photo; that variable isn't in tokens.css, nearest is Brand Teal Fill/Strong */
+  background: var(--color-brand-teal-fill-strong);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- More button ---------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Figma "box" 44x36 */
+  flex: 0 0 44px;
+  height: 36px;
+}
+
+/* Figma shows only the icon; hover, press and focus states are added for the button. */
+.more {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-fill-strong);
+  cursor: pointer;
+  outline: none;
+}
+/* Figma rotates the vertical "More" icon 90° (a 36x44 instance in the 44x36 box) */
+.moreIcon {
+  transform: rotate(90deg);
+}
+.more:hover {
+  background: var(--color-gray-fill-hover);
+}
+.more:active {
+  background: var(--color-gray-fill-press);
+}
+.more:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
+}

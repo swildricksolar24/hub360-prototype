@@ -1,0 +1,73 @@
+/* Values come from the Figma "Main Drop Down*" set (Default, Hover, Press, Focus, Disabled). */
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  --bg: var(--color-gray-fill-weaker);
+  --icon: var(--color-gray-fill-weak);
+  --fg: var(--color-gray-text-strong);
+  /* Figma: a 1px Gray Stroke/Disabled line under the button (bottom stroke, outside) */
+  --edge: 0 var(--stroke-width-1) 0 0 var(--color-gray-stroke-disabled);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border: 0;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow:
+    var(--edge),
+    inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+.icon {
+  color: var(--icon);
+}
+
+.trigger:hover {
+  --bg: var(--color-gray-fill-hover);
+  --icon: var(--color-gray-fill-strong);
+}
+.trigger:active {
+  --bg: var(--color-gray-fill-press);
+  --icon: var(--color-gray-fill-strong);
+}
+/* Focus: the stroke becomes 2px on all sides, inside */
+.trigger:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --icon: var(--color-gray-fill-strong);
+  --edge: 0 0 transparent;
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-2);
+}
+/* Not in Figma: open */
+.trigger[aria-expanded='true'] {
+  --bg: var(--color-gray-fill-hover);
+  --icon: var(--color-gray-fill-strong);
+}
+.trigger:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --icon: var(--color-gray-fill-weak);
+  --fg: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+
+.popup {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  left: 0;
+  z-index: 10;
+  min-width: 200px; /* Figma ListViews width */
+  box-shadow: var(--shadow-drop);
+}

@@ -1,0 +1,141 @@
+/*
+ * Values come from the eight Figma Chip sets (Default / Secondary / Outline / Tiny × Left / Right Icon).
+ * Strokes are inset box-shadows so state changes never shift layout.
+ */
+.chip {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --icon: var(--color-gray-fill-strong);
+  --ring: transparent;
+  --ring-w: 0px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-40);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  font-family: var(--font-family-inter);
+  cursor: pointer;
+  outline: none;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.icon {
+  color: var(--icon);
+}
+
+/* ---------- Sizes ---------- */
+
+.chip:is([data-variant='default'], [data-variant='outline']) {
+  padding: var(--space-24) var(--space-40);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 400;
+  gap: var(--space-4);
+}
+.chip[data-variant='outline'] {
+  gap: var(--space-10);
+}
+.chip:is([data-variant='default'], [data-variant='outline'])[data-icon='left'] {
+  padding-left: var(--space-32);
+}
+.chip:is([data-variant='default'], [data-variant='outline'])[data-icon='right'] {
+  padding-right: var(--space-32);
+}
+
+.chip[data-variant='secondary'] {
+  padding: var(--space-8) var(--space-20);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  gap: var(--space-4);
+}
+.chip[data-variant='secondary'][data-icon='left'] {
+  padding-left: var(--space-16);
+}
+.chip[data-variant='secondary'][data-icon='right'] {
+  padding-right: var(--space-16);
+}
+
+.chip[data-variant='tiny'] {
+  padding: var(--space-4) var(--space-12);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+  gap: var(--space-2);
+}
+.chip[data-variant='tiny'][data-icon='left'] {
+  padding-left: var(--space-8);
+}
+.chip[data-variant='tiny'][data-icon='right'] {
+  padding-right: var(--space-8);
+}
+
+/* ---------- Filled chips (default, secondary, tiny) ---------- */
+
+.chip:hover {
+  --bg: var(--color-gray-fill-hover);
+}
+.chip:active {
+  --bg: var(--color-gray-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.chip:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.chip[aria-pressed='true'] {
+  --ring: var(--color-brand-teal-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+.chip[data-variant='default'][aria-pressed='true'] {
+  --ring-w: var(--stroke-width-4);
+}
+
+/* ---------- Outline ---------- */
+
+.chip[data-variant='outline'] {
+  --bg: transparent;
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.chip[data-variant='outline']:hover {
+  --bg: var(--color-gray-fill-hover);
+  --ring-w: 0px;
+}
+.chip[data-variant='outline']:active {
+  --bg: var(--color-gray-fill-press);
+  --ring-w: var(--stroke-width-2);
+}
+.chip[data-variant='outline']:focus-visible {
+  --bg: var(--color-gray-fill-hover);
+  --ring-w: var(--stroke-width-4);
+}
+.chip[data-variant='outline'][aria-pressed='true'] {
+  --bg: var(--color-gray-fill-weaker);
+  --ring: var(--color-brand-teal-stroke-strong);
+  --ring-w: var(--stroke-width-4);
+}
+
+/* ---------- Disabled ---------- */
+
+.chip:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  --icon: var(--color-gray-fill-disabled);
+  --ring-w: 0px;
+  cursor: not-allowed;
+}
+.chip[data-variant='outline']:disabled {
+  --bg: transparent;
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-2);
+}

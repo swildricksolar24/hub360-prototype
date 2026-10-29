@@ -1,0 +1,197 @@
+/*
+ * Values come from the Figma Modal* sets: Dialog / Modal (429:687), Modal - Dynamic (2684:8355),
+ * Modal - Dialog* (2831:8727), and Modal Screen* (805:922).
+ */
+
+/* ---------- native dialog: full-screen, transparent; Overlay draws the scrim ---------- */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-24);
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  overflow: auto;
+}
+.dialog[open] {
+  display: grid;
+  place-items: center;
+}
+.dialog::backdrop {
+  background: transparent;
+}
+.dialog > .panel {
+  position: relative;
+}
+
+/* ---------- panel ---------- */
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-width: 100%;
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+  font-family: var(--font-family-inter);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-3);
+  line-height: var(--line-height-heading-3);
+  font-weight: 700;
+}
+.description {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+
+/* Figma close button: 44px, 16px from the top and 20px from the right. IconButton compact is 40px. */
+.close {
+  flex: none;
+}
+.panel[data-variant='default'] > .close {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-20);
+}
+
+/* ---------- default: Dialog / Modal ---------- */
+.panel[data-variant='default'] {
+  /* Panel widths are component dimensions from Figma */
+  width: 464px;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  border-radius: var(--radius-24);
+}
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8) 0;
+}
+.panel[data-close] .titleBox {
+  /* keeps the title clear of the absolute close button */
+  padding-right: var(--space-48);
+}
+.bodyText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* Style=Scrollbar */
+.scrollHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.scrollBox {
+  padding-left: var(--space-12);
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-base);
+}
+.scrollContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* ---------- sectioned: Modal - Dynamic ---------- */
+.panel[data-variant='sectioned'] {
+  width: 650px;
+  padding: var(--space-24) 0;
+  border-radius: var(--radius-12);
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: 0 var(--space-24) var(--space-24);
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-disabled);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  /* Figma toolbar row is 48px tall */
+  min-height: 48px;
+}
+.heading {
+  display: flex;
+  flex-direction: column;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: var(--space-24);
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding: var(--space-24) var(--space-24) 0;
+  box-shadow: inset 0 var(--stroke-width-outline) 0 var(--color-gray-stroke-disabled);
+}
+
+/* ---------- confirm: Modal - Dialog* ---------- */
+.panel[data-variant='confirm'] {
+  width: 560px;
+  overflow: hidden;
+  border-radius: var(--radius-12);
+}
+/* Figma accent bar: a 10px Brand Teal rectangle across the top (a component dimension) */
+.panel[data-variant='confirm']::before {
+  content: '';
+  flex: none;
+  height: 10px;
+  background: var(--color-brand-teal-fill-strong);
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: var(--space-24);
+}
+.confirmHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.badge {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  /* Badge box is a component dimension: Figma draws a 60px circle centered in a 64px box */
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  padding: var(--space-2);
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-weaker);
+  background-clip: content-box;
+  color: var(--color-brand-teal-fill-strong);
+}
+.panel[data-variant='confirm'] .description {
+  color: var(--color-gray-text-strong);
+}

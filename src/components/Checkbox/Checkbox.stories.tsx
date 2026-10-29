@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Components/Checkbox',
+  title: 'Primitives/Checkbox',
   component: Checkbox,
   args: { label: 'Label', size: 'default', defaultChecked: true },
 } satisfies Meta<typeof Checkbox>;

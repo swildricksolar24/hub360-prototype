@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Components/TextInput',
+  title: 'Primitives/TextInput',
   component: TextInput,
   args: { label: 'Label', placeholder: 'Placeholder' },
   decorators: [Story => <div style={{ maxWidth: 360 }}><Story /></div>],
