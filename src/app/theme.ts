@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 const KEY = 'hub360.theme';
@@ -18,19 +18,31 @@ export function applyTheme(pref: ThemePreference) {
   else document.documentElement.setAttribute('data-theme', pref);
 }
 
+// One shared preference, so the account menu and the theme toggle stay in sync.
+let current = read();
+const listeners = new Set<() => void>();
+
+function setTheme(pref: ThemePreference) {
+  current = pref;
+  applyTheme(pref);
+  try {
+    if (pref === 'system') localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, pref);
+  } catch {
+    /* preference not persisted */
+  }
+  listeners.forEach(notify => notify());
+}
+
+function subscribe(notify: () => void) {
+  listeners.add(notify);
+  return () => listeners.delete(notify);
+}
+
 export function useTheme() {
-  const [theme, setTheme] = useState<ThemePreference>(read);
-  useEffect(() => {
-    applyTheme(theme);
-    try {
-      if (theme === 'system') localStorage.removeItem(KEY);
-      else localStorage.setItem(KEY, theme);
-    } catch {
-      /* preference not persisted */
-    }
-  }, [theme]);
+  const theme = useSyncExternalStore(subscribe, () => current);
   return [theme, setTheme] as const;
 }
 
 // Apply the saved preference before first paint.
-applyTheme(read());
+applyTheme(current);

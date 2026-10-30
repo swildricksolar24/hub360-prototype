@@ -6,6 +6,7 @@ import { Logo } from '../../components/Logo/Logo';
 import { NavTabBar } from '../../components/NavTabBar/NavTabBar';
 import { NavTier1 } from '../../components/NavTier1/NavTier1';
 import { NavTier2 } from '../../components/NavTier2/NavTier2';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { AccountMenu } from './AccountMenu';
 import { APP_VERSION, DEFAULT_SECTION, LEGAL_LINKS, SECTIONS, findSection, locationLabel, sectionPath } from './navigation';
 import { useMediaQuery } from './useMediaQuery';
@@ -70,7 +71,13 @@ export function AppShell() {
       />
       <Header
         className={styles.header}
-        logo={<Logo name="logo-side" />}
+        logo={
+          <span className={styles.brand}>
+            <Logo name="logo-side" />
+            {/* Prototype control (not in Figma): preview the shell in light and dark */}
+            <ThemeToggle />
+          </span>
+        }
         search={{ label: 'Search', placeholder: 'Search', onKeyDown: onSearchKey }}
         actions={[
           { id: 'notifications', icon: 'notification', label: 'Notifications', count: 2 },

@@ -1,4 +1,6 @@
-# Builds Storybook and publishes it to GitHub Pages on every push to main.
+# Builds Storybook and the prototype app and publishes both to GitHub Pages on every push to main:
+#   Storybook  → https://swildricksolar24.github.io/hub360-prototype/
+#   Prototype  → https://swildricksolar24.github.io/hub360-prototype/prototype/
 name: Deploy Storybook to GitHub Pages
 
 on:
@@ -31,6 +33,16 @@ jobs:
         env:
           # Published Storybook opens in dark mode (UI, stories and docs); see .storybook/preview.tsx
           STORYBOOK_THEME: dark
+      # Prototype app under /prototype/ (type check already ran above)
+      - run: npx vite build
+        env:
+          APP_BASE: /hub360-prototype/prototype/
+      - name: Add the app to the Pages site
+        run: |
+          mkdir -p storybook-static/prototype
+          cp -r dist/. storybook-static/prototype/
+          # Pages serves 404.html for unknown paths, so deep links like /prototype/sign-up still load the app
+          cp dist/index.html storybook-static/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

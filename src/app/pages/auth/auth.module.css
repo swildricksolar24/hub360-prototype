@@ -12,6 +12,18 @@
   box-sizing: border-box;
 }
 
+/* Prototype controls (light / dark switch, demo account), stacked at the top left of the page */
+.tools {
+  position: fixed;
+  top: var(--space-24);
+  left: var(--space-24);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-12);
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -91,13 +103,6 @@
   gap: var(--space-8);
 }
 
-.hint {
-  margin: 0;
-  color: var(--color-gray-text-weak);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
-  text-align: center;
-}
 
 /* Email verification: code field, resend status and link (Figma "inputs", gap 12) */
 .codeGroup {
@@ -227,6 +232,23 @@
   line-height: var(--line-height-medium);
 }
 
+/* "*Indicates Required Field" sits right-aligned above Contact Information, with room above it */
+.firstSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-top: var(--space-12);
+}
+
+.requiredNote {
+  text-align: right;
+}
+
+/* The "*" after a required field's label, same color as "*Indicates Required Field" */
+.requiredMark {
+  color: var(--color-semantic-text-error);
+}
+
 .legal {
   display: flex;
   flex-direction: column;
@@ -245,9 +267,21 @@
   line-height: var(--line-height-medium);
 }
 
+/* Captcha: its own band between the disclaimer and the buttons, set off by dividers above and below */
 .captcha {
   display: flex;
   justify-content: center;
+  padding: var(--space-32) 0;
+  box-shadow:
+    inset 0 var(--stroke-width-1) 0 0 var(--color-gray-stroke-disabled),
+    inset 0 calc(-1 * var(--stroke-width-1)) 0 0 var(--color-gray-stroke-disabled);
+}
+
+/* Roomier widget on this page; the Captcha component itself keeps Figma's 280px size */
+.captcha .captchaWidget {
+  width: auto;
+  gap: var(--space-64);
+  padding: var(--space-12) var(--space-24);
 }
 
 .actions {

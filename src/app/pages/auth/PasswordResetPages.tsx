@@ -6,7 +6,7 @@ import { Message } from '../../../components/Message/Message';
 import { Hyperlink } from '../../../components/Hyperlink/Hyperlink';
 import { TextInput } from '../../../components/TextInput/TextInput';
 import { AppLink } from '../../components/AppLink';
-import { DEMO_VERIFICATION_CODE, requestPasswordReset, resendCode, resetPassword, verifyCode } from '../../auth/authService';
+import { DEMO_VERIFICATION_CODE, demoCredentials, requestPasswordReset, resendCode, resetPassword, verifyCode } from '../../auth/authService';
 import { AuthLayout } from './AuthLayout';
 import { PasswordField } from './PasswordField';
 import styles from './auth.module.css';
@@ -74,6 +74,21 @@ export function ForgotPasswordPage() {
       title="Forgot Password"
       subtitle="Please enter your email address to reset your password"
       alert={failed ? <Message type="error" title={PROBLEM} /> : null}
+      tools={
+        // Prototype shortcut (not in Figma): fill in the demo account's email.
+        <Button
+          size="small"
+          variant="outline"
+          icon="email"
+          onClick={() => {
+            setEmail(demoCredentials().identifier);
+            setFailed(false);
+          }}
+          disabled={busy}
+        >
+          Use demo email
+        </Button>
+      }
       below={signUpLinks}
     >
       <form className={styles.form} onSubmit={submit} noValidate>
@@ -136,6 +151,21 @@ export function VerifyEmailPage() {
       pageTitle="Email Verification"
       title="Email Verification"
       subtitle="Enter the verification code sent to your email"
+      tools={
+        // Prototype shortcut (not in Figma): fill in the code the prototype accepts.
+        <Button
+          size="small"
+          variant="outline"
+          icon="lock"
+          onClick={() => {
+            setCode(DEMO_VERIFICATION_CODE);
+            setInvalid(false);
+          }}
+          disabled={busy}
+        >
+          Use demo code
+        </Button>
+      }
       below={signUpLinks}
     >
       <form className={styles.form} onSubmit={submit} noValidate>
@@ -171,7 +201,6 @@ export function VerifyEmailPage() {
           >
             Resend Code
           </Hyperlink>
-          <p className={styles.hint}>Prototype: the code is {DEMO_VERIFICATION_CODE}.</p>
         </div>
         <Button
           type="submit"
@@ -215,7 +244,29 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <AuthLayout pageTitle="Reset Password" title="Reset Password" subtitle="Enter a new password for your account" below={signUpLinks}>
+    <AuthLayout
+      pageTitle="Reset Password"
+      title="Reset Password"
+      subtitle="Enter a new password for your account"
+      tools={
+        // Prototype shortcut (not in Figma): reuse the demo account's current password in both fields.
+        <Button
+          size="small"
+          variant="outline"
+          icon="lock"
+          onClick={() => {
+            const { password: demo } = demoCredentials();
+            setPassword(demo);
+            setConfirm(demo);
+            setMismatch(false);
+          }}
+          disabled={busy}
+        >
+          Use demo password
+        </Button>
+      }
+      below={signUpLinks}
+    >
       <form className={styles.form} onSubmit={submit} noValidate>
         <PasswordField label="New Password" autoComplete="new-password" value={password} onChange={e => { setPassword(e.target.value); setMismatch(false); }} autoFocus />
         <PasswordField

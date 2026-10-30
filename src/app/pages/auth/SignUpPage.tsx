@@ -12,13 +12,13 @@ import { US_STATES } from './usStates';
 import styles from './auth.module.css';
 
 type FieldKey =
-  | 'firstName' | 'lastName' | 'email' | 'phone'
+  | 'fullName' | 'email' | 'phone'
   | 'company' | 'dba' | 'address1' | 'address2' | 'city' | 'state' | 'zip' | 'ein' | 'registrationState' | 'website' | 'comments';
 
 /** Figma "Sign Up" fields; `*` = required, matching the Figma labels. */
 const FIELDS: Record<FieldKey, { label: string; required?: boolean; type?: string; autoComplete?: string }> = {
-  firstName: { label: 'First Name', required: true, autoComplete: 'given-name' },
-  lastName: { label: 'Last Name', required: true, autoComplete: 'family-name' },
+  // Figma has separate First Name / Last Name fields; the prototype combines them into one.
+  fullName: { label: 'Full Name', required: true, autoComplete: 'name' },
   email: { label: 'Email Address', required: true, type: 'email', autoComplete: 'email' },
   phone: { label: 'Phone Number', required: true, type: 'tel', autoComplete: 'tel' },
   company: { label: 'Company Name', required: true, autoComplete: 'organization' },
@@ -35,6 +35,24 @@ const FIELDS: Record<FieldKey, { label: string; required?: boolean; type?: strin
 };
 const REQUIRED = (Object.keys(FIELDS) as FieldKey[]).filter(k => FIELDS[k].required);
 
+/** Fictional details for the "Fill sample info" prototype button (example.com email, 555 phone number). */
+const SAMPLE: Record<FieldKey, string> = {
+  fullName: 'Oswald Cobblepot',
+  email: 'oswald@example.com',
+  phone: '(555) 010-2468',
+  company: 'Iceberg Solar LLC',
+  dba: 'Iceberg Solar',
+  address1: '100 Harbor Way',
+  address2: 'Suite 200',
+  city: 'Austin',
+  state: 'Texas',
+  zip: '78701',
+  ein: '12-3456789',
+  registrationState: 'Texas',
+  website: 'https://example.com',
+  comments: 'Looking to manage our solar installs in HUB 360.',
+};
+
 /** Figma "Sign Up: Default / All required Info Filled In / Button Pressed / Error". */
 export function SignUpPage() {
   const navigate = useNavigate();
@@ -50,7 +68,17 @@ export function SignUpPage() {
   const set = (k: FieldKey) => (value: string) => setValues(v => ({ ...v, [k]: value }));
   const text = (k: FieldKey) => (
     <TextInput
-      label={FIELDS[k].label + (FIELDS[k].required ? '*' : '')}
+      label={
+        <>
+          {FIELDS[k].label}
+          {/* Red like "*Indicates Required Field"; aria-required already tells screen readers */}
+          {FIELDS[k].required && (
+            <span className={styles.requiredMark} aria-hidden="true">
+              *
+            </span>
+          )}
+        </>
+      }
       name={k}
       type={FIELDS[k].type}
       autoComplete={FIELDS[k].autoComplete}
@@ -84,14 +112,37 @@ export function SignUpPage() {
     <AuthLayout
       pageTitle="Sign Up"
       title="Welcome"
-      subtitle={
+      subtitle="Create Your Account to Access All Features"
+      wide
+      tools={
+        // Prototype shortcuts (not in Figma): fill or clear the contact and business fields; the captcha stays for the user.
         <>
-          Create Your Account to Access All Features
-          <br />
-          <span className={styles.required}>*Indicates Required Field</span>
+          <Button
+            size="small"
+            variant="outline"
+            icon="edit"
+            onClick={() => {
+              setValues(SAMPLE);
+              setTouched({});
+            }}
+            disabled={busy}
+          >
+            Fill sample info
+          </Button>
+          <Button
+            size="small"
+            variant="outline"
+            icon="delete"
+            onClick={() => {
+              setValues({});
+              setTouched({});
+            }}
+            disabled={busy}
+          >
+            Remove sample info
+          </Button>
         </>
       }
-      wide
       below={
         <span className={styles.inline}>
           Already have an account? <AppLink to="/sign-in" size="medium">Sign In</AppLink>
@@ -99,15 +150,18 @@ export function SignUpPage() {
       }
     >
       <form className={styles.form} style={{ gap: 'var(--space-48)' }} onSubmit={submit} noValidate>
-        <fieldset className={styles.section}>
-          <legend className={styles.sectionTitle}>Contact Information</legend>
-          <div className={styles.grid}>
-            {text('firstName')}
-            {text('lastName')}
-            {text('email')}
-            {text('phone')}
-          </div>
-        </fieldset>
+        {/* Required-field note, right-aligned just above the first section */}
+        <div className={styles.firstSection}>
+          <p className={`${styles.required} ${styles.requiredNote}`}>*Indicates Required Field</p>
+          <fieldset className={styles.section}>
+            <legend className={styles.sectionTitle}>Contact Information</legend>
+            <div className={styles.grid}>
+              <div className={styles.full}>{text('fullName')}</div>
+              {text('email')}
+              {text('phone')}
+            </div>
+          </fieldset>
+        </div>
 
         <fieldset className={styles.section}>
           <legend className={styles.sectionTitle}>Business Information</legend>
@@ -150,7 +204,8 @@ export function SignUpPage() {
         </div>
 
         <div className={styles.captcha}>
-          <Captcha checked={human} onChange={e => setHuman(e.target.checked)} />
+          {/* Logo a little larger than Figma's 45px so it stays legible */}
+          <Captcha className={styles.captchaWidget} logoHeight={51} checked={human} onChange={e => setHuman(e.target.checked)} />
         </div>
 
         <div className={styles.actions}>

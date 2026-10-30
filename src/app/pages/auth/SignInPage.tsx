@@ -6,7 +6,7 @@ import { Message } from '../../../components/Message/Message';
 import { TextInput } from '../../../components/TextInput/TextInput';
 import { AppLink } from '../../components/AppLink';
 import { useAuth } from '../../auth/AuthContext';
-import { AuthError, rememberedIdentifier } from '../../auth/authService';
+import { AuthError, demoCredentials, rememberedIdentifier } from '../../auth/authService';
 import { AuthLayout } from './AuthLayout';
 import { PasswordField } from './PasswordField';
 import styles from './auth.module.css';
@@ -33,6 +33,14 @@ export function SignInPage() {
   const expired = params.get('reason') === 'expired';
 
   const canSubmit = identifier.trim() !== '' && password !== '' && !busy;
+
+  // Prototype shortcut (not in Figma): fill in the demo account.
+  function fillDemo() {
+    const demo = demoCredentials();
+    setIdentifier(demo.identifier);
+    setPassword(demo.password);
+    setErrors({});
+  }
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -66,6 +74,11 @@ export function SignInPage() {
       title="Welcome"
       subtitle="Please sign in to access your account"
       alert={alert}
+      tools={
+        <Button size="small" variant="outline" icon="account" onClick={fillDemo} disabled={busy || locked}>
+          Use demo account
+        </Button>
+      }
       below={
         <>
           <span className={styles.inline}>

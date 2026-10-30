@@ -23,7 +23,7 @@ export class AuthError extends Error {
 export const MAX_FAILED_ATTEMPTS = 3;
 /** Signed-in sessions expire after this long without activity (Figma: "Login: Session Expired"). */
 export const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
-/** The prototype accepts this verification code (shown on the verification screen as a hint). */
+/** The prototype accepts this verification code (filled in by the verification screen's "Use demo code" button). */
 export const DEMO_VERIFICATION_CODE = '123456';
 
 type Account = User & { phone: string; password: string; failedAttempts: number; locked: boolean };
@@ -32,6 +32,9 @@ type Account = User & { phone: string; password: string; failedAttempts: number;
 const accounts: Account[] = [
   { id: 'u1', name: 'Oswald Cobblepot', email: 'oswaldc@gmail.com', phone: '1234567891', initials: 'OC', password: 'bat8992', failedAttempts: 0, locked: false },
 ];
+
+/** The demo account's current sign-in details, for the sign-in screen's "Use demo account" button. */
+export const demoCredentials = () => ({ identifier: accounts[0].email, password: accounts[0].password });
 
 const delay = (ms = 700) => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = (identifier: string) => identifier.trim().toLowerCase().replace(/[\s()-]/g, '');

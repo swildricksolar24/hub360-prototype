@@ -11,24 +11,3 @@
   background: var(--color-surfaces-base);
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-strong);
 }
-
-/* Logo placeholder: 47×45 like the Figma Recaptcha instance */
-.mark {
-  flex: none;
-  width: 47px;
-  height: 45px;
-}
-.markArc {
-  fill: none;
-  stroke: var(--color-semantic-fill-info-strong);
-  stroke-width: var(--stroke-width-4);
-}
-.markHead {
-  fill: var(--color-semantic-fill-info-strong);
-}
-.markText {
-  fill: var(--color-gray-text-weak);
-  font-family: var(--font-family-inter);
-  /* Text inside the 47px logo artwork; scaled with the SVG, not a type style */
-  font-size: 7px;
-}

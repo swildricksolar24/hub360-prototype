@@ -3,7 +3,8 @@ import { Icon } from '../Icon/Icon';
 import styles from './TextInput.module.css';
 
 export type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
-  label: string;
+  /** Label text; may include markup such as a styled required `*`. */
+  label: ReactNode;
   /** Error message. Setting it shows Figma `State=Error`. */
   error?: string;
   /** Icon before the text (Figma "Left Icon"). */
