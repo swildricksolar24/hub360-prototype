@@ -1,0 +1,29 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Tell the browser which theme is showing, so native scrollbars (e.g. the State dropdown list) match it.
+   Same selectors as the theme switch in tokens.css. */
+:root {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-surfaces-base);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  -webkit-font-smoothing: antialiased;
+}

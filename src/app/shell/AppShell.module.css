@@ -1,0 +1,38 @@
+/* Figma "Shell": Tab Bar 26px · Header 94px · Body (Tier 1, Tier 2, content) · Footer 44px, full viewport height. */
+.shell {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  height: 100vh;
+  background: var(--color-surfaces-raised);
+}
+
+/* Header logo slot: Logo Side, then the light / dark preview switch */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+}
+
+.body {
+  display: flex;
+  min-height: 0;
+}
+
+.tier1 {
+  flex: none;
+  overflow-y: auto;
+  background: var(--color-surfaces-base);
+}
+
+.tier2 {
+  flex: none;
+  overflow-y: auto;
+  background: var(--color-surfaces-sunken);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: var(--space-24);
+}

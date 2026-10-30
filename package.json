@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
     "storybook": "storybook dev -p 6007",
     "build-storybook": "storybook build",
     "build:tokens": "node design-system/scripts/build-tokens.mjs",
@@ -11,7 +14,8 @@
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@storybook/addon-designs": "^12.0.0",

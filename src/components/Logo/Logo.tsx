@@ -3,7 +3,9 @@ import styles from './Logo.module.css';
 import sideIcon from './parts/logo-side-icon.svg?raw';
 
 /*
- * SVGs in `svg/` are exported from the Figma "Logos*" page with Framelink and kept as brand artwork.
+ * SVGs in `svg/` are exported from the Figma "Logos*" page with Framelink and kept as brand artwork,
+ * except recaptcha.svg: the Figma export looked pixelated, so it is Google's logo from Wikimedia Commons
+ * (File:RecaptchaLogo.svg, public domain, Google trademark) with its viewBox cropped to the artwork.
  * Fills Figma binds to a variable were rewritten to `currentColor` so the variable can be applied in CSS:
  *  - parts/logo-side-icon.svg (Logo Side's icon): the four segments use "Logo Color"
  *  - equal-housing-lender.svg, face-id.svg: "Gray Fill/Strong"
