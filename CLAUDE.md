@@ -15,7 +15,7 @@ It contains:
 
 The git remote is `origin` → https://github.com/swildricksolar24/hub360-prototype (public), branch `main`.
 
-Every push to `main` rebuilds Storybook and publishes it to GitHub Pages at https://swildricksolar24.github.io/hub360-prototype/. The workflow is `.github/workflows/storybook-pages.yml`; it runs the type check before building, and a failure stops the deploy.
+Every push to `main` rebuilds Storybook and the prototype app and publishes both to GitHub Pages: Storybook at https://swildricksolar24.github.io/hub360-prototype/ and the app at https://swildricksolar24.github.io/hub360-prototype/prototype/ (built with `APP_BASE=/hub360-prototype/prototype/`; a copy of its `index.html` is the site's `404.html`, so deep links load). The workflow is `.github/workflows/storybook-pages.yml`; it runs the type check before building, and a failure stops the deploy.
 
 ## Commands
 
