@@ -4,7 +4,10 @@
  * the screens only depend on the functions and error codes exported here.
  */
 
-export type User = { id: string; name: string; email: string; initials: string };
+import oswaldPhoto from '../assets/oswald-cobblepot.svg';
+
+/** `photo` is an image URL for the header avatar; without it the avatar shows `initials`. */
+export type User = { id: string; name: string; email: string; initials: string; photo?: string };
 
 export type AuthErrorCode =
   | 'invalid-identifier' // Figma "Login: Wrong Credentials" — email/phone not found
@@ -30,7 +33,7 @@ type Account = User & { phone: string; password: string; failedAttempts: number;
 
 // Demo account taken from the Figma screens (oswaldc@gmail.com / bat8992).
 const accounts: Account[] = [
-  { id: 'u1', name: 'Oswald Cobblepot', email: 'oswaldc@gmail.com', phone: '1234567891', initials: 'OC', password: 'bat8992', failedAttempts: 0, locked: false },
+  { id: 'u1', name: 'Oswald Cobblepot', email: 'oswaldc@gmail.com', phone: '1234567891', initials: 'OC', photo: oswaldPhoto, password: 'bat8992', failedAttempts: 0, locked: false },
 ];
 
 /** The demo account's current sign-in details, for the sign-in screen's "Use demo account" button. */
@@ -39,7 +42,13 @@ export const demoCredentials = () => ({ identifier: accounts[0].email, password:
 const delay = (ms = 700) => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = (identifier: string) => identifier.trim().toLowerCase().replace(/[\s()-]/g, '');
 const find = (identifier: string) => accounts.find(a => a.email === normalize(identifier) || a.phone === normalize(identifier));
-const toUser = ({ id, name, email, initials }: Account): User => ({ id, name, email, initials });
+const toUser = ({ id, name, email, initials, photo }: Account): User => ({ id, name, email, initials, photo });
+
+/** Current details for a signed-in user, so a restored session picks up changes (e.g. a new photo). */
+export function userById(id: string): User | null {
+  const account = accounts.find(a => a.id === id);
+  return account ? toUser(account) : null;
+}
 
 export async function signIn(identifier: string, password: string): Promise<User> {
   await delay();

@@ -48,3 +48,18 @@
   --icon: var(--color-gray-fill-disabled);
   cursor: not-allowed;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.item,
+.icon {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .icon {
+    transition: none;
+  }
+}

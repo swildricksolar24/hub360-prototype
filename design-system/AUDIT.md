@@ -102,6 +102,19 @@ Not synced, on purpose:
 
 None of this is published until the Figma library is published.
 
+## Hover fades added in Figma (2026-10-30)
+
+The coded components fade their state colors over 150ms (CSS `ease`). To match, the `State=Default` variant of 81
+library sets (86 variants) got a prototype interaction: **On hover → Change to** its `State=Hover` sibling, **Smart
+Animate**, 150ms, custom bezier `0.25, 0.1, 0.25, 1`. It covers the buttons (Base, Block, Icon, Small, Tiny, Button
+Group parts), the side menu buttons, Chip, Checkbox, Radio Button, Tag, Hyperlink, ListBox, the drop-downs (Label,
+Button, Accordion, Selector, Main Drop Down), Context Menu, Menu Sidebar, Search Bar, both Tab Bar pages and Help
+Center. Sets whose coded component has no fade were left alone: Text Input, Numeric, Text Area, OTP, Message, Upload,
+Editable Cell, Filter Chip drop-down and Tier 3 Icon. Archived and "not used" pages were skipped.
+
+Not synced: the Tier 1 press and select motion, and the Tier 3 collapsed layout (full title, centered sub menu, actions
+kept top right).
+
 ## Token coverage
 
 | Category | Defined | Bound in components | Hardcoded / off-scale |

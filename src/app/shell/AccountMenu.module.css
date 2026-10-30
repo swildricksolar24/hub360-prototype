@@ -3,12 +3,44 @@
 }
 
 .trigger {
+  position: relative;
   display: inline-flex;
+  overflow: hidden; /* keeps the hover sheen inside the circle */
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: none;
   cursor: pointer;
+}
+
+/*
+ * White sheen on hover (or keyboard focus): a soft diagonal highlight sweeps once across the avatar, left to
+ * right. It starts and ends outside the circle, so resetting when the pointer leaves is invisible.
+ */
+.trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* Subtle: a faint (20%) white with long soft edges */
+  background-image: linear-gradient(
+    115deg,
+    transparent 35%,
+    color-mix(in srgb, var(--color-foundation-solid-white) 20%, transparent) 50%,
+    transparent 65%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  pointer-events: none;
+}
+.trigger:is(:hover, :focus-visible)::after {
+  background-position: 0% 0;
+  transition: background-position 900ms ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger::after {
+    content: none;
+  }
 }
 
 .trigger:focus-visible {

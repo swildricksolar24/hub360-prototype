@@ -24,11 +24,12 @@ export function SectionPage() {
   return <EmptyState title={title} body="This section hasn’t been built yet." icon={section.pages?.find(p => p.id === pageId)?.icon ?? section.icon} />;
 }
 
-export function AccountSettingsPage() {
+/** A blank tab, opened with the tab bar's +. Going to any page from here fills this tab with it. */
+export function NewTabPage() {
   useEffect(() => {
-    document.title = 'Account Settings · HUB 360';
+    document.title = 'New Tab · HUB 360';
   }, []);
-  return <EmptyState title="Account Settings" body="Account settings haven’t been built yet." icon="account" />;
+  return <EmptyState title="New Tab" body="This tab is empty. Pick a section from the menu on the left, or search above." icon="plus" />;
 }
 
 function EmptyState({ title, body, icon }: { title: string; body: string; icon: string }) {

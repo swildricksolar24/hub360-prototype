@@ -139,3 +139,47 @@
 .root[data-tier='2']:not([data-variant='compact']):disabled {
   --bg: transparent;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.root,
+.box {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .box {
+    transition: none;
+  }
+}
+
+/*
+ * Tier 1 motion (not in Figma), on top of the color fades: pressing squeezes the box to 94%; a section that
+ * becomes selected gives its box a quick pop (grows to 108% and settles). The icon itself never moves in the box.
+ */
+.root[data-tier='1'] .box {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    transform 120ms ease-out;
+}
+.root[data-tier='1']:active:not(:disabled) .box {
+  transform: scale(0.94);
+}
+@keyframes tier1-select {
+  40% {
+    transform: scale(1.08);
+  }
+}
+.root[data-tier='1'][aria-current='page'] .box {
+  animation: tier1-select 320ms cubic-bezier(0.2, 0, 0, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .root[data-tier='1'] .box {
+    transition: none;
+    animation: none;
+  }
+}

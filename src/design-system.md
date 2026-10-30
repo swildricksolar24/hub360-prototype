@@ -94,7 +94,7 @@ Every Figma set on the library pages has a coded component. The exceptions are t
 
 | Storybook group | Components |
 |---|---|
-| Foundations | Icon (109 icons), Logo (9 logos) |
+| Foundations | Icon (110 icons), Logo (9 logos) |
 | Primitives | Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Dropdown (Drop Down Label + Drop Down Button), EditableCell, Hyperlink, IconButton, LastModified, ListBox (plus TreeList), NumericInput, AutocompleteInput, OtpInput, Overlay, RadioButton, Skeleton, Tag, TextArea, TextInput, Toggle, Tooltip |
 | Web Components | Accordion, Captcha, Card, ContextMenu, DropdownSelector, DropdownTree, FilterChipDropdown, Message, Modal (plus ModalPanel), MultiselectDropdown, NotificationBox, Progress, RangeSlider, Rating, Scrollbar, SearchBar, SignaturePad, Timeline, UploadFile |
 | Custom | DataHeader, DataRow, HelpCenter, MainDropDown, PageTracker |
@@ -109,8 +109,9 @@ Most-used APIs:
 | IconButton | `label` (required), `icon` or `number`, `variant` (default / brand), `size` (base 80px / compact 40px), `selected` |
 | TextInput | `label` (text or markup, e.g. a red required `*`), `error` (message), `leftIcon`, `rightIcons`, `trailingAction` (an interactive control after the divider, e.g. show/hide password), plus native input props (`required`, `disabled`, …) |
 | Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
-| Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm) |
+| Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm), `width`. The close button is Figma "Button / Icon Only / Small / Secondary" (44px; Hover fades to Gray Fill/Hover). In the prototype app use `AppModal`, which wraps it |
 | Message | `title`, `body`, `type`, `onClose` |
+| NavTabBar | `tabs` (`{ id, label, icon?, title? }`: keep `label` short and put the full name in `title`, which becomes the tooltip and accessible name), `activeId`, `onSelect`, `onClose`, `onReorder` (drag tabs or Ctrl+Shift+←/→ to reorder; called with the new id order), `onHome`, `onAdd`. Restyled from Figma for readability: 40px bar on Surfaces/Base, 14px tabs, brand-teal underline on the active tab |
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:

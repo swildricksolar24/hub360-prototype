@@ -7,6 +7,7 @@ import { TextInput } from '../../../components/TextInput/TextInput';
 import { AppLink } from '../../components/AppLink';
 import { useAuth } from '../../auth/AuthContext';
 import { AuthError, demoCredentials, rememberedIdentifier } from '../../auth/authService';
+import { DEFAULT_SECTION } from '../../shell/navigation';
 import { AuthLayout } from './AuthLayout';
 import { PasswordField } from './PasswordField';
 import styles from './auth.module.css';
@@ -49,8 +50,8 @@ export function SignInPage() {
     setErrors({});
     try {
       await signIn(identifier, password, remember);
-      const from = (location.state as { from?: string } | null)?.from;
-      navigate(from && from.startsWith('/app') ? from : '/app', { replace: true });
+      // The shell always opens on Dashboard
+      navigate(`/app/${DEFAULT_SECTION}`, { replace: true });
     } catch (err) {
       setBusy(false);
       const code = err instanceof AuthError ? err.code : null;

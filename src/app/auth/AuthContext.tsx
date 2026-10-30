@@ -8,7 +8,15 @@ type AuthContextValue = {
   signIn: (identifier: string, password: string, remember: boolean) => Promise<void>;
   /** `reason: 'expired'` shows the Figma "Session Expired" message on the sign-in screen. */
   signOut: (reason?: 'expired') => void;
+  /** Account Settings › Edit Photo: a new photo (data URL), `''` to remove it, or `null` for the account's original. */
+  updatePhoto: (photo: string | null) => void;
 };
+
+/**
+ * A photo the user set in Account Settings: an uploaded photo (Edit Photo saves JPEG data URLs) or '' for
+ * "no photo". The account's own photo can also be a data URL (Vite inlines small SVGs), so only JPEG counts.
+ */
+const isCustomPhoto = (photo: string | undefined) => photo === '' || !!photo?.startsWith('data:image/jpeg');
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 const SESSION_KEY = 'hub360.session';
@@ -16,7 +24,13 @@ const SESSION_KEY = 'hub360.session';
 function loadSession(): User | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as User;
+    // Refresh from the account so details added after sign-in (like the photo) show up, but keep a photo the
+    // user changed in Account Settings
+    const account = authService.userById(saved.id);
+    if (!account) return saved;
+    return isCustomPhoto(saved.photo) ? { ...account, photo: saved.photo } : account;
   } catch {
     return null;
   }
@@ -66,7 +80,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user, signOut]);
 
-  const value = useMemo(() => ({ user, signIn, signOut }), [user, signIn, signOut]);
+  const updatePhoto = useCallback((photo: string | null) => {
+    setUser(current => {
+      if (!current) return current;
+      const original = authService.userById(current.id)?.photo;
+      const next = { ...current, photo: photo ?? original };
+      try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(next));
+      } catch {
+        /* too large for session storage: the photo lasts until a reload */
+      }
+      return next;
+    });
+  }, []);
+
+  const value = useMemo(() => ({ user, signIn, signOut, updatePhoto }), [user, signIn, signOut, updatePhoto]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

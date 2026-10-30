@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original illustration for the prototype's demo account (Oswald Cobblepot): top hat, monocle, bow tie.
+       Transparent background: the avatar circle behind it supplies (and animates) the color. -->
+  <!-- neck, tuxedo shoulders, shirt, bow tie -->
+  <path d="M55 82h18v14c-6 3-12 3-18 0z" fill="#E3B391"/>
+  <path d="M12 128c2-22 21-34 52-34s50 12 52 34z" fill="#1B1D24"/>
+  <path d="M51 95l13 27 13-27c-4-2-8-3-13-3s-9 1-13 3z" fill="#F4F1EA"/>
+  <path d="M55 98l9 5 9-5v11l-9-5-9 5z" fill="#6B3FA0"/>
+  <circle cx="64" cy="103.5" r="2.6" fill="#4E2C78"/>
+  <!-- ears, head -->
+  <ellipse cx="42.5" cy="67" rx="4.5" ry="6.5" fill="#E3B391"/>
+  <ellipse cx="85.5" cy="67" rx="4.5" ry="6.5" fill="#E3B391"/>
+  <ellipse cx="64" cy="66" rx="22" ry="24" fill="#F0C6A4"/>
+  <!-- sideburns -->
+  <path d="M42 57c0-6 4-10 8-11v14c-3 1-6 3-8 6z" fill="#2A2420"/>
+  <path d="M86 57c0-6-4-10-8-11v14c3 1 6 3 8 6z" fill="#2A2420"/>
+  <!-- top hat -->
+  <path d="M44 45V18c0-3 2-5 5-5h30c3 0 5 2 5 5v27z" fill="#1F2027"/>
+  <rect x="44" y="35" width="40" height="6" fill="#6B3FA0"/>
+  <rect x="33" y="43" width="62" height="7" rx="3.5" fill="#15161B"/>
+  <!-- brows and eyes -->
+  <path d="M49 58q5-4 10 0" fill="none" stroke="#2A2420" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M68 56.5q5-3 11 1.5" fill="none" stroke="#2A2420" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="54.5" cy="64" r="2.5" fill="#1B1D24"/>
+  <circle cx="73.5" cy="64" r="2.5" fill="#1B1D24"/>
+  <!-- monocle and chain -->
+  <circle cx="73.5" cy="64" r="7.5" fill="#FFFFFF" fill-opacity="0.2" stroke="#D4A63A" stroke-width="2"/>
+  <path d="M80 68q7 10 2 26" fill="none" stroke="#D4A63A" stroke-width="1.5"/>
+  <!-- long nose and smirk -->
+  <path d="M64 63q-1 9-7 15q7 1.5 10-2.5z" fill="#E2A985"/>
+  <path d="M55 82.5q8 4 16-2" fill="none" stroke="#8A4B3A" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

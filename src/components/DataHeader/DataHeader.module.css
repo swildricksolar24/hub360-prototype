@@ -93,3 +93,16 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.iconButton {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .iconButton {
+    transition: none;
+  }
+}

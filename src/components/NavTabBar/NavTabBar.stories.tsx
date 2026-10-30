@@ -94,6 +94,19 @@ export const TabLabel: Story = {
   parameters: { ...figma('1994:326', 'Tab Bar (Main Nav) › Tab Label'), ...pseudoStates, controls: { disable: true } },
 };
 
+/** Not in Figma: short page labels with the section icon; the full name is the tooltip and accessible name. */
+export const WithIcons: Story = {
+  args: {
+    tabs: [
+      { id: 'dash', label: 'Dashboard', icon: 'dashboard', title: 'Dashboard' },
+      { id: 'hub', label: 'HubSight', icon: 'warehouse', title: 'Inventory · HubSight' },
+      { id: 'wh', label: 'Warehouses', icon: 'warehouse', title: 'Inventory · Warehouses' },
+      { id: 'items', label: 'Items', icon: 'warehouse', title: 'Inventory · Items' },
+    ],
+    activeId: 'wh',
+  },
+};
+
 export const TabSmall: Story = {
   render: () => (
     <div style={{ padding: 'var(--space-8)', background: 'var(--color-surfaces-raised)' }}>

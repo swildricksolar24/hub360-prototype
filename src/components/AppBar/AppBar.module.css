@@ -99,3 +99,16 @@
 .menu:focus-visible {
   box-shadow: 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.menu {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    transition: none;
+  }
+}

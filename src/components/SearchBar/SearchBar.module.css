@@ -180,3 +180,16 @@
   line-height: var(--line-height-large);
   text-align: center;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.row {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+}

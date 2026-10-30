@@ -3,6 +3,8 @@
  * Tier 3 Label (2642:3631), Tier 3 Icon (2648:4086).
  */
 .tier3 {
+  /* border-box so the expand / collapse height animation (NavTier3.tsx) includes the padding */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: var(--space-24);
@@ -84,12 +86,31 @@
   line-height: var(--line-height-heading-2);
   font-weight: 700;
 }
-/* Collapsed: the title truncates (Figma "WAREHO...") */
+/*
+ * Collapsed: the whole title stays readable on one line (Figma truncates it to a 172px "WAREHO..."). The icon and
+ * title keep their width; the sub menu takes the space left and wraps its buttons.
+ */
 .titleCollapsed {
-  max-width: 172px; /* Figma title box width; no token */
-  overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+}
+.tier3[data-collapsed] > .identity {
+  flex: none;
+}
+.tier3[data-collapsed] > .subMenu {
+  flex: 1;
+  min-width: 0;
+}
+/*
+ * Not in Figma: Collapsed keeps the actions and "Last Modified" in the same top-right spot as Expanded, so they
+ * don't move when the header switches states.
+ */
+.tier3[data-collapsed] > .end {
+  flex: none;
+  align-self: flex-start;
+}
+/* The section buttons sit centered between the title and the actions (SubMenu's own list) */
+.tier3[data-collapsed] > .subMenu > ul {
+  justify-content: center;
 }
 
 /* ---------- Tier 3 Labels ---------- */

@@ -1,0 +1,153 @@
+/* Inventory › Warehouses (Figma "Inventory / Warehouse - A", 732:51717): a toolbar card over the table card. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  /* min-width: 0 keeps a wide table scrolling inside its card instead of widening the page */
+  min-width: 0;
+  min-height: 100%;
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.search {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Table ---------- */
+.tableCard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-24);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+/* Wide column sets scroll sideways inside the card */
+.tableScroll {
+  position: relative;
+  min-width: 0;
+  overflow-x: auto;
+}
+/* Figma "Tables - Warehouse": Surfaces/Base behind the rows, a 2px Gray Stroke/Disabled frame at 10%, 4px corners */
+.table {
+  min-width: max-content;
+  border: var(--stroke-width-2) solid color-mix(in srgb, var(--color-gray-stroke-disabled) 10%, transparent);
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-base);
+}
+/* Figma header: 60px tall, Brand Teal Fill/Weaker at 10%, square corners */
+.head {
+  min-height: 60px; /* Figma header height; component dimension, no token */
+  background: color-mix(in srgb, var(--color-brand-teal-fill-weaker) 10%, transparent);
+}
+/* Figma data row: bottom stroke Gray Stroke/Weaker at 40%, 0.5px */
+.row {
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0
+    color-mix(in srgb, var(--color-gray-stroke-weaker) 40%, transparent);
+}
+/* Inactive rows: Figma draws the checkbox and the values at 40% opacity; the status pill and ••• stay full */
+.rowWrap[data-inactive] .row > [role='cell']:nth-last-child(n + 3) {
+  opacity: 0.4;
+}
+
+/* Status pill: Figma Tag "Small" with its fill overridden. Active is Brand Orange Fill/Strong, Inactive Gray Fill/Weak
+   at 70%; both with white labels (white on a fill has no semantic token, see design-system.md) */
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-20);
+  border-radius: var(--radius-40);
+  background: color-mix(in srgb, var(--color-gray-fill-weak) 70%, transparent);
+  color: var(--color-foundation-solid-white);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.status[data-active] {
+  background: var(--color-brand-orange-fill-strong);
+}
+.skeletonRow {
+  padding: var(--space-16) var(--space-24);
+}
+
+/* Row menu: the ••• menu opens under the row's actions button */
+.rowWrap {
+  position: relative;
+}
+/* Figma alternates the rows: Surfaces/Sunken (first, third, …) and Surfaces/Overlay */
+.rowWrap {
+  background: var(--color-surfaces-overlay);
+}
+.rowWrap[data-stripe] {
+  background: var(--color-surfaces-sunken);
+}
+.rowMenu {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% - var(--space-8));
+  right: var(--space-16);
+}
+
+/* Header filter pop-over, under the column it filters */
+.filter {
+  position: absolute;
+  z-index: 3;
+  top: var(--space-56);
+  width: 280px; /* pop-over width; no token */
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-raised);
+  box-shadow: var(--shadow-drop);
+}
+.filter form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+
+/* Empty and no-results states */
+.empty {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-48) var(--space-24);
+}
+.emptyCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+}
+.emptyCell p {
+  margin: 0;
+}
+.emptyCell :global(.text-large-bold) {
+  color: var(--color-gray-text-strong);
+}
+
+/* Confirm Activation / Deactivation: the bold teal verb */
+.verb {
+  color: var(--color-brand-teal-text-strongest);
+}

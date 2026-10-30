@@ -1,0 +1,201 @@
+/* Values come from the Figma "_Sign In / Shell" › Account Settings frames (774:6033). */
+
+/* The whole page: every settings section, one after another */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-40);
+  padding-bottom: var(--space-40);
+}
+.pageTitle,
+.groupTitle {
+  width: 100%;
+  max-width: 800px; /* lines up with the column below */
+  margin: 0 auto;
+  color: var(--color-gray-text-strong);
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+/* Figma centers an 800px column of cards (a layout width; no token) */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Card ---------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+}
+.cardTitle {
+  margin: 0;
+  padding: var(--space-16) var(--space-24);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-24) var(--space-24);
+}
+.cardFooter {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-16) var(--space-24);
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-disabled);
+}
+
+/* Personal Information: photo, name and role, Edit Photo */
+.profile {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+/* ---------- Rows ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: var(--space-40);
+  padding-bottom: var(--space-12);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+.row:last-child {
+  padding-bottom: 0;
+  box-shadow: none;
+}
+.lead {
+  display: inline-flex;
+  flex: none;
+}
+.rowText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.rowLabel {
+  color: var(--color-gray-text-strong);
+}
+.rowDescription {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.control {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-12);
+}
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Fields ---------- */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.fieldRow {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: var(--space-12);
+}
+/* A field with its action button at the end (Password, SMS Backup) */
+.inline {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-12);
+}
+.inline > :first-child {
+  flex: 1;
+}
+
+.managed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+
+/* Devices: the device icon in a small rounded tile */
+.deviceIcon {
+  display: inline-flex;
+  padding: var(--space-8);
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-fill-strong);
+}
+
+/*
+ * Destructive actions (Sign Out, Deactivate, Delete): Figma overrides the button / chip fill with Semantic
+ * Fill/Error Strong. Its text is Gray Text/Inverse Strong rather than Figma's white: Error Strong is light pink in
+ * dark mode, where white text would fail contrast, and the inverse text is white in light and black in dark.
+ * Raised specificity beats the component's own hover / press fills.
+ */
+.card .danger.danger[data-variant] {
+  --bg: var(--color-semantic-fill-error-strong);
+  --fg: var(--color-gray-text-inverse-strong);
+  --ring-w: 0px;
+  color: var(--fg);
+}
+.card .danger.danger[data-variant]:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Edit Photo (modal): preview and Remove on the left, the upload area on the right */
+.photoEditor {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-24);
+}
+.photoPreview {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+}
+.photoUpload {
+  flex: 1;
+}
+
+/* Account activity log (modal) */
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-gray-text-strong);
+}
+.log li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
