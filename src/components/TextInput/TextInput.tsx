@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './TextInput.module.css';
 
@@ -10,9 +10,11 @@ export type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>
   leftIcon?: string;
   /** Up to two icons after the text (Figma "Right Icon" / "Right Double Icon"). */
   rightIcons?: [string] | [string, string];
+  /** An interactive control after the text, e.g. a show/hide password button. Shares the right-hand divider. */
+  trailingAction?: ReactNode;
 };
 
-export function TextInput({ label, error, leftIcon, rightIcons, id, className, disabled, ...inputProps }: TextInputProps) {
+export function TextInput({ label, error, leftIcon, rightIcons, trailingAction, id, className, disabled, ...inputProps }: TextInputProps) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const errorId = `${inputId}-error`;
@@ -41,12 +43,13 @@ export function TextInput({ label, error, leftIcon, rightIcons, id, className, d
           aria-describedby={error ? errorId : undefined}
           {...inputProps}
         />
-        {rightIcons && (
+        {(rightIcons || trailingAction) && (
           <span className={styles.adornment}>
             <span className={styles.divider} />
-            {rightIcons.map((name, i) => (
+            {rightIcons?.map((name, i) => (
               <Icon key={i} name={name} size={20} color="currentColor" />
             ))}
+            {trailingAction}
           </span>
         )}
       </div>

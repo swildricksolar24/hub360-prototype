@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react';
 import styles from './Footer.module.css';
 
-export type FooterLink = { label: string; href: string };
+export type FooterLink = {
+  label: string;
+  href: string;
+  /** Opens in a new window (e.g. legal PDFs). */
+  newWindow?: boolean;
+};
 
 export type FooterProps = {
   /** Left text, e.g. "© 2026 HUB360, All Rights Reserved". */
@@ -22,12 +27,17 @@ export function Footer({ copyright, version, links = [], linksLabel = 'Legal', c
       <p className={styles.copyright}>{copyright}</p>
       {version && <p className={styles.version}>{version}</p>}
       {links.length > 0 && (
-        <nav aria-label={linksLabel}>
+        <nav className={styles.nav} aria-label={linksLabel}>
           <ul className={styles.links}>
             {links.map(link => (
               <li key={link.href + link.label}>
-                <a href={link.href} className={styles.link}>
+                <a
+                  href={link.href}
+                  className={styles.link}
+                  {...(link.newWindow && { target: '_blank', rel: 'noopener noreferrer' })}
+                >
                   {link.label}
+                  {link.newWindow && <span className={styles.srOnly}> (opens in a new window)</span>}
                 </a>
               </li>
             ))}

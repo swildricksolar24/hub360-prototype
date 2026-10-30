@@ -1,0 +1,257 @@
+/* Values come from the Figma "Sign In (Desktop Only)" frames (e.g. Login: Default 332:1663, Sign Up 332:1936). */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-32);
+  min-height: 100vh;
+  padding: var(--space-80) var(--space-16);
+  background: var(--color-surfaces-base);
+  box-sizing: border-box;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  width: 100%;
+  /* Figma card width; no size token */
+  max-width: 520px;
+  padding: var(--space-56);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+  box-sizing: border-box;
+}
+
+.card[data-wide] {
+  max-width: 640px;
+  padding: var(--space-48);
+  gap: var(--space-48);
+}
+
+@media (max-width: 560px) {
+  .card,
+  .card[data-wide] {
+    padding: var(--space-24);
+  }
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-2);
+  line-height: var(--line-height-heading-2);
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+/* "Remember me" checkbox + "Forgot Password" link */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.below {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-align: center;
+}
+
+/* Email verification: code field, resend status and link (Figma "inputs", gap 12) */
+.codeGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.code {
+  align-self: stretch;
+}
+
+.code input {
+  font-size: var(--font-size-heading-3);
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+
+.resent {
+  margin: 0;
+  color: var(--color-semantic-text-success);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+/* Stays in the DOM (so the live region announces) but takes no space until it has text */
+.resent:empty {
+  position: absolute;
+}
+
+/* Password Reset: Success — 80px Surfaces/Base circle around a 48px icon */
+.successIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: var(--space-80);
+  height: var(--space-80);
+  border-radius: var(--radius-40);
+  background: var(--color-surfaces-base);
+}
+
+
+/* Show/hide password toggle inside the password field */
+.reveal {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.reveal:focus-visible {
+  box-shadow: 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+  outline: none;
+}
+.reveal:disabled {
+  cursor: not-allowed;
+}
+
+/* Spinner on the busy submit button (Figma "Signing In" / "Button Clicked") */
+.busy svg {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .busy svg {
+    animation: none;
+  }
+}
+
+/* ---------- Sign Up ---------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-12);
+  padding: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-3);
+  line-height: var(--line-height-heading-3);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-24) var(--space-12);
+  align-items: start;
+}
+
+.grid > .full {
+  grid-column: 1 / -1;
+}
+
+/* State + Zip share one column in Figma */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+
+@media (max-width: 560px) {
+  .grid,
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.required {
+  margin: 0;
+  color: var(--color-semantic-text-error);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.legal p {
+  margin: 0;
+}
+
+.legal strong {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+.captcha {
+  display: flex;
+  justify-content: center;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}

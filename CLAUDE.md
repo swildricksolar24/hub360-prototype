@@ -11,14 +11,17 @@ It contains:
 - 61 coded React components covering every set on the Figma library pages (all except the "not used" pages, the Testing page and the Holder scaffolding)
 - a Storybook that documents them, with a link from each story to its Figma component
 - an inventory and an audit of the Figma system
+- a prototype app in `src/app/` (desktop only): the sign-in flow and the app shell from the Figma file "_Sign In / Shell" ([Figma](https://www.figma.com/design/Dicn7aHuXXE7dmCg57RwwB/_Sign-In---Shell), file key `Dicn7aHuXXE7dmCg57RwwB`)
 
-There is no application yet. The git remote is `origin` → https://github.com/swildricksolar24/hub360-prototype (public), branch `main`.
+The git remote is `origin` → https://github.com/swildricksolar24/hub360-prototype (public), branch `main`.
 
 Every push to `main` rebuilds Storybook and publishes it to GitHub Pages at https://swildricksolar24.github.io/hub360-prototype/. The workflow is `.github/workflows/storybook-pages.yml`; it runs the type check before building, and a failure stops the deploy.
 
 ## Commands
 
 ```bash
+npm run dev                # prototype app on http://localhost:5173 (Vite picks the next free port if taken)
+npm run build              # type check + production build of the app to dist/
 npm run storybook          # Storybook dev server on http://localhost:6007 (also serves the Storybook MCP at /mcp)
 npm run build-storybook    # static build to storybook-static/
 npm run typecheck          # tsc --noEmit
@@ -48,6 +51,12 @@ src/
   components/Logo/svg/          Logos exported from the Figma Logos page
   docs/Tokens.mdx               "Foundations/Tokens" docs page (reads tokens.json via TokenTables.tsx)
   storybook/                    Story helpers: figma.ts (Figma links), StateGrid.tsx (state grids)
+  app/                          Prototype app (entry: index.html → app/main.tsx → App.tsx routes)
+    auth/                       Mock auth service, AuthContext (session + idle timeout), RequireAuth
+    pages/auth/                 Sign In, Sign Up, Forgot Password → Verify → Reset → Success
+    pages/app/                  Placeholder section pages rendered inside the shell
+    shell/                      AppShell (tabs, header, Tier 1/2 nav, footer), navigation.ts, AccountMenu
+    components/AppLink.tsx      Hyperlink wired to React Router
 .storybook/                     main.ts, preview.tsx (tokens.css, theme toolbar, dark docs theme),
                                 manager.ts (dark UI theme), preview-head.html (Inter font, base background)
 ```
@@ -66,6 +75,7 @@ Token data flows one way: **Figma → `variables.json` → `build-tokens.mjs` �
 - **Storybook dark mode:** `STORYBOOK_THEME=dark` makes Storybook open dark: the UI, the stories' default theme, and docs pages on the base surface color. The deploy workflow sets it, so the published site is dark. Locally it comes from a `.env.local`, which is ignored through `.git/info/exclude`. Without it, Storybook opens light.
 - **Component styling:** CSS Modules using only `tokens.css` variables. Strokes are inset `box-shadow`s, so state changes don't shift layout. States use real CSS (`:hover`, `:active`, `:focus-visible`); Figma's `Selected` maps to `aria-pressed`, and `Disabled` to the native `disabled` attribute.
 - **Stories:** one `<Name>.stories.tsx` per component, with a `Playground` story plus one story per Figma component set. Each set story spreads `figma(nodeId, name)` from `src/storybook/figma.ts` (Design panel + "Open in Figma" link). It renders every Figma `State` with `StateGrid`, and spreads `pseudoStates` so Hover / Press / Focus render without a mouse.
+- **Prototype app:** routes live in `src/app/App.tsx`. `/sign-in`, `/sign-up` and the password-reset steps are public; everything under `/app` sits inside one `AppShell` layout route (so open tabs survive navigation). To add a section, add it to `SECTIONS` in `src/app/shell/navigation.ts` (with optional Tier 2 `pages`), then add a `<Route path="<section>/<page>">` above the generic `:section/:page?` route. Auth is mocked in `src/app/auth/authService.ts`: demo account `oswaldc@gmail.com` / `bat8992`, lockout after 3 failed tries, verification code `123456`, 30-minute idle timeout. State is in memory, so a full reload resets it. Theme follows the system unless changed in the account menu (stored as `hub360.theme`).
 - **Validating changes:** after changing `build-tokens.mjs` or `variables.json`, check that every `var()` in `tokens.css` points to a defined variable and every alias in `tokens.json` resolves. After component changes, run `npm run typecheck` and look at the affected stories in Storybook.
 
 ## Design system

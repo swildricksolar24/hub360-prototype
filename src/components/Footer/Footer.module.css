@@ -18,8 +18,9 @@
 .version {
   margin: 0;
 }
-/* The copyright text fills the remaining width in Figma, which centers the version text */
-.copyright {
+/* Copyright and links share the remaining width equally, which centers the version text (as in Figma) */
+.copyright,
+.nav {
   flex: 1 1 0;
 }
 .version {
@@ -51,4 +52,14 @@
 }
 .link:focus-visible {
   box-shadow: 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

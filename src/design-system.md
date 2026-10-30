@@ -107,10 +107,11 @@ Most-used APIs:
 | Icon | `name`, `size` (20 / 24 / 32), `color`, `label` |
 | Button | `variant`, `size` (base / small / tiny), `block`, `icon`, `iconPosition`, `selected`, `disabled` |
 | IconButton | `label` (required), `icon` or `number`, `variant` (default / brand), `size` (base 80px / compact 40px), `selected` |
-| TextInput | `label`, `error` (message), `leftIcon`, `rightIcons`, plus native input props (`required`, `disabled`, …) |
+| TextInput | `label`, `error` (message), `leftIcon`, `rightIcons`, `trailingAction` (an interactive control after the divider, e.g. show/hide password), plus native input props (`required`, `disabled`, …) |
 | Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
 | Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm) |
 | Message | `title`, `body`, `type`, `onClose` |
+| Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:
 - **base:** `primary`, `outline`, `brand` (teal), `brand-orange`
