@@ -117,3 +117,16 @@
 .field[data-disabled] .input::placeholder {
   color: var(--color-gray-text-disabled);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.option {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .option {
+    transition: none;
+  }
+}

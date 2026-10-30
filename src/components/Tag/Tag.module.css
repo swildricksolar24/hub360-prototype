@@ -104,3 +104,16 @@
   --ring: var(--color-gray-stroke-disabled);
   --ring-w: var(--stroke-width-2);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.tag {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tag {
+    transition: none;
+  }
+}

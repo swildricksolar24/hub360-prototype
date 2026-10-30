@@ -1,0 +1,167 @@
+/* Dashboard: an improved take on the Figma Dashboard (426:10035); widths follow its 1040px content column. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  width: 100%;
+  max-width: 1040px; /* Figma content column; a layout width, no token */
+  margin: 0 auto;
+  padding-bottom: var(--space-40);
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Welcome ---------- */
+/* Photo above the text, everything centered (as in Figma) */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-24);
+  text-align: center;
+  padding: var(--space-40);
+  border-radius: var(--radius-24);
+  background: var(--color-surfaces-overlay);
+  /* A light brand-teal edge along the top, echoing the active-tab underline */
+  box-shadow: inset 0 var(--stroke-width-4) 0 var(--color-brand-teal-stroke-strong);
+}
+/* Figma puts the photo inside a wider circle; here a soft brand-teal ring */
+.photo {
+  display: inline-flex;
+  flex: none;
+  padding: var(--space-12);
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-weaker);
+}
+.welcomeText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.welcomeText p,
+.welcomeText h1 {
+  margin: 0;
+}
+.date {
+  color: var(--color-brand-teal-text-strong);
+}
+.greeting {
+  color: var(--color-gray-text-strong);
+}
+.lede,
+.muted {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Notifications / Chat / Email ---------- */
+.inbox {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+/* Same card and states as the section cards (.module), as one compact row: icon, name, unread count */
+.module.inboxCard {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--space-12);
+  aspect-ratio: auto;
+  padding: var(--space-16);
+  border: 0;
+  font: inherit;
+  text-align: left;
+}
+.inboxCard .tile {
+  padding: var(--space-8);
+  border-radius: var(--radius-8);
+}
+.inboxCount {
+  margin-left: auto;
+}
+
+/* ---------- Sections ---------- */
+/* Square section cards, four across: each a quarter of the welcome card's width (less the gaps between them),
+   like Figma's rows of four tiles */
+.sections {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+
+/*
+ * Section card: a square link (icon tile, name, description). At rest it carries an 8px brand-teal stroke at 10%
+ * and a 10% teal tint (Brand Teal Fill/Weaker) over its Surfaces/Overlay fill (white in light mode). Rollover
+ * clears both, over 250ms: the tint fades out to the plain fill and the stroke thins to 2px gray. Press darkens
+ * the stroke. The 10% teal stroke is the Foundation/Brand Teal/100 primitive (the semantic stroke at 10% is the
+ * "disabled" one).
+ */
+.module {
+  --ring: var(--color-foundation-brand-teal-100);
+  --ring-w: var(--stroke-width-8);
+
+  position: relative;
+  /* The tint (::before) layers between the card's fill and its content */
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+  aspect-ratio: 1;
+  padding: var(--space-24);
+  text-align: center;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 250ms ease-out;
+}
+.module::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-brand-teal-fill-weaker);
+  transition: opacity 250ms ease-out;
+}
+.module:is(:hover, :focus-visible) {
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-2);
+}
+.module:is(:hover, :focus-visible)::before {
+  opacity: 0;
+}
+.module:active {
+  --ring: var(--color-foundation-brand-teal-400);
+  transition-duration: 100ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .module,
+  .module::before {
+    transition: none;
+  }
+}
+.tile {
+  display: inline-flex;
+  flex: none;
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-teal-fill-strong);
+  color: var(--color-foundation-solid-white); /* white on brand fill; no semantic token (design-system.md) */
+}
+.moduleText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.moduleTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}

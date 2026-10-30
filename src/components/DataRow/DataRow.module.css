@@ -174,3 +174,16 @@
 .more:focus-visible {
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.more {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .more {
+    transition: none;
+  }
+}

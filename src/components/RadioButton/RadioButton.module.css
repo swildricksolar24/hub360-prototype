@@ -89,3 +89,14 @@
   --text: var(--color-gray-text-disabled);
   cursor: not-allowed;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.box {
+  transition:
+    background-color 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .box {
+    transition: none;
+  }
+}

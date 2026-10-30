@@ -83,3 +83,16 @@
 .panel:focus-visible {
   box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-strong);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.tab {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}

@@ -1,0 +1,19 @@
+/* The start action sits at the left of the footer, away from Cancel and the primary action */
+.start {
+  margin-right: auto;
+}
+
+/*
+ * Destructive actions: Semantic Fill/Error Strong. The text is Gray Text/Inverse Strong (white in light, black in
+ * dark): Error Strong turns light pink in dark mode, where white text would fail contrast. Raised specificity beats
+ * the Button's own hover / press fills.
+ */
+.danger.danger[data-variant] {
+  --bg: var(--color-semantic-fill-error-strong);
+  --fg: var(--color-gray-text-inverse-strong);
+  --ring-w: 0px;
+}
+.danger.danger[data-variant]:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+}

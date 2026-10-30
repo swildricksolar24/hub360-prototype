@@ -1,0 +1,238 @@
+/* Help page sections. Panels use the same Surfaces/Overlay card as the Tier 3 header above them. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  font-family: var(--font-family-inter);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--space-24);
+  align-items: start;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.heading h2,
+.heading p,
+.release h3,
+.ticket h3,
+.ticket p {
+  margin: 0;
+}
+.heading h2,
+.release h3,
+.ticket h3 {
+  color: var(--color-gray-text-strong);
+}
+.heading p,
+.muted {
+  color: var(--color-gray-text-weak);
+}
+.headingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+/* ---------- Getting Started ---------- */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-12);
+}
+
+/* ---------- Guides ---------- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+/* ---------- Videos ---------- */
+.videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-16);
+}
+/* Video card: the Help Category Card look (overlay fill, 2px stroke, teal hover) stacked vertically */
+.video {
+  --bg: var(--color-surfaces-overlay);
+  --ring: var(--color-gray-stroke-disabled);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.video:is(:hover, :focus-visible) {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+.video:focus-visible {
+  --ring: var(--color-brand-teal-stroke-weak);
+}
+@media (prefers-reduced-motion: reduce) {
+  .video {
+    transition: none;
+  }
+}
+.thumb,
+.player {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-fill-weak);
+}
+.length {
+  position: absolute;
+  right: var(--space-8);
+  bottom: var(--space-8);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-inverse);
+  color: var(--color-gray-text-inverse-strong);
+}
+.videoTitle {
+  color: var(--color-gray-text-strong);
+}
+.player {
+  flex-direction: column;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- FAQs ---------- */
+.faqs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.answer {
+  margin: 0;
+  padding: var(--space-12) var(--space-16) var(--space-16);
+  color: var(--color-gray-text-strong);
+}
+
+/* ---------- What's New ---------- */
+.releases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.release {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-bottom: var(--space-24);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+.release:last-child {
+  padding-bottom: 0;
+  box-shadow: none;
+}
+.changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-gray-text-strong);
+}
+.changes li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
+}
+.kind {
+  flex: none;
+}
+
+/* ---------- Contact Support ---------- */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+.inlineLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- My Tickets ---------- */
+.ticket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+}
+.ticketTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+.ticketText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.ticketMessage {
+  color: var(--color-gray-text-strong);
+}
+
+/* ---------- Guide modal ---------- */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding-left: var(--space-24);
+  color: var(--color-gray-text-strong);
+}

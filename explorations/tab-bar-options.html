@@ -1,0 +1,322 @@
+<!doctype html>
+<!--
+  Exploration: more readable options for the shell's top tab bar (NavTabBar).
+  Open with the dev server running: http://localhost:5173/explorations/tab-bar-options.html
+  Not part of the app build (Vite only builds index.html). Uses the real tokens and icons.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tab Bar Options · HUB 360</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/design-system/tokens/tokens.css" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      :root { color-scheme: light; }
+      :root[data-theme='dark'] { color-scheme: dark; }
+      body {
+        margin: 0;
+        background: var(--color-surfaces-sunken);
+        color: var(--color-gray-text-strong);
+        font-family: var(--font-family-inter);
+        font-size: var(--font-size-medium);
+        line-height: var(--line-height-medium);
+      }
+      .page { max-width: 1120px; margin: 0 auto; padding: var(--space-40) var(--space-24) var(--space-80); }
+      .top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-24); margin-bottom: var(--space-32); }
+      h1 { margin: 0 0 var(--space-8); font-size: var(--font-size-heading-3); line-height: var(--line-height-heading-3); }
+      .lede { margin: 0; color: var(--color-gray-text-weak); max-width: 680px; }
+      .switch {
+        flex: none; display: inline-flex; gap: var(--space-4); padding: var(--space-4);
+        border-radius: var(--radius-12); background: var(--color-gray-fill-weaker);
+      }
+      .switch button {
+        border: 0; border-radius: var(--radius-8); padding: var(--space-8) var(--space-16);
+        background: none; color: var(--color-gray-text-weak); font: inherit; font-weight: 600; cursor: pointer;
+      }
+      .switch button[aria-pressed='true'] { background: var(--color-surfaces-overlay); color: var(--color-gray-text-strong); box-shadow: var(--shadow-drop); }
+
+      .option {
+        margin-bottom: var(--space-24); border-radius: var(--radius-12); overflow: hidden;
+        background: var(--color-surfaces-overlay); box-shadow: var(--shadow-drop);
+      }
+      .option header { padding: var(--space-20) var(--space-24) var(--space-16); }
+      .option h2 { margin: 0 0 var(--space-4); font-size: var(--font-size-heading-4); line-height: var(--line-height-heading-4); display: flex; align-items: center; gap: var(--space-12); }
+      .tag {
+        font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 600;
+        padding: 0 var(--space-8); border-radius: var(--radius-24);
+        background: var(--color-brand-teal-fill-weaker); color: var(--color-brand-teal-text-strongest);
+      }
+      .tag[data-kind='today'] { background: var(--color-gray-fill-weaker); color: var(--color-gray-text-weak); }
+      /* Brand teal text is too dark on dark surfaces */
+      :root[data-theme='dark'] .tag { color: var(--color-gray-text-strong); background: var(--color-brand-teal-fill-weak); }
+      .option p { margin: 0; color: var(--color-gray-text-weak); }
+      .option ul { margin: var(--space-8) 0 0; padding-left: var(--space-20); color: var(--color-gray-text-weak); }
+      .meta { display: flex; flex-wrap: wrap; gap: var(--space-8); margin-top: var(--space-12); }
+      .chip {
+        font-size: var(--font-size-small); line-height: var(--line-height-small);
+        padding: var(--space-2) var(--space-8); border-radius: var(--radius-4);
+        background: var(--color-gray-fill-weaker); color: var(--color-gray-text-strong);
+      }
+      .chip b { font-weight: 600; }
+      .chip[data-pass='false'] { background: var(--color-semantic-fill-error-weak); }
+
+      /* Mini shell: tab bar + header strip, so each option is seen in context */
+      .stage { border-top: var(--stroke-width-1) solid var(--color-gray-stroke-disabled); }
+      .mini-header {
+        display: flex; align-items: center; gap: var(--space-24); height: 56px; padding: 0 var(--space-24);
+        background: var(--color-surfaces-base);
+        box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 0 var(--color-gray-stroke-disabled);
+      }
+      .mini-logo { font-weight: 600; font-size: var(--font-size-large); color: var(--color-logo-color); }
+      .mini-search { flex: 1; height: 32px; border-radius: var(--radius-12); background: var(--color-gray-fill-weaker); }
+      .mini-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-gray-fill-hover); }
+
+      .icon { display: inline-flex; flex: none; width: 16px; height: 16px; }
+      .icon svg { width: 100%; height: 100%; }
+
+      /* ---------- shared bar pieces ---------- */
+      .bar { display: flex; align-items: flex-end; gap: 0; }
+      .bar .small {
+        display: inline-flex; align-items: center; justify-content: center; flex: none;
+        border: 0; padding: 0; background: var(--color-gray-fill-weaker); color: var(--color-gray-fill-weak); cursor: pointer;
+      }
+      .tab {
+        position: relative; display: flex; align-items: center; border: 0; background: none;
+        font: inherit; color: var(--fg); cursor: pointer; white-space: nowrap;
+      }
+      .tab .x { display: inline-flex; color: var(--color-gray-fill-weak); }
+      .tab:hover { --fg: var(--color-gray-text-strong); }
+
+      /* ---------- Option 0: today (NavTabBar as built from Figma) ---------- */
+      .o0 { padding-top: var(--space-2); background: var(--color-surfaces-raised); align-items: center; }
+      .o0 .small { width: 48px; height: 24px; border-radius: var(--radius-4); }
+      .o0 .tab {
+        --fg: var(--color-gray-text-weak);
+        height: 24px; gap: var(--space-12); padding: var(--space-4) var(--space-12) var(--space-4) 28px;
+        border-radius: var(--radius-8) var(--radius-8) 0 0;
+        font-size: var(--font-size-tiny); line-height: var(--line-height-tiny); font-weight: 600;
+      }
+      .o0 .tab[aria-selected='true'] { --fg: var(--color-gray-text-strong); background: var(--color-surfaces-base); }
+      .o0 .tab:not([aria-selected='true'])::after {
+        content: ''; position: absolute; right: 0; top: 50%; height: 10px; transform: translateY(-50%);
+        border-left: var(--stroke-width-1) solid var(--color-gray-stroke-disabled);
+      }
+
+      /* ---------- Option 1: bigger type, same look ---------- */
+      .o1 { padding-top: var(--space-4); background: var(--color-surfaces-raised); align-items: center; }
+      .o1 .small { width: 48px; height: 32px; border-radius: var(--radius-8); }
+      .o1 .tab {
+        --fg: var(--color-gray-text-strong);
+        height: 32px; gap: var(--space-12); padding: 0 var(--space-12) 0 var(--space-20);
+        border-radius: var(--radius-8) var(--radius-8) 0 0;
+        font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 600;
+        opacity: 0.85;
+      }
+      .o1 .tab[aria-selected='true'] { background: var(--color-surfaces-base); opacity: 1; }
+      .o1 .tab:not([aria-selected='true'])::after {
+        content: ''; position: absolute; right: 0; top: 50%; height: 14px; transform: translateY(-50%);
+        border-left: var(--stroke-width-1) solid var(--color-gray-stroke-weaker);
+      }
+
+      /* ---------- Option 2: bigger type + short labels with the section icon ---------- */
+      .o2 { padding-top: var(--space-4); background: var(--color-surfaces-raised); align-items: center; }
+      .o2 .small { width: 48px; height: 32px; border-radius: var(--radius-8); }
+      .o2 .tab {
+        --fg: var(--color-gray-text-strong);
+        height: 32px; gap: var(--space-8); padding: 0 var(--space-12) 0 var(--space-16);
+        border-radius: var(--radius-8) var(--radius-8) 0 0;
+        font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 600;
+        opacity: 0.85;
+      }
+      .o2 .tab .x { margin-left: var(--space-4); }
+      .o2 .tab[aria-selected='true'] { background: var(--color-surfaces-base); opacity: 1; }
+      .o2 .tab:not([aria-selected='true'])::after {
+        content: ''; position: absolute; right: 0; top: 50%; height: 14px; transform: translateY(-50%);
+        border-left: var(--stroke-width-1) solid var(--color-gray-stroke-weaker);
+      }
+
+      /* ---------- Option 3: header-colored bar with a teal underline on the active tab ---------- */
+      .o3 {
+        background: var(--color-surfaces-base); padding: 0 var(--space-8); align-items: stretch; height: 40px;
+        box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 0 var(--color-gray-stroke-disabled);
+      }
+      .o3 .small { align-self: center; width: 32px; height: 32px; border-radius: var(--radius-8); background: none; }
+      .o3 .small:hover { background: var(--color-gray-fill-weaker); }
+      .o3 .tab {
+        --fg: var(--color-gray-text-weak);
+        gap: var(--space-8); padding: 0 var(--space-12) 0 var(--space-16);
+        font-size: var(--font-size-medium); line-height: var(--line-height-medium); font-weight: 500;
+      }
+      .o3 .tab[aria-selected='true'] {
+        --fg: var(--color-gray-text-strong); font-weight: 600;
+        box-shadow: inset 0 calc(var(--stroke-width-2) * -1 - 1px) 0 0 var(--color-brand-teal-stroke-strongest);
+      }
+      .o3 + .mini-header { box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 0 var(--color-gray-stroke-disabled); }
+
+      /* ---------- Option 4: pill tabs ---------- */
+      .o4 { background: var(--color-surfaces-base); padding: var(--space-8) var(--space-12); gap: var(--space-8); align-items: center; }
+      .o4 .small { width: 32px; height: 32px; border-radius: var(--radius-24); }
+      .o4 .tab {
+        --fg: var(--color-gray-text-strong);
+        height: 32px; gap: var(--space-8); padding: 0 var(--space-8) 0 var(--space-16);
+        border-radius: var(--radius-24); background: var(--color-gray-fill-weaker);
+        font-size: var(--font-size-medium); line-height: var(--line-height-medium); font-weight: 500;
+      }
+      .o4 .tab:hover { background: var(--color-gray-fill-hover); }
+      .o4 .tab[aria-selected='true'] {
+        --fg: var(--color-brand-teal-text-strongest); font-weight: 600;
+        background: var(--color-brand-teal-fill-weaker);
+        box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-brand-teal-stroke-weak);
+      }
+      .o4 .tab[aria-selected='true'] .x { color: var(--color-brand-teal-text-strongest); }
+      :root[data-theme='dark'] .o4 .tab[aria-selected='true'],
+      :root[data-theme='dark'] .o4 .tab[aria-selected='true'] .x { --fg: var(--color-gray-text-strong); color: var(--color-gray-text-strong); }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="top">
+        <div>
+          <h1>Tab bar: readability options</h1>
+          <p class="lede">
+            The tabs above the HUB 360 header use 10px text (the smallest size in the design system) in a 24px strip, with
+            dimmed text on a mid-gray bar, and every Inventory tab starts with “Inventory ·”. Each option below uses the
+            real tokens and icons. Click the tabs to change the active one and switch themes to compare.
+          </p>
+        </div>
+        <div class="switch" role="group" aria-label="Theme">
+          <button type="button" data-theme-btn="light" aria-pressed="true">Light</button>
+          <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
+        </div>
+      </div>
+      <div id="options"></div>
+    </div>
+
+    <script type="module">
+      import dashboard from '/src/components/Icon/svg/dashboard.svg?raw';
+      import warehouse from '/src/components/Icon/svg/warehouse.svg?raw';
+      import close from '/src/components/Icon/svg/close-small.svg?raw';
+      import home from '/src/components/Icon/svg/home.svg?raw';
+      import plus from '/src/components/Icon/svg/plus.svg?raw';
+
+      const TABS = [
+        { full: 'Dashboard', short: 'Dashboard', icon: dashboard },
+        { full: 'Inventory · HubSight', short: 'HubSight', icon: warehouse },
+        { full: 'Inventory · Warehouses', short: 'Warehouses', icon: warehouse },
+        { full: 'Inventory · Items', short: 'Items', icon: warehouse },
+      ];
+
+      const OPTIONS = [
+        {
+          cls: 'o0', tag: 'Today', title: 'Current tab bar', short: false, icons: false,
+          text: 'As built from the Figma Tab Bar: 10px semi-bold, 24px tall tabs on the Surfaces/Raised bar.',
+          bullets: ['Smallest text in the app, and the full “Section · Page” label pushes the useful word to the end.'],
+        },
+        {
+          cls: 'o1', tag: 'Smallest change', title: 'Option 1: bigger type, same look', short: false, icons: false,
+          text: 'Keeps the Figma shape and colors; only the size and spacing change.',
+          bullets: ['Text 10px → 12px (Small), tabs 24px → 32px tall.', 'Inactive tabs use strong text at 85% instead of the weak text color.', 'Dividers a bit taller and darker so tabs separate clearly.'],
+        },
+        {
+          cls: 'o2', tag: 'Recommended', title: 'Option 2: bigger type + short labels', short: true, icons: true,
+          text: 'Option 1, plus each tab shows just the page name with its section icon (full name in the tooltip).',
+          bullets: ['“Inventory · Warehouses” becomes [warehouse icon] Warehouses: shorter, scannable, more tabs fit.', 'Same Figma look, so it is an easy update to the Tab Bar component.'],
+        },
+        {
+          cls: 'o3', tag: 'Bigger change', title: 'Option 3: light bar with a teal underline', short: true, icons: true,
+          text: 'Tabs sit on the header color, at body size (14px), with a teal underline marking the active tab.',
+          bullets: ['Highest contrast: no mid-gray strip behind the text.', 'Brand teal makes the current tab obvious at a glance.', 'Changes the Figma Tab Bar design, so it needs a design update too.'],
+        },
+        {
+          cls: 'o4', tag: 'Bigger change', title: 'Option 4: pill tabs', short: true, icons: true,
+          text: 'Each tab is a rounded chip at 14px; the active one is tinted teal.',
+          bullets: ['Very easy to read and to click (32px targets).', 'Feels more like filters than browser tabs; uses a bit more width per tab.'],
+        },
+      ];
+
+      const icon = svg => `<span class="icon" aria-hidden="true">${svg.replace(/width="24" height="24"/, '')}</span>`;
+
+      function renderOption(o, i) {
+        const el = document.createElement('section');
+        el.className = 'option';
+        el.innerHTML = `
+          <header>
+            <h2>${o.title}<span class="tag" ${o.tag === 'Today' ? 'data-kind="today"' : ''}>${o.tag}</span></h2>
+            <p>${o.text}</p>
+            <ul>${o.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+            <div class="meta" data-meta></div>
+          </header>
+          <div class="stage">
+            <div class="bar ${o.cls}" role="tablist" aria-label="Open tabs, ${o.title}">
+              <button class="small" type="button" aria-label="Home">${icon(home)}</button>
+              ${TABS.map((t, j) => `
+                <div class="tab" role="tab" tabindex="0" aria-selected="${j === 2}" title="${t.full}">
+                  ${o.icons ? icon(t.icon) : ''}<span class="label">${o.short ? t.short : t.full}</span>
+                  <span class="x" aria-hidden="true">${icon(close)}</span>
+                </div>`).join('')}
+              <button class="small" type="button" aria-label="New tab">${icon(plus)}</button>
+            </div>
+            <div class="mini-header"><span class="mini-logo">HUB 360</span><span class="mini-search"></span><span class="mini-avatar"></span></div>
+          </div>`;
+        el.querySelectorAll('[role=tab]').forEach(tab => {
+          const pick = () => { el.querySelectorAll('[role=tab]').forEach(t => t.setAttribute('aria-selected', t === tab)); measure(el); };
+          tab.addEventListener('click', pick);
+          tab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+        });
+        return el;
+      }
+
+      // WCAG contrast of the inactive tab text against what is behind it
+      const parse = c => c.match(/[\d.]+/g).map(Number);
+      const blend = (fg, bg) => { const a = fg[3] ?? 1; return [0, 1, 2].map(k => fg[k] * a + bg[k] * (1 - a)); };
+      const lum = rgb => { const [r, g, b] = rgb.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+      const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+      // Effective background: composite see-through layers (e.g. Gray Fill/Weaker) over the first opaque one
+      function bgOf(node) {
+        const layers = [];
+        for (let n = node; n; n = n.parentElement) {
+          const c = parse(getComputedStyle(n).backgroundColor);
+          const a = c[3] ?? 1;
+          if (a === 0) continue;
+          layers.push(c);
+          if (a === 1) break;
+        }
+        let out = [255, 255, 255];
+        for (const c of layers.reverse()) out = blend(c, out);
+        return out;
+      }
+      function measure(el) {
+        const tab = el.querySelector('[role=tab][aria-selected=false]');
+        const label = tab.querySelector('.label');
+        const s = getComputedStyle(label);
+        const op = Number(getComputedStyle(tab).opacity);
+        const fg = parse(s.color); fg[3] = (fg[3] ?? 1) * op;
+        const bg = bgOf(tab);
+        const r = ratio(blend(fg, bg), bg);
+        const h = Math.round(tab.getBoundingClientRect().height);
+        el.querySelector('[data-meta]').innerHTML = `
+          <span class="chip">Text <b>${s.fontSize}</b> · weight <b>${s.fontWeight}</b></span>
+          <span class="chip">Tab height <b>${h}px</b></span>
+          <span class="chip" data-pass="${r >= 4.5}">Inactive tab contrast <b>${r.toFixed(1)}:1</b> ${r >= 4.5 ? '(passes AA)' : '(below AA 4.5:1)'}</span>`;
+      }
+
+      const root = document.getElementById('options');
+      const els = OPTIONS.map(renderOption);
+      els.forEach(e => root.appendChild(e));
+      const measureAll = () => els.forEach(measure);
+
+      function setTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === t));
+        requestAnimationFrame(measureAll);
+      }
+      document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeBtn)));
+      setTheme(matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.fonts.ready.then(measureAll);
+    </script>
+  </body>
+</html>

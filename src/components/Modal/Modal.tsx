@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
-import { IconButton } from '../IconButton/IconButton';
 import { Overlay } from '../Overlay/Overlay';
 import { Scrollbar } from '../Scrollbar/Scrollbar';
 import styles from './Modal.module.css';
@@ -64,7 +63,12 @@ export function ModalPanel({
 }: ModalPanelProps) {
   const style: CSSProperties = { width };
   const cls = [styles.panel, className].filter(Boolean).join(' ');
-  const close = onClose && <IconButton label={closeLabel} icon="close" size="compact" className={styles.close} onClick={onClose} />;
+  // Figma "Button / Icon Only / Small / Secondary" (690:3483): 44px, Default / Hover / Press / Focus states
+  const close = onClose && (
+    <button type="button" className={styles.close} aria-label={closeLabel} title={closeLabel} onClick={onClose}>
+      <Icon name="close" size={24} color="currentColor" />
+    </button>
+  );
   const titleEl = (
     <h2 id={titleId} className={styles.title}>
       {title}

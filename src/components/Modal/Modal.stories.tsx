@@ -5,6 +5,7 @@ import { Overlay } from '../Overlay/Overlay';
 import { Button } from '../Button/Button';
 import { TextInput } from '../TextInput/TextInput';
 import { figma } from '../../storybook/figma';
+import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const LONG_BODY =
   'Body. Solar panels convert sunlight into electricity. A 400 W panel produces roughly 1.2 to 3 kWh per day, depending on location, tilt and shading. ' +
@@ -154,4 +155,19 @@ export const ModalScreen: Story = {
     </div>
   ),
   parameters: { ...figma('805:922', 'Modal Screen › Modal Screen*'), controls: { disable: true } },
+};
+
+/**
+ * The close button's states: Figma "Button / Icon Only / Small / Secondary" (44px). Hover fades from
+ * Gray Fill/Weaker to Gray Fill/Hover; Press uses Gray Fill/Press; keyboard Focus adds a 2px ring.
+ */
+export const CloseButton: Story = {
+  name: 'Close Button',
+  render: () => (
+    <StateGrid
+      states={['Default', 'Hover', 'Press', 'Focus']}
+      render={() => <ModalPanel title="Title" width={320} onClose={() => {}} />}
+    />
+  ),
+  parameters: { ...figma('690:3483', 'Button / Icon Only / Small / Secondary'), ...pseudoStates, controls: { disable: true } },
 };

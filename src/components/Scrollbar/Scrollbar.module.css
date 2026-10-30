@@ -74,3 +74,18 @@
 .thumb:active {
   cursor: grabbing;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.step,
+.thumb {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .step,
+  .thumb {
+    transition: none;
+  }
+}

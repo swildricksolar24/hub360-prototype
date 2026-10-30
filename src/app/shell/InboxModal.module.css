@@ -1,0 +1,154 @@
+/* Values come from the Figma "_Sign In / Shell" › Communication dialogs (774:5511), "Notification Box" rows. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  /* Five rows fit before the list scrolls; on short screens it keeps the modal inside the viewport */
+  max-height: min(706px, 60vh);
+  margin: 0;
+  /* Room for the row shadows and the scrollbar inside the scrolling box */
+  padding: 0 var(--space-4) var(--space-8) 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  /* Lets a card that slides to the top (bookmark) pass over the others; see InboxModal.tsx */
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-16);
+  /* 16px top and bottom (Figma has 8) so the cards breathe */
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+  box-shadow: var(--shadow-drop);
+}
+/*
+ * Not in Figma: a subtle hover, like the buttons. The card fades from Gray Fill/Weaker to Gray Fill/Hover over
+ * 150ms; it also shows while a button inside the card has keyboard focus.
+ */
+.row {
+  transition: background-color 150ms ease;
+}
+.row:is(:hover, :has(:focus-visible)) {
+  background: var(--color-gray-fill-hover);
+}
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+}
+
+/*
+ * Not in Figma: unread cards get a 4px brand-teal bar on the left edge, a strong title and a blue "New" pill
+ * (Badge Pill / Blue). Closing the list marks them read.
+ */
+.row[data-unread] {
+  box-shadow:
+    inset var(--stroke-width-4) 0 0 0 var(--color-brand-teal-stroke-strong),
+    var(--shadow-drop);
+}
+.row[data-unread] .title {
+  color: var(--color-gray-text-strong);
+}
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.new {
+  flex: none;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.text p {
+  margin: 0;
+}
+.title,
+.time {
+  color: var(--color-gray-text-weak);
+}
+/* Chat and email: "Name, Company or Department · time", with the name in strong text */
+.sender {
+  color: var(--color-gray-text-strong);
+}
+.message {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-gray-text-strong);
+  -webkit-box-orient: vertical;
+}
+/* Collapsed cards preview two lines; the expanded card shows the whole message */
+.row:not([data-expanded]) .message {
+  -webkit-line-clamp: 2;
+}
+
+/*
+ * Not in Figma: the whole card is clickable and expands to the full message (one open at a time). The title is
+ * the button that carries aria-expanded; keyboard focus on it outlines the card. The open card keeps the hover fill.
+ */
+.row {
+  cursor: pointer;
+}
+.row[data-expanded] {
+  background: var(--color-gray-fill-hover);
+}
+.titleButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+.row:has(.titleButton:focus-visible) {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+  outline-offset: calc(var(--stroke-width-2) * -1);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  gap: var(--space-12);
+  padding: 0 var(--space-12);
+}
+
+/*
+ * The photo and the three buttons stay put while a card expands: the card aligns its columns to the top, and
+ * each sits centered in a box as tall as the collapsed text (title, two preview lines and the sender line).
+ */
+.row {
+  --collapsed-text: calc(
+    var(--line-height-large) + 2 * var(--line-height-medium) + var(--line-height-small) + 2 * var(--space-4)
+  );
+  align-items: flex-start;
+}
+.lead,
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: var(--collapsed-text);
+}
+
+/* Notifications use Figma "Avatar / Icon / Medium", on Brand Teal here (Figma draws it Brand Orange); white icon
+   (no semantic token for white on brand fills) */
+.list .alertAvatar[data-type='icon'] {
+  --bg: var(--color-brand-teal-fill-strong);
+  color: var(--color-foundation-solid-white);
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}

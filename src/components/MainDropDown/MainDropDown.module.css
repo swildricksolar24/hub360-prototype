@@ -71,3 +71,18 @@
   min-width: 200px; /* Figma ListViews width */
   box-shadow: var(--shadow-drop);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.trigger,
+.icon {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .icon {
+    transition: none;
+  }
+}

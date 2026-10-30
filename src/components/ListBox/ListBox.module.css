@@ -246,3 +246,20 @@
 .item[data-appearance='selector'][aria-disabled='true'] {
   --bg: var(--color-gray-fill-disabled);
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.item,
+.icon,
+.box {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .icon,
+  .box {
+    transition: none;
+  }
+}

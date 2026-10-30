@@ -1,7 +1,11 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { RequireAuth } from './auth/RequireAuth';
-import { AccountSettingsPage, SectionPage } from './pages/app/SectionPage';
+import { DashboardPage } from './pages/app/dashboard/DashboardPage';
+import { HelpPage } from './pages/app/HelpPage';
+import { WarehousesPage } from './pages/app/inventory/WarehousesPage';
+import { AccountSettingsPage } from './pages/app/account/AccountSettingsPage';
+import { NewTabPage, SectionPage } from './pages/app/SectionPage';
 import { ForgotPasswordPage, ResetPasswordPage, ResetSuccessPage, VerifyEmailPage } from './pages/auth/PasswordResetPages';
 import { SignInPage } from './pages/auth/SignInPage';
 import { SignUpPage } from './pages/auth/SignUpPage';
@@ -39,6 +43,10 @@ export function App() {
           >
             <Route index element={<Navigate to={DEFAULT_SECTION} replace />} />
             <Route path="account" element={<AccountSettingsPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="help" element={<HelpPage />} />
+            <Route path="inventory/warehouses" element={<WarehousesPage />} />
+            <Route path="new-tab/:id" element={<NewTabPage />} />
             {/* New sections: add `<Route path="<section>/<page>" element={…} />` above this generic route. */}
             <Route path=":section/:page?" element={<SectionPage />} />
           </Route>

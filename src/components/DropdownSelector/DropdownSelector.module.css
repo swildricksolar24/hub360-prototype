@@ -215,3 +215,22 @@
   color: var(--color-gray-text-disabled);
   cursor: not-allowed;
 }
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.trigger,
+.chip {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+.tile {
+  transition: opacity 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .chip,
+  .tile {
+    transition: none;
+  }
+}

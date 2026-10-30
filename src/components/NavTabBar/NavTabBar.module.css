@@ -1,43 +1,67 @@
 /*
- * Values come from the Figma Main Nav "Tab Bar" page: Tab Bar (2133:4457), Tab Button (1994:336),
- * Tab Label (1994:326), Tab Small (2049:540).
+ * Structure from the Figma Main Nav "Tab Bar" page: Tab Bar (2133:4457), Tab Button (1994:336),
+ * Tab Label (1994:326), Tab Small (2049:540). Restyled for readability (explorations/tab-bar-options.html,
+ * option 3): tabs sit on Surfaces/Base at body size (14px) and the active tab gets a brand-teal underline.
  */
 .bar {
   display: flex;
-  align-items: center;
-  padding-top: var(--space-2);
-  background: var(--color-surfaces-raised);
+  align-items: stretch;
+  height: var(--space-40);
+  padding: 0 var(--space-8);
+  background: var(--color-surfaces-base);
+  /* 1px bottom stroke separates the bar from the header below */
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 0 var(--color-gray-stroke-disabled);
   font-family: var(--font-family-inter);
 }
 
 .list {
+  position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   min-width: 0;
+}
+
+/*
+ * Sliding active-tab underline, positioned from the active tab (--x, --w). NavTabBar animates the move in JS:
+ * it shrinks to 25% around its center, then grows into the new tab (skipped under prefers-reduced-motion).
+ * While the active tab is dragged, --dx carries the underline along with it.
+ */
+.indicator {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  bottom: 0;
+  width: var(--w);
+  height: calc(var(--stroke-width-2) + 1px);
+  transform: translateX(calc(var(--x) + var(--dx, 0px)));
+  border-radius: var(--radius-4) var(--radius-4) 0 0;
+  background: var(--color-brand-teal-stroke-strongest);
+  pointer-events: none;
 }
 
 /* ---------- Tab Small (Home / +) ---------- */
 
 .small {
-  --bg: var(--color-gray-fill-weaker);
+  --bg: transparent;
   --fg: var(--color-gray-fill-weak);
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   flex: none;
-  width: 48px; /* Figma "Tab Small" size; no token */
-  height: var(--space-24);
+  width: var(--space-32);
+  height: var(--space-32);
   padding: 0;
   border: 0;
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-8);
   background: var(--bg);
   color: var(--fg);
   cursor: pointer;
   outline: none;
 }
 .small:is(:hover, :focus-visible) {
-  --bg: var(--color-gray-fill-hover);
+  --bg: var(--color-gray-fill-weaker);
   --fg: var(--color-gray-fill-strong);
 }
 /* Not in Figma: a visible keyboard focus ring */
@@ -53,41 +77,72 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-12);
-  height: var(--space-24);
+  gap: var(--space-8);
   padding-right: var(--space-12);
-  /* Figma "Active" tab background: a box shape with rounded top corners */
-  border-radius: var(--radius-8) var(--radius-8) 0 0;
   color: var(--fg);
-  font-size: var(--font-size-tiny);
-  line-height: var(--line-height-tiny);
-  font-weight: 600;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 500;
 }
-.tab[data-active] {
-  --fg: var(--color-gray-text-strong);
-  background: var(--color-surfaces-base);
+/*
+ * Hover: a light brand-teal fill (Brand Teal Fill/Weaker, 10%; lighter teal in dark mode) fades in on inactive
+ * tabs and fades out when the pointer leaves; the text darkens.
+ */
+.tab {
+  border-radius: var(--radius-8) var(--radius-8) 0 0;
+  transition:
+    background-color 200ms ease,
+    color 150ms ease;
 }
 .tab:hover {
   --fg: var(--color-gray-text-strong);
 }
-
-/* Inactive tabs end in a 10px divider line */
-.tab[data-divider]::after {
+/* Reordering: tabs can be pressed and dragged sideways without selecting text */
+.tab {
+  user-select: none;
+  touch-action: pan-y;
+}
+.tab:not([data-active]):hover {
+  background-color: var(--color-brand-teal-fill-weaker);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}
+/*
+ * 1px separator between neighbouring tabs (16px tall, vertically centered) at 20%: gray in light, white in
+ * dark. The Transparent 200 primitive switches with the theme; no semantic stroke token sits at 20%.
+ */
+.tab + .tab::before {
   content: '';
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
-  height: 10px; /* Figma line length; no token */
+  height: var(--space-16);
   transform: translateY(-50%);
-  border-left: var(--stroke-width-1) solid var(--color-gray-stroke-disabled);
+  border-left: var(--stroke-width-1) solid var(--color-foundation-transparent-200);
+}
+
+/* Active tab: strong text and a 3px brand-teal underline */
+.tab[data-active] {
+  --fg: var(--color-gray-text-strong);
+  font-weight: 600;
+  box-shadow: inset 0 calc(var(--stroke-width-2) * -1 - 1px) 0 0 var(--color-brand-teal-stroke-strongest);
+}
+/* Inside the bar the sliding .indicator draws the underline instead */
+.list .tab[data-active] {
+  box-shadow: none;
 }
 
 .tabButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
   align-self: stretch;
-  /* Figma: 12px padding + a 4px spacer instance + 12px gap before the label */
-  padding: var(--space-4) 0 var(--space-4) calc(var(--space-12) + var(--space-4) + var(--space-12));
+  padding: 0 0 0 var(--space-16);
   border: 0;
-  border-radius: inherit;
+  border-radius: var(--radius-4);
   background: none;
   color: inherit;
   font: inherit;
@@ -114,4 +169,34 @@
 .tabButton:focus-visible,
 .close:focus-visible {
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+
+/* The tab being dragged is lifted above its neighbours and follows the pointer (transform set in JS) */
+.list .tab[data-dragging] {
+  z-index: 1;
+  background-color: var(--color-surfaces-base);
+  box-shadow: var(--shadow-drop);
+  cursor: grabbing;
+  transition: none;
+}
+.list .tab[data-dragging] .tabButton {
+  cursor: grabbing;
+}
+.list .tab[data-dragging]::before {
+  content: none;
+}
+
+/* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */
+.small,
+.close {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .small,
+  .close {
+    transition: none;
+  }
 }

@@ -47,16 +47,23 @@ design-system/
 src/
   design-system.md              How to use the tokens and components; read before any UI work
   components/<Name>/            <Name>.tsx, <Name>.module.css, <Name>.stories.tsx
-  components/Icon/svg/          109 icons exported from the Figma Icon Library
+  components/Icon/svg/          110 icons exported from the Figma Icon Library
   components/Logo/svg/          Logos exported from the Figma Logos page
   docs/Tokens.mdx               "Foundations/Tokens" docs page (reads tokens.json via TokenTables.tsx)
   storybook/                    Story helpers: figma.ts (Figma links), StateGrid.tsx (state grids)
   app/                          Prototype app (entry: index.html → app/main.tsx → App.tsx routes)
     auth/                       Mock auth service, AuthContext (session + idle timeout), RequireAuth
     pages/auth/                 Sign In, Sign Up, Forgot Password → Verify → Reset → Success
-    pages/app/                  Placeholder section pages rendered inside the shell
-    shell/                      AppShell (tabs, header, Tier 1/2 nav, footer), navigation.ts, AccountMenu
+    pages/app/                  Pages inside the shell: dashboard/DashboardPage (welcome + section cards),
+                                placeholder sections, New Tab, HelpPage (+ help/),
+                                inventory/ (Warehouses: WarehousesPage + AddWarehouseModal, EditColumnsModal,
+                                UploadFlow, warehouseData sample data; WAREHOUSES.md is its build spec),
+                                account/AccountSettingsPage (all 8 Figma settings sections on one page, no Tier 3)
+    shell/                      AppShell (tabs, header, Tier 1/2 nav, footer), navigation.ts, AccountMenu,
+                                InboxModal + inbox.ts (header Notifications / Chat / Email lists, sample data)
     components/AppLink.tsx      Hyperlink wired to React Router
+    components/AppModal.tsx     The app's standard modal (use it for every dialog)
+    components/RecordPage.tsx   The page framework: Figma "Tier 3" header (NavTier3) + sub menu sections
 .storybook/                     main.ts, preview.tsx (tokens.css, theme toolbar, dark docs theme),
                                 manager.ts (dark UI theme), preview-head.html (Inter font, base background)
 ```
@@ -75,7 +82,10 @@ Token data flows one way: **Figma → `variables.json` → `build-tokens.mjs` �
 - **Storybook dark mode:** `STORYBOOK_THEME=dark` makes Storybook open dark: the UI, the stories' default theme, and docs pages on the base surface color. The deploy workflow sets it, so the published site is dark. Locally it comes from a `.env.local`, which is ignored through `.git/info/exclude`. Without it, Storybook opens light.
 - **Component styling:** CSS Modules using only `tokens.css` variables. Strokes are inset `box-shadow`s, so state changes don't shift layout. States use real CSS (`:hover`, `:active`, `:focus-visible`); Figma's `Selected` maps to `aria-pressed`, and `Disabled` to the native `disabled` attribute.
 - **Stories:** one `<Name>.stories.tsx` per component, with a `Playground` story plus one story per Figma component set. Each set story spreads `figma(nodeId, name)` from `src/storybook/figma.ts` (Design panel + "Open in Figma" link). It renders every Figma `State` with `StateGrid`, and spreads `pseudoStates` so Hover / Press / Focus render without a mouse.
-- **Prototype app:** routes live in `src/app/App.tsx`. `/sign-in`, `/sign-up` and the password-reset steps are public; everything under `/app` sits inside one `AppShell` layout route (so open tabs survive navigation). To add a section, add it to `SECTIONS` in `src/app/shell/navigation.ts` (with optional Tier 2 `pages`), then add a `<Route path="<section>/<page>">` above the generic `:section/:page?` route. Auth is mocked in `src/app/auth/authService.ts`: demo account `oswaldc@gmail.com` / `bat8992`, lockout after 3 failed tries, verification code `123456`, 30-minute idle timeout. State is in memory, so a full reload resets it. Theme follows the system unless changed with the "Dark mode" toggle (top left of the sign-in screens and of the shell header) or the account menu; both share one store in `src/app/theme.ts` and save it as `hub360.theme`.
+- **Prototype app:** routes live in `src/app/App.tsx`. `/sign-in`, `/sign-up` and the password-reset steps are public; everything under `/app` sits inside one `AppShell` layout route (so open tabs survive navigation). To add a section, add it to `SECTIONS` in `src/app/shell/navigation.ts` (with optional Tier 2 `pages`), then add a `<Route path="<section>/<page>">` above the generic `:section/:page?` route. Auth is mocked in `src/app/auth/authService.ts`: demo account `oswaldc@gmail.com` / `bat8992`, lockout after 3 failed tries, verification code `123456`, 30-minute idle timeout. State is in memory, so a full reload resets it. Theme follows the system unless changed with the "Dark mode" toggle (top left of the sign-in screens) or the account menu's Theme option in the shell; both share one store in `src/app/theme.ts` and save it as `hub360.theme`.
+- **Modals:** every dialog in the app uses `AppModal` (`src/app/components/AppModal.tsx`), the 800px "Dialog / Modal" from the Figma "_Sign In / Shell" Modal page (782:12791). Pass `title`, `description` / `children` and a `primaryAction` (drawn as the brand teal button); the secondary action defaults to "Cancel" (outline). It wraps the design-system `Modal`, so the scrim, focus trap, Escape, and the close button's hover / press / focus states come with it, in light and dark.
+- **Pages:** build new app pages on `RecordPage` (`src/app/components/RecordPage.tsx`), the Figma "Tier 3" header from the design-system library (2644:3738). Pass `title`, `icon`, `breadcrumb`, `labels`, `meta`, `tag`, and `sections` (each a Sub Menu button with its `content`); `actions` defaults to Figma's Active toggle, Actions dropdown, brand Save and previous / next arrows (`RecordActions`, each part can be hidden). The double chevron collapses the header. `HelpPage` is the first page built on it.
+- **Commit messages:** start every commit subject (and PR title) with a type prefix: `feat:` new feature, `fix:` bug fix, `docs:` documentation only, `refactor:` neither fix nor feature, `style:` formatting, `test:` tests, `chore:` maintenance and dependency updates. Example: `feat: add dark mode toggle`.
 - **Validating changes:** after changing `build-tokens.mjs` or `variables.json`, check that every `var()` in `tokens.css` points to a defined variable and every alias in `tokens.json` resolves. After component changes, run `npm run typecheck` and look at the affected stories in Storybook.
 
 ## Design system
