@@ -1,5 +1,6 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
+import { withRequiredMark } from './requiredMark';
 import styles from './TextInput.module.css';
 
 export type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
@@ -27,7 +28,7 @@ export function TextInput({ label, error, leftIcon, rightIcons, trailingAction, 
       data-required={inputProps.required || undefined}
     >
       <label htmlFor={inputId} className={styles.label}>
-        {label}
+        {withRequiredMark(label)}
       </label>
       <div className={styles.control}>
         {leftIcon && (

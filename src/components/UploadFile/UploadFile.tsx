@@ -13,6 +13,8 @@ export type UploadFileProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'
   hint?: ReactNode;
   /** Icon name from the Icon component. Figma uses `photo`. */
   icon?: string;
+  /** Icon size in px. Figma's Upload File uses 60; smaller drop zones (e.g. an import dialog's) use 40. */
+  iconSize?: number;
 };
 
 /**
@@ -25,6 +27,7 @@ export function UploadFile({
   browseLabel = 'browse',
   hint = 'Supports JPG, PNG, PDF, DOC, XLS, CSV',
   icon = 'photo',
+  iconSize = 60,
   id,
   className,
   disabled,
@@ -74,7 +77,7 @@ export function UploadFile({
         }}
         {...inputProps}
       />
-      <Icon name={icon} size={60} />
+      <Icon name={icon} size={iconSize} />
       <span className={styles.text}>
         <span className={styles.title}>
           {title} <span className={styles.browse}>{browseLabel}</span>

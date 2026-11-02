@@ -3,7 +3,17 @@
  * to get a Tier 2 menu. A section's screens are routed at /app/<section>/<page>.
  * Labels and icons follow the Figma "Shell" frames (Dicn7aHuXXE7dmCg57RwwB, page "Shell").
  */
-export type NavPage = { id: string; label: string; icon: string };
+import { findItem } from '../pages/app/inventory/items/itemStore';
+import { findOrder } from '../pages/app/inventory/orders/orderStore';
+import { findWarehouse } from '../pages/app/inventory/warehouseStore';
+
+export type NavPage = {
+  id: string;
+  label: string;
+  icon: string;
+  /** Name of a record opened under this page (/app/<section>/<page>/<id>), shown on its tab. */
+  recordLabel?: (id: string) => string | undefined;
+};
 export type NavSection = { id: string; label: string; icon: string; pages?: NavPage[] };
 
 // The build starts with Dashboard and Inventory. Figma's other sections (Tasks, Schedule, Sites, Accounts,
@@ -14,11 +24,16 @@ export const SECTIONS: NavSection[] = [
     id: 'inventory',
     label: 'Inventory',
     icon: 'warehouse',
-    // Inventory starts with Warehouses only. Figma's other Tier 2 pages come back here as they are built:
-    // HubSight (visibility), Dashboard (dashboard), Items (tasks), Counts (sales), Orders (orders),
-    // Purchasing (recent-sales), Receiving (receiving), Shipping (service), Suppliers (suppliers),
-    // Reports (reports), Users (users), Settings (settings).
-    pages: [{ id: 'warehouses', label: 'Warehouses', icon: 'warehouse' }],
+    // In the order of the Figma file "Inventory Management" (7FlRxkXbbjUhWJ3t1MMrVr). The Dashboard (819:7974) is
+    // first, so it's where the Tier 1 Inventory button lands. The Shell's other Tier 2 pages come back here as they
+    // are built: HubSight (visibility), Counts (sales), Purchasing (recent-sales), Receiving (receiving),
+    // Shipping (service), Suppliers (suppliers), Reports (reports), Users (users), Settings (settings).
+    pages: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+      { id: 'warehouses', label: 'Warehouses', icon: 'warehouse', recordLabel: code => findWarehouse(code)?.name },
+      { id: 'items', label: 'Items', icon: 'tasks', recordLabel: id => findItem(id)?.name },
+      { id: 'orders', label: 'Orders', icon: 'orders', recordLabel: id => findOrder(id)?.number },
+    ],
   },
 ];
 

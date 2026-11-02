@@ -90,7 +90,7 @@ export function NavTab({
         onClick={onSelect}
       >
         {icon && <Icon name={icon} size={16} color="currentColor" />}
-        {label}
+        <span className={styles.tabLabel}>{label}</span>
       </button>
       {onClose && (
         <button type="button" className={styles.close} aria-label={closeLabel ?? `Close ${title ?? label}`} onClick={onClose}>

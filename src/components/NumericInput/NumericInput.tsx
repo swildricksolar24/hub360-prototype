@@ -1,5 +1,6 @@
 import { useId, useState, type InputHTMLAttributes } from 'react';
 import { Icon } from '../Icon/Icon';
+import { withRequiredMark } from '../TextInput/requiredMark';
 import styles from './NumericInput.module.css';
 
 export type NumericInputProps = Omit<
@@ -81,7 +82,7 @@ export function NumericInput({
       data-required={inputProps.required || undefined}
     >
       <label htmlFor={inputId} className={styles.label}>
-        {label}
+        {withRequiredMark(label)}
       </label>
       <div className={styles.control}>
         <input

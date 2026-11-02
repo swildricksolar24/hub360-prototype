@@ -1,0 +1,155 @@
+/* Inventory › Orders: the list (same layout as Warehouses) and the order records' line-item tables. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  /* min-width: 0 keeps a wide table scrolling inside its card instead of widening the page */
+  min-width: 0;
+  min-height: 100%;
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+/* Inside a record card the toolbar sits on the card itself */
+.cardToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+.search {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Table card ---------- */
+.tableCard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-24);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+
+/* The "New Order ▾" menu, under its button */
+.menuAnchor {
+  position: relative;
+}
+.menu {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--space-4));
+  right: 0;
+}
+
+/* Empty and no-results states */
+.empty {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-48) var(--space-24);
+}
+.emptyCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+}
+.emptyCell p {
+  margin: 0;
+}
+.emptyCell :global(.text-large-bold) {
+  color: var(--color-gray-text-strong);
+}
+
+/* Confirm modals: the bold teal verb (as in Confirm Activation) */
+.verb {
+  color: var(--color-brand-teal-text-strongest);
+}
+
+/* ---------- Line-item cells ---------- */
+/* An inline field fills its column (width set inline from the column's width) */
+.cellField {
+  min-width: 0;
+}
+/* NumericInput always draws its label; in a table cell the column header is the visible label */
+.cellField label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Item # in the Adjustment table: drawn as a link (the item records aren't built yet) */
+.linkText {
+  color: var(--color-brand-teal-text-strongest);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.muted {
+  color: var(--color-gray-text-weak);
+}
+.statusIcons {
+  display: inline-flex;
+  gap: var(--space-4);
+  color: var(--color-gray-fill-strong);
+}
+
+/* Adjustment: the running "Net Cost $…" total */
+.total {
+  margin: 0 0 0 auto;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.total strong {
+  font-weight: 700;
+}
+.negative {
+  color: var(--color-semantic-text-error);
+}
+
+/* The Add Items picker: search + location filter above the table */
+.pickerFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin-bottom: var(--space-16);
+}
+.hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-12) 0 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* New Order modal fields */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin-top: var(--space-16);
+}

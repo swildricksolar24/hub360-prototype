@@ -8,6 +8,22 @@
   background: var(--color-surfaces-raised);
 }
 
+/* Header brand: the HUB360 logo, then the current Tier 1 section after a thin divider, at the logo's text size */
+.brand {
+  display: flex;
+  align-items: center;
+}
+.brandSection {
+  padding-left: var(--space-16);
+  box-shadow: inset var(--stroke-width-1) 0 0 var(--color-gray-stroke-weaker);
+  color: var(--color-gray-text-weak);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .body {
   display: flex;
   min-height: 0;
@@ -19,15 +35,73 @@
   background: var(--color-surfaces-base);
 }
 
+/* Holds Tier 2 so its width can animate open (AppShell.tsx); clips the menu while it grows */
+.tier2Slot {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+}
+
 .tier2 {
   flex: none;
   overflow-y: auto;
   background: var(--color-surfaces-sunken);
 }
+/* Shell only: Tier 2 buttons sit closer together, 8px apart (Figma's Tier 2 list uses 16px) */
+.tier2[data-variant='default'] > ul {
+  gap: var(--space-8);
+}
+/*
+ * Shell only (the Figma Tier 2 / Default button has no padding around its icon box): roomier Tier 2 buttons, with the
+ * icon box hugging the icon so the label sits 8px from it (in Figma the 38px box leaves extra space beside the icon).
+ */
+.tier2[data-variant='default'] button[data-tier='2'] {
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-16) var(--space-8) var(--space-12);
+}
+.tier2[data-variant='default'] button[data-tier='2'] > span:first-child {
+  width: auto;
+}
+/*
+ * Tier 1 and Tier 2 resting fill (shell only): Gray Fill/Weaker, the weakest gray token, at a quarter strength in
+ * dark mode. In light mode a quarter is nearly invisible, so the light theme uses the token at full strength
+ * (Figma's own Tier 1 default).
+ */
+.shell {
+  --nav-rest-fill: color-mix(in srgb, var(--color-gray-fill-weaker) 25%, transparent);
+}
+:global(:root[data-theme='light']) .shell {
+  --nav-rest-fill: var(--color-gray-fill-weaker);
+}
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme])) .shell {
+    --nav-rest-fill: var(--color-gray-fill-weaker);
+  }
+}
+/*
+ * Tier 2: the whole button gets the resting fill. It sets SideMenuButton's --bg at a low specificity (:where), so the
+ * component's hover, press, selected and disabled fills still win.
+ */
+:where(.tier2[data-variant='default']) button[data-tier='2'] {
+  --bg: var(--nav-rest-fill);
+}
+/*
+ * Tier 1 gets the same resting fill on its icon boxes. SideMenuButton gives Tier 1 a resting fill of its own, so this
+ * rule names the resting state explicitly (not hovered, pressed, focused, selected or disabled) and leaves every
+ * other state's fill to the component.
+ */
+.tier1 button[data-tier='1']:not(:hover, :active, :focus-visible, [aria-current='page'], :disabled) {
+  --bg: var(--nav-rest-fill);
+}
 
+/*
+ * The page scrolls up and down only: wide content (tables) scrolls sideways inside its own card, so anything poking
+ * past the right edge (e.g. a hidden tooltip, which still takes up space) can't add a sideways scrollbar.
+ */
 .content {
   flex: 1;
   min-width: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: var(--space-24);
 }

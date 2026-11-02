@@ -147,8 +147,9 @@
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);
 }
+/* Required: the same teal line as a required TextInput (Brand Teal Stroke/Weak, as in Figma) */
 .dropdown[data-required] .trigger {
-  --ring: var(--color-brand-teal-stroke-strong);
+  --ring: var(--color-brand-teal-stroke-weak);
   --ring-w: var(--stroke-width-2);
 }
 .dropdown .trigger:focus-visible {
@@ -184,6 +185,55 @@
 .dropdown:not([data-variant='field']) .popup {
   min-width: 200px; /* Figma ListViews width */
 }
+.dropdown[data-placement='above'] .popup {
+  top: auto;
+  bottom: calc(100% + var(--space-4));
+}
+
+/*
+ * The open menu looks like the app's other small menus (ContextMenu: the account menu, row ••• menus): a rounded
+ * Surfaces/Raised panel with an 8px inset and the drop shadow, 40px rounded rows of Large text, and hover / press
+ * fills, with no lines between rows. A selected option keeps a teal tint. Figma's ListViews (square, 1px gaps on
+ * Surfaces/Base) stay in ListBox itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own
+ * rules whatever the CSS order.
+ */
+.popup.popup {
+  padding: var(--space-8);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-raised);
+}
+.popup.popup [role='listbox'] {
+  gap: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.popup.popup [role='option'] {
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.popup.popup [role='option']:not([aria-disabled='true'], [data-error]) {
+  --bg: transparent;
+}
+.popup.popup [role='option']:not([aria-disabled='true'], [data-error]):is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-hover);
+}
+.popup.popup [role='option']:not([aria-disabled='true'], [data-error]):active {
+  --bg: var(--color-gray-fill-press);
+}
+.popup.popup [role='option'][aria-selected='true']:not([data-type='checkbox'], [aria-disabled='true']) {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+@media (prefers-reduced-motion: reduce) {
+  .popup.popup [role='option'] {
+    transition: none;
+  }
+}
 
 /* ---------- chips (Drop Down Label › chips) ---------- */
 
@@ -205,7 +255,7 @@
   --chips-bg: transparent;
 }
 .chips[data-required] {
-  --chips-ring: var(--color-brand-teal-stroke-strong);
+  --chips-ring: var(--color-brand-teal-stroke-weak);
 }
 .chips[data-error] {
   --chips-bg: var(--color-semantic-fill-error-weak);

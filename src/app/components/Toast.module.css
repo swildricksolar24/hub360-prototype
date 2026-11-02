@@ -1,0 +1,38 @@
+/*
+ * A notification floating at the top center of the window (Toast.tsx). The Message's own fills are see-through tints,
+ * so the toast sits on the Overlay surface with a drop shadow to read over the page.
+ */
+.toast {
+  position: fixed;
+  z-index: 1000; /* above the page, its menus and the header; no token */
+  top: var(--space-16);
+  left: 50%;
+  width: min(560px, calc(100vw - 2 * var(--space-16))); /* layout width, no token */
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+  transform: translateX(-50%);
+  animation: toast-in 360ms cubic-bezier(0.2, 0, 0, 1);
+}
+.toast[data-leaving] {
+  animation: toast-out 240ms cubic-bezier(0.3, 0, 1, 1) forwards;
+}
+
+/* Comes down from above the window's top edge, and goes back up */
+@keyframes toast-in {
+  from {
+    transform: translate(-50%, calc(-100% - var(--space-16)));
+  }
+}
+@keyframes toast-out {
+  to {
+    transform: translate(-50%, calc(-100% - var(--space-16)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-leaving] {
+    animation: none;
+  }
+}

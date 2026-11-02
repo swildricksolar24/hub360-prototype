@@ -81,7 +81,7 @@ export type DataHeaderProps = {
   columns: DataColumn[];
   /** Leading area, sized like the rows' checkbox (+ avatar). Default `checkbox-avatar`. */
   leading?: DataLeading;
-  /** Overrides the leading area width in px (Figma Tags uses 160, Notes 135). */
+  /** Overrides the leading area width in px (Figma Tags uses 160, Notes 135). A page can also set it in CSS with `--data-leading-width`. */
   leadingWidth?: number;
   /** Reserves the rows' trailing "More" column (44px). Default true. */
   actions?: boolean;
@@ -120,11 +120,11 @@ export function DataHeader({
     <div role="row" className={[styles.header, className].filter(Boolean).join(' ')} data-corners={corners}>
       {leading !== 'none' &&
         (onSelectAllChange ? (
-          <div role="columnheader" className={styles.leading} style={{ flex: `0 0 ${width}px` }}>
+          <div role="columnheader" className={styles.leading} style={{ flex: `0 0 var(--data-leading-width, ${width}px)` }}>
             <DataCheckbox label="Select all rows" checked={allSelected} onChange={checked => onSelectAllChange(checked)} />
           </div>
         ) : (
-          <div aria-hidden className={styles.leading} style={{ flex: `0 0 ${width}px` }} />
+          <div aria-hidden className={styles.leading} style={{ flex: `0 0 var(--data-leading-width, ${width}px)` }} />
         ))}
       {columns.map(column => (
         <HeaderItem

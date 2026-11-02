@@ -3,6 +3,13 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { RequireAuth } from './auth/RequireAuth';
 import { DashboardPage } from './pages/app/dashboard/DashboardPage';
 import { HelpPage } from './pages/app/HelpPage';
+import { InventoryDashboardPage } from './pages/app/inventory/InventoryDashboardPage';
+import { ItemRecordPage } from './pages/app/inventory/items/ItemRecordPage';
+import { ItemsPage } from './pages/app/inventory/items/ItemsPage';
+import { LocationDetailsPage } from './pages/app/inventory/LocationDetailsPage';
+import { OrderRecordPage } from './pages/app/inventory/orders/OrderRecordPage';
+import { OrdersPage } from './pages/app/inventory/orders/OrdersPage';
+import { WarehouseRecordPage } from './pages/app/inventory/WarehouseRecordPage';
 import { WarehousesPage } from './pages/app/inventory/WarehousesPage';
 import { AccountSettingsPage } from './pages/app/account/AccountSettingsPage';
 import { NewTabPage, SectionPage } from './pages/app/SectionPage';
@@ -45,7 +52,14 @@ export function App() {
             <Route path="account" element={<AccountSettingsPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="help" element={<HelpPage />} />
+            <Route path="inventory/dashboard" element={<InventoryDashboardPage />} />
             <Route path="inventory/warehouses" element={<WarehousesPage />} />
+            <Route path="inventory/warehouses/:code" element={<WarehouseRecordPage />} />
+            <Route path="inventory/warehouses/:code/locations/:locationId" element={<LocationDetailsPage />} />
+            <Route path="inventory/items" element={<ItemsPage />} />
+            <Route path="inventory/items/:itemId" element={<ItemRecordPage />} />
+            <Route path="inventory/orders" element={<OrdersPage />} />
+            <Route path="inventory/orders/:orderId" element={<OrderRecordPage />} />
             <Route path="new-tab/:id" element={<NewTabPage />} />
             {/* New sections: add `<Route path="<section>/<page>" element={…} />` above this generic route. */}
             <Route path=":section/:page?" element={<SectionPage />} />

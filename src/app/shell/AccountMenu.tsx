@@ -4,17 +4,18 @@ import { Avatar } from '../../components/Avatar/Avatar';
 import { ContextMenu } from '../../components/ContextMenu/ContextMenu';
 import { useAuth } from '../auth/AuthContext';
 import { AppModal } from '../components/AppModal';
-import { useTheme, type ThemePreference } from '../theme';
+import { useTheme } from '../theme';
 import styles from './AccountMenu.module.css';
-
-const NEXT_THEME: Record<ThemePreference, ThemePreference> = { system: 'light', light: 'dark', dark: 'system' };
-const THEME_LABEL: Record<ThemePreference, string> = { system: 'System', light: 'Light', dark: 'Dark' };
+import { useMediaQuery } from './useMediaQuery';
 
 /** The header avatar (Figma: "Account Settings") with Account Settings, theme and Sign Out (confirmed in an AppModal). */
 export function AccountMenu() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
+  // Theme switches between Light and Dark only; until it's used, it shows the system theme (like ThemeToggle)
+  const systemDark = useMediaQuery('(prefers-color-scheme: dark)');
+  const dark = theme === 'dark' || (theme === 'system' && systemDark);
   const [open, setOpen] = useState(false);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ export function AccountMenu() {
           onClose={close}
           items={[
             { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account') },
-            { label: `Theme: ${THEME_LABEL[theme]}`, icon: 'preferences', onSelect: () => setTheme(NEXT_THEME[theme]) },
+            { label: `Theme: ${dark ? 'Dark' : 'Light'}`, icon: 'preferences', onSelect: () => setTheme(dark ? 'light' : 'dark') },
             { label: 'Sign Out', icon: 'sign-out', onSelect: () => setConfirmSignOut(true) },
           ]}
         />

@@ -1,23 +1,27 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/Button/Button';
-import { ContextMenu } from '../../../../components/ContextMenu/ContextMenu';
 import { DataHeader, type DataColumn, type DataSort } from '../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../components/DataRow/DataRow';
 import { Dropdown } from '../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../components/Icon/Icon';
-import { Message } from '../../../../components/Message/Message';
 import { PageTracker } from '../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
 import { Skeleton } from '../../../../components/Skeleton/Skeleton';
 import { TextInput } from '../../../../components/TextInput/TextInput';
+import { AppLink } from '../../../components/AppLink';
 import { AppModal } from '../../../components/AppModal';
 import { AddWarehouseModal } from './AddWarehouseModal';
 import { EditColumnsModal } from './EditColumnsModal';
 import { UploadFlow } from './UploadFlow';
-import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, SAMPLE_WAREHOUSES, fieldByKey, type SavedView, type Warehouse } from './warehouseData';
+import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, fieldByKey, type SavedView, type Warehouse } from './warehouseData';
+import { RowMenu } from './record/RowMenu';
+import { PAGE_SIZES } from './record/tableKit';
+import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
+import table from './table.module.css';
 import styles from './warehouses.module.css';
+import { Toast } from '../../../components/Toast';
 
-const PAGE_SIZES = [10, 25, 50];
 const ALL_VIEW = '__all';
 
 type StatusChange = { ids: string[]; active: boolean };
@@ -28,7 +32,9 @@ type StatusChange = { ids: string[]; active: boolean };
  * (sort, column filters, selection, row menu) and pagination, plus the flow's modals.
  */
 export function WarehousesPage() {
-  const [warehouses, setWarehouses] = useState<Warehouse[]>(SAMPLE_WAREHOUSES);
+  // Shared with the warehouse record pages (warehouseStore.ts)
+  const warehouses = useWarehouses();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -57,7 +63,7 @@ export function WarehousesPage() {
   const tableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = 'Warehouses · HUB 360';
+    document.title = 'HUB360 · Warehouses';
     // A short loading state, as if the list came from the server
     const t = window.setTimeout(() => setLoading(false), 500);
     return () => window.clearTimeout(t);
@@ -172,13 +178,13 @@ export function WarehousesPage() {
         </Button>
       </div>
 
-      {notice && <Message type="success" title={notice} onClose={() => setNotice(null)} />}
+      {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
 
       <div className={styles.tableCard}>
-        <div className={styles.tableScroll} ref={tableRef}>
-          <div role="table" aria-label="Warehouses" aria-busy={loading || undefined} className={styles.table}>
+        <div className={table.tableScroll} ref={tableRef}>
+          <div role="table" aria-label="Warehouses" aria-busy={loading || undefined} className={`${table.table} ${styles.table}`}>
             <DataHeader
-              className={styles.head}
+              className={table.head}
               corners="none"
               columns={tableColumns}
               leading="checkbox"
@@ -197,7 +203,7 @@ export function WarehousesPage() {
             />
             {loading ? (
               Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className={styles.skeletonRow} aria-hidden>
+                <div key={i} className={table.skeletonRow} aria-hidden>
                   <Skeleton width="100%" height={20} />
                 </div>
               ))
@@ -213,20 +219,24 @@ export function WarehousesPage() {
             ) : (
               pageRows.map((w, i) => {
                 const cells: Record<string, ReactNode> = Object.fromEntries(ordered.map(key => [key, fieldByKey(key)!.show(w)]));
+                // The code and the name open the warehouse's record
+                for (const key of ['code', 'name'] as const) {
+                  if (key in cells) cells[key] = <AppLink to={recordPath(w)} size="small">{cells[key]}</AppLink>;
+                }
                 cells.status = (
-                  <span className={styles.status} data-active={w.active || undefined}>
+                  <span className={table.status} data-active={w.active || undefined}>
                     {w.active ? 'Active' : 'Inactive'}
                   </span>
                 );
                 return (
                   <div
                     key={w.id}
-                    className={styles.rowWrap}
+                    className={table.rowWrap}
                     data-stripe={i % 2 === 0 || undefined}
                     data-inactive={!w.active || undefined}
                   >
                     <DataRow
-                      className={styles.row}
+                      className={table.row}
                       columns={tableColumns}
                       cells={cells}
                       leading="checkbox"
@@ -238,11 +248,18 @@ export function WarehousesPage() {
                     />
                     {menuFor === w.id && (
                       <RowMenu
-                        warehouse={w}
+                        label={w.name}
                         onClose={() => setMenuFor(null)}
-                        onEdit={() => setEditing(w)}
-                        onStatus={() => setStatusChange({ ids: [w.id], active: !w.active })}
-                        onDelete={() => setDeleting(w)}
+                        items={[
+                          { label: 'View', icon: 'visibility', onSelect: () => navigate(recordPath(w)) },
+                          { label: 'Edit', icon: 'edit', onSelect: () => setEditing(w) },
+                          {
+                            label: w.active ? 'Deactivate' : 'Activate',
+                            icon: w.active ? 'visibility-off' : 'check',
+                            onSelect: () => setStatusChange({ ids: [w.id], active: !w.active }),
+                          },
+                          { label: 'Delete', icon: 'delete', onSelect: () => setDeleting(w) },
+                        ]}
                       />
                     )}
                   </div>
@@ -367,58 +384,20 @@ export function WarehousesPage() {
       <UploadFlow
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
-        existingCodes={warehouses.map(w => w.code)}
-        onImport={imported => {
-          setWarehouses(list => [...imported, ...list]);
-          setNotice(`${imported.length === 1 ? '1 warehouse' : `${imported.length} warehouses`} imported.`);
+        existing={warehouses}
+        onImport={(creates, updates) => {
+          const updated = new Map(updates.map(w => [w.code, w]));
+          setWarehouses(list => [...creates, ...list.map(w => updated.get(w.code) ?? w)]);
+          const count = (n: number) => (n === 1 ? '1 warehouse' : `${n} warehouses`);
+          setNotice(
+            creates.length && updates.length
+              ? `${count(creates.length)} added and ${updates.length} updated.`
+              : creates.length
+                ? `${count(creates.length)} imported.`
+                : `${count(updates.length)} updated.`,
+          );
           setUploadOpen(false);
         }}
-      />
-    </div>
-  );
-}
-
-/* ---------- Row menu (•••) ---------- */
-
-function RowMenu({
-  warehouse,
-  onClose,
-  onEdit,
-  onStatus,
-  onDelete,
-}: {
-  warehouse: Warehouse;
-  onClose: () => void;
-  onEdit: () => void;
-  onStatus: () => void;
-  onDelete: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  // Clicking anywhere else closes the menu
-  useEffect(() => {
-    const away = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node) && !(e.target as Element).closest('[aria-label^="More actions"]')) onClose();
-    };
-    document.addEventListener('pointerdown', away);
-    return () => document.removeEventListener('pointerdown', away);
-  }, [onClose]);
-  const choose = (fn: () => void) => () => {
-    onClose();
-    fn();
-  };
-  return (
-    <div ref={ref} className={styles.rowMenu}>
-      <ContextMenu
-        aria-label={`Actions for ${warehouse.name}`}
-        autoFocus
-        onClose={onClose}
-        items={[
-          { label: 'Edit', icon: 'edit', onSelect: choose(onEdit) },
-          warehouse.active
-            ? { label: 'Deactivate', icon: 'visibility-off', onSelect: choose(onStatus) }
-            : { label: 'Activate', icon: 'check', onSelect: choose(onStatus) },
-          { label: 'Delete', icon: 'delete', onSelect: choose(onDelete) },
-        ]}
       />
     </div>
   );

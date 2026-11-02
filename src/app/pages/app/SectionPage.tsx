@@ -14,7 +14,7 @@ export function SectionPage() {
   const title = locationLabel(sectionId, pageId);
 
   useEffect(() => {
-    document.title = `${title} · HUB 360`;
+    document.title = `HUB360 · ${title}`;
   }, [title]);
 
   if (!section) return <EmptyState title="Page not found" body="This page doesn’t exist. Pick a section from the menu." icon="error" />;
@@ -27,7 +27,7 @@ export function SectionPage() {
 /** A blank tab, opened with the tab bar's +. Going to any page from here fills this tab with it. */
 export function NewTabPage() {
   useEffect(() => {
-    document.title = 'New Tab · HUB 360';
+    document.title = 'HUB360 · New Tab';
   }, []);
   return <EmptyState title="New Tab" body="This tab is empty. Pick a section from the menu on the left, or search above." icon="plus" />;
 }

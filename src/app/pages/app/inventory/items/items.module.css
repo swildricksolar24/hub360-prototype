@@ -1,0 +1,646 @@
+/* Inventory › Items (ITEMS.md): the list, the record tabs and their modals. Cards and tables come from
+   record.module.css and table.module.css; this file adds what the items screens need on top. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  /* min-width: 0 keeps a wide table scrolling inside its card instead of widening the page */
+  min-width: 0;
+  min-height: 100%;
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+/* A toolbar inside a card has no card of its own */
+.toolbar[data-inset] {
+  padding: 0;
+  background: none;
+}
+.search {
+  flex: 1;
+  min-width: 0;
+}
+/* Overview | Stock: the ButtonGroup at toolbar height (the Figma part is 72px tall; the toolbar's controls are 44px) */
+.segment {
+  padding: var(--space-10) var(--space-20);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+.segment[aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-strong);
+  --fg: var(--color-foundation-solid-white); /* white on a brand fill: no semantic token (design-system.md) */
+  font-weight: 600;
+}
+
+/* ---------- Table card ---------- */
+.tableCard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-24);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.tableStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+}
+/* The Totals row under a stock table */
+.totals {
+  font-weight: 700;
+}
+.totals [role='cell'] {
+  font-weight: 700;
+}
+
+/* Empty and no-results states */
+.empty {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-48) var(--space-24);
+}
+.emptyCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+}
+.emptyCell p {
+  margin: 0;
+}
+.emptyCell :global(.text-large-bold) {
+  color: var(--color-gray-text-strong);
+}
+
+/* ---------- Menus and small controls ---------- */
+.menuAnchor {
+  position: relative;
+  display: inline-flex;
+}
+.menuPop {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--space-4));
+  right: 0;
+  min-width: max-content;
+}
+.infoCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.infoButton,
+.trash,
+.iconToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-text-weak);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.infoButton:hover,
+.trash:hover,
+.iconToggle:hover {
+  background: var(--color-gray-fill-hover);
+  color: var(--color-gray-text-strong);
+}
+.trash:hover {
+  color: var(--color-semantic-text-error);
+}
+.infoButton:focus-visible,
+.trash:focus-visible,
+.iconToggle:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+.iconToggle[aria-pressed='true'] {
+  color: var(--color-brand-teal-text-strongest);
+}
+@media (prefers-reduced-motion: reduce) {
+  .infoButton,
+  .trash,
+  .iconToggle {
+    transition: none;
+  }
+}
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+.picker {
+  display: flex;
+  flex-direction: column;
+}
+/* A type chip in a cell (Figma's teal Action Type chip) */
+.chip {
+  white-space: nowrap;
+}
+
+/* ---------- Record: Details ---------- */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-16);
+  align-items: start;
+}
+.fields4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+.fields3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+  align-items: start;
+}
+.fields2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+  align-items: start;
+}
+.specRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* spec field min width; no token */
+  gap: var(--space-12);
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+}
+.titleChecks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16);
+}
+.subheading {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+/* Compliance: a checkbox tile per standard */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* tile min width; no token */
+  gap: var(--space-12);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+}
+.readOnlyField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.readOnlyLabel {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.readOnlyValue {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: 44px; /* matches the text field height; component dimension */
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-disabled);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+/* An image or file chosen in a field */
+.fileChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.fileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.muted {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Modals ---------- */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.modalSectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding-bottom: var(--space-8);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+.modalSectionHead span {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+/* A repeatable group (Add Warranty): a sunken box with a trash button */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.groupRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr auto;
+  gap: var(--space-12);
+  align-items: end;
+}
+/* Draggable rows (warranty prices, price breaks) */
+.dragRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dragRow {
+  display: grid;
+  grid-template-columns: auto repeat(3, minmax(0, 1fr)) auto;
+  gap: var(--space-12);
+  align-items: end;
+}
+.dragRow[data-cols='2'] {
+  grid-template-columns: auto repeat(2, minmax(0, 1fr)) auto;
+}
+.dragRow[data-dragging] {
+  opacity: 0.5;
+}
+.dragHandle {
+  display: inline-flex;
+  align-self: center;
+  color: var(--color-gray-text-weak);
+  cursor: grab;
+}
+.packageGrid {
+  display: grid;
+  grid-template-columns: 80px repeat(3, minmax(0, 1fr)); /* package label column; no token */
+  gap: var(--space-12);
+  align-items: end;
+}
+.packageGrid[data-cols='2'] {
+  grid-template-columns: 80px repeat(2, minmax(0, 1fr)); /* package label column; no token */
+}
+.packageLabel {
+  align-self: center;
+  color: var(--color-gray-text-strong);
+  font-weight: 600;
+}
+.radios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.indent {
+  padding-left: var(--space-40);
+}
+.segmentRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.warning {
+  color: var(--color-semantic-text-error);
+  font-weight: 600;
+}
+
+/* ---------- Build ---------- */
+.buildHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+.buildHead > :first-child {
+  flex: 1;
+  min-width: 240px; /* search min width; no token */
+}
+.total {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: 44px; /* level with the search field; component dimension */
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+.total strong {
+  font-weight: 700;
+}
+.qty {
+  width: 140px; /* the quantity stepper's width in the build table; no token */
+}
+.cellStack {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* ---------- Files ---------- */
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  min-height: 280px; /* preview area height; no token */
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+}
+.preview p {
+  margin: 0;
+}
+.previewNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.previewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+/* Edit File / Edit Profile Image: a crop box over the preview */
+.cropStage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px; /* crop area height; no token */
+  overflow: hidden;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-weak);
+}
+.cropBox {
+  position: absolute;
+  width: 60%;
+  height: 70%;
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+  transition: transform 150ms ease;
+}
+.cropBox[data-round] {
+  width: 200px; /* round crop diameter; component dimension */
+  height: 200px;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cropBox {
+    transition: none;
+  }
+}
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-16) var(--space-8);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+  font: inherit;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  cursor: pointer;
+}
+.thumb:hover {
+  background: var(--color-gray-fill-hover);
+}
+.thumb[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.thumb:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+.fileType {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.renameField {
+  min-width: 0;
+}
+
+/* ---------- Table cells ---------- */
+/* A field inside a table cell (Build quantities, the new folder's name): the column header is its visible label */
+.cellField {
+  min-width: 0;
+}
+.cellField label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* An icon before a value (File Name, File Type) */
+.cellIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.glyph {
+  flex: none;
+  color: var(--color-gray-text-weak);
+}
+
+/* History › Action Type: Figma's teal chip; a button when it opens an order */
+.actionType {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-12);
+  border: 0;
+  border-radius: var(--radius-40);
+  background: var(--color-brand-teal-fill-weaker);
+  color: var(--color-brand-teal-text-strongest);
+  font: inherit;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+button.actionType {
+  cursor: pointer;
+  transition: box-shadow 150ms ease;
+}
+button.actionType:hover {
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-brand-teal-stroke-strong);
+}
+button.actionType:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  button.actionType {
+    transition: none;
+  }
+}
+/* An order's sentence: text with links, wrapping in its fill column */
+.sentence {
+  white-space: normal;
+}
+
+/* ---------- Files: folder trail, crop tools, profile image ---------- */
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.cropTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.fileNameRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-12);
+  align-items: end;
+}
+.fileTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* level with the text field; component dimension */
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  text-transform: uppercase;
+}
+.profileStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+.profileCircle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  width: 200px; /* round crop diameter; component dimension */
+  height: 200px;
+  padding: var(--space-16);
+  border-radius: 50%;
+  background: var(--color-surfaces-sunken);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  overflow-wrap: anywhere;
+}
+.previewMeta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+
+/* ---------- Order modals ---------- */
+.orderStatus {
+  font-weight: 700;
+}
+.lastModified {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.negative {
+  color: var(--color-semantic-text-error);
+}
+/* A table in a half-width card (Replacement Items, ~479px): its fill column may go a little under the shared 140px */
+.halfTable {
+  --table-fill-min: 120px; /* layout width, no token */
+}

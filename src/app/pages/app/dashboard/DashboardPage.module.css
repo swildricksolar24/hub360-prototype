@@ -20,7 +20,13 @@
   text-align: center;
   padding: var(--space-40);
   border-radius: var(--radius-24);
-  background: var(--color-surfaces-overlay);
+  /* A brand gradient (not in Figma; no gradient or dark-teal tokens exist): Brand Teal Fill/Strong at the top, to a
+     dark teal (the same teal mixed with black) at the bottom. The text on it is white (see below). */
+  background: linear-gradient(
+    170deg,
+    var(--color-brand-teal-fill-strong) 0%,
+    color-mix(in srgb, var(--color-brand-teal-fill-strong) 45%, var(--color-foundation-solid-black)) 100%
+  );
   /* A light brand-teal edge along the top, echoing the active-tab underline */
   box-shadow: inset 0 var(--stroke-width-4) 0 var(--color-brand-teal-stroke-strong);
 }
@@ -53,6 +59,18 @@
 .muted {
   margin: 0;
   color: var(--color-gray-text-weak);
+}
+/* On the welcome card's teal gradient the text is white in both themes (white on a fill has no semantic token, see
+   design-system.md); the date and the lede are slightly softer, and the photo's ring is a light white tint. */
+.welcome .greeting {
+  color: var(--color-foundation-solid-white);
+}
+.welcome .date,
+.welcome .lede {
+  color: color-mix(in srgb, var(--color-foundation-solid-white) 85%, transparent);
+}
+.welcome .photo {
+  background: color-mix(in srgb, var(--color-foundation-solid-white) 20%, transparent);
 }
 
 /* ---------- Notifications / Chat / Email ---------- */

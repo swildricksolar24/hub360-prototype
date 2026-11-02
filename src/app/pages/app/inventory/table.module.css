@@ -1,0 +1,190 @@
+/*
+ * Every table in the prototype. The structure (columns, spacing, checkbox column) comes from the Figma
+ * "Tables - Warehouse" set (Inventory Management, 345:93636). The look is "Option 2: clean lines" from
+ * explorations/table-options.html, chosen over Figma's tinted header and solid pills:
+ * - no frame and no header fill;
+ * - hairline row dividers;
+ * - a subtle tint on alternate rows;
+ * - row hover and selected states;
+ * - sort / filter icons that appear on hover;
+ * - a dot + text status;
+ * - a ••• button that appears on hover.
+ * In Figma it's the "Tables - Warehouse (Clean)" set (831:4824), next to the original on the Library page; the
+ * original set is kept.
+ * Wrap a DataHeader + DataRows in .table; give DataHeader .head, each DataRow .row inside a .rowWrap.
+ */
+
+/* Wide column sets scroll sideways inside their card */
+.tableScroll {
+  position: relative;
+  min-width: 0;
+  overflow-x: auto;
+}
+/*
+ * min-content: the 'fill' columns shrink (and wrap) to fit the card before the table scrolls sideways, but not below
+ * --table-fill-min (a page can raise it, e.g. for addresses), so they never squeeze to a word per line.
+ */
+/* Tables with many fixed columns, or in a half-width card, let their fill column go narrower */
+.fillNarrow {
+  --table-fill-min: 80px; /* layout width, no token */
+}
+.fillNarrowest {
+  --table-fill-min: 64px; /* layout width, no token */
+}
+.table [role='cell'][data-wrap] > * {
+  min-width: var(--table-fill-min, 100px); /* layout width, no token */
+}
+/* No frame or fill of its own: the table sits straight on its card */
+.table {
+  min-width: min-content;
+}
+/*
+ * Header and rows: 24px side insets and 16px between cells. In a table with a checkbox column, Figma's first column
+ * is just the 20px box: the leading cell is narrowed to its 8px inset + the box (the checkbox's 44px hit area spills
+ * into the gap after it), and the rows start 16px in, so the box sits 24px from the edge and the first value 16px
+ * after it.
+ */
+.head,
+.row {
+  gap: var(--space-16);
+  padding-inline: var(--space-24);
+}
+.table:has(.row > [role='cell']:first-child input[type='checkbox']) {
+  --data-leading-width: 28px; /* 8px inset + Figma's 20px checkbox; component dimension, no token */
+}
+.table:has(.row > [role='cell']:first-child input[type='checkbox']) :is(.head, .row) {
+  padding-left: var(--space-16);
+}
+/* Lets the leading cell be narrower than the checkbox's hit area (which overflows into the gap) */
+.table:has(.row > [role='cell']:first-child input[type='checkbox']) :is(.head, .row) > :first-child {
+  min-width: 0;
+}
+/* Header: no fill, small bold labels in the weak text color, and a 2px Gray Stroke/Weaker line under it. (The doubled
+   class outranks DataHeader's own fill and height, whatever order the stylesheets load in.) */
+.head.head {
+  min-height: 44px; /* header height; component dimension, no token */
+  border-radius: 0;
+  background: none;
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-2)) 0 var(--color-gray-stroke-weaker);
+}
+.head [role='columnheader'] {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+/* Sort and filter icons fade in while the pointer is over the header (or one has focus), and stay on the column that's
+   sorted or filtered. The select-all checkbox (the leading cell's first child) is never hidden. */
+.head [role='columnheader'] > :not(:first-child) {
+  opacity: 0;
+  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+.head:is(:hover, :focus-within) [role='columnheader'] > :not(:first-child),
+.head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) > :not(:first-child),
+.head [role='columnheader'] > [aria-pressed='true'] {
+  opacity: 1;
+}
+.head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) {
+  color: var(--color-gray-text-strong);
+}
+
+/* Rows: 14px above and below their 36px items = 64px, with a 1px Gray Stroke/Disabled hairline between them (doubled
+   class: outranks DataRow's own padding and line) */
+.row.row {
+  padding-block: calc(var(--space-12) + var(--space-2));
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-disabled);
+}
+/*
+ * Subtle row backgrounds, all close to the card they sit on. Every row is the card color (Surfaces/Overlay) with 35%
+ * of Surfaces/Sunken mixed in. Alternate rows (first, third, …) add 2% of Gray Fill/Strong, hover 5%, and a checked
+ * row 8% of Brand Teal Fill/Strong. All of these are solid colors, so the hover fade works. The row menu opens under
+ * the row.
+ */
+.table {
+  --row-bg: color-mix(in srgb, var(--color-surfaces-sunken) 35%, var(--color-surfaces-overlay));
+}
+.rowWrap {
+  position: relative;
+  background: var(--row-bg);
+  transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+.rowWrap[data-stripe] {
+  background: color-mix(in srgb, var(--color-gray-fill-strong) 2%, var(--row-bg));
+}
+.rowWrap:hover {
+  background: color-mix(in srgb, var(--color-gray-fill-strong) 5%, var(--row-bg));
+}
+.rowWrap:has(> .row[aria-selected='true']) {
+  background: color-mix(in srgb, var(--color-brand-teal-fill-strong) 8%, var(--row-bg));
+}
+/* Inactive rows: the values switch to the weak text color (instead of fading), the status and ••• stay as they are */
+.rowWrap[data-inactive] .row > [role='cell']:nth-last-child(n + 3) {
+  color: var(--color-gray-text-weak);
+}
+/* The ••• button appears on hover, on keyboard focus, on a checked row and while its menu is open */
+.row button[aria-label^='More actions'] {
+  opacity: 0;
+  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+.rowWrap:is(:hover, :focus-within, :has(.rowMenu)) .row button[aria-label^='More actions'],
+.row[aria-selected='true'] button[aria-label^='More actions'],
+/* A table whose Figma screen shows the ••• on every row (e.g. Carrier Accounts, 380:28637) keeps it visible */
+.moreVisible .row button[aria-label^='More actions'] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rowWrap,
+  .head [role='columnheader'] > :not(:first-child),
+  .row button[aria-label^='More actions'] {
+    transition: none;
+  }
+}
+.skeletonRow {
+  padding: var(--space-16) var(--space-24);
+}
+
+/* Status: a 10px dot and the text. Active is a Brand Orange Fill/Strong dot with strong text; anything else is a
+   Gray Fill/Weak dot with weak text. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 500;
+  white-space: nowrap;
+}
+/* The status starts at the left of its column (even where the column is end-aligned), so the dots line up from row
+   to row and the words end raggedly */
+.row [role='cell']:has(.status) {
+  justify-content: flex-start;
+  text-align: start;
+}
+.status::before {
+  content: '';
+  flex: none;
+  width: 10px; /* dot size; component dimension, no token */
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-gray-fill-weak);
+}
+.status[data-active] {
+  color: var(--color-gray-text-strong);
+}
+.status[data-active]::before {
+  background: var(--color-brand-orange-fill-strong);
+}
+
+/* Row menu: the ••• menu opens under the row's actions button */
+/* Placed against the window by RowMenu.tsx (under or above its ••• button), so the table's scroll area can't clip it */
+.rowMenu {
+  position: fixed;
+  z-index: 3;
+}
+
+/* Small teal tags inside a cell (e.g. Service Type) */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

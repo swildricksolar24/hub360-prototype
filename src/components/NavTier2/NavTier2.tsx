@@ -16,6 +16,8 @@ export type NavTier2Props = {
    * label: Tier 2 / Label (text only).
    */
   variant?: NavTier2Variant;
+  /** Overrides the buttons' Figma icon size (design system sizes: 20, 24, 32); see SideMenuButton. */
+  iconSize?: number;
   /** Accessible name of the `<nav>` landmark. */
   'aria-label'?: string;
   className?: string;
@@ -24,7 +26,7 @@ export type NavTier2Props = {
 const BUTTON_VARIANT = { default: 'default', collapsed: 'compact', label: 'label' } as const;
 
 /** Figma Main Nav "Tier 2" (708:1647): the secondary side rail on the sunken surface. */
-export function NavTier2({ items, value, onChange, variant = 'default', 'aria-label': ariaLabel = 'Section', className }: NavTier2Props) {
+export function NavTier2({ items, value, onChange, variant = 'default', iconSize, 'aria-label': ariaLabel = 'Section', className }: NavTier2Props) {
   return (
     <nav aria-label={ariaLabel} className={[styles.tier2, className].filter(Boolean).join(' ')} data-variant={variant}>
       <ul className={styles.list}>
@@ -35,6 +37,7 @@ export function NavTier2({ items, value, onChange, variant = 'default', 'aria-la
               tier={2}
               variant={BUTTON_VARIANT[variant]}
               icon={item.icon}
+              iconSize={iconSize}
               label={item.label}
               selected={item.id === value}
               disabled={item.disabled}

@@ -135,11 +135,26 @@
   box-shadow: none;
 }
 
+/*
+ * Like browser tabs, tabs shrink when there are too many to fit, and long names end in "…" (the full name stays in
+ * the tab's tooltip), so the bar never grows wider than the window.
+ */
+.tab {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.tabLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .tabButton {
   display: flex;
   align-items: center;
   gap: var(--space-8);
   align-self: stretch;
+  min-width: 0;
   padding: 0 0 0 var(--space-16);
   border: 0;
   border-radius: var(--radius-4);

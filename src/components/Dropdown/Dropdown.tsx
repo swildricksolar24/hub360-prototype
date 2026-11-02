@@ -2,6 +2,7 @@ import { useId, useState, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ListBox, type ListBoxOption, type ListBoxType } from '../ListBox/ListBox';
 import { useDropdown, type DropdownOpenProps } from './useDropdown';
+import { withRequiredMark } from '../TextInput/requiredMark';
 import styles from './Dropdown.module.css';
 
 /**
@@ -43,6 +44,8 @@ export type DropdownProps = DropdownOpenProps & {
   'aria-label'?: string;
   /** Rendered under the field, inside the component (FilterChipDropdown puts its chips here). */
   footer?: ReactNode;
+  /** Where the menu opens. `above` suits a control at the bottom of a page or table (e.g. the Page Tracker). */
+  menuPlacement?: 'below' | 'above';
   id?: string;
   className?: string;
 };
@@ -72,6 +75,7 @@ export function Dropdown({
   listType,
   renderValue,
   footer,
+  menuPlacement = 'below',
   id,
   className,
   open,
@@ -110,10 +114,11 @@ export function Dropdown({
       data-error={error ? true : undefined}
       data-required={required || undefined}
       data-disabled={disabled || undefined}
+      data-placement={menuPlacement === 'above' ? 'above' : undefined}
     >
       {label && (
         <span id={labelId} className={showLabel ? styles.label : styles.srOnly}>
-          {label}
+          {withRequiredMark(label)}
         </span>
       )}
       <div className={styles.anchor}>

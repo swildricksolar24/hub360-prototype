@@ -1,0 +1,4 @@
+/* The required-field asterisk: Semantic Text/Error, the red used for every required mark. */
+.mark {
+  color: var(--color-semantic-text-error);
+}

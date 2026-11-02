@@ -76,7 +76,7 @@ export function DashboardPage() {
   const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   useEffect(() => {
-    document.title = 'Dashboard · HUB 360';
+    document.title = 'HUB360 · Dashboard';
   }, []);
 
   return (
