@@ -4,8 +4,14 @@ export type Warehouse = {
   id: string;
   code: string;
   name: string;
+  /** The street (in Mexico, the calle without its numbers). */
   address1: string;
   address2?: string;
+  /** Mexico only: número exterior, número interior and colonia (neighborhood). */
+  exteriorNumber?: string;
+  interiorNumber?: string;
+  colonia?: string;
+  /** The city (in Mexico, the municipio or alcaldía). */
   city: string;
   state: string;
   zip: string;
@@ -38,8 +44,8 @@ export const FIELDS: WarehouseField[] = [
     key: 'address',
     label: 'Address',
     width: 'fill',
-    // Only the parts that are filled in, e.g. "11565 W Summertime, Phoenix, AZ 85085"
-    show: w => [w.address1, w.address2, w.city, `${w.state} ${w.zip}`.trim()].filter(Boolean).join(', '),
+    // In the country's own order (formatAddress), e.g. "11565 W Summertime, Phoenix, AZ 85085"
+    show: w => formatAddress(w),
     sortValue: w => `${w.address1} ${w.city}`,
   },
   { key: 'city', label: 'City', width: 140, show: w => w.city, sortValue: w => w.city },
@@ -107,21 +113,6 @@ export const SAMPLE_WAREHOUSES: Warehouse[] = [
 /** Headers in the downloadable template (public/templates/warehouses-template.csv). */
 export const TEMPLATE_HEADERS = ['Code', 'Name', 'Address 1', 'Address 2', 'City', 'State', 'Zip Code', 'Country', 'Inventory Value', 'Locations', 'Filled Locations'];
 
-/** Fields an uploaded column can map to (Map Columns), matching the template's headers. */
-export const IMPORT_FIELDS = [
-  'Code',
-  'Name',
-  'Address 1',
-  'Address 2',
-  'City',
-  'State',
-  'Zip Code',
-  'Country',
-  'Inventory Value',
-  'Locations',
-  'Filled Locations',
-];
-
 export const COUNTRIES = ['United States of America', 'Canada', 'Mexico'];
 export const STATES = ['Arizona', 'California', 'Colorado', 'Nevada', 'New Mexico', 'Texas', 'Utah'];
 export const STATE_CODES: Record<string, string> = {
@@ -133,3 +124,79 @@ export const STATE_CODES: Record<string, string> = {
   Texas: 'TX',
   Utah: 'UT',
 };
+
+export const USA = 'United States of America';
+export const MEXICO = 'Mexico';
+
+/** Mexico's 32 states, with the abbreviations used in Mexican postal addresses. */
+export const MX_STATE_CODES: Record<string, string> = {
+  Aguascalientes: 'AGS',
+  'Baja California': 'BC',
+  'Baja California Sur': 'BCS',
+  Campeche: 'CAMP',
+  Chiapas: 'CHIS',
+  Chihuahua: 'CHIH',
+  'Ciudad de México': 'CDMX',
+  Coahuila: 'COAH',
+  Colima: 'COL',
+  Durango: 'DGO',
+  'Estado de México': 'MEX',
+  Guanajuato: 'GTO',
+  Guerrero: 'GRO',
+  Hidalgo: 'HGO',
+  Jalisco: 'JAL',
+  Michoacán: 'MICH',
+  Morelos: 'MOR',
+  Nayarit: 'NAY',
+  'Nuevo León': 'NL',
+  Oaxaca: 'OAX',
+  Puebla: 'PUE',
+  Querétaro: 'QRO',
+  'Quintana Roo': 'QROO',
+  'San Luis Potosí': 'SLP',
+  Sinaloa: 'SIN',
+  Sonora: 'SON',
+  Tabasco: 'TAB',
+  Tamaulipas: 'TAMPS',
+  Tlaxcala: 'TLAX',
+  Veracruz: 'VER',
+  Yucatán: 'YUC',
+  Zacatecas: 'ZAC',
+};
+
+export const CANADA = 'Canada';
+
+/** Canada's 13 provinces and territories, with Canada Post's two-letter codes. */
+export const CA_PROVINCE_CODES: Record<string, string> = {
+  Alberta: 'AB',
+  'British Columbia': 'BC',
+  Manitoba: 'MB',
+  'New Brunswick': 'NB',
+  'Newfoundland and Labrador': 'NL',
+  'Northwest Territories': 'NT',
+  'Nova Scotia': 'NS',
+  Nunavut: 'NU',
+  Ontario: 'ON',
+  'Prince Edward Island': 'PE',
+  Quebec: 'QC',
+  Saskatchewan: 'SK',
+  Yukon: 'YT',
+};
+
+/** The state (or province) names and codes for a country's address form. */
+export const stateCodesFor = (country: string) => (country === MEXICO ? MX_STATE_CODES : country === CANADA ? CA_PROVINCE_CODES : STATE_CODES);
+
+/**
+ * A warehouse's address on one line, in the country's own order. Only the parts that are filled in.
+ * - US: "11565 W Summertime, Phoenix, AZ 85085"
+ * - Canada: "100 King St W, Suite 400, Toronto, ON M5X 1A9" (street, unit, city, province and postal code)
+ * - Mexico: "Av. Reforma 222 Int. 5, Col. Juárez, C.P. 06600, Cuauhtémoc, CDMX" (street and numbers, colonia, postal
+ *   code, municipality, state)
+ */
+export function formatAddress(w: Warehouse) {
+  if (w.country === MEXICO) {
+    const street = [w.address1, w.exteriorNumber, w.interiorNumber && `Int. ${w.interiorNumber}`].filter(Boolean).join(' ');
+    return [street, w.colonia && `Col. ${w.colonia}`, w.zip && `C.P. ${w.zip}`, w.city, w.state].filter(Boolean).join(', ');
+  }
+  return [w.address1, w.address2, w.city, `${w.state} ${w.zip}`.trim()].filter(Boolean).join(', ');
+}

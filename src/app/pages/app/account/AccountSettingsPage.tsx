@@ -11,7 +11,7 @@ export function AccountSettingsPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    document.title = 'Account Settings · HUB 360';
+    document.title = 'HUB360 · Account Settings';
   }, []);
 
   const sections = [

@@ -90,7 +90,7 @@ export type DataRowProps = {
   cells: Record<string, ReactNode>;
   /** Leading area: selection checkbox, optionally with an avatar. Default `checkbox-avatar`. */
   leading?: DataLeading;
-  /** Overrides the leading area width in px (Figma Tags uses 160, Notes 135). */
+  /** Overrides the leading area width in px (Figma Tags uses 160, Notes 135). A page can also set it in CSS with `--data-leading-width`. */
   leadingWidth?: number;
   /** Avatar for `leading="checkbox-avatar"`. */
   avatar?: RowAvatar;
@@ -125,7 +125,7 @@ export function DataRow({
   return (
     <div role="row" aria-selected={selected} className={[styles.row, className].filter(Boolean).join(' ')}>
       {leading !== 'none' && (
-        <div role="cell" className={styles.leading} style={{ flex: `0 0 ${width}px` }}>
+        <div role="cell" className={styles.leading} style={{ flex: `0 0 var(--data-leading-width, ${width}px)` }}>
           <DataCheckbox label={selectLabel} checked={selected} onChange={onSelectedChange && (checked => onSelectedChange(checked))} />
           {leading === 'checkbox-avatar' && <Avatar {...avatar} />}
         </div>

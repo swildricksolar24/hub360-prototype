@@ -1,0 +1,667 @@
+/* The warehouse record tabs (WAREHOUSE_RECORD.md): cards with a title row and a divider, as in Figma "Card / Large". */
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  font-family: var(--font-family-inter);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-height: 44px; /* keeps the divider level whether or not the title row has a button; Figma button height */
+  padding-bottom: var(--space-12);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+/* An untitled card: only the button, on the right */
+.cardHead[data-align='end'] {
+  justify-content: flex-end;
+}
+.cardTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+
+/* ---------- Forms ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+/* Figma: a wide field and a narrow one (e.g. Warehouse Name + Country) */
+.wideNarrow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-12);
+}
+.halves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+}
+.thirds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-12);
+}
+.requiredMark {
+  color: var(--color-semantic-text-error);
+}
+
+/* ---------- Search modals (Search Carrier Account, Search Contacts, …) ---------- */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: var(--space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+  padding: var(--space-12) var(--space-16);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.result:hover,
+.result:focus-visible {
+  background: var(--color-gray-fill-hover);
+}
+.result:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+@media (prefers-reduced-motion: reduce) {
+  .result {
+    transition: none;
+  }
+}
+.resultText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.resultName {
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+.resultSub,
+.resultSide {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.resultSide {
+  text-align: right;
+}
+.noResults {
+  margin: var(--space-16) 0 0;
+  color: var(--color-gray-text-weak);
+}
+
+/* A table with no rows yet */
+.emptyRow {
+  margin: 0;
+  padding: var(--space-16) var(--space-24);
+  color: var(--color-gray-text-weak);
+}
+
+/* Modal header extras (e.g. Edit Carrier's Active toggle) */
+.modalToggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-12);
+}
+
+/* ---------- Table cells ---------- */
+/* A cell value that opens something (e.g. a contact's name opens Edit Contact) */
+.cellLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand-teal-text-strongest);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.cellLink:hover {
+  text-decoration-thickness: var(--stroke-width-2);
+}
+.cellLink:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+  outline-offset: 2px;
+  border-radius: var(--radius-4);
+}
+/* The Contacts ★: filled for the primary contact */
+.star {
+  display: inline-flex;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-fill-weak);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+.star:hover {
+  color: var(--color-gray-fill-strong);
+}
+.star[aria-pressed='true'] {
+  color: var(--color-brand-orange-fill-strong);
+  cursor: default;
+}
+.star:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+@media (prefers-reduced-motion: reduce) {
+  .star {
+    transition: none;
+  }
+}
+
+/* ---------- Not found ---------- */
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-48) var(--space-24);
+  color: var(--color-gray-text-weak);
+  text-align: center;
+}
+.notFound p {
+  margin: 0;
+}
+
+/* Visually hidden, kept for screen readers */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.weak {
+  color: var(--color-gray-text-weak);
+}
+.hint {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Table toolbar (tableKit TableToolbar: the Warehouses list toolbar, inside the card) ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+.toolbarDivider {
+  align-self: stretch;
+  width: var(--stroke-width-1);
+  background: var(--color-gray-stroke-disabled);
+}
+.toolbarSearch {
+  flex: 1;
+  min-width: 0;
+}
+/* The segmented switch (ButtonGroup) at the toolbar's 44px height; the Figma part is 72px tall */
+.segmented {
+  flex: none;
+}
+.segment {
+  padding: var(--space-10) var(--space-20);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+.segment[aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-strong);
+  --fg: var(--color-foundation-solid-white); /* white on a brand fill: no semantic token (design-system.md) */
+  font-weight: 600;
+}
+.segment[aria-pressed='true']:hover {
+  --bg: var(--color-brand-teal-fill-hover);
+}
+.segment[aria-pressed='true']:active {
+  --bg: var(--color-brand-teal-fill-press);
+}
+/* A brand button with a ▾ menu (Add New ▾, Add Item ▾); the menu opens under it, right-aligned */
+.menuButton {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.menuPopup {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--space-4));
+  right: 0;
+  min-width: max-content;
+}
+/* Edit Columns: the column checkboxes in two columns */
+.columnChoices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12) var(--space-24);
+}
+
+/* ---------- ⓘ tooltips and checkbox groups ---------- */
+.infoTip {
+  display: inline-flex;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-text-weak);
+  cursor: help;
+  transition: background-color 150ms ease;
+}
+.infoTip:hover {
+  background: var(--color-gray-fill-hover);
+}
+.infoTip:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+@media (prefers-reduced-motion: reduce) {
+  .infoTip {
+    transition: none;
+  }
+}
+.checkInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.checkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.subHeading {
+  padding: 0;
+  margin-bottom: var(--space-8);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 700;
+}
+.checkRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-24);
+}
+.checkList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+/* A field built from parts (e.g. Label Size: a label, a ButtonGroup and helper / error text) */
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+.fieldLabel {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+}
+.fieldHelp,
+.fieldError {
+  margin: 0;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.fieldHelp {
+  color: var(--color-gray-text-weak);
+}
+.fieldError {
+  color: var(--color-semantic-text-error);
+}
+
+/* ---------- Pick / Pack: two columns of cards ---------- */
+.columns {
+  display: grid;
+  /* Two columns, or one when there's no room for two 420px columns */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  align-items: start;
+  gap: var(--space-16);
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+}
+/* Fulfillment and Optimization: the checkbox groups */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+/* ---------- Location Details: the status checkboxes on the card's title row ---------- */
+.headChecks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-8) var(--space-20);
+}
+
+/* ---------- Search modals: extras ---------- */
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.resultIcon {
+  display: inline-flex;
+  flex: none;
+  padding: var(--space-8);
+  border-radius: var(--radius-8);
+  background: var(--color-brand-teal-fill-weaker);
+  color: var(--color-brand-teal-text-strongest);
+}
+
+/* ---------- Stock: the Totals row on the header's teal tint ---------- */
+.totalsRow {
+  background: var(--color-brand-teal-fill-weaker);
+}
+.totalsRow [role='cell'] {
+  font-weight: 700;
+}
+
+/* ---------- History ---------- */
+/* Figma: 80px rows */
+.historyRow {
+  min-height: 80px; /* Figma row height; component dimension, no token */
+}
+/* Action Type: a teal badge */
+.actionBadge {
+  display: inline-flex;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-40);
+  background: var(--color-brand-teal-fill-strong);
+  color: var(--color-foundation-solid-white); /* white on a brand fill: no semantic token (design-system.md) */
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* Action Performed wraps to two lines at most */
+.sentence {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.twoLines {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Locations › Structure: the location tree ---------- */
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* A bar per location, indented by depth */
+.treeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: 56px; /* Figma bar height; component dimension, no token */
+  margin-left: calc(var(--depth, 0) * var(--space-32));
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+}
+.treeRow[data-dragging] {
+  background: var(--color-gray-fill-hover);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.treeRow[data-inactive] .treeLabel {
+  opacity: 0.4;
+}
+.treeHandle {
+  display: inline-flex;
+  flex: none;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-text-weak);
+  cursor: grab;
+  touch-action: none;
+}
+.treeHandle:hover {
+  background: var(--color-gray-fill-hover);
+}
+.treeHandle:active {
+  cursor: grabbing;
+}
+.treeHandle:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+.treeHandle:disabled {
+  color: var(--color-gray-text-disabled);
+  cursor: not-allowed;
+}
+.depthBadge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-24);
+  height: var(--space-24);
+  border-radius: var(--radius-40);
+  background: var(--color-brand-teal-fill-weaker);
+  color: var(--color-brand-teal-text-strongest);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 700;
+}
+.treeLabel {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.treeArrow {
+  flex: none;
+  color: var(--color-gray-text-weak);
+}
+.treeName {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.treeMeta {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  white-space: nowrap;
+}
+.treeActions {
+  display: flex;
+  flex: none;
+  gap: var(--space-4);
+}
+
+/* ---------- Add / Edit Label (1040px modal): the form and the Label Preview side by side ---------- */
+.labelLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-24);
+}
+@media (max-width: 767px) {
+  .labelLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.previewHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.previewTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+/* A fixed-height stage; the label keeps its aspect ratio inside it */
+.previewStage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 320px; /* preview area height; no token */
+  padding: var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-weaker);
+}
+.previewActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+/* The mock label. It follows the theme (there is no "paper" token), with a hairline frame and the drop shadow */
+.labelSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding: var(--space-12);
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-base);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weak),
+    var(--shadow-drop);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+.labelSheet[data-compact] {
+  gap: var(--space-2);
+  padding: var(--space-8);
+}
+.labelTop {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding-bottom: var(--space-4);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-strong);
+  font-weight: 700;
+}
+.labelKind {
+  letter-spacing: 0.04em;
+}
+.labelWarehouse {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 600;
+}
+.labelOrder {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+.labelShip {
+  display: flex;
+  flex-direction: column;
+}
+.labelSmall {
+  color: var(--color-gray-text-weak);
+}
+.labelCarton {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-weight: 600;
+}
+/* Decorative barcode: dark bars and gaps, each as wide as its flex-grow */
+.barcode {
+  display: flex;
+  flex: 1;
+  min-height: var(--space-24);
+  margin-top: auto;
+}
+.barcode > span {
+  flex-basis: 0;
+  background: var(--color-gray-fill-strong);
+}
+.barcode > span[data-space] {
+  background: none;
+}
+.labelId {
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}

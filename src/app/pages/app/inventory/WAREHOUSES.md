@@ -25,13 +25,10 @@ placeholder.
 | 5 | Edit Columns, naming a view | Adding View Name (732:51925) | Typing a View Name in 4 |
 | 6 | Edit Columns, saved view | Editing View with Name (732:52038) | Opening a saved view |
 | 7 | Delete view confirmation | Action Confirmation (732:52350) | Delete View in 6 |
-| 8 | Upload File | Upload Spreadsheet (732:52154) | Toolbar › Upload |
-| 9 | Upload File, uploading | Upload File - Uploading Spreadsheet (732:52219) | Upload in 8 |
-| 10 | Map Columns | Map Columns - Default (732:52366) | Upload succeeds |
-| 11 | Map Columns, searching | Map Columns - Search (732:52387) | Opening a target dropdown |
-| 12 | Map Columns, selected | Map Columns - Selected (732:52421) | Choosing a target |
-| 13 | Map Columns, saved | Map Columns - Saved (732:52459) | After choosing |
-| 14 | Upload error | Map Columns - Upload Error (732:52362) | Upload fails |
+| 8 | Upload File | Upload Spreadsheet (826:58304) | Toolbar › Upload |
+| 9 | Match Columns | Map Columns - Default (826:58411) | Next in 8 |
+| 10 | Review & Import | Review Import (826:58495) | Next in 9 |
+| 11 | Upload error | Map Columns - Upload Error (826:58404) | Upload fails |
 | 15 | Add Warehouse | Add Warehouse (732:51736) | Toolbar › Add Warehouse |
 
 ## 1. Warehouses list
@@ -121,36 +118,33 @@ the Cancel default).
 No coded component exists for these two lists; build them in the page folder from `Checkbox`, `IconButton`,
 `Icon` and tokens (Figma's are local components, not library ones).
 
-## 8–9, 14. Upload File
+## 8–11. Upload File (three-step import)
 
-`AppModal` (Figma ≈ 728px; 800 is fine).
+Rebuilt from the newer Figma frames: "Upload Spreadsheet" (826:58304), "Map Columns - Default" (826:58411), "Review
+Import" (826:58495) and "Map Columns - Upload Error" (826:58404). One flow in `UploadFlow.tsx`; each step is an
+`AppModal` with a `Timeline` (Upload File → Match Columns → Review & Import) under the title.
 
-- Title **Upload File**. Body: "**Download our template**, add your information, and upload the completed file.
-  You'll then be able to map your columns to the correct fields for accurate data entry." — "Download our
-  template" is a `Hyperlink` to a sample CSV in `public/`.
-- `UploadFile` with `accept=".xls,.xlsx,.csv"`, title "Drop your file here, or" + "browse", hint "Supports XLS and
-  CSV files only". Show the chosen file's name before uploading.
-- Footer: Cancel (outline), **Upload** (brand, disabled until a file is chosen).
-- **Uploading (9):** the drop zone is replaced by a small spinner: the `progress-activity` icon turning (CSS
-  rotation, stopped under reduced motion) in a `role="status"` area labelled "Uploading…". `Progress` doesn't fit
-  here: it is a 141px determinate circle. Cancel and Upload are disabled.
-- **Upload error (14):** Figma uses the sectioned modal. Title "We couldn't upload your file. Please try again.",
-  body "We couldn't upload your file due to an unexpected error. Please check your file and internet connection,
-  then try uploading it again. If the problem persists, try selecting the file again or contact support for
-  assistance.", Cancel and **Try Again** (brand, back to 8). For the prototype, any file that isn't XLS/CSV, or a
-  file named with "error", triggers it.
-
-## 10–13. Map Columns
-
-`AppModal`, wide (Figma ≈ 1,550px; see open question 3).
-
-- Title **Map Columns**. A teal header bar: "Uploaded Data Columns" | "Targeted Data Columns".
-- One row per column found in the uploaded file: the uploaded name in a read-only gray field, an `arrow-right`
-  icon, then a `Dropdown` (field) labelled by the uploaded name, placeholder "Select Targeted Column Name".
-- The drop-down has a search box at the top ("Search Column Names") and lists the warehouse fields (see open
-  question 4). Choosing one shows it in the field (12–13).
-- Footer: Cancel (outline), **Save** (brand). Save imports the rows into the table and shows a success `Message`
-  ("12 warehouses imported").
+- **1. Upload File** (800px). Title stays **Upload File** (Figma says "Import Warehouses"). Description "Fill in our
+  template, upload it here, then match your columns on the next step." A gray **Download Template** button (`import`
+  icon) downloads the CSV in `public/templates/`. The drop zone is `UploadFile` restyled to Figma (sunken fill, 2px
+  dashed border, 40px `file-upload` icon), hint "CSV or XLSX · up to 10 MB · up to 5,000 rows". Choosing a file
+  starts the upload at once: a file row (document icon, name, "Uploading… 65%", a 6px teal bar, size) with an X that
+  cancels or removes it. Footer: Cancel, **Next: Match Columns** (disabled until the upload finishes).
+- **2. Match Columns** (1040px). "We matched 7 of 9 columns automatically…" (the count when the file arrived).
+  Pills: matched (green), need a match (amber), skipped (black). A caution notice names the required fields
+  (Warehouse ID, Warehouse Name, Country) and says which aren't matched yet. The table (shared table template):
+  Column in Your File · Sample Values (first three) · HUB360 Field (`EditableCell` select; required fields marked
+  `*`, "Don’t import" skips a column, a field already used isn't offered again) · Status. Columns match by name and
+  common aliases (Street → Address 1, ST → State, Zip → Zip Code…). Footer: Back, Cancel, **Next: Review** (disabled
+  while a required field is unmatched or a column needs a match).
+- **3. Review & Import** (800px). Tiles: New warehouses (green), Update existing (teal; a Warehouse ID that already
+  exists updates that warehouse, keeping what the file has no column for), Rows with errors (red). "Rows with errors
+  (skipped)" lists each row number and problem (empty ID / name / country, an unsupported country, a short or bad US
+  ZIP, an ID repeated in the file), with **Download Error Report** (a CSV of them). Footer: Back, Cancel,
+  **Import N Warehouses**. Import shows a toast ("2 warehouses added and 1 updated.").
+- **Upload error:** unchanged. A file that isn't CSV/XLSX, is over 10 MB or 5,000 rows, has no header row, or is
+  named with "error" shows "We couldn’t upload your file. Please try again." with Cancel and **Try Again**.
+- XLSX files can't be read by the prototype, so they import the template's two sample rows.
 
 ## 15. Add Warehouse
 
@@ -161,9 +155,12 @@ No coded component exists for these two lists; build them in the page folder fro
 | Warehouse ID | `TextInput` | yes | placeholder WH-001; must be unique |
 | Country | `Dropdown` | yes | default United States of America |
 | Warehouse Name | `TextInput` | yes | full width |
-| Address 1 | `TextInput` | | full width |
+| Find address | `SearchBar` | | Figma 826:57894; placeholder "Start typing an address to fill the fields below". Searches sample addresses in the chosen country (`FindAddress.tsx`); picking one fills the address fields below, which stay editable |
+| Address 1 | `TextInput` | yes (US) | full width |
 | Address 2 | `TextInput` | | full width |
-| City / State / Zip Code | `TextInput` / `Dropdown` / `TextInput` | | one row of three; State placeholder "Select" |
+| City / State / Zip Code | `TextInput` / `Dropdown` / `TextInput` | yes (US) | one row of three; State placeholder "Select"; ZIP is 12345 or 12345-6789 |
+
+Canada and Mexico swap in their own address fields and required parts (`AddressFields.tsx`).
 
 Footer: Cancel (outline), **Create** (brand). Errors show under each required field on Create. A new warehouse
 joins the table as Active with zero locations.

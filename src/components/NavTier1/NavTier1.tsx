@@ -17,13 +17,15 @@ export type NavTier1Props = {
   onChange?: (id: string) => void;
   /** Figma `State=Compact`: 32px icon-only buttons in a 48px rail. Default: 64px icon + label buttons in a 96px rail. */
   compact?: boolean;
+  /** Overrides the buttons' Figma icon size (design system sizes: 20, 24, 32); see SideMenuButton. */
+  iconSize?: number;
   /** Accessible name of the `<nav>` landmark. */
   'aria-label'?: string;
   className?: string;
 };
 
 /** Figma Main Nav "Tier 1" (708:1635): the app's primary side rail of Tier 1 Side Menu buttons. */
-export function NavTier1({ items, value, onChange, compact = false, 'aria-label': ariaLabel = 'Main', className }: NavTier1Props) {
+export function NavTier1({ items, value, onChange, compact = false, iconSize, 'aria-label': ariaLabel = 'Main', className }: NavTier1Props) {
   return (
     <nav aria-label={ariaLabel} className={[styles.tier1, className].filter(Boolean).join(' ')} data-compact={compact || undefined}>
       <ul className={styles.list}>
@@ -33,6 +35,7 @@ export function NavTier1({ items, value, onChange, compact = false, 'aria-label'
               tier={1}
               variant={compact ? 'compact' : 'default'}
               icon={item.icon}
+              iconSize={iconSize}
               label={item.label}
               selected={item.id === value}
               disabled={item.disabled}

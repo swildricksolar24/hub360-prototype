@@ -72,6 +72,8 @@ export type LogoProps = {
   name: LogoName;
   /** Logo Side `Brand` variant. Only used when `name` is `logo-side`. */
   brand?: LogoSideBrand;
+  /** Replaces Logo Side's brand text (e.g. "HUB360"). Only used when `name` is `logo-side`. */
+  text?: string;
   /** Rendered height in px; width follows the artwork's aspect ratio. Defaults to the Figma size. */
   height?: number;
   /**
@@ -87,13 +89,13 @@ function scopeIds(svg: string, scope: string) {
   return svg.replace(/id="([^"]+)"/g, `id="${scope}$1"`).replace(/url\(#([^)]+)\)/g, `url(#${scope}$1)`);
 }
 
-export function Logo({ name, brand = 'HUB 360', height, label, className }: LogoProps) {
+export function Logo({ name, brand = 'HUB 360', text: textOverride, height, label, className }: LogoProps) {
   const scope = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const h = height ?? NATIVE_HEIGHT[name];
   const classes = [styles.logo, className].filter(Boolean).join(' ');
 
   if (name === 'logo-side') {
-    const text = SIDE_TEXT[brand];
+    const text = textOverride ?? SIDE_TEXT[brand];
     const style = { '--logo-scale': h / NATIVE_HEIGHT['logo-side'] } as CSSProperties;
     return (
       <span

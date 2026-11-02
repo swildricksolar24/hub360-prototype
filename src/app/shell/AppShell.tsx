@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { Footer } from '../../components/Footer/Footer';
 import { Header } from '../../components/Header/Header';
@@ -33,18 +33,45 @@ type Tab = { id: string; label: string; icon?: string; title: string };
  */
 export function AppShell() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   // The shell is the /app layout route, so it reads the section from the URL rather than its own params.
-  const match = useMatch('/app/:section/:page?');
+  // Deeper paths are records inside a Tier 2 page, e.g. /app/inventory/warehouses/PHX-124.
+  const match = useMatch('/app/:section/:page?/*');
   const sectionId = match?.params.section ?? DEFAULT_SECTION;
   const pageId = match?.params.page;
   const section = findSection(sectionId);
+  const navPage = section?.pages?.find(p => p.id === pageId);
+  const recordId = match?.params['*']?.split('/')[0];
+  const recordName = recordId ? (navPage?.recordLabel?.(recordId) ?? recordId) : undefined;
   const utility = UTILITY_PAGES[sectionId];
-  const label = utility?.label ?? locationLabel(sectionId, pageId);
+  const pageLabel = utility?.label ?? locationLabel(sectionId, pageId);
+  const label = recordName ? `${pageLabel} · ${recordName}` : pageLabel;
 
   // Figma's compact variants: Tier 1 compact on narrower screens, Tier 2 collapsed on the narrowest.
   const tier1Compact = useMediaQuery('(max-width: 1439px)');
   const tier2Collapsed = useMediaQuery('(max-width: 1199px)');
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+  // Tier 2 animation (not in Figma): when a section with Tier 2 pages opens, the menu's slot grows out of the
+  // Tier 1 rail (so the page glides over instead of jumping) while the menu fades and slides in. Moving to
+  // another section that also has Tier 2 only replays the fade.
+  const tier2Slot = useRef<HTMLDivElement>(null);
+  const hadTier2 = useRef(false);
+  const hasTier2 = !!section?.pages;
+  useLayoutEffect(() => {
+    const slot = tier2Slot.current;
+    const opening = hasTier2 && !hadTier2.current;
+    hadTier2.current = hasTier2;
+    if (!slot || reduceMotion) return;
+    const easing = 'cubic-bezier(0.2, 0, 0, 1)';
+    if (opening) slot.animate([{ width: '0px' }, { width: `${slot.offsetWidth}px` }], { duration: 280, easing });
+    slot.firstElementChild?.animate([{ opacity: 0, transform: 'translateX(-12px)' }, { opacity: 1, transform: 'none' }], {
+      duration: 280,
+      delay: opening ? 60 : 0,
+      easing,
+      fill: 'backwards',
+    });
+  }, [hasTier2, section?.id, reduceMotion]);
 
   // Header Notifications / Chat / Email: unread counts and the list modals (Figma Communication page).
   const inbox = useInbox();
@@ -53,10 +80,10 @@ export function AppShell() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   // A section's landing page (where the Tier 1 rail goes) is labeled with the section name, e.g. "Inventory";
   // other Tier 2 pages show their own name, e.g. "Warehouses".
+  // A record's tab shows the record's name, e.g. "Phoenix WH".
   const isLanding = !!section?.pages && pageId === section.pages[0].id;
-  const shortLabel = isLanding
-    ? section.label
-    : section?.pages?.find(p => p.id === pageId)?.label ?? (utility ? label : section?.label ?? label);
+  const shortLabel =
+    recordName ?? (isLanding ? section.label : navPage?.label ?? (utility ? label : section?.label ?? label));
   const tabIcon = utility?.icon ?? section?.icon;
 
   // The shell always opens on Dashboard (after sign-in, on reload or from a pasted link); after that,
@@ -75,21 +102,28 @@ export function AppShell() {
     }
   }, [pathname, navigate]);
 
-  // Like a browser's new tab, going somewhere from a blank tab fills that tab instead of opening another one
+  // Like a browser's new tab, going somewhere from a blank tab fills that tab instead of opening another one.
+  // Navigating with `state: { replaceTab: true }` (a record's previous / next arrows, or leaving a deleted record)
+  // also reuses the current tab instead of opening another.
+  const replaceTab = (state as { replaceTab?: boolean } | null)?.replaceTab === true;
   const previousPath = useRef(pathname);
   useEffect(() => {
     const from = previousPath.current;
     previousPath.current = pathname;
     if (pathname === '/app' || redirecting.current) return;
     setTabs(open => {
-      if (open.some(t => t.id === pathname)) return open;
+      if (replaceTab && from !== pathname && open.some(t => t.id === from)) {
+        const others = open.filter(t => t.id !== from);
+        if (others.some(t => t.id === pathname)) return others;
+      } else if (open.some(t => t.id === pathname)) return open;
       const tab = { id: pathname, label: shortLabel, icon: tabIcon, title: label };
+      if (replaceTab && open.some(t => t.id === from)) return open.map(t => (t.id === from ? tab : t));
       // (another + keeps the blank tab and opens a second one)
       const fills = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
       const blank = fills ? open.findIndex(t => t.id === from) : -1;
       return blank >= 0 ? open.map((t, i) => (i === blank ? tab : t)) : [...open, tab];
     });
-  }, [pathname, label, shortLabel, tabIcon]);
+  }, [pathname, label, shortLabel, tabIcon, replaceTab]);
 
   // The tab bar's +: a new blank tab after the others
   const newTabCount = useRef(0);
@@ -131,7 +165,13 @@ export function AppShell() {
       />
       <Header
         className={styles.header}
-        logo={<Logo name="logo-side" />}
+        // The app name, then the current Tier 1 section (e.g. "HUB360 | Inventory"); utility pages show the name only
+        logo={
+          <span className={styles.brand}>
+            <Logo name="logo-side" text="HUB360" />
+            {section && <span className={styles.brandSection}>{section.label}</span>}
+          </span>
+        }
         search={{ label: 'Search', placeholder: 'Search', onKeyDown: onSearchKey }}
         actions={[
           { id: 'notifications', icon: 'notification', label: 'Notifications', count: inbox.unread('notifications'), onClick: () => inbox.open('notifications') },
@@ -151,16 +191,22 @@ export function AppShell() {
             if (next) navigate(sectionPath(next));
           }}
           compact={tier1Compact}
+          // Bigger than Figma's 24 / 16px: the design system's next icon size up
+          iconSize={tier1Compact ? 20 : 32}
         />
         {section?.pages && (
-          <NavTier2
-            className={styles.tier2}
-            aria-label={section.label}
-            items={section.pages}
-            value={pageId}
-            onChange={id => navigate(sectionPath(section, id))}
-            variant={tier2Collapsed ? 'collapsed' : 'default'}
-          />
+          <div ref={tier2Slot} className={styles.tier2Slot}>
+            <NavTier2
+              className={styles.tier2}
+              aria-label={section.label}
+              items={section.pages}
+              value={pageId}
+              onChange={id => navigate(sectionPath(section, id))}
+              variant={tier2Collapsed ? 'collapsed' : 'default'}
+              // The design system's 20px icon size (Figma draws 24px), in the same 38px box
+              iconSize={20}
+            />
+          </div>
         )}
         <main className={styles.content} id="main">
           <Outlet context={{ inbox } satisfies ShellContext} />

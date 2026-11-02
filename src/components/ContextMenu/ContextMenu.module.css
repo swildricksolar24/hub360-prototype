@@ -4,6 +4,8 @@
   flex-direction: column;
   width: 240px; /* Figma menu width; no token */
   overflow: hidden;
+  /* An 8px inset around the rows, so hover fills sit inside the rounded panel (Figma since Nov 2, 2026; Dropdown menus match) */
+  padding: var(--space-8);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-raised);
   box-shadow: var(--shadow-drop);
@@ -18,8 +20,9 @@
   justify-content: space-between;
   gap: var(--space-10);
   width: 100%;
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-12);
   border: 0;
+  border-radius: var(--radius-8);
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-family-inter);

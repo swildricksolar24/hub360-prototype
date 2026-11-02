@@ -1,0 +1,37 @@
+/* AddressFields: the rows of a warehouse address, per country. Each row sits in its form's own column layout. */
+.street {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-12);
+}
+.wideNarrow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-12);
+}
+.halves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+}
+.thirds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-12);
+}
+.requiredMark {
+  color: var(--color-semantic-text-error);
+}
+
+/* Find address (FindAddress.tsx): Figma's plain label over a Search Input, 4px apart */
+.find {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.findLabel {
+  color: var(--color-gray-text-weak);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}

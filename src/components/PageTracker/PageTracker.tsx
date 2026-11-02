@@ -1,4 +1,4 @@
-import { Icon } from '../Icon/Icon';
+import { Dropdown } from '../Dropdown/Dropdown';
 import { IconButton } from '../IconButton/IconButton';
 import styles from './PageTracker.module.css';
 
@@ -44,21 +44,17 @@ export function PageTracker({
   return (
     <nav aria-label={label} className={[styles.tracker, className].filter(Boolean).join(' ')}>
       <div className={styles.start}>
+        {/* Figma's "Small" select, as the design-system Dropdown so its menu matches the app's other menus */}
         {pageSizeOptions.length > 0 && (
-          <label className={styles.select}>
-            <select
-              aria-label="Rows per page"
-              value={pageSize}
-              onChange={event => onPageSizeChange?.(Number(event.target.value))}
-            >
-              {pageSizeOptions.map(size => (
-                <option key={size} value={size}>
-                  Rows per Page: {size}
-                </option>
-              ))}
-            </select>
-            <Icon name="chevron-down" size={20} className={styles.chevron} />
-          </label>
+          <Dropdown
+            variant="small"
+            aria-label="Rows per page"
+            menuPlacement="above"
+            options={pageSizeOptions.map(size => ({ value: String(size), label: `${size} rows` }))}
+            value={String(pageSize)}
+            renderValue={() => `Rows per Page: ${pageSize}`}
+            onChange={v => onPageSizeChange?.(Number(v))}
+          />
         )}
       </div>
 

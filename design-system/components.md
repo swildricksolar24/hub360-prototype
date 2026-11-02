@@ -3,7 +3,7 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**188 component sets + 7 standalone components** across 77 pages. Nine of them sit on Testing and "not used" pages.
+**189 component sets + 8 standalone components** across 78 pages (Toast and Drop Down Menu added Nov 2, 2026). Nine of them sit on Testing and "not used" pages.
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. No component in the file has an INSTANCE_SWAP property.
@@ -95,6 +95,7 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Checkbox | Small - Icon | 2417:3224 | 6 | State² | Label, Show Checkmark |
 | Drop Down Label | Default | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
 | Drop Down Label | chips | 2676:6014 | 1 | State | — |
+| Drop Down Label | Drop Down Menu (component, added Nov 2, 2026) | 3078:320 | 1 | — | — |
 | Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
 | Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
 | Drop Down Button* | Default | 56:936 | 6 | State³ | Select |
@@ -152,7 +153,7 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Drop Down - Selector | Chip | 455:696 | 1 | State | Label |
 | Captcha | Captcha | 544:60 | 2 | State (Unchecked, Checked) | — |
 | Card* | Card* | 2220:3790 | 4 | Mode (Edit, Save, Active, Title) | Label |
-| Context Menu* | Menu Item | 485:1008 | 5 | State | Show Icon, Show Submenu, Label |
+| Context Menu* | Menu Item | 485:1008 | 6 | State (…, Selected added Nov 2, 2026) | Show Icon, Show Submenu, Label |
 | Context Menu* | Context Menu* | 486:92 | 1 | State | — |
 | Breadcrumb | Breadcrumb | 483:1252 | 1 | State | — |
 | Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
@@ -163,6 +164,7 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Menu Sidebar* | Menu Sidebar* | 490:809 | 1 | State | — |
 | Message | Message | 503:3072 | 2 | State (Default, Hover) | Title, Body |
 | Message | Message | 503:3176 | 8 | Type (Info, Caution, Error, Success) × State | — |
+| Toast | Toast (added Nov 2, 2026; coded as the app's src/app/components/Toast.tsx) | 3079:263 | 4 | Type (Info, Success, Caution, Error) | — |
 | Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
 | Multiselect Dropdown* | Multiselect Dropdown* | 455:647 | 5 | State (Default, Active, Active Hover, Active Selected, Selected) | Select |
 | Notification Box* | Notification Box* | 744:4494 | 4 | Type (Alert, Chat, Email, Read) | — |

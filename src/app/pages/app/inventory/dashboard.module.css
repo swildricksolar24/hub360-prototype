@@ -1,0 +1,317 @@
+/* Inventory › Dashboard (Figma "Inventory / Dashboard", 819:7974): 12px between every block, cards on Surfaces/Overlay. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+  font-family: var(--font-family-inter);
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.search {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- KPI tiles (Figma "KPI Tile (Proposed)") ---------- */
+.kpis {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-16);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 240ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+.kpi:hover {
+  background: color-mix(in srgb, var(--color-gray-fill-hover) 50%, var(--color-surfaces-overlay));
+}
+.kpi:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+.kpiLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+}
+.kpiValue {
+  font-size: var(--font-size-heading-2);
+  line-height: var(--line-height-heading-2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.kpiNote {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+/* Figma lays the tiles out 1632px wide; on narrower screens the values step down so "$1,842,310" still fits */
+@container (max-width: 1400px) {
+  .kpiValue {
+    font-size: var(--font-size-heading-4);
+    line-height: var(--line-height-heading-4);
+  }
+}
+@container (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Card rows ---------- */
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+/* Low Stock takes the room; Value by Warehouse is Figma's 403px */
+.rowWide {
+  grid-template-columns: minmax(0, 1fr) 403px; /* Figma card width; layout width, no token */
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.cardTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+.footnote {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+
+/*
+ * Figma's card buttons are a softened brand teal (Brand Teal Fill/Strong at 70%) with a 2px Gray Stroke/Weaker ring.
+ * Only the resting state is softened; hover, press and focus keep the brand button's own states.
+ */
+.softBrand.softBrand:not(:hover, :active, :focus-visible, :disabled) {
+  --bg: color-mix(in srgb, var(--color-brand-teal-fill-strong) 70%, transparent);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+
+/* ---------- Needs Your Attention ---------- */
+.attention {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.attentionItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8) 0;
+  color: var(--color-gray-text-strong);
+}
+.attentionItem + .attentionItem {
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-weaker);
+}
+.attentionText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.attentionTitle {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+}
+.attentionDetail {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* ---------- Open Orders by Status / Value by Warehouse bars ---------- */
+.bars,
+.values {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-text-strong);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+.statusBar:hover {
+  background: var(--color-gray-fill-weaker);
+}
+.statusBar:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+}
+.statusLabel {
+  display: flex;
+  flex: none;
+  width: 150px; /* Figma label column; layout width, no token */
+}
+.track {
+  display: flex;
+  flex: 1;
+  height: 12px; /* Figma bar height; component dimension, no token */
+  overflow: hidden;
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-weaker);
+}
+.trackThin {
+  flex: none;
+  height: 10px; /* Figma bar height; component dimension, no token */
+}
+.fill {
+  border-radius: var(--radius-4);
+  background: var(--color-brand-teal-fill-strong);
+}
+.count {
+  flex: none;
+  width: 28px; /* Figma count column; layout width, no token */
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+  text-align: right;
+}
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.valueTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.valueTop span {
+  flex: 1;
+  min-width: 0;
+}
+.valueTop strong {
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Low Stock (Figma "Dashboard Table Row (Proposed)": a compact table for cards) ---------- */
+.miniTable {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-8);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weaker);
+}
+.miniHead,
+.miniRow {
+  display: grid;
+  /* Figma columns: Item 290 · Warehouse 130 · On Hand 80 · Reorder Pt 90 · On Order 80 · Suggested 90 · action */
+  grid-template-columns: minmax(160px, 290fr) 90fr 64fr 74fr 64fr 74fr minmax(96px, 110fr);
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  color: var(--color-gray-text-strong);
+}
+.miniHead {
+  padding-block: var(--space-12);
+  background: var(--color-brand-teal-fill-weaker);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+}
+.miniRow {
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-weaker);
+  background: var(--color-surfaces-overlay);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.miniRow:nth-child(even) {
+  background: var(--color-surfaces-sunken);
+}
+.miniAction {
+  display: flex;
+}
+.miniAction > * {
+  flex: 1;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi,
+  .statusBar {
+    transition: none;
+  }
+}

@@ -20,8 +20,13 @@ export type RecordSection = {
 export type RecordActionsProps = {
   /** "Actions" dropdown options; an empty list hides the dropdown. */
   options?: DropdownOption[];
+  /** Called with the chosen "Actions" option's value. */
+  onAction?: (value: string) => void;
   /** Hides the "Active" toggle. */
   hideActive?: boolean;
+  /** Controls the "Active" toggle (otherwise it starts on and works by itself). */
+  active?: boolean;
+  onActiveChange?: (active: boolean) => void;
   onSave?: () => void;
   /** Hides the Save button. */
   hideSave?: boolean;
@@ -43,7 +48,10 @@ const DEFAULT_OPTIONS: DropdownOption[] = [
  */
 export function RecordActions({
   options = DEFAULT_OPTIONS,
+  onAction,
   hideActive,
+  active,
+  onActiveChange,
   onSave,
   hideSave,
   onPrevious,
@@ -52,8 +60,24 @@ export function RecordActions({
 }: RecordActionsProps) {
   return (
     <>
-      {!hideActive && <Toggle contained label="Active" defaultChecked />}
-      {options.length > 0 && <Dropdown variant="small" label="Actions" hideLabel placeholder="Actions" options={options} />}
+      {!hideActive &&
+        (active === undefined ? (
+          <Toggle contained label="Active" defaultChecked />
+        ) : (
+          <Toggle contained label="Active" checked={active} onChange={e => onActiveChange?.(e.target.checked)} />
+        ))}
+      {options.length > 0 && (
+        <Dropdown
+          variant="small"
+          label="Actions"
+          hideLabel
+          placeholder="Actions"
+          options={options}
+          // A menu of commands: nothing stays selected
+          value={onAction ? null : undefined}
+          onChange={onAction ? v => onAction(v as string) : undefined}
+        />
+      )}
       {!hideSave && (
         <Button size="small" variant="brand" onClick={onSave}>
           Save
@@ -127,7 +151,7 @@ export function RecordPage({
 
   const pageName = breadcrumb.at(-1)?.label ?? title;
   useEffect(() => {
-    document.title = `${pageName} · HUB 360`;
+    document.title = `HUB360 · ${pageName}`;
   }, [pageName]);
 
   // Back goes to the previous page in the app, or Home when the page was opened directly

@@ -1,5 +1,6 @@
 import { useId, type TextareaHTMLAttributes } from 'react';
 import { Icon } from '../Icon/Icon';
+import { withRequiredMark } from '../TextInput/requiredMark';
 import styles from './TextArea.module.css';
 
 export type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
@@ -24,7 +25,7 @@ export function TextArea({ label, error, resizable = true, id, className, disabl
       data-required={textareaProps.required || undefined}
     >
       <label htmlFor={inputId} className={styles.label}>
-        {label}
+        {withRequiredMark(label)}
       </label>
       <div className={styles.control}>
         <textarea

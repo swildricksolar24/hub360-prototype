@@ -53,8 +53,10 @@
   --ring: var(--color-brand-teal-stroke-weak);
   --ring-w: var(--stroke-width-2);
 }
+/* Figma State=Disabled (25:368): Gray Fill/Disabled behind a dimmed icon */
 .iconButton[data-variant='default']:disabled {
   --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
   --ring-w: 0px;
 }
 .iconButton:disabled .number {

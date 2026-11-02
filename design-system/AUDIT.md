@@ -112,8 +112,43 @@ Button, Accordion, Selector, Main Drop Down), Context Menu, Menu Sidebar, Search
 Center. Sets whose coded component has no fade were left alone: Text Input, Numeric, Text Area, OTP, Message, Upload,
 Editable Cell, Filter Chip drop-down and Tier 3 Icon. Archived and "not used" pages were skipped.
 
-Not synced: the Tier 1 press and select motion, and the Tier 3 collapsed layout (full title, centered sub menu, actions
-kept top right).
+Not synced:
+- the Side Menu buttons' press and select scale (a press to 98.5%, a swell to 101% on select), which the Page Tracker's
+  buttons share: Figma prototypes can't show it, so the sets carry a note instead (their hover fade was synced on
+  2026-11-02, below);
+- the Tier 3 collapsed layout (full title, centered sub menu, actions kept top right).
+
+## Required drop-down outline (2026-11-02)
+
+Drop Down Label `State=Required` (2363:179) drew its outline with Brand Teal Stroke/Strong, brighter than the Brand
+Teal Stroke/Weak of Text Input - Label `State=Required`, so a required drop-down and a required input next to each
+other didn't match. Its `box` stroke (2363:182) is now bound to Brand Teal Stroke/Weak (2px, 70%), the same as the text
+input, and the coded Dropdown matches. Files that use the library get it once the library is published.
+
+## Code changes of 2026-11-02 synced to Figma
+
+Every design-system change made in code on Nov 2 was carried into the Base file. Each page touched has
+"(Nov 2, 2026)" after its name in the page list, and each changed set has a Development (or, for motion, Interaction)
+note headed **Updated Nov 2, 2026** or **New Nov 2, 2026**.
+
+Changed in Figma:
+- **Context Menu\*** (486:92): 8px inset (Spacing/8) between the panel and its rows. **Menu Item** (485:1008): 12px side
+  padding (Spacing/12), 8px corners (Corner Radius/8), and a new `State=Selected` (Brand Teal Fill/Weaker).
+- **Drop Down Menu** (3078:320, new, Drop Down Label page): the open Drop Down, built from Menu Items on the Context
+  Menu panel. The coded Dropdown opens this instead of a ListViews list (ListBox on its own still follows ListViews).
+- **Toast** (3079:263, new page "- Toast" after "- Message"): Type = Info, Success, Caution, Error; the typed Message on
+  Surfaces/Overlay with 4px corners and the Drop Shadow, 560px wide. Coded as the app's `Toast`.
+- **Side Menu** sets (Tier 1 Default / Compact, Tier 2 Default / Label / Compact): the On hover Smart Animate is now
+  240ms on cubic-bezier(0.2, 0, 0, 1), was 150ms ease.
+- Drop Down Label `State=Required` outline (above).
+
+Notes only (the change is in code; the Figma component already fits or can't show it): Drop Down Button › Small
+(`menuPlacement="above"`), Page Tracker (Rows per Page is a Drop Down; button motion; disabled icon), Text Input,
+Text Area and Numeric (red required asterisk), Tier 1 and Tier 2 (`iconSize`, and how the app shell styles them),
+Main Nav Tab Bar (tabs shrink and truncate), Logo Side (brand text), Upload File (`iconSize`), User Headers and Data
+Rows (`--data-leading-width`), Button Icon (disabled icon now dims in code, as Figma shows).
+
+Nothing above is in other files until the library is published.
 
 ## Token coverage
 

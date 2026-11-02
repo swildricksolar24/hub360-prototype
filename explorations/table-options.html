@@ -1,0 +1,280 @@
+<!doctype html>
+<!--
+  Exploration: options for the prototype's table template (today: the Figma "Tables - Warehouse" set, 345:93636).
+  Open with the dev server running: http://localhost:5173/explorations/table-options.html
+  Not part of the app build (Vite only builds index.html). Uses the real tokens and icons.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Table Options · HUB 360</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/design-system/tokens/tokens.css" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      :root { color-scheme: light; }
+      :root[data-theme='dark'] { color-scheme: dark; }
+      body {
+        margin: 0;
+        background: var(--color-surfaces-raised);
+        color: var(--color-gray-text-strong);
+        font-family: var(--font-family-inter);
+        font-size: var(--font-size-medium);
+        line-height: var(--line-height-medium);
+      }
+      .page { max-width: 1280px; margin: 0 auto; padding: var(--space-40) var(--space-24) var(--space-80); }
+      .top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-24); margin-bottom: var(--space-32); }
+      h1 { margin: 0 0 var(--space-8); font-size: var(--font-size-heading-3); line-height: var(--line-height-heading-3); }
+      .lede { margin: 0; color: var(--color-gray-text-weak); max-width: 760px; }
+      .switch { flex: none; display: inline-flex; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-12); background: var(--color-gray-fill-weaker); }
+      .switch button { border: 0; border-radius: var(--radius-8); padding: var(--space-8) var(--space-16); background: none; color: var(--color-gray-text-weak); font: inherit; font-weight: 600; cursor: pointer; }
+      .switch button[aria-pressed='true'] { background: var(--color-surfaces-overlay); color: var(--color-gray-text-strong); box-shadow: var(--shadow-drop); }
+
+      .option { margin-bottom: var(--space-40); }
+      .option header { margin-bottom: var(--space-16); }
+      .option h2 { display: flex; align-items: center; gap: var(--space-12); margin: 0 0 var(--space-4); font-size: var(--font-size-heading-4); line-height: var(--line-height-heading-4); }
+      .option header p { margin: 0 0 var(--space-8); color: var(--color-gray-text-weak); }
+      .option ul.notes { margin: 0; padding-left: var(--space-20); color: var(--color-gray-text-strong); }
+      .tag { padding: var(--space-2) var(--space-8); border-radius: var(--radius-40); background: var(--color-brand-teal-fill-weaker); color: var(--color-brand-teal-text-strongest); font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 600; }
+      .tag[data-kind='today'] { background: var(--color-gray-fill-weaker); color: var(--color-gray-text-weak); }
+      .stage { padding: var(--space-24); border-radius: var(--radius-12); background: var(--color-surfaces-overlay); overflow-x: auto; }
+
+      .icon { display: inline-flex; width: 20px; height: 20px; flex: none; }
+      .icon svg { width: 100%; height: 100%; }
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+      /* ---------- Shared table skeleton ---------- */
+      .t { --gap: var(--space-16); --pad: var(--space-24); --row-h: 60px; min-width: 1060px; }
+      .t [role='row'] { display: grid; grid-template-columns: 20px 100px 140px minmax(220px, 1fr) 130px 90px 110px 70px 96px 36px; align-items: center; gap: var(--gap); padding: 0 var(--pad); min-height: var(--row-h); }
+      .t .num { text-align: right; font-variant-numeric: tabular-nums; }
+      .t .hd { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+      .t .hd .icon { width: 18px; height: 18px; }
+      .t .hd.num { justify-content: flex-end; }
+      .t .cb { width: 20px; height: 20px; border-radius: var(--radius-4); background: var(--color-gray-fill-weaker); box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weaker); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--color-foundation-solid-white); }
+      .t .cb[aria-checked='true'] { background: var(--color-brand-teal-fill-strong); box-shadow: none; }
+      .t .cb .icon { width: 16px; height: 16px; }
+      .t .more { width: 36px; height: 36px; border: 0; border-radius: var(--radius-8); background: none; color: var(--color-gray-fill-strong); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+      .t .more:hover { background: var(--color-gray-fill-hover); }
+      .t a { color: inherit; text-decoration: none; }
+      .t .pill { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4); white-space: nowrap; }
+      .t .pager { display: flex; align-items: center; justify-content: space-between; padding: var(--space-12) var(--pad); color: var(--color-gray-text-weak); font-size: var(--font-size-small); }
+
+      /* ---------- Option 0: today (Figma "Tables - Warehouse") ---------- */
+      .o0 { border: var(--stroke-width-2) solid var(--color-gray-stroke-disabled); border-radius: var(--radius-4); background: var(--color-surfaces-base); }
+      .o0 .head { background: var(--color-brand-teal-fill-weaker); font-weight: 700; }
+      .o0 .row { box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-weaker); background: var(--color-surfaces-overlay); }
+      .o0 .row:nth-child(even of .row) { background: var(--color-surfaces-sunken); }
+      .o0 .row[data-inactive] > :not(.st, .mo) { opacity: 0.4; }
+      .o0 .num { text-align: left; }
+      .o0 .hd.num { justify-content: flex-start; }
+      .o0 .pill { padding: var(--space-8) var(--space-20); border-radius: var(--radius-40); background: color-mix(in srgb, var(--color-gray-fill-weak) 70%, transparent); color: var(--color-foundation-solid-white); }
+      .o0 .pill[data-active] { background: var(--color-brand-orange-fill-strong); }
+      .o0 a { text-decoration: underline; color: var(--color-brand-teal-text-strongest); }
+      .o0 .pager { display: none; }
+
+      /* ---------- Option 1: refined Figma ---------- */
+      .o1 { border-radius: var(--radius-8); background: var(--color-surfaces-base); box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled); overflow: clip; }
+      .o1 .head { position: sticky; top: 0; z-index: 1; min-height: 52px; background: var(--color-brand-teal-fill-weaker); color: var(--color-gray-text-weak); font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 700; }
+      .o1 .head .icon { opacity: 0; transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o1 .head:hover .icon, .o1 .hd[data-sorted] .icon { opacity: 1; }
+      .o1 .hd[data-sorted] { color: var(--color-gray-text-strong); }
+      .o1 .row { min-height: 56px; background: var(--color-surfaces-overlay); box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-disabled); transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o1 .row:nth-child(even of .row) { background: color-mix(in srgb, var(--color-surfaces-sunken) 60%, var(--color-surfaces-overlay)); }
+      .o1 .row:hover { background: var(--color-gray-fill-weaker); }
+      .o1 .row[aria-selected='true'] { background: var(--color-brand-teal-fill-weaker); box-shadow: inset var(--stroke-width-4) 0 0 var(--color-brand-teal-fill-strong), inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-disabled); }
+      .o1 .row[data-inactive] > :not(.st, .mo, .sel) { color: var(--color-gray-text-weak); }
+      .o1 .row a { font-weight: 600; }
+      .o1 .row a:hover { text-decoration: underline; color: var(--color-brand-teal-text-strongest); }
+      .o1 .pill { padding: var(--space-4) var(--space-12); border-radius: var(--radius-40); background: var(--color-gray-fill-weaker); color: var(--color-gray-text-weak); font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 600; }
+      .o1 .pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .o1 .pill[data-active] { background: var(--color-brand-orange-fill-weaker); color: var(--color-brand-orange-text-strong); }
+      .o1 .more { opacity: 0; transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o1 .row:hover .more, .o1 .more:focus-visible, .o1 .row[aria-selected='true'] .more { opacity: 1; }
+
+      /* ---------- Option 2: clean lines ---------- */
+      .o2 { background: none; }
+      .o2 .head { min-height: 44px; color: var(--color-gray-text-weak); font-size: var(--font-size-small); line-height: var(--line-height-small); font-weight: 700; box-shadow: inset 0 calc(-1 * var(--stroke-width-2)) 0 var(--color-gray-stroke-weaker); }
+      .o2 .head .icon { opacity: 0; transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o2 .head:hover .icon, .o2 .hd[data-sorted] .icon { opacity: 1; }
+      .o2 .row { min-height: 64px; box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-disabled); transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o2 { --row-bg: color-mix(in srgb, var(--color-surfaces-sunken) 35%, var(--color-surfaces-overlay)); }
+      .o2 .row { background: var(--row-bg); }
+      .o2 .row:nth-child(odd of .row) { background: color-mix(in srgb, var(--color-gray-fill-strong) 2%, var(--row-bg)); }
+      .o2 .row:hover { background: color-mix(in srgb, var(--color-gray-fill-strong) 5%, var(--row-bg)); }
+      .o2 .row[aria-selected='true'] { background: color-mix(in srgb, var(--color-brand-teal-fill-strong) 8%, var(--row-bg)); }
+      .o2 .row[data-inactive] > :not(.st, .mo, .sel) { color: var(--color-gray-text-weak); }
+      .o2 .row a { font-weight: 600; }
+      .o2 .row a:hover { text-decoration: underline; }
+      .o2 .pill { gap: var(--space-8); font-weight: 500; color: var(--color-gray-text-weak); }
+      .o2 .pill::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--color-gray-fill-weak); }
+      .o2 .pill[data-active] { color: var(--color-gray-text-strong); }
+      .o2 .pill[data-active]::before { background: var(--color-brand-orange-fill-strong); }
+      .o2 .more { opacity: 0; transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o2 .row:hover .more, .o2 .more:focus-visible { opacity: 1; }
+
+      /* ---------- Option 3: compact ---------- */
+      .o3 { --gap: var(--space-12); --pad: var(--space-16); border-radius: var(--radius-8); background: var(--color-surfaces-base); box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled); overflow: clip; font-size: var(--font-size-small); line-height: var(--line-height-small); }
+      .o3 [role='row'] { min-height: 40px; }
+      .o3 .head { background: var(--color-brand-teal-fill-weaker); font-weight: 700; color: var(--color-gray-text-weak); }
+      .o3 .head .icon { opacity: 0.6; }
+      .o3 .row { background: var(--color-surfaces-overlay); transition: background-color 240ms cubic-bezier(0.2, 0, 0, 1); }
+      .o3 .row:nth-child(even of .row) { background: var(--color-surfaces-sunken); }
+      .o3 .row:hover { background: var(--color-gray-fill-weaker); }
+      .o3 .row[aria-selected='true'] { background: var(--color-brand-teal-fill-weaker); }
+      .o3 .row[data-inactive] > :not(.st, .mo, .sel) { color: var(--color-gray-text-weak); }
+      .o3 .row a { font-weight: 600; }
+      .o3 .pill { padding: var(--space-2) var(--space-8); border-radius: var(--radius-4); background: var(--color-gray-fill-weaker); color: var(--color-gray-text-weak); font-weight: 600; }
+      .o3 .pill[data-active] { background: var(--color-brand-orange-fill-weaker); color: var(--color-brand-orange-text-strong); }
+      .o3 .more { width: 28px; height: 28px; }
+
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="top">
+        <div>
+          <h1>Table template options</h1>
+          <p class="lede">
+            Today every table in the prototype follows the Figma "Tables - Warehouse" set. Below it, three ways to make it better,
+            on the same warehouse data. Hover a row, tick a checkbox, and hover a header to see the states. Use the switch to compare
+            light and dark.
+          </p>
+        </div>
+        <div class="switch" role="group" aria-label="Theme">
+          <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
+          <button type="button" data-theme-btn="dark" aria-pressed="true">Dark</button>
+        </div>
+      </div>
+      <div id="options"></div>
+    </div>
+
+    <script type="module">
+      import sort from '/src/components/Icon/svg/sort.svg?raw';
+      import filter from '/src/components/Icon/svg/filter.svg?raw';
+      import more from '/src/components/Icon/svg/more.svg?raw';
+      import check from '/src/components/Icon/svg/check.svg?raw';
+
+      const ROWS = [
+        ['PHX-124', 'Phoenix WH', '11565 W Summertime, Phoenix, AZ 85085', '$1,250,569.32', 542, 478, 64, true],
+        ['PHX-125', 'Tucson WH', '92235 N Longmore, Gilbert, AZ 85209', '$988,015.02', 252, 208, 44, false],
+        ['PHX-126', 'Phoenix North', '2045 W Deer Valley Rd, Phoenix, AZ 85027', '$2,104,330.50', 860, 812, 48, true],
+        ['MES-201', 'Mesa Central', '1450 S Alma School Rd, Mesa, AZ 85210', '$1,678,204.18', 640, 571, 69, true],
+        ['MES-202', 'Mesa East', '9310 E Baseline Rd, Mesa, AZ 85209', '$734,912.40', 310, 244, 66, true],
+        ['TEM-302', 'Tempe South', '8825 S Kyrene Rd, Tempe, AZ 85284', '$455,180.00', 188, 96, 92, false],
+      ];
+      const COLS = [['Code'], ['Name'], ['Address'], ['Inventory Value', 'num'], ['Locations', 'num'], ['Filled', 'num'], ['Empty', 'num']];
+
+      const OPTIONS = [
+        {
+          cls: 'o0', tag: 'Today', title: 'Current: Figma "Tables - Warehouse"',
+          text: 'What every table uses now.',
+          notes: [
+            'Strong 60px rows with zebra striping, a teal-tinted header and solid orange / gray status pills.',
+            'No hover state, and a checked row looks the same as the others.',
+            'Sort and filter icons on every header add clutter, and numbers are left-aligned, so values are hard to compare.',
+            'Solid status pills are the loudest thing on the row, and inactive rows fade to 40%, which hurts legibility.',
+          ],
+        },
+        {
+          cls: 'o1', tag: 'Recommended at first', title: 'Option 1: refined Figma',
+          text: 'Same structure and colors as the Figma table, with the missing states and less noise.',
+          notes: [
+            'Row hover tint, and checked rows get a teal tint with a teal edge, so you can see your selection.',
+            'Sort and filter icons appear when you hover the header, and stay on the column that is sorted.',
+            'Numbers right-aligned with even-width digits, so columns of values line up.',
+            'Soft status pills (tinted fill, colored text and a dot) instead of solid ones; inactive rows use weak text instead of 40% opacity.',
+            'The ••• button appears on hover or focus; 56px rows and a sticky header.',
+          ],
+        },
+        {
+          cls: 'o2', tag: 'Chosen: in the app', title: 'Option 2: clean lines',
+          text: 'No header fill: hairline dividers, more air and a subtle tint on alternate rows, like a modern data grid.',
+          notes: [
+            'Calmest look; the data stands out instead of the table chrome.',
+            'Status shown as a colored dot plus text.',
+            'Taller 64px rows; best for short lists like Contacts or Carriers.',
+            'Moves furthest from the Figma design, so Figma would need updating.',
+          ],
+        },
+        {
+          cls: 'o3', tag: 'For dense data', title: 'Option 3: compact',
+          text: 'Option 1\'s states at 40px rows and 12px text, for data-heavy tables like Stock and History.',
+          notes: [
+            'Shows about half again as many rows on screen.',
+            'Could be a "density" setting alongside Option 1, rather than a replacement.',
+            'Smaller text and targets, so less comfortable for everyday lists.',
+          ],
+        },
+      ];
+
+      const icon = svg => `<span class="icon" aria-hidden="true">${svg.replace(/width="24" height="24"/, '')}</span>`;
+
+      function table(o) {
+        const head = `
+          <div role="row" class="head">
+            <span role="columnheader"><span class="cb" role="checkbox" aria-checked="false" tabindex="0" aria-label="Select all"></span></span>
+            ${COLS.map(([label, kind], i) => `<span role="columnheader" class="hd ${kind ?? ''}" ${i === 0 ? 'data-sorted' : ''}>${label}${icon(filter)}${icon(sort)}</span>`).join('')}
+            <span role="columnheader"><span class="sr">Status</span></span>
+            <span role="columnheader"><span class="sr">Actions</span></span>
+          </div>`;
+        const rows = ROWS.map((r, i) => `
+          <div role="row" class="row" ${r[7] ? '' : 'data-inactive'} aria-selected="${i === 2}">
+            <span role="cell" class="sel"><span class="cb" role="checkbox" aria-checked="${i === 2}" tabindex="0" aria-label="Select ${r[1]}">${i === 2 ? icon(check) : ''}</span></span>
+            <span role="cell"><a href="#" onclick="return false">${r[0]}</a></span>
+            <span role="cell"><a href="#" onclick="return false">${r[1]}</a></span>
+            <span role="cell">${r[2]}</span>
+            <span role="cell" class="num">${r[3]}</span>
+            <span role="cell" class="num">${r[4]}</span>
+            <span role="cell" class="num">${r[5]}</span>
+            <span role="cell" class="num">${r[6]}</span>
+            <span role="cell" class="st"><span class="pill" ${r[7] ? 'data-active' : ''}>${r[7] ? 'Active' : 'Inactive'}</span></span>
+            <span role="cell" class="mo"><button class="more" type="button" aria-label="More actions for ${r[1]}">${icon(more)}</button></span>
+          </div>`).join('');
+        return `<div class="t ${o.cls}" role="table" aria-label="${o.title}">${head}${rows}<div class="pager">Rows per Page: 10 · 1 of 3</div></div>`;
+      }
+
+      const root = document.getElementById('options');
+      OPTIONS.forEach(o => {
+        const el = document.createElement('section');
+        el.className = 'option';
+        el.innerHTML = `
+          <header>
+            <h2>${o.title}<span class="tag" ${o.tag === 'Today' ? 'data-kind="today"' : ''}>${o.tag}</span></h2>
+            <p>${o.text}</p>
+            <ul class="notes">${o.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+          </header>
+          <div class="stage">${table(o)}</div>`;
+        root.append(el);
+      });
+
+      // Checkboxes: tick a row to see its selected state
+      root.addEventListener('click', e => {
+        const cb = e.target.closest('.cb');
+        if (!cb) return;
+        const t = cb.closest('.t');
+        const on = cb.getAttribute('aria-checked') !== 'true';
+        const rowCbs = cb.closest('.head') ? [...t.querySelectorAll('.row .cb')] : [cb];
+        [cb, ...rowCbs].forEach(c => {
+          c.setAttribute('aria-checked', String(on));
+          c.innerHTML = on ? icon(check) : '';
+          c.closest('.row')?.setAttribute('aria-selected', String(on));
+        });
+      });
+      root.addEventListener('keydown', e => {
+        if ((e.key === ' ' || e.key === 'Enter') && e.target.classList.contains('cb')) { e.preventDefault(); e.target.click(); }
+      });
+
+      // Theme switch
+      const setTheme = t => {
+        document.documentElement.setAttribute('data-theme', t);
+        document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeBtn === t)));
+      };
+      document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeBtn)));
+      setTheme('dark');
+    </script>
+  </body>
+</html>

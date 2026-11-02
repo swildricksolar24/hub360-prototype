@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './SideMenuButton.module.css';
 
@@ -20,6 +20,11 @@ export type SideMenuButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
   variant?: SideMenuButtonVariant;
   /** Figma `State=Selected`: the current page. Rendered as `aria-current="page"`. */
   selected?: boolean;
+  /**
+   * Overrides the Figma icon size, in px (use the design system's icon sizes: 20, 24 or 32). The icon box keeps its
+   * Figma size, so the button doesn't grow.
+   */
+  iconSize?: number;
 };
 
 const ICON_SIZE: Record<string, number> = { '1-default': 24, '1-compact': 16, '2-default': 24, '2-compact': 24 };
@@ -30,13 +35,16 @@ export function SideMenuButton({
   tier = 1,
   variant = 'default',
   selected,
+  iconSize,
   type = 'button',
   className,
+  style,
   ...rest
 }: SideMenuButtonProps) {
   const v = tier === 1 && variant === 'label' ? 'default' : variant;
   const showIcon = v !== 'label';
   const showLabel = v !== 'compact';
+  const size = iconSize ?? ICON_SIZE[`${tier}-${v}`];
   return (
     <button
       type={type}
@@ -46,11 +54,12 @@ export function SideMenuButton({
       aria-current={selected ? 'page' : undefined}
       aria-label={showLabel ? undefined : label}
       title={showLabel ? undefined : label}
+      style={{ '--icon-size': `${size}px`, ...style } as CSSProperties}
       {...rest}
     >
       {showIcon && (
         <span className={styles.box}>
-          <Icon name={icon} size={ICON_SIZE[`${tier}-${v}`]} color="currentColor" />
+          <Icon name={icon} size={size} color="currentColor" />
         </span>
       )}
       {showLabel && <span className={styles.label}>{label}</span>}

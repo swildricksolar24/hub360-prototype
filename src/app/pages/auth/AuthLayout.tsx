@@ -22,7 +22,7 @@ type AuthLayoutProps = {
 /** Figma "Sign In (Desktop Only)": Surfaces/Base page, Logo Full, a 520px Surfaces/Overlay card, links below. */
 export function AuthLayout({ pageTitle, title, subtitle, alert, children, below, wide = false, tools }: AuthLayoutProps) {
   useEffect(() => {
-    document.title = `${pageTitle} · HUB 360`;
+    document.title = `HUB360 · ${pageTitle}`;
   }, [pageTitle]);
 
   return (

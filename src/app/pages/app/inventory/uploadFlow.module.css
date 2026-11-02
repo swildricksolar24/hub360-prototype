@@ -1,0 +1,170 @@
+/*
+ * Warehouses › Upload (UploadFlow.tsx): Figma "Upload Spreadsheet" (826:58304), "Map Columns - Default" (826:58411) and
+ * "Review Import" (826:58495). Each step's body is a 24px column under the modal's title and description.
+ */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.timeline {
+  width: 100%;
+}
+.start {
+  align-self: flex-start;
+}
+
+/* ---------- Step 1: drop zone (the design-system UploadFile, restyled as Figma's "drop zone") ---------- */
+.dropZone {
+  width: 100%;
+  min-height: 0;
+  gap: var(--space-8);
+  padding: var(--space-32) var(--space-24);
+}
+.dropZone:not(:hover, :focus-within, [data-dragging]) {
+  --bg: var(--color-surfaces-sunken);
+}
+/* Figma: a 2px dashed Gray Stroke/Disabled border */
+.dropZone > svg:first-of-type rect {
+  stroke: var(--color-gray-stroke-disabled);
+  stroke-width: var(--stroke-width-2);
+  stroke-dasharray: 6 4;
+}
+
+/* ---------- Step 1: the file being uploaded ---------- */
+.file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-base);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+  color: var(--color-gray-text-strong);
+}
+.fileIcon {
+  flex: none;
+  color: var(--color-gray-fill-strong);
+}
+.fileInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4); /* Figma 6px, which has no spacing token; the nearest is 4 */
+  min-width: 0;
+  color: var(--color-gray-text-weak);
+}
+.fileName {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+.fileName > :first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-gray-text-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Figma's upload bar: 6px tall and rounded, Gray Fill/Weaker track and a Brand Teal Fill/Strong fill (the Progress
+   component's own bar is a 10px gray one) */
+.fileProgress > div {
+  height: 6px; /* component dimension; no token */
+  overflow: hidden;
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-weaker);
+}
+.fileProgress > div > div {
+  border-radius: var(--radius-4);
+  background: var(--color-brand-teal-fill-strong);
+}
+
+/* ---------- Step 2: Match Columns ---------- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-semantic-fill-warning-weak);
+  color: var(--color-gray-text-strong);
+}
+.notice p {
+  flex: 1;
+  margin: 0;
+}
+.noticeIcon {
+  flex: none;
+}
+/* The field picker fills its 300px column (the row item's value wrapper otherwise hugs its content) */
+[role='cell'] > :has(> .fieldSelect) {
+  flex: 1;
+  min-width: 0;
+}
+.fieldSelect {
+  width: 100%;
+}
+
+/* ---------- Step 3: Review & Import ---------- */
+.tiles {
+  display: flex;
+  gap: var(--space-12);
+}
+.tile {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  color: var(--color-gray-text-strong);
+}
+.tile[data-tone='new'] {
+  background: var(--color-semantic-fill-success-weak);
+}
+.tile[data-tone='update'] {
+  background: var(--color-brand-teal-fill-weaker);
+}
+.tile[data-tone='error'] {
+  background: var(--color-semantic-fill-error-weak);
+}
+.errorsHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.errorsHead h3 {
+  flex: 1;
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+  list-style: none;
+}
+.errors li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.errorIcon {
+  flex: none;
+  color: var(--color-gray-fill-strong);
+}
+.footnote {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
