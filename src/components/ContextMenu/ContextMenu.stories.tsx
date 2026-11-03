@@ -40,7 +40,7 @@ export const MenuItemStates: Story = {
       direction="column"
       states={STATES}
       render={state => (
-        <div role="menu" aria-label="Example" style={{ width: 240, background: 'var(--color-surfaces-raised)' }}>
+        <div role="menu" aria-label="Example" style={{ width: 240, background: 'var(--color-surfaces-overlay)' }}>
           <MenuItem icon="account" submenu disabled={state === 'Disabled'}>
             Label
           </MenuItem>
@@ -55,7 +55,7 @@ export const MenuItemStates: Story = {
 export const MenuItemNoIcon: Story = {
   name: 'Menu Item (no icon, no submenu)',
   render: () => (
-    <div role="menu" aria-label="Example" style={{ width: 240, background: 'var(--color-surfaces-raised)' }}>
+    <div role="menu" aria-label="Example" style={{ width: 240, background: 'var(--color-surfaces-overlay)' }}>
       <MenuItem>Label</MenuItem>
     </div>
   ),

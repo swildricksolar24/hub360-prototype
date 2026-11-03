@@ -49,6 +49,10 @@ Applied to the Figma file and **not yet published** to library consumers. The ta
 
 Left as it was on purpose: the **Caution** Message background stays on `Foundation/Semantic Amber/200` (20%). No semantic token has that value; `Warning Weak` is 10%.
 
+**Dark-mode Overlay changed in Figma (2026-11-03):** Surfaces/Overlay now points to Foundation/Solid/900 (`#212931`) in Dark, was Solid/800 (`#36454f`); the code was synced to match. That's the same value as Surfaces/Sunken, so in Dark the two no longer differ: anything Sunken on a card (the 35% row tint, a Data Header's fill) blends into it. Kept on purpose; Light mode keeps all four surfaces distinct.
+
+**Dark-mode red changed in Figma (2026-11-03):** the Semantic Red primitives now use the light red `#c73a3a` in Dark too (Red/1000 `#c73a3a`, Red/800 `#c73a3acc`, Red/200 `#c73a3a33`), which undoes the lighter `#ff9c94` from the fix below. The code was synced to match. In Dark, error text (Semantic Text/Error) is now **3.1:1** on Surfaces/Base, **2.6:1** on the error background and **1.9:1** on Surfaces/Overlay (modals, cards), all below the 4.5:1 AA minimum for text; with `#ff9c94` they were 7.8, 5.2 and 4.9. White on the red fill stays 5.1:1. Kept on purpose: the darker red is the chosen look for Dark mode.
+
 **Dark-mode error colors (fixed 2026-10-29):** in Dark mode, `Semantic Text/Error` and `Semantic Fill/Error Weak` both resolved to the same solid `#ff9c94`. Error text on an error background was invisible (1.0:1). That affected the Text Input Error state in Figma, and the coded Checkbox, TextInput and Message error states. Red now follows the same Dark pattern as blue, green and amber; light mode is unchanged.
 
 | Variable | Dark before | Dark after |
@@ -149,6 +153,22 @@ Main Nav Tab Bar (tabs shrink and truncate), Logo Side (brand text), Upload File
 Rows (`--data-leading-width`), Button Icon (disabled icon now dims in code, as Figma shows).
 
 Nothing above is in other files until the library is published.
+
+## Raw colors bound to variables (2026-11-03)
+
+A scan of every page found colors not bound to a variable in nine live components. All are fixed:
+- **Shadows:** Autocomplete / Dropdown, … / Chips, … / Photo Library, Dialog / Modal (Default, Scrollbar) and Modal -
+  Dynamic had a raw #000 25% shadow identical to the Drop Shadow style; they now use the style. Modal - Dialog's own
+  larger shadow (0 20 60) is bound to the new **Shadow/Large**.
+- **New variables** (Colors, Light and Dark, effect-color scope): **Shadow/Drop** → Foundation/Transparent/Black - 25,
+  and **Shadow/Large** → Foundation/Transparent/Black - 18. The **Drop Shadow** effect style's color is bound to
+  Shadow/Drop, so `--shadow-drop` in code now reads `var(--color-shadow-drop)`.
+- **Card / Row / Small** and **Card / Large:** the 8% #191b26 stroke is bound to Gray Stroke/Disabled (10%).
+- **Upload File:** the "browse" link (#0063a0) is bound to Semantic Text/Information, as in the coded UploadFile.
+
+Still raw by design: the logos (brand artwork), the Pointer annotation arrow, the **Skeleton Gradient** paint style
+(three grays), documentation layers on the foundation pages, and the "not used" and Testing pages. Figma's purple
+component-set outline isn't a design color.
 
 ## Token coverage
 

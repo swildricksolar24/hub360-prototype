@@ -60,7 +60,19 @@ for (const [name, family, style, size, lh] of src.textStyles) {
     $value: { fontFamily: family, fontWeight: WEIGHT[style], fontSize: `${size}px`, lineHeight: lh === 'auto' ? 'normal' : `${lh}px`, letterSpacing: '0px' }
   };
 }
-dtcg.shadow = { drop: { $type: 'shadow', $value: { color: '#00000040', offsetX: '0px', offsetY: '4px', blur: '4px', spread: '0px' } } };
+// Effect styles -> shadow tokens. "Drop Shadow" becomes shadow.drop / --shadow-drop; a "{Colors variable}" color
+// resolves to that color token, so the shadow follows the variable.
+const shadowKey = name => slug(name.replace(/\s*shadow\s*/i, '')) || 'default';
+const px = n => (n === 0 ? '0' : `${n}px`);
+const shadows = src.effectStyles
+  .filter(([, e]) => e.type === 'DROP_SHADOW')
+  .map(([name, e]) => {
+    const ref = isAlias(e.color) && target('Colors', e.color.slice(1, -1));
+    return { key: shadowKey(name), e, cssColor: ref ? `var(${cssVar(ref)})` : e.color, dtcgColor: ref ? `{${ref.join('.')}}` : e.color };
+  });
+dtcg.shadow = Object.fromEntries(
+  shadows.map(({ key, e, dtcgColor }) => [key, { $type: 'shadow', $value: { color: dtcgColor, offsetX: `${e.x}px`, offsetY: `${e.y}px`, blur: `${e.blur}px`, spread: `${e.spread}px` } }]),
+);
 
 // ---- CSS ----
 const lines = { root: [], dark: [], mobile: [] };
@@ -75,7 +87,7 @@ for (const c of src.collections) {
     }
   }
 }
-lines.root.push('  /* Effects */', '  --shadow-drop: 0 4px 4px 0 #00000040;');
+lines.root.push('  /* Effects */', ...shadows.map(({ key, e, cssColor }) => `  --shadow-${key}: ${px(e.x)} ${px(e.y)} ${px(e.blur)} ${px(e.spread)} ${cssColor};`));
 
 const classes = src.textStyles
   .filter(([name]) => !name.startsWith('Annotation'))

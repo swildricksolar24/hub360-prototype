@@ -9,8 +9,8 @@
  * - sort / filter icons that appear on hover;
  * - a dot + text status;
  * - a ••• button that appears on hover.
- * In Figma it's the "Tables - Warehouse (Clean)" set (831:4824), next to the original on the Library page; the
- * original set is kept.
+ * In Figma it's the "Tables - Warehouse (Clean)" set (Inventory Management, Library page, 867:88036); the original
+ * set is kept. The reusable version is the DataTable component (Figma "Data Table" page in the design system).
  * Wrap a DataHeader + DataRows in .table; give DataHeader .head, each DataRow .row inside a .rowWrap.
  */
 

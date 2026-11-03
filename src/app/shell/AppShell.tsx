@@ -24,7 +24,7 @@ const UTILITY_PAGES: Record<string, { label: string; icon?: string }> = {
 /** Blank tabs from the tab bar's + live at /app/new-tab/<n>, one path per tab. */
 const NEW_TAB = '/app/new-tab/';
 
-/** A tab shows the page name with its section icon; `title` is the full "Section · Page" name. */
+/** A tab shows the page name with that page's icon; `title` is the full "Section · Page" name. */
 type Tab = { id: string; label: string; icon?: string; title: string };
 
 /**
@@ -84,7 +84,9 @@ export function AppShell() {
   const isLanding = !!section?.pages && pageId === section.pages[0].id;
   const shortLabel =
     recordName ?? (isLanding ? section.label : navPage?.label ?? (utility ? label : section?.label ?? label));
-  const tabIcon = utility?.icon ?? section?.icon;
+  // The icon matches the label: a Tier 2 page (and a record opened in it) gets that page's Tier 2 icon, e.g. Items'
+  // for "Items" or "Bracket Assembly"; a section's landing page, labeled with the section, keeps the section's icon.
+  const tabIcon = utility?.icon ?? (isLanding ? section?.icon : navPage?.icon) ?? section?.icon;
 
   // The shell always opens on Dashboard (after sign-in, on reload or from a pasted link); after that,
   // navigation works as usual. `redirecting` keeps the page we leave from being opened as a tab.

@@ -123,7 +123,7 @@ export function InventoryDashboardPage() {
 
       {notice && <Toast type="info" title={notice} onClose={() => setNotice(null)} />}
 
-      {/* Figma "KPI Tile (Proposed)": a stat tile the library doesn't have yet */}
+      {/* Figma "Tile / KPI" (design-system library, was "KPI Tile (Proposed)") */}
       <ul className={styles.kpis} aria-label="Key figures">
         {KPIS.map(k => (
           <li key={k.label}>

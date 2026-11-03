@@ -192,7 +192,7 @@
 
 /*
  * The open menu looks like the app's other small menus (ContextMenu: the account menu, row ••• menus): a rounded
- * Surfaces/Raised panel with an 8px inset and the drop shadow, 40px rounded rows of Large text, and hover / press
+ * Surfaces/Overlay panel (Figma Drop Down Menu) with an 8px inset and the drop shadow, 40px rounded rows of Large text, and hover / press
  * fills, with no lines between rows. A selected option keeps a teal tint. Figma's ListViews (square, 1px gaps on
  * Surfaces/Base) stay in ListBox itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own
  * rules whatever the CSS order.
@@ -200,7 +200,7 @@
 .popup.popup {
   padding: var(--space-8);
   border-radius: var(--radius-12);
-  background: var(--color-surfaces-raised);
+  background: var(--color-surfaces-overlay);
 }
 .popup.popup [role='listbox'] {
   gap: 0;

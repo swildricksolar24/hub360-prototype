@@ -169,6 +169,10 @@
   --color-brand-orange-text-strong: var(--color-foundation-brand-orange-800);
   --color-brand-orange-text-weak: var(--color-foundation-brand-orange-300);
   --color-brand-orange-text-weaker: var(--color-foundation-brand-orange-200);
+  --color-foundation-transparent-black-25: #00000040;
+  --color-foundation-transparent-black-18: #0000002e;
+  --color-shadow-drop: var(--color-foundation-transparent-black-25);
+  --color-shadow-large: var(--color-foundation-transparent-black-18);
   /* Typography */
   --font-family-inter: "Inter", system-ui, sans-serif;
   --font-size-display: 56px;
@@ -190,7 +194,7 @@
   --line-height-small: 18px;
   --line-height-tiny: 16px;
   /* Effects */
-  --shadow-drop: 0 4px 4px 0 #00000040;
+  --shadow-drop: 0 4px 4px 0 var(--color-shadow-drop);
 }
 
 :root[data-theme="dark"] {
@@ -206,9 +210,7 @@
   --color-foundation-transparent-100: #ffffff1a;
   --color-foundation-transparent-black-40: color-mix(in srgb, var(--color-foundation-solid-black) 60%, transparent);
   --color-foundation-semantic-amber-1000: #e0be70;
-  --color-foundation-semantic-red-1000: #ff9c94;
-  --color-foundation-semantic-red-800: #ff9c94cc;
-  --color-foundation-semantic-red-200: #ff9c9433;
+  --color-foundation-semantic-red-200: #c73a3a33;
   --color-foundation-semantic-amber-800: #e0be70cc;
   --color-foundation-semantic-amber-200: #e0be7033;
   --color-foundation-semantic-amber-100: #e0be701a;
@@ -237,7 +239,7 @@
   --color-surfaces-base: var(--color-foundation-solid-950);
   --color-surfaces-sunken: var(--color-foundation-solid-900);
   --color-surfaces-raised: var(--color-foundation-solid-700);
-  --color-surfaces-overlay: var(--color-foundation-solid-800);
+  --color-surfaces-overlay: var(--color-foundation-solid-900);
   --color-surfaces-inverse: var(--color-foundation-solid-200);
   --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
 }
@@ -256,9 +258,7 @@
     --color-foundation-transparent-100: #ffffff1a;
     --color-foundation-transparent-black-40: color-mix(in srgb, var(--color-foundation-solid-black) 60%, transparent);
     --color-foundation-semantic-amber-1000: #e0be70;
-    --color-foundation-semantic-red-1000: #ff9c94;
-    --color-foundation-semantic-red-800: #ff9c94cc;
-    --color-foundation-semantic-red-200: #ff9c9433;
+    --color-foundation-semantic-red-200: #c73a3a33;
     --color-foundation-semantic-amber-800: #e0be70cc;
     --color-foundation-semantic-amber-200: #e0be7033;
     --color-foundation-semantic-amber-100: #e0be701a;
@@ -287,7 +287,7 @@
     --color-surfaces-base: var(--color-foundation-solid-950);
     --color-surfaces-sunken: var(--color-foundation-solid-900);
     --color-surfaces-raised: var(--color-foundation-solid-700);
-    --color-surfaces-overlay: var(--color-foundation-solid-800);
+    --color-surfaces-overlay: var(--color-foundation-solid-900);
     --color-surfaces-inverse: var(--color-foundation-solid-200);
     --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
   }

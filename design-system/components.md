@@ -3,7 +3,7 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**189 component sets + 8 standalone components** across 78 pages (Toast and Drop Down Menu added Nov 2, 2026). Nine of them sit on Testing and "not used" pages.
+**190 component sets + 10 standalone components** across 79 pages (Toast and Drop Down Menu added Nov 2, 2026; the Data Table page Nov 3, 2026). Nine of them sit on Testing and "not used" pages.
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. No component in the file has an INSTANCE_SWAP property.
@@ -196,6 +196,9 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Data Rows* | Row Item | 759:2011 | 1 | State | Value, Show Slot, Show Value |
 | Data Rows* | Slot* | 765:10067 | 1 | State | — |
 | Data Rows* | Tenant Rows* | 1098:940 | 1 | State | — |
+| Data Table | Data Table | 3131:272 | 1 | — | Header and Row 1–5 exposed |
+| Data Table | Data Table Header | 3131:247 | 1 | — | Checkbox, Actions; Column 1–5 exposed |
+| Data Table | Data Table Row | 3131:246 | 4 | State (Default, Striped, Hover, Selected) | Checkbox, Actions; Cell 1–5 exposed |
 | Main Drop Down* | Main Drop Down* | 711:13334 | 5 | State | Label |
 | Page Tracker | Tracker | 708:1452 | 1 | State | — |
 | Help Center | Help Article Row | 2903:53 | 4 | Type (Compact, Result) × State | Title, Meta, Path, Snippet |
