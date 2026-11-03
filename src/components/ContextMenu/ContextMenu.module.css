@@ -2,12 +2,14 @@
 .menu {
   display: flex;
   flex-direction: column;
-  width: 240px; /* Figma menu width; no token */
+  box-sizing: border-box;
+  width: 240px; /* Figma menu width, padding included; no token */
   overflow: hidden;
-  /* An 8px inset around the rows, so hover fills sit inside the rounded panel (Figma since Nov 2, 2026; Dropdown menus match) */
-  padding: var(--space-8);
+  /* A 16px inset around the rows, so hover fills sit inside the rounded panel (Figma Spacing/16 since Nov 3, 2026) */
+  padding: var(--space-16);
   border-radius: var(--radius-12);
-  background: var(--color-surfaces-raised);
+  /* Figma Context Menu fill: Surfaces/Overlay (was Raised) */
+  background: var(--color-surfaces-overlay);
   box-shadow: var(--shadow-drop);
 }
 

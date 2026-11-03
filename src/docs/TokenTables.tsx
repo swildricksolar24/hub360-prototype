@@ -160,7 +160,7 @@ export function ShadowTokens() {
     <Table head={['Token', 'Value', 'Sample']}>
       <tr>
         <td style={cell}><code style={code}>--shadow-drop</code></td>
-        <td style={cell}><code style={code}>0 4px 4px 0 #00000040</code> (Figma effect style "Drop Shadow")</td>
+        <td style={cell}><code style={code}>0 4px 4px 0 var(--color-shadow-drop)</code> (Figma effect style "Drop Shadow", color variable Shadow/Drop: black at 25%)</td>
         <td style={cell}><span style={{ display: 'block', width: 'var(--space-64)', height: 'var(--space-40)', borderRadius: 'var(--radius-8)', background: 'var(--color-surfaces-overlay)', boxShadow: 'var(--shadow-drop)' }} /></td>
       </tr>
     </Table>

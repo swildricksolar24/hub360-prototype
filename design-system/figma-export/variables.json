@@ -1,7 +1,7 @@
 {
   "source": "https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base",
-  "exported": "2026-10-29 (after token fixes and the dark-mode error red fix)",
-  "format": "Each variable row is [name, type, scopes, ...valuePerMode], in Figma's collection order. \"{Path/To/Var}\" is an alias. Colors are #rrggbb or #rrggbbaa.",
+  "exported": "2026-10-29 (after token fixes and the dark-mode error red fix); Shadow/Drop, Shadow/Large and their Black - 25 / Black - 18 primitives added 2026-11-03; Semantic Red dark values set to the light red #c73a3a 2026-11-03; Surfaces/Overlay dark set to Foundation/Solid/900 2026-11-03",
+  "format": "Each variable row is [name, type, scopes, ...valuePerMode], in Figma's collection order. \"{Path/To/Var}\" is an alias. Colors are #rrggbb or #rrggbbaa. An effect style's color may be a \"{Colors variable}\" alias.",
   "collections": [
     {
       "name": "Spacing",
@@ -79,9 +79,9 @@
         ["Foundation/Transparent/100", "COLOR", [], "#191b261a", "#ffffff1a"],
         ["Foundation/Transparent/Black - 40", "COLOR", [], {"alias": "Foundation/Solid/Black", "opacity": 0.44}, {"alias": "Foundation/Solid/Black", "opacity": 0.6}],
         ["Foundation/Semantic Amber/1000", "COLOR", [], "#8f6c1a", "#e0be70"],
-        ["Foundation/Semantic Red/1000", "COLOR", [], "#c73a3a", "#ff9c94"],
-        ["Foundation/Semantic Red/800", "COLOR", [], "#c73a3acc", "#ff9c94cc"],
-        ["Foundation/Semantic Red/200", "COLOR", [], "#c73a3a24", "#ff9c9433"],
+        ["Foundation/Semantic Red/1000", "COLOR", [], "#c73a3a", "#c73a3a"],
+        ["Foundation/Semantic Red/800", "COLOR", [], "#c73a3acc", "#c73a3acc"],
+        ["Foundation/Semantic Red/200", "COLOR", [], "#c73a3a24", "#c73a3a33"],
         ["Foundation/Semantic Amber/800", "COLOR", [], "#8f6c1acc", "#e0be70cc"],
         ["Foundation/Semantic Amber/200", "COLOR", [], "#8f6c1a33", "#e0be7033"],
         ["Foundation/Semantic Amber/100", "COLOR", [], "#8f6c1a1a", "#e0be701a"],
@@ -136,7 +136,7 @@
         ["Surfaces/Base", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/200}", "{Foundation/Solid/950}"],
         ["Surfaces/Sunken", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/100}", "{Foundation/Solid/900}"],
         ["Surfaces/Raised", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/400}", "{Foundation/Solid/700}"],
-        ["Surfaces/Overlay", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/White}", "{Foundation/Solid/800}"],
+        ["Surfaces/Overlay", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/White}", "{Foundation/Solid/900}"],
         ["Surfaces/Inverse", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Solid/950}", "{Foundation/Solid/200}"],
         ["Semantic Fill/Error Strong", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Semantic Red/1000}", "{Foundation/Semantic Red/1000}"],
         ["Semantic Fill/Error Weak", "COLOR", ["FRAME_FILL", "SHAPE_FILL"], "{Foundation/Semantic Red/200}", "{Foundation/Semantic Red/200}"],
@@ -185,7 +185,11 @@
         ["Brand Orange Stroke/Disabled", "COLOR", ["STROKE_COLOR"], "{Foundation/Brand Orange/100}", "{Foundation/Brand Orange/100}"],
         ["Brand Orange Text/Strong", "COLOR", ["TEXT_FILL"], "{Foundation/Brand Orange/800}", "{Foundation/Brand Orange/800}"],
         ["Brand Orange Text/Weak", "COLOR", ["TEXT_FILL"], "{Foundation/Brand Orange/300}", "{Foundation/Brand Orange/300}"],
-        ["Brand Orange Text/Weaker", "COLOR", ["TEXT_FILL"], "{Foundation/Brand Orange/200}", "{Foundation/Brand Orange/200}"]
+        ["Brand Orange Text/Weaker", "COLOR", ["TEXT_FILL"], "{Foundation/Brand Orange/200}", "{Foundation/Brand Orange/200}"],
+        ["Foundation/Transparent/Black - 25", "COLOR", [], "#00000040", "#00000040"],
+        ["Foundation/Transparent/Black - 18", "COLOR", [], "#0000002e", "#0000002e"],
+        ["Shadow/Drop", "COLOR", ["EFFECT_COLOR"], "{Foundation/Transparent/Black - 25}", "{Foundation/Transparent/Black - 25}"],
+        ["Shadow/Large", "COLOR", ["EFFECT_COLOR"], "{Foundation/Transparent/Black - 18}", "{Foundation/Transparent/Black - 18}"]
       ]
     },
     {
@@ -244,7 +248,7 @@
   ],
   "textStyleColumns": ["name", "family", "style", "fontSize", "lineHeightPx", "boundToVariables"],
   "effectStyles": [
-    ["Drop Shadow", {"type": "DROP_SHADOW", "color": "#00000040", "x": 0, "y": 4, "blur": 4, "spread": 0}]
+    ["Drop Shadow", {"type": "DROP_SHADOW", "color": "{Shadow/Drop}", "x": 0, "y": 4, "blur": 4, "spread": 0}]
   ],
   "paintStyles": [
     ["Skeleton Gradient", {"type": "GRADIENT_LINEAR"}]

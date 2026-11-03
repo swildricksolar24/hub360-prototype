@@ -67,7 +67,7 @@ Use the semantic tokens below. Pick the group that matches the property: **fill*
 
 ### Elevation
 
-`--shadow-drop` (`0 4px 4px 0 #00000040`) is the only shadow. There is no elevation scale.
+`--shadow-drop` (`0 4px 4px 0 var(--color-shadow-drop)`, black at 25%) is the only shadow. There is no elevation scale. Its color is the `Shadow/Drop` variable (Figma effect style "Drop Shadow"). `--color-shadow-large` (black at 18%) is the color of Figma's larger Modal - Dialog shadow (0 20 60); no coded component uses it yet.
 
 ## Usage rules
 
@@ -97,7 +97,7 @@ Every Figma set on the library pages has a coded component. The exceptions are t
 | Foundations | Icon (110 icons), Logo (9 logos) |
 | Primitives | Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Dropdown (Drop Down Label + Drop Down Button), EditableCell, Hyperlink, IconButton, LastModified, ListBox (plus TreeList), NumericInput, AutocompleteInput, OtpInput, Overlay, RadioButton, Skeleton, Tag, TextArea, TextInput, Toggle, Tooltip |
 | Web Components | Accordion, Captcha, Card, ContextMenu, DropdownSelector, DropdownTree, FilterChipDropdown, Message, Modal (plus ModalPanel), MultiselectDropdown, NotificationBox, Progress, RangeSlider, Rating, Scrollbar, SearchBar, SignaturePad, Timeline, UploadFile |
-| Custom | DataHeader, DataRow, HelpCenter, MainDropDown, PageTracker |
+| Custom | DataHeader, DataRow, DataTable, HelpCenter, MainDropDown, PageTracker |
 | Navigation | AppBar, Breadcrumb, Footer, Header, MenuSidebar, NavTabBar, NavTier1, NavTier2, NavTier3, SideMenuButton, SubMenu, Tabs |
 
 Most-used APIs:
@@ -111,6 +111,7 @@ Most-used APIs:
 | Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
 | Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm), `width`. The close button is Figma "Button / Icon Only / Small / Secondary" (44px; Hover fades to Gray Fill/Hover). In the prototype app use `AppModal`, which wraps it |
 | Message | `title`, `body`, `type`, `onClose` |
+| DataTable | `aria-label`, `columns` (`DataColumn[]`: `key`, `label`, `width` px or `'fill'`, `align`, `sortable`), `rows` (each with an `id`), `cells(row)`, `rowLabel(row)`, `selected` / `onSelectedChange` (the checkbox column), `sort` / `onSortChange`, `onMore(row)` + `renderAfterRow(row)` (the ••• and its menu), `actionsVisible`, `striped`, `inactive(row)`, `empty`. The clean table (Figma Data Table page): use it for new tables instead of hand-assembling DataHeader + DataRow |
 | NavTabBar | `tabs` (`{ id, label, icon?, title? }`: keep `label` short and put the full name in `title`, which becomes the tooltip and accessible name), `activeId`, `onSelect`, `onClose`, `onReorder` (drag tabs or Ctrl+Shift+←/→ to reorder; called with the new id order), `onHome`, `onAdd`. Restyled from Figma for readability: 40px bar on Surfaces/Base, 14px tabs, brand-teal underline on the active tab |
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 

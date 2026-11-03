@@ -141,26 +141,36 @@
 }
 
 /* ---------- Table cells ---------- */
-/* A cell value that opens something (e.g. a contact's name opens Edit Contact) */
+/*
+ * A cell value that opens something (e.g. a contact's name opens Edit Contact). A button, since it opens a modal, but
+ * it looks like the table's other links: the design-system Hyperlink "Small" (Gray Text/Strong, regular weight,
+ * underlined; the underline goes on hover, press and focus, and focus adds the Gray Stroke/Weaker ring).
+ */
 .cellLink {
   padding: 0;
   border: 0;
+  border-radius: var(--radius-4);
   background: none;
-  color: var(--color-brand-teal-text-strongest);
+  color: var(--color-gray-text-strong);
   font: inherit;
-  font-weight: 700;
+  font-weight: 400;
   text-align: left;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-skip-ink: none;
   cursor: pointer;
+  outline: none;
+  transition: box-shadow 150ms ease;
 }
-.cellLink:hover {
-  text-decoration-thickness: var(--stroke-width-2);
+.cellLink:is(:hover, :active, :focus-visible) {
+  text-decoration: none;
 }
 .cellLink:focus-visible {
-  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
-  outline-offset: 2px;
-  border-radius: var(--radius-4);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cellLink {
+    transition: none;
+  }
 }
 /* The Contacts ★: filled for the primary contact */
 .star {
