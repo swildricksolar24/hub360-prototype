@@ -1,7 +1,7 @@
 /*
- * Figma "Data Table" (Data Table page): Data Table Header + Data Table Row. The same clean look as the prototype's
- * inventory tables (src/app/pages/app/inventory/table.module.css): no frame and no header fill, hairline row
- * dividers, a subtle tint on alternate rows, row hover and selected states, and a ••• button that appears on hover.
+ * Figma "Data Table" (Data Table page): Data Table Header + Data Table Row. A 4px-rounded table with a 0.5px Gray
+ * Stroke/Weaker frame, a Brand Teal Fill/Weaker header, hairline row dividers, a subtle tint on alternate rows, row hover and selected states, and a •••
+ * button that appears on hover.
  * Doubled classes outrank DataHeader's and DataRow's own fill, height, padding and line, whatever the CSS order.
  */
 
@@ -10,11 +10,23 @@
   position: relative;
   min-width: 0;
   overflow-x: auto;
+  border-radius: var(--radius-4);
 }
 .table {
+  position: relative;
   min-width: min-content;
   /* Every row is the card color (Surfaces/Overlay) with 35% of Surfaces/Sunken mixed in */
   --row-bg: color-mix(in srgb, var(--color-surfaces-sunken) 35%, var(--color-surfaces-overlay));
+}
+/* Figma: a 0.5px (Outline) Gray Stroke/Weaker frame inside the 4px corners, drawn over the rows so it isn't covered
+   by their fills */
+.table::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-4);
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weaker);
+  pointer-events: none;
 }
 /* 'fill' columns shrink (and wrap) to fit the card before the table scrolls, but not below this width */
 .table [role='cell'][data-wrap] > * {
@@ -42,12 +54,13 @@
   min-width: 0;
 }
 
-/* Header: no fill, small bold labels in the weak text color, and a 2px Gray Stroke/Weaker line under it. 44px; the
-   32px select-all checkbox makes it 48px, as in Figma. */
+/* Header: Brand Teal Fill/Weaker, 16px above and below, small bold labels in the weak text color, and a 2px Gray
+   Stroke/Weaker line under it. 60px; the 32px select-all checkbox makes it 64px, as in Figma. */
 .head.head {
-  min-height: 44px; /* Figma Data Table Header height without the checkbox; component dimension, no token */
+  min-height: 0;
+  padding-block: var(--space-16);
   border-radius: 0;
-  background: none;
+  background: var(--color-brand-teal-fill-weaker);
   box-shadow: inset 0 calc(-1 * var(--stroke-width-2)) 0 var(--color-gray-stroke-weaker);
 }
 .head [role='columnheader'] {
@@ -70,9 +83,9 @@
   color: var(--color-gray-text-strong);
 }
 
-/* Rows: 14px above and below their 36px items = 64px, with a 1px Gray Stroke/Disabled divider */
+/* Rows: 16px above and below their 36px items = 68px, with a 1px Gray Stroke/Disabled divider */
 .row.row {
-  padding-block: calc(var(--space-12) + var(--space-2));
+  padding-block: var(--space-16);
   box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-disabled);
 }
 

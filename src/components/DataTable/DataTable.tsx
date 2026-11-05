@@ -40,9 +40,10 @@ export type DataTableProps<T extends { id: string }> = {
 };
 
 /**
- * Figma "Data Table" (Data Table page): the clean table used across the prototype, with no frame or header fill, 64px
- * rows on the card color, a subtle stripe, hover and selected tints, and 1px dividers. Built from DataHeader and
- * DataRow; the table scrolls sideways inside its card when the columns don't fit.
+ * Figma "Data Table" (Data Table page): the clean table used across the prototype, with a Brand Teal Fill/Weaker
+ * header, 68px rows on the card color, a subtle stripe, hover and selected tints, and 1px dividers. Built from
+ * DataHeader and DataRow; the table scrolls sideways inside its card when the columns don't fit. A fixed first column
+ * (Figma `Column 1 Wide`), a sixth column and a button column (Figma `Button Action`) are just more `columns`.
  */
 export function DataTable<T extends { id: string }>({
   'aria-label': ariaLabel,

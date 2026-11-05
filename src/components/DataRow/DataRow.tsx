@@ -16,18 +16,21 @@ export type RowItemProps = {
   align?: DataColumn['align'];
   /** Lets long values wrap (fill columns, e.g. the Notes text). Otherwise the value stays on one line. */
   wrap?: boolean;
+  /** No side padding: the value (e.g. a button) reaches the cell's edges. */
+  flush?: boolean;
   style?: CSSProperties;
   className?: string;
 };
 
 /** Figma "Row Item" (Data Rows*): one cell, 8px padding, Medium/Regular text. */
-export function RowItem({ value, slot, align = 'start', wrap = false, style, className }: RowItemProps) {
+export function RowItem({ value, slot, align = 'start', wrap = false, flush = false, style, className }: RowItemProps) {
   return (
     <div
       role="cell"
       className={[styles.item, className].filter(Boolean).join(' ')}
       data-align={align}
       data-wrap={wrap || undefined}
+      data-flush={flush || undefined}
       style={style}
     >
       {value !== undefined && value !== null && value !== false && <span className={styles.value}>{value}</span>}
@@ -131,7 +134,7 @@ export function DataRow({
         </div>
       )}
       {columns.map(column => (
-        <RowItem key={column.key} value={cells[column.key]} align={column.align} wrap={column.width === 'fill'} style={columnStyle(column)} />
+        <RowItem key={column.key} value={cells[column.key]} align={column.align} wrap={column.width === 'fill'} flush={column.flush} style={columnStyle(column)} />
       ))}
       {actions && (
         <div role="cell" className={styles.actions}>

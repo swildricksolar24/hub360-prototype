@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '../../../../components/Badge/Badge';
 import { Button } from '../../../../components/Button/Button';
+import { DataTable, type DataColumn, type DataSort } from '../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
@@ -53,6 +54,18 @@ const LOW_STOCK: LowStock[] = [
   { item: 'PA-4402 · Tesla Powerwall 3', warehouse: 'PHX-124', onHand: 2, reorderPoint: 4, onOrder: 2, suggested: 0 },
   { item: 'PA-2210 · 10 AWG PV Wire (500 ft)', warehouse: 'TUC-125', onHand: 3, reorderPoint: 8, onOrder: 0, suggested: 10 },
 ];
+/** DataTable rows need an id: the part number */
+const LOW_STOCK_ROWS = LOW_STOCK.map(r => ({ ...r, id: r.item.split(' · ')[0] }));
+/** Figma Low Stock table: Item is the fixed 290px Column 1 Wide, the action buttons sit in the 80px Button Action column */
+const LOW_STOCK_COLUMNS: DataColumn[] = [
+  { key: 'item', label: 'Item', width: 290 },
+  { key: 'warehouse', label: 'Warehouse', width: 'fill' },
+  { key: 'onHand', label: 'On Hand', width: 'fill' },
+  { key: 'reorderPoint', label: 'Reorder Pt', width: 'fill' },
+  { key: 'onOrder', label: 'On Order', width: 'fill' },
+  { key: 'suggested', label: 'Suggested', width: 'fill' },
+  { key: 'action', label: 'Action', width: 80, align: 'end', flush: true, sortable: false, labelHidden: true },
+];
 
 const VALUE_BY_WAREHOUSE = [
   { label: 'PHX-124 · Phoenix WH', value: 1104200 },
@@ -90,6 +103,19 @@ export function InventoryDashboardPage() {
   const openCount = STATUSES.reduce((sum, s) => sum + s.count, 0);
   const valueMax = Math.max(...VALUE_BY_WAREHOUSE.map(v => v.value));
   const valueTotal = VALUE_BY_WAREHOUSE.reduce((sum, v) => sum + v.value, 0);
+
+  // Low Stock sorts by the column whose sort icon is pressed (ascending first, then descending)
+  const [lowSort, setLowSort] = useState<DataSort>();
+  const toggleLowSort = (key: string) =>
+    setLowSort(s => ({ key, direction: s?.key === key && s.direction === 'ascending' ? 'descending' : 'ascending' }));
+  const lowStockRows = lowSort
+    ? [...LOW_STOCK_ROWS].sort((a, b) => {
+        const x = a[lowSort.key as keyof LowStock];
+        const y = b[lowSort.key as keyof LowStock];
+        const order = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
+        return lowSort.direction === 'ascending' ? order : -order;
+      })
+    : LOW_STOCK_ROWS;
 
   return (
     <div className={styles.page}>
@@ -144,10 +170,10 @@ export function InventoryDashboardPage() {
                   <span className={styles.attentionTitle}>{a.title}</span>
                   <span className={styles.attentionDetail}>{a.detail}</span>
                 </span>
+                {/* Design-system Figma "Brand / Small / Outline" (3290:6405) */}
                 <Button
                   size="small"
-                  variant="brand"
-                  className={styles.softBrand}
+                  variant="brand-outline"
                   onClick={() => (a.to ? navigate(a.to) : setNotice(a.notice ?? null))}
                   aria-label={`${a.action}: ${a.title}`}
                 >
@@ -195,49 +221,47 @@ export function InventoryDashboardPage() {
             <h2 id="dash-low-stock" className={styles.cardTitle}>
               Low Stock
             </h2>
-            <Button size="small" variant="brand" onClick={() => navigate(ITEMS_PATH)}>
+            {/* Design-system Figma "Brand / Small / Outline" (3290:6405) */}
+            <Button size="small" variant="brand-outline" onClick={() => navigate(ITEMS_PATH)}>
               View All 14
             </Button>
           </div>
-          {/* Figma "Dashboard Table Row (Proposed)": a compact table for dashboard cards */}
-          <div className={styles.miniTable} role="table" aria-label="Low stock">
-            <div className={styles.miniHead} role="row">
-              {['Item', 'Warehouse', 'On Hand', 'Reorder Pt', 'On Order', 'Suggested'].map(h => (
-                <span key={h} role="columnheader">
-                  {h}
-                </span>
-              ))}
-              <span role="columnheader" className={styles.srOnly}>
-                Action
-              </span>
-            </div>
-            {LOW_STOCK.map(r => (
-              <div key={r.item} className={styles.miniRow} role="row">
-                <span role="cell">{r.item}</span>
-                <span role="cell">{r.warehouse}</span>
-                <span role="cell">{r.onHand}</span>
-                <span role="cell">{r.reorderPoint}</span>
-                <span role="cell">{r.onOrder}</span>
-                <span role="cell">{r.suggested}</span>
-                <span role="cell" className={styles.miniAction}>
-                  <Button
-                    size="tiny"
-                    variant="brand"
-                    className={styles.softBrand}
-                    onClick={() =>
-                      setNotice(
-                        r.onOrder > 0
-                          ? `Purchase orders aren’t designed yet, so the open PO for ${r.item.split(' · ')[1]} can’t be shown.`
-                          : `Purchase orders aren’t designed yet, so a draft PO for ${r.suggested} × ${r.item.split(' · ')[1]} wasn’t created.`,
-                      )
-                    }
-                  >
-                    {r.onOrder > 0 ? 'View PO' : 'Create PO'}
-                  </Button>
-                </span>
-              </div>
-            ))}
-          </div>
+          {/*
+           * Figma "Data Table" (Base 3131:272) with Column 1 Wide, Column 6 and Button Action on: a 290px Item column,
+           * five shared columns and an 80px column of "Primary / Tiny / Brand" buttons.
+           */}
+          <DataTable
+            aria-label="Low stock"
+            columns={LOW_STOCK_COLUMNS}
+            rows={lowStockRows}
+            rowLabel={r => r.item}
+            sort={lowSort}
+            onSortChange={toggleLowSort}
+            cells={r => ({
+              item: r.item,
+              warehouse: r.warehouse,
+              onHand: r.onHand,
+              reorderPoint: r.reorderPoint,
+              onOrder: r.onOrder,
+              suggested: r.suggested,
+              action: (
+                <Button
+                  size="tiny"
+                  variant="brand"
+                  aria-label={`${r.onOrder > 0 ? 'View PO' : 'Create PO'} for ${r.item}`}
+                  onClick={() =>
+                    setNotice(
+                      r.onOrder > 0
+                        ? `Purchase orders aren’t designed yet, so the open PO for ${r.item.split(' · ')[1]} can’t be shown.`
+                        : `Purchase orders aren’t designed yet, so a draft PO for ${r.suggested} × ${r.item.split(' · ')[1]} wasn’t created.`,
+                    )
+                  }
+                >
+                  {r.onOrder > 0 ? 'View PO' : 'Create PO'}
+                </Button>
+              ),
+            })}
+          />
           <p className={styles.footnote}>
             Suggested = reorder up to Max, minus stock already on order. Create PO opens a Draft Purchase with the item’s primary supplier.
           </p>

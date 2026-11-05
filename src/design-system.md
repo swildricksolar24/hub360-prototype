@@ -120,15 +120,15 @@ Most-used APIs:
 | Toast | `type`, `title`, `body`, `onClose`, `inline`. A page notice that slides down at the top center and leaves after 5 seconds; `onClose` runs once it has gone. `inline` draws it in place (previews only) |
 | CardLarge / CardRow | CardLarge: `title`, `headingLevel`, `children` (Figma Card / Large: a titled section on Surfaces/Sunken). CardRow: `media` (80px), `title`, `subtitle`, `action`, `highlighted` (Figma Card / Row / Small) |
 | NavTier4 | `aria-label`, `items` (`{ id, label }`), `activeId`, `onSelect`, `toolbar` (Figma Tier 4: the view buttons under a record's Tier 3 header, with an optional toolbar after a divider) |
-| DataTable | `aria-label`, `columns` (`DataColumn[]`: `key`, `label`, `width` px or `'fill'`, `align`, `sortable`), `rows` (each with an `id`), `cells(row)`, `rowLabel(row)`, `selected` / `onSelectedChange` (the checkbox column), `sort` / `onSortChange`, `onMore(row)` + `renderAfterRow(row)` (the ••• and its menu), `actionsVisible`, `striped`, `inactive(row)`, `empty`. The clean table (Figma Data Table page): use it for new tables instead of hand-assembling DataHeader + DataRow |
+| DataTable | `aria-label`, `columns` (`DataColumn[]`: `key`, `label`, `width` px or `'fill'`, `align`, `sortable`, `flush` for a column of buttons with no side padding), `rows` (each with an `id`), `cells(row)`, `rowLabel(row)`, `selected` / `onSelectedChange` (the checkbox column), `sort` / `onSortChange`, `onMore(row)` + `renderAfterRow(row)` (the ••• and its menu), `actionsVisible`, `striped`, `inactive(row)`, `empty`. The clean table (Figma Data Table page): use it for new tables instead of hand-assembling DataHeader + DataRow |
 | Tile | `label`, `value`, `note`, `icon` (Figma Tile / KPI). A button with `onClick` or a link with `href`; it fills its parent's width, so put it in a grid or a sized box. On a tile narrower than about 216px the value steps down to Heading 4 |
 | NavTabBar | `tabs` (`{ id, label, icon?, title? }`: keep `label` short and put the full name in `title`, which becomes the tooltip and accessible name), `activeId`, `onSelect`, `onClose`, `onReorder` (drag tabs or Ctrl+Shift+←/→ to reorder; called with the new id order), `onShowAll` (an "All tabs" button at the far right of the bar; Figma Tab Bar), `onHome`, `onAdd`. Restyled from Figma for readability: 40px bar on Surfaces/Base, 14px tabs, brand-teal underline on the active tab. Each tab hugs its label; when they don't fit, the longer names shrink first with "…", each keeping at least 3 letters (or its whole name if shorter), and once even that doesn't fit, tabs show only their icon (name in the tooltip; the × on hover, focus or the active tab, which stays at least 52px) and keep shrinking to 36px; past that the tab strip scrolls sideways (Figma: Tab Label / Tab Button Compact states and Tab Bar Active Tab = Crowded) |
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:
 - **base:** `primary`, `outline`, `brand` (teal), `brand-outline` (teal fill with a gray border: Figma "Brand / Teal / Outline"), `brand-orange`
-- **small:** `primary`, `outline`, `brand`, `brand-secondary`
-- **tiny:** `primary`, `text`
+- **small:** `primary`, `outline`, `brand`, `brand-outline` (Figma "Brand / Small / Outline"; use it for card actions such as the Inventory dashboard's Review), `brand-secondary`
+- **tiny:** `primary`, `text`, `brand` (Figma "Primary / Tiny / Brand"; use it for an action inside a table row, such as Low Stock's View PO / Create PO)
 
 Other combinations render, but have no Figma design.
 

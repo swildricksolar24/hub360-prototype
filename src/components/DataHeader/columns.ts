@@ -22,6 +22,11 @@ export type DataColumn = {
   filterable?: boolean;
   /** Hides the header text visually but keeps it for screen readers. */
   labelHidden?: boolean;
+  /**
+   * Drops the Row Item's 8px side padding, so a control fills the column edge to edge. Use it for a column of buttons
+   * (Figma Data Table Row `Button Action`: an 80px slot with the button flush right), with `align: 'end'`.
+   */
+  flush?: boolean;
 };
 
 /**

@@ -234,12 +234,13 @@
 }
 
 /*
- * ---------- brand-outline (base): Figma "Brand / Teal / Outline" (3234:4981) ----------
+ * ---------- brand-outline: Figma "Brand / Teal / Outline" (base, 3234:4981) and "Brand / Small / Outline" (small,
+ * 3290:6405) ----------
  * Default: Brand Teal Fill/Weak, 2px Gray Stroke/Weaker. Hover: the stroke thickens to 4px.
  * Press, Selected and Focus: Brand Teal Fill/Strong with the 4px stroke; Focus centers it on the edge (2px in, 2px
  * out). Disabled: Brand Teal Fill/Disabled and a 4px Gray Stroke/Disabled.
- * The label is Foundation/Solid/White in every state, as in Figma and the other brand buttons; there is no
- * semantic "text on brand" token.
+ * The label is Foundation/Solid/White, as in Figma and the other brand buttons (there is no semantic "text on brand"
+ * token); only the small Disabled state switches it to Gray Text/Disabled.
  */
 .button[data-variant='brand-outline'] {
   --bg: var(--color-brand-teal-fill-weak);
@@ -264,6 +265,44 @@
   --bg: var(--color-brand-teal-fill-disabled);
   --ring: var(--color-gray-stroke-disabled);
   --ring-w: var(--stroke-width-4);
+}
+/* Small (Brand / Small / Outline): Hover also fills with Brand Teal Fill/Strong, like Press */
+.button[data-variant='brand-outline'][data-size='small']:hover:not(:disabled) {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-variant='brand-outline'][data-size='small']:disabled {
+  --fg: var(--color-gray-text-disabled);
+}
+
+/*
+ * ---------- brand (tiny): Figma "Primary / Tiny / Brand" (Base 3298:407, Inventory 952:21435), table row actions ----------
+ * The label is Foundation/Solid/White in every state, like the other brand buttons.
+ * Default: Brand Teal Fill/Weak (the same teal as the small brand-outline button) with a 2px Gray Stroke/Weaker ring.
+ * Hover, Press, Selected and Focus: Brand Teal Fill/Strong; Focus widens the ring to 4px, centered on the edge.
+ * Disabled: Brand Teal Fill/Disabled and Brand Teal Stroke/Disabled.
+ * No underline on hover, unlike the other tiny buttons.
+ */
+.button[data-variant='brand'][data-size='tiny'] {
+  --bg: var(--color-brand-teal-fill-weak);
+  --fg: var(--color-foundation-solid-white);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='brand'][data-size='tiny']:is(:hover, :active, :focus-visible, [aria-pressed='true']):not(:disabled) {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-variant='brand'][data-size='tiny']:focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-variant='brand'][data-size='tiny']:disabled {
+  --bg: var(--color-brand-teal-fill-disabled);
+  --ring: var(--color-brand-teal-stroke-disabled);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='brand'][data-size='tiny']:hover .label {
+  text-decoration: none;
 }
 
 /* ---------- brand-secondary (small) ---------- */

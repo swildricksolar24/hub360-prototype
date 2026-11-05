@@ -64,10 +64,12 @@ export const SmallOutlineIcon = figmaSet('401:347', 'Button Small › Outline / 
 export const SmallBrand = figmaSet('1751:3632', 'Button Small › Brand / Default', { size: 'small', variant: 'brand' });
 export const SmallBrandIconLeft = figmaSet('1751:3643', 'Button Small › Brand / Default / Icon - Left*', { size: 'small', variant: 'brand', icon: 'account' });
 export const SmallBrandIconRight = figmaSet('2392:572', 'Button Small › Brand / Default / Icon - Right*', { size: 'small', variant: 'brand', icon: 'account', iconPosition: 'right' });
-export const SmallBrandSecondary = figmaSet('2548:3743', 'Button Small › Brand / Secondary*', { size: 'small', variant: 'brand-secondary' });
+export const SmallBrandOutline = figmaSet('3290:6405', 'Button Small › Brand / Small / Outline', { size: 'small', variant: 'brand-outline' });
+export const SmallBrandSecondary =figmaSet('2548:3743', 'Button Small › Brand / Secondary*', { size: 'small', variant: 'brand-secondary' });
 export const SmallBrandSecondaryIconLeft = figmaSet('2734:1004', 'Button Small › Brand / Secondary / Icon - Left*', { size: 'small', variant: 'brand-secondary', icon: 'account' });
 export const SmallBrandSecondaryIconRight = figmaSet('2734:1035', 'Button Small › Brand / Secondary / Icon - Right*', { size: 'small', variant: 'brand-secondary', icon: 'account', iconPosition: 'right' });
 
 // Button Tiny
 export const TinyPrimary = figmaSet('2193:6401', 'Button Tiny › Primary', { size: 'tiny', variant: 'primary' });
 export const TinyText = figmaSet('2193:6668', 'Button Tiny › Text', { size: 'tiny', variant: 'text' });
+export const TinyBrand = figmaSet('3298:407', 'Button Tiny › Primary / Tiny / Brand', { size: 'tiny', variant: 'brand' });

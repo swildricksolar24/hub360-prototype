@@ -9,7 +9,7 @@ export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'childre
   children: ReactNode;
   /**
    * Figma sets per size — base: primary, outline, brand, brand-outline (Brand / Teal / Outline), brand-orange ·
-   * small: primary, outline, brand, brand-secondary · tiny: primary, text.
+   * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).
    */
   variant?: ButtonVariant;
   /** base = Button Base / Block (76px) · small = Button Small (44px) · tiny = Button Tiny (32px). */

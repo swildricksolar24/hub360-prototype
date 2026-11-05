@@ -67,6 +67,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Small* | Primary / Icon | 401:401 | 6 | State¹ | Label |
 | Button Small* | Primary / Default | 401:417 | 6 | State¹ | Label |
 | Button Small* | Brand / Default | 1751:3632 | 6 | State¹ | Label |
+| Button Small* | Brand / Small / Outline (Button `variant="brand-outline" size="small"`) | 3290:6405 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary* | 2548:3743 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary / Icon - Left* | 2734:1004 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary / Icon - Right* | 2734:1035 | 6 | State¹ | Label |
@@ -74,6 +75,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Small* | Brand / Default / Icon - Right* | 2392:572 | 6 | State¹ | Label |
 | Button Tiny | Primary | 2193:6401 | 6 | State¹ | Label |
 | Button Tiny | Text | 2193:6668 | 6 | State¹ | Label |
+| Button Tiny | Primary / Tiny / Brand (Button `variant="brand" size="tiny"`) | 3298:407 | 6 | State¹ | Label |
 | Chip* | Outline / Right Icon* | 342:5036 | 6 | State¹ | Label |
 | Chip* | Outline / Left Icon* | 342:5005 | 6 | State¹ | Label |
 | Chip* | Secondary / Right Icon | 342:4973 | 6 | State¹ | Label |

@@ -91,16 +91,6 @@
   line-height: var(--line-height-tiny);
 }
 
-/*
- * Figma's card buttons are a softened brand teal (Brand Teal Fill/Strong at 70%) with a 2px Gray Stroke/Weaker ring.
- * Only the resting state is softened; hover, press and focus keep the brand button's own states.
- */
-.softBrand.softBrand:not(:hover, :active, :focus-visible, :disabled) {
-  --bg: color-mix(in srgb, var(--color-brand-teal-fill-strong) 70%, transparent);
-  --ring: var(--color-gray-stroke-weaker);
-  --ring-w: var(--stroke-width-2);
-}
-
 /* ---------- Needs Your Attention ---------- */
 .attention {
   display: flex;
@@ -217,55 +207,6 @@
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
   font-weight: 600;
-  white-space: nowrap;
-}
-
-/* ---------- Low Stock (Figma "Dashboard Table Row (Proposed)": a compact table for cards) ---------- */
-.miniTable {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: var(--radius-8);
-  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weaker);
-}
-.miniHead,
-.miniRow {
-  display: grid;
-  /* Figma columns: Item 290 · Warehouse 130 · On Hand 80 · Reorder Pt 90 · On Order 80 · Suggested 90 · action */
-  grid-template-columns: minmax(160px, 290fr) 90fr 64fr 74fr 64fr 74fr minmax(96px, 110fr);
-  align-items: center;
-  gap: var(--space-12);
-  padding: var(--space-8) var(--space-12);
-  color: var(--color-gray-text-strong);
-}
-.miniHead {
-  padding-block: var(--space-12);
-  background: var(--color-brand-teal-fill-weaker);
-  font-size: var(--font-size-tiny);
-  line-height: var(--line-height-tiny);
-  font-weight: 600;
-}
-.miniRow {
-  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-weaker);
-  background: var(--color-surfaces-overlay);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
-}
-.miniRow:nth-child(even) {
-  background: var(--color-surfaces-sunken);
-}
-.miniAction {
-  display: flex;
-}
-.miniAction > * {
-  flex: 1;
-}
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
   white-space: nowrap;
 }
 
