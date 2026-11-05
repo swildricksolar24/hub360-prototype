@@ -1,0 +1,292 @@
+/*
+ * The tab bar's "All tabs" overview (Figma Shell file, Modal page, "All Tabs Overview" 1096:1100 / 1095:806). Each open tab is a Figma "Card / Tabs" (- Cards page, 3264:5922):
+ * Corner Radius/12, a 2px Gray Stroke/Disabled border, 20px padding, a 120px preview with a 44px close button in its
+ * top-right corner, then Title and Description. State: Default (Surfaces/Overlay), Hover and Current (Brand Teal
+ * Fill/Weaker; Current adds the "Current" badge) and Focus (Gray Stroke/Weak border).
+ */
+/*
+ * The sheet: the AppModal panel, 50% of the window wide (the `width` prop) and 90% tall, pinned to the top edge and
+ * sliding down from above it when it opens. Only its bottom corners are rounded. Doubled class: outranks the
+ * Modal's own panel rules whatever the CSS order.
+ */
+.sheet.sheet {
+  align-self: start;
+  justify-self: center;
+  height: 90vh;
+  /* cancels the dialog's 24px padding so the sheet meets the top edge */
+  margin-top: calc(var(--space-24) * -1);
+  border-radius: 0 0 var(--radius-24) var(--radius-24);
+  animation: sheet-down 360ms cubic-bezier(0.2, 0, 0, 1);
+}
+/*
+ * The body (Modal's text box holding the well) takes the room between the title and the footer. It doesn't scroll
+ * itself: the cards scroll inside the well (see .cards).
+ */
+.sheet > div:has(> .body) {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+@keyframes sheet-down {
+  from {
+    transform: translateY(-100%);
+  }
+}
+/* Closing: the sheet slides back up past the top edge before the dialog closes (LEAVE_MS in AllTabsModal.tsx) */
+.sheet.sheet.leaving {
+  animation: sheet-up 280ms cubic-bezier(0.3, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+@keyframes sheet-up {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/*
+ * The Overlay scrim under the sheet (the dialog's [data-position] child) fades in as the sheet drops down and fades
+ * out as it slides back up, on the same timings.
+ */
+:global(dialog):has(> .sheet) > [data-position] {
+  animation: scrim-in 360ms cubic-bezier(0.2, 0, 0, 1);
+}
+:global(dialog):has(> .leaving) > [data-position] {
+  animation: scrim-out 280ms cubic-bezier(0.3, 0, 1, 1) forwards;
+}
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/*
+ * The content (search + cards) sits in a sunken well that fills the sheet's body: Surfaces/Sunken in light mode.
+ * In dark mode Sunken is the same color as Overlay (the sheet and the cards), so the well uses Surfaces/Base there,
+ * one step darker. Both dark selectors mirror tokens.css (data-theme, or the system setting when none is set).
+ */
+.sheet > div:has(> .body) {
+  display: flex;
+  flex-direction: column;
+}
+.body {
+  --well: var(--color-surfaces-sunken);
+}
+:global(:root[data-theme='dark']) .body {
+  --well: var(--color-surfaces-base);
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .body {
+    --well: var(--color-surfaces-base);
+  }
+}
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-16);
+  box-sizing: border-box;
+  min-height: 0;
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--well);
+  font-family: var(--font-family-inter);
+}
+
+/* The search box: half the well's width, centered */
+.search.search {
+  align-self: center;
+  width: 50%;
+}
+
+/*
+ * The cards' scroll area (design-system Scrollbar): fills the well under the search box, so with too many tabs the
+ * cards scroll inside the well and the Figma scrollbar appears beside them. With few tabs the bar is hidden.
+ */
+.cards {
+  container: tab-cards / inline-size;
+  flex: 1;
+  min-height: 0;
+}
+/* With nothing to scroll the bar is invisible but keeps its space, so cards are the same size either way */
+.cards > [aria-hidden]:not([data-scrollable]) {
+  visibility: hidden;
+}
+
+/*
+ * Always three columns, so every card is the same size however many tabs are open: one or two cards sit at the
+ * left at that size, the rest of the row stays empty, and a fourth starts a new row. In a narrow well (the sheet is
+ * half the window) the grid drops to two columns, then one, so cards never get too small to read.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-12);
+  margin: 0;
+  padding: var(--space-4); /* room for the focus ring */
+  list-style: none;
+}
+/* Breakpoints on the cards area's width; layout widths, no token */
+@container tab-cards (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container tab-cards (max-width: 380px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  --ring: var(--color-gray-stroke-disabled);
+  position: relative;
+  min-width: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--ring);
+  color: var(--color-gray-text-strong);
+  transition:
+    background-color 240ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+/*
+ * Figma State=Current (and Hover): the tab that's showing, filled Brand Teal Fill/Weaker in place of Overlay (a 10% tint, so the well
+ * shows through it), with the same gray border. A hovered card takes the same look.
+ */
+.card[data-current],
+.card:hover {
+  background: var(--color-brand-teal-fill-weaker);
+}
+/* Keyboard focus: the stronger gray ring, as on the Tile */
+.card:has(.main:focus-visible) {
+  --ring: var(--color-gray-stroke-weak);
+}
+
+/* The whole card switches to the tab; the badge and close button sit on top of the preview */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  /* 20px inside the 2px border (Figma counts the border in the layout) */
+  padding: calc(var(--space-20) + var(--stroke-width-2));
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+/*
+ * Figma "website preview": 120px tall, rounded top corners. Figma fills it with a raw gray placeholder (#D9D9D9, no
+ * variable); here it uses Gray Fill/Weaker with the page's icon in Gray Fill/Strong, since there are no page shots.
+ */
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px; /* Figma preview height; component dimension, no token */
+  border-radius: var(--radius-12) var(--radius-12) 0 0;
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-fill-strong);
+}
+.card[data-current] .preview {
+  color: var(--color-brand-teal-text-strong);
+}
+/* The page picture fills the box from the top (the top of the page is what identifies it) */
+.preview {
+  overflow: hidden;
+}
+.shot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Title (Heading 4/Bold, Gray Text/Strong) over the Description (Small/Regular, Gray Text/Weak), 2px apart */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+/* The title stays on one line; the description wraps, as in Figma */
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.location {
+  overflow-wrap: anywhere;
+}
+.name {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+.location {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+}
+
+/* "Current" badge (Figma State=Current): top-left of the preview */
+.current {
+  position: absolute;
+  top: calc(var(--space-20) + var(--stroke-width-2) + var(--space-8));
+  left: calc(var(--space-20) + var(--stroke-width-2) + var(--space-8));
+  padding: var(--space-2) var(--space-8);
+  border-radius: var(--radius-40);
+  background: var(--color-brand-teal-fill-strong);
+  /* Figma uses Foundation/Solid/White for text on brand fills; there is no semantic token */
+  color: var(--color-foundation-solid-white);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/*
+ * Close: the design-system IconButton (Figma "Button Icon › Icon", Gray Fill/Weaker behind a 32px Close icon), which
+ * the card sizes to 44 × 44 and places 32px from the card's top and right edges: inside the preview, 10px from its
+ * corner. Doubled class: outranks the IconButton's own size and position.
+ */
+.close.close {
+  position: absolute;
+  top: var(--space-32);
+  right: var(--space-32);
+  box-sizing: border-box;
+  width: 44px; /* Figma instance size; component dimension, no token */
+  height: 44px;
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet.sheet,
+  :global(dialog):has(> .sheet) > [data-position] {
+    animation: none;
+  }
+  .card,
+  .close {
+    transition: none;
+  }
+}

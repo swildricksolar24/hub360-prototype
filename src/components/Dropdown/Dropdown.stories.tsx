@@ -8,7 +8,7 @@ import { figma } from '../../storybook/figma';
 import { pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Primitives/Dropdown',
+  title: 'Components/Forms/Dropdown',
   component: Dropdown,
   args: { options: STATE_OPTIONS, label: 'Label', placeholder: 'Select', variant: 'field' },
   argTypes: {
@@ -78,6 +78,31 @@ export const ButtonIcon = buttonSet('56:1083', 'Drop Down Button › Icon*', { v
 export const ButtonIconAndLabel = buttonSet('56:1075', 'Drop Down Button › Icon and Label', { variant: 'button', icon: 'account' });
 export const ButtonDefault = buttonSet('56:936', 'Drop Down Button › Default', { variant: 'button' });
 export const ButtonSmall = buttonSet('478:1190', 'Drop Down Button › Small', { variant: 'small' });
+
+/**
+ * Figma Drop Down Menu (Drop Down Label page): the open menu every Drop Down shares, a rounded Surfaces/Overlay panel
+ * with an 8px inset and the drop shadow, 40px rows of Large text, the chosen option tinted teal. Shown open on a
+ * 240px field, Figma's width.
+ */
+export const DropDownMenu: Story = {
+  name: 'Drop Down Menu',
+  render: function Render() {
+    const [value, setValue] = useState<string | string[]>('1');
+    return (
+      <div style={{ width: 240, minHeight: 260 }}>
+        <Dropdown
+          label="Drop Down Menu"
+          hideLabel
+          options={[1, 2, 3, 4].map(n => ({ value: String(n), label: `Option ${n}` }))}
+          defaultOpen
+          value={value}
+          onChange={setValue}
+        />
+      </div>
+    );
+  },
+  parameters: { ...figma('3078:320', 'Drop Down Label › Drop Down Menu'), controls: { disable: true } },
+};
 
 /** Not a Figma set: the menus open, single-select (field) and multi-select (checkbox rows). */
 export const Open: Story = {

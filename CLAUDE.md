@@ -8,7 +8,7 @@ hub360-prototype is a React component library and Storybook built from the Figma
 
 It contains:
 - the design tokens as CSS variables and DTCG JSON
-- 62 coded React components covering every set on the Figma library pages (all except the "not used" pages, the Testing page and the Holder scaffolding)
+- 66 coded React components covering every set on the Figma library pages (all except the "not used" pages, the Testing page and the Holder scaffolding)
 - a Storybook that documents them, with a link from each story to its Figma component
 - an inventory and an audit of the Figma system
 - a prototype app in `src/app/` (desktop only): the sign-in flow and the app shell from the Figma file "_Sign In / Shell" ([Figma](https://www.figma.com/design/Dicn7aHuXXE7dmCg57RwwB/_Sign-In---Shell), file key `Dicn7aHuXXE7dmCg57RwwB`)
@@ -47,7 +47,7 @@ design-system/
 src/
   design-system.md              How to use the tokens and components; read before any UI work
   components/<Name>/            <Name>.tsx, <Name>.module.css, <Name>.stories.tsx
-  components/Icon/svg/          110 icons exported from the Figma Icon Library
+  components/Icon/svg/          111 icons exported from the Figma Icon Library
   components/Logo/svg/          Logos exported from the Figma Logos page
   docs/Tokens.mdx               "Foundations/Tokens" docs page (reads tokens.json via TokenTables.tsx)
   storybook/                    Story helpers: figma.ts (Figma links), StateGrid.tsx (state grids)
@@ -66,10 +66,11 @@ src/
                                 (Figma "Tables - Warehouse"); record/tableKit.tsx: shared toolbar, paging, PAGE_SIZES),
                                 account/AccountSettingsPage (all 8 Figma settings sections on one page, no Tier 3)
     shell/                      AppShell (tabs, header, Tier 1/2 nav, footer), navigation.ts, AccountMenu,
-                                InboxModal + inbox.ts (header Notifications / Chat / Email lists, sample data)
+                                InboxModal + inbox.ts (header Notifications / Chat / Email lists, sample data),
+                                AllTabsModal (the tab bar's "All tabs" button: every open tab as cards; Figma Shell file, Modal page, "All Tabs Overview")
+                                + tabPreviews.ts (each card's page picture, taken with html-to-image while the tab shows)
     components/AppLink.tsx      Hyperlink wired to React Router
     components/AppModal.tsx     The app's standard modal (use it for every dialog)
-    components/Toast.tsx        The app's notification: a Message that slides down from the top of the window
     components/RecordPage.tsx   The page framework: Figma "Tier 3" header (NavTier3) + sub menu sections
 .storybook/                     main.ts, preview.tsx (tokens.css, theme toolbar, dark docs theme),
                                 manager.ts (dark UI theme), preview-head.html (Inter font, base background)
@@ -90,8 +91,8 @@ Token data flows one way: **Figma → `variables.json` → `build-tokens.mjs` �
 - **Component styling:** CSS Modules using only `tokens.css` variables. Strokes are inset `box-shadow`s, so state changes don't shift layout. States use real CSS (`:hover`, `:active`, `:focus-visible`); Figma's `Selected` maps to `aria-pressed`, and `Disabled` to the native `disabled` attribute.
 - **Stories:** one `<Name>.stories.tsx` per component, with a `Playground` story plus one story per Figma component set. Each set story spreads `figma(nodeId, name)` from `src/storybook/figma.ts` (Design panel + "Open in Figma" link). It renders every Figma `State` with `StateGrid`, and spreads `pseudoStates` so Hover / Press / Focus render without a mouse.
 - **Prototype app:** routes live in `src/app/App.tsx`. `/sign-in`, `/sign-up` and the password-reset steps are public; everything under `/app` sits inside one `AppShell` layout route (so open tabs survive navigation). To add a section, add it to `SECTIONS` in `src/app/shell/navigation.ts` (with optional Tier 2 `pages`), then add a `<Route path="<section>/<page>">` above the generic `:section/:page?` route. Auth is mocked in `src/app/auth/authService.ts`: demo account `oswaldc@gmail.com` / `bat8992`, lockout after 3 failed tries, verification code `123456`, 30-minute idle timeout. State is in memory, so a full reload resets it. Theme follows the system unless changed with the "Dark mode" toggle (top left of the sign-in screens) or the account menu's Theme option in the shell; both share one store in `src/app/theme.ts` and save it as `hub360.theme`.
-- **Modals:** every dialog in the app uses `AppModal` (`src/app/components/AppModal.tsx`), the 800px "Dialog / Modal" from the Figma "_Sign In / Shell" Modal page (782:12791). Pass `title`, `description` / `children` and a `primaryAction` (drawn as the brand teal button); the secondary action defaults to "Cancel" (outline). It wraps the design-system `Modal`, so the scrim, focus trap, Escape, and the close button's hover / press / focus states come with it, in light and dark.
-- **Notices:** a page's action confirmations ("Toronto WH was added.") use `Toast` (`src/app/components/Toast.tsx`), not an inline `Message`. It takes the `Message` props (`type`, `title`, `body`, `onClose`), slides down to the top center of the window, and leaves after 5 seconds (paused on hover or focus) or when closed. Errors inside forms and modals stay inline `Message`s.
+- **Modals:** every dialog in the app uses `AppModal` (`src/app/components/AppModal.tsx`), the 800px design-system "Dialog / Modal" (Base file, 429:687), which the Figma "_Sign In / Shell" Modal page (782:12791) places over the shell inside "Modal Screen*". Pass `title`, `description` / `children` and a `primaryAction` (drawn as the brand teal button); the secondary action defaults to "Cancel" (outline). It wraps the design-system `Modal`, so the scrim, focus trap, Escape, and the close button's hover / press / focus states come with it, in light and dark.
+- **Notices:** a page's action confirmations ("Toronto WH was added.") use `Toast` (`src/components/Toast/`, Figma "Toast"), not an inline `Message`. It takes the `Message` props (`type`, `title`, `body`, `onClose`), slides down to the top center of the window, and leaves after 5 seconds (paused on hover or focus) or when closed. Errors inside forms and modals stay inline `Message`s.
 - **Tables:** new tables use `DataTable` (`src/components/DataTable/`), the clean table from the Figma "Data Table" page (3131:272): `columns`, `rows`, `cells(row)`, plus optional selection, sort and a ••• per row. The Inventory tables predate it and assemble `DataHeader` + `DataRow` with `inventory/table.module.css`, which has the same rules.
 - **Pages:** build new app pages on `RecordPage` (`src/app/components/RecordPage.tsx`), the Figma "Tier 3" header from the design-system library (2644:3738). Pass `title`, `icon`, `breadcrumb`, `labels`, `meta`, `tag`, and `sections` (each a Sub Menu button with its `content`); `actions` defaults to Figma's Active toggle, Actions dropdown, brand Save and previous / next arrows (`RecordActions`, each part can be hidden). The double chevron collapses the header. `HelpPage` is the first page built on it.
 - **Commit messages:** start every commit subject (and PR title) with a type prefix: `feat:` new feature, `fix:` bug fix, `docs:` documentation only, `refactor:` neither fix nor feature, `style:` formatting, `test:` tests, `chore:` maintenance and dependency updates. Example: `feat: add dark mode toggle`.

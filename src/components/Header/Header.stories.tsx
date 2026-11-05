@@ -12,7 +12,7 @@ const actions = (counts: boolean): HeaderAction[] => [
 ];
 
 const meta = {
-  title: 'Navigation/Header',
+  title: 'Components/Navigation/Header',
   component: Header,
   args: { logo: <Logo name="logo-side" />, avatar: <Avatar size="medium" label="Account" />, actions: actions(false) },
   parameters: { layout: 'fullscreen' },

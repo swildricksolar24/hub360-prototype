@@ -20,7 +20,7 @@ import { RowMenu } from './RowMenu';
 import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 // 578 fixed + checkbox 28 + ••• 44 + 7 gaps × 16 + 40 padding = 802, leaving Name (the fill column) about 270px at 1440px
 const COLUMNS: DataColumn[] = [

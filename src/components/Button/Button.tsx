@@ -2,13 +2,13 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './Button.module.css';
 
-export type ButtonVariant = 'primary' | 'outline' | 'brand' | 'brand-orange' | 'brand-secondary' | 'text';
+export type ButtonVariant = 'primary' | 'outline' | 'brand' | 'brand-outline' | 'brand-orange' | 'brand-secondary' | 'text';
 export type ButtonSize = 'base' | 'small' | 'tiny';
 
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   children: ReactNode;
   /**
-   * Figma sets per size — base: primary, outline, brand, brand-orange ·
+   * Figma sets per size — base: primary, outline, brand, brand-outline (Brand / Teal / Outline), brand-orange ·
    * small: primary, outline, brand, brand-secondary · tiny: primary, text.
    */
   variant?: ButtonVariant;

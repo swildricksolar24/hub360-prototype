@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 const items = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `item-${i + 1}`, label: 'Label' }));
 
 const meta = {
-  title: 'Navigation/SubMenu',
+  title: 'Components/Navigation/SubMenu',
   component: SubMenu,
   args: { items: items(10), value: 'item-4', variant: 'default' },
   argTypes: { variant: { control: 'inline-radio', options: ['default', 'tiny', 'text'] } },

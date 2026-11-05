@@ -50,7 +50,7 @@ function ModalDemo(args: Omit<ModalProps, 'open' | 'onClose'>) {
 }
 
 const meta = {
-  title: 'Web Components/Modal',
+  title: 'Components/Overlays/Modal',
   component: Modal,
   args: { open: false, title: 'Title', description: 'Body', variant: 'default', scrollable: false },
   argTypes: {

@@ -11,7 +11,7 @@ const FILTER_OPTIONS = [
 ];
 
 const meta = {
-  title: 'Navigation/AppBar',
+  title: 'Components/Navigation/AppBar',
   component: AppBar,
   args: { logo: <Logo name="logo-side" />, onMenuClick: () => {} },
   parameters: { layout: 'fullscreen' },

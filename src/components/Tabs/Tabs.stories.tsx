@@ -13,7 +13,7 @@ const items = ['Label', 'Label', 'Label', 'Label', 'Label'].map((label, i) => ({
 }));
 
 const meta = {
-  title: 'Navigation/Tabs',
+  title: 'Components/Navigation/Tabs',
   component: Tabs,
   args: { items, defaultValue: 'tab-2', size: 'small', 'aria-label': 'Example tabs' },
   argTypes: { size: { control: 'inline-radio', options: ['small', 'tiny'] } },

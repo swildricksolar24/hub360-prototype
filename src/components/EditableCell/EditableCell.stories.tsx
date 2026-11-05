@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Primitives/EditableCell',
+  title: 'Components/Forms/EditableCell',
   component: EditableCell,
   args: { label: 'Quantity', defaultValue: '0' },
   decorators: [Story => <div style={{ width: 120 }}><Story /></div>],

@@ -3,7 +3,7 @@ import { Overlay } from './Overlay';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Primitives/Overlay',
+  title: 'Components/Overlays/Overlay',
   component: Overlay,
   args: { position: 'absolute' },
   argTypes: { position: { control: 'inline-radio', options: ['fixed', 'absolute'] } },

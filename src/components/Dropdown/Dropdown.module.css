@@ -198,6 +198,7 @@
  * rules whatever the CSS order.
  */
 .popup.popup {
+  box-sizing: border-box; /* the 8px inset sits inside the field's width, as in Figma (240px field, 240px menu) */
   padding: var(--space-8);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);

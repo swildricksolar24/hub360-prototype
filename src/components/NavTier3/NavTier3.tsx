@@ -234,7 +234,7 @@ export function NavTier3({
       <div className={styles.top}>
         <div className={styles.trail}>
           {onBack && <IconButton size="compact" icon="arrow-left" label="Back" onClick={onBack} />}
-          {breadcrumb && <Breadcrumb size="small" items={breadcrumb} homeHref={homeHref} />}
+          {breadcrumb && <Breadcrumb items={breadcrumb} homeHref={homeHref} />}
         </div>
         <div className={styles.end}>
           {actionRow}

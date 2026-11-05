@@ -31,7 +31,7 @@ const BLANK_ROWS = [1, 2, 3, 4, 5].map(i => ({ id: `row-${i}` }));
 const blankCells = () => Object.fromEntries(BLANK_COLUMNS.map(c => [c.key, 'Value']));
 
 const meta = {
-  title: 'Custom/DataTable',
+  title: 'Components/Data Display/DataTable',
   component: DataTable<Row>,
   args: {
     'aria-label': 'Warehouses',

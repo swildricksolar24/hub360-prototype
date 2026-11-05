@@ -92,13 +92,19 @@ Coded components live in `src/components/<Name>/<Name>.tsx`. Every one has a Sto
 
 Every Figma set on the library pages has a coded component. The exceptions are the pages marked "not used", the Testing page and the Holder scaffolding.
 
-| Storybook group | Components |
+The groups run from small to large, the same in Storybook and in the Figma file's page sections (the reasoning is in
+`design-system/TAXONOMY-MAPPING.md`):
+
+| Storybook group (Figma section) | Components |
 |---|---|
-| Foundations | Icon (110 icons), Logo (9 logos) |
-| Primitives | Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Dropdown (Drop Down Label + Drop Down Button), EditableCell, Hyperlink, IconButton, LastModified, ListBox (plus TreeList), NumericInput, AutocompleteInput, OtpInput, Overlay, RadioButton, Skeleton, Tag, TextArea, TextInput, Toggle, Tooltip |
-| Web Components | Accordion, Captcha, Card, ContextMenu, DropdownSelector, DropdownTree, FilterChipDropdown, Message, Modal (plus ModalPanel), MultiselectDropdown, NotificationBox, Progress, RangeSlider, Rating, Scrollbar, SearchBar, SignaturePad, Timeline, UploadFile |
-| Custom | DataHeader, DataRow, DataTable, HelpCenter, MainDropDown, PageTracker |
-| Navigation | AppBar, Breadcrumb, Footer, Header, MenuSidebar, NavTabBar, NavTier1, NavTier2, NavTier3, SideMenuButton, SubMenu, Tabs |
+| Foundations | Icon (111 icons), Logo (9 logos) |
+| Primitives (single elements) | Avatar, Badge, Button, Checkbox, Chip, Hyperlink, IconButton, LastModified, RadioButton, Scrollbar, Tag, TextArea, TextInput, Toggle |
+| Components › Forms | AutocompleteInput, ButtonGroup, Captcha, Dropdown (Drop Down Label + Drop Down Button + Drop Down Menu), DropdownSelector, DropdownTree, EditableCell, FilterChipDropdown, ListBox (plus TreeList), MultiselectDropdown, NumericInput, OtpInput, RangeSlider, Rating, SearchBar, SignaturePad, UploadFile |
+| Components › Feedback | Message, NotificationBox, Progress, Skeleton, Toast |
+| Components › Overlays | ContextMenu, Modal (plus ModalPanel), Overlay, Tooltip |
+| Components › Data Display | Accordion, Card, Cards (CardLarge, CardRow), DataHeader, DataRow, DataTable, PageTracker, Tile, Timeline |
+| Components › Navigation | AppBar, Breadcrumb, Footer, Header, MainDropDown, MenuSidebar, NavTabBar, NavTier1, NavTier2, NavTier3, NavTier4, SideMenuButton, SubMenu, Tabs |
+| Templates | HelpCenter. The app's own layouts (AppShell, RecordPage, AuthLayout, AppModal) live in `src/app/` and have no stories yet |
 
 Most-used APIs:
 
@@ -111,12 +117,16 @@ Most-used APIs:
 | Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
 | Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm), `width`. The close button is Figma "Button / Icon Only / Small / Secondary" (44px; Hover fades to Gray Fill/Hover). In the prototype app use `AppModal`, which wraps it |
 | Message | `title`, `body`, `type`, `onClose` |
+| Toast | `type`, `title`, `body`, `onClose`, `inline`. A page notice that slides down at the top center and leaves after 5 seconds; `onClose` runs once it has gone. `inline` draws it in place (previews only) |
+| CardLarge / CardRow | CardLarge: `title`, `headingLevel`, `children` (Figma Card / Large: a titled section on Surfaces/Sunken). CardRow: `media` (80px), `title`, `subtitle`, `action`, `highlighted` (Figma Card / Row / Small) |
+| NavTier4 | `aria-label`, `items` (`{ id, label }`), `activeId`, `onSelect`, `toolbar` (Figma Tier 4: the view buttons under a record's Tier 3 header, with an optional toolbar after a divider) |
 | DataTable | `aria-label`, `columns` (`DataColumn[]`: `key`, `label`, `width` px or `'fill'`, `align`, `sortable`), `rows` (each with an `id`), `cells(row)`, `rowLabel(row)`, `selected` / `onSelectedChange` (the checkbox column), `sort` / `onSortChange`, `onMore(row)` + `renderAfterRow(row)` (the ••• and its menu), `actionsVisible`, `striped`, `inactive(row)`, `empty`. The clean table (Figma Data Table page): use it for new tables instead of hand-assembling DataHeader + DataRow |
-| NavTabBar | `tabs` (`{ id, label, icon?, title? }`: keep `label` short and put the full name in `title`, which becomes the tooltip and accessible name), `activeId`, `onSelect`, `onClose`, `onReorder` (drag tabs or Ctrl+Shift+←/→ to reorder; called with the new id order), `onHome`, `onAdd`. Restyled from Figma for readability: 40px bar on Surfaces/Base, 14px tabs, brand-teal underline on the active tab |
+| Tile | `label`, `value`, `note`, `icon` (Figma Tile / KPI). A button with `onClick` or a link with `href`; it fills its parent's width, so put it in a grid or a sized box. On a tile narrower than about 216px the value steps down to Heading 4 |
+| NavTabBar | `tabs` (`{ id, label, icon?, title? }`: keep `label` short and put the full name in `title`, which becomes the tooltip and accessible name), `activeId`, `onSelect`, `onClose`, `onReorder` (drag tabs or Ctrl+Shift+←/→ to reorder; called with the new id order), `onShowAll` (an "All tabs" button at the far right of the bar; Figma Tab Bar), `onHome`, `onAdd`. Restyled from Figma for readability: 40px bar on Surfaces/Base, 14px tabs, brand-teal underline on the active tab. Each tab hugs its label; when they don't fit, the longer names shrink first with "…", each keeping at least 3 letters (or its whole name if shorter), and once even that doesn't fit, tabs show only their icon (name in the tooltip; the × on hover, focus or the active tab, which stays at least 52px) and keep shrinking to 36px; past that the tab strip scrolls sideways (Figma: Tab Label / Tab Button Compact states and Tab Bar Active Tab = Crowded) |
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:
-- **base:** `primary`, `outline`, `brand` (teal), `brand-orange`
+- **base:** `primary`, `outline`, `brand` (teal), `brand-outline` (teal fill with a gray border: Figma "Brand / Teal / Outline"), `brand-orange`
 - **small:** `primary`, `outline`, `brand`, `brand-secondary`
 - **tiny:** `primary`, `text`
 

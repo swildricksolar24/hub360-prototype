@@ -20,7 +20,7 @@ import { PAGE_SIZES } from './record/tableKit';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
 import table from './table.module.css';
 import styles from './warehouses.module.css';
-import { Toast } from '../../../components/Toast';
+import { Toast } from '../../../../components/Toast/Toast';
 
 const ALL_VIEW = '__all';
 

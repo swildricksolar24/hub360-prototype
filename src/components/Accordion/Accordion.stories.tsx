@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Web Components/Accordion',
+  title: 'Components/Data Display/Accordion',
   component: Accordion,
   args: { label: 'Label', icon: 'account', defaultOpen: false },
   argTypes: {

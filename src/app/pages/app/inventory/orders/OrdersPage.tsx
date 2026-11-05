@@ -20,7 +20,7 @@ import { createOrder, orderPath, setOrders, useOrders } from './orderStore';
 import table from '../table.module.css';
 import { PAGE_SIZES } from '../record/tableKit';
 import styles from './orders.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 const ALL = '__all';
 

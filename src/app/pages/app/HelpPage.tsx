@@ -28,7 +28,7 @@ export function HelpPage() {
     <>
       <RecordPage
         title="HELP CENTER"
-        icon="life-preserver"
+        icon="question-mark-help"
         breadcrumb={[{ label: 'Help' }]}
         labels={[
           { label: 'Guides', value: String(GUIDES.length) },

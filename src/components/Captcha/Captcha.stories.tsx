@@ -3,7 +3,7 @@ import { Captcha } from './Captcha';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Web Components/Captcha',
+  title: 'Components/Forms/Captcha',
   component: Captcha,
   args: { label: "I'm not a robot" },
 } satisfies Meta<typeof Captcha>;

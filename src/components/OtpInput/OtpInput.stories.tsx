@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Primitives/OtpInput',
+  title: 'Components/Forms/OtpInput',
   component: OtpInput,
   args: { label: 'Verification code', length: 6, defaultValue: '' },
 } satisfies Meta<typeof OtpInput>;

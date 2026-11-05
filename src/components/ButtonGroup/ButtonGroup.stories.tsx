@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Primitives/ButtonGroup',
+  title: 'Components/Forms/ButtonGroup',
   component: ButtonGroup,
   args: { orientation: 'horizontal', 'aria-label': 'Options', children: null },
   argTypes: {

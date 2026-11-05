@@ -19,7 +19,7 @@ const items: NavTier2Item[] = [
 ];
 
 const meta = {
-  title: 'Navigation/NavTier2',
+  title: 'Components/Navigation/NavTier2',
   component: NavTier2,
   args: { items, value: 'warehouses', variant: 'default' },
   argTypes: { variant: { control: 'inline-radio', options: ['default', 'collapsed', 'label'] } },

@@ -66,7 +66,7 @@ const base: NavTier3Props = {
 };
 
 const meta = {
-  title: 'Navigation/NavTier3',
+  title: 'Components/Navigation/NavTier3',
   component: NavTier3,
   args: base,
 } satisfies Meta<typeof NavTier3>;

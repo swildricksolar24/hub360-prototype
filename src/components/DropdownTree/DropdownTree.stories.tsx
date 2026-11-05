@@ -12,7 +12,7 @@ const CITIES: TreeNode[] = [
 ];
 
 const meta = {
-  title: 'Web Components/DropdownTree',
+  title: 'Components/Forms/DropdownTree',
   component: DropdownTree,
   args: { nodes: CITIES, label: 'City', placeholder: 'Select a City' },
   decorators: [Story => <div style={{ maxWidth: 360, minHeight: 320 }}><Story /></div>],

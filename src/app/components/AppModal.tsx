@@ -37,6 +37,8 @@ export type AppModalProps = {
   width?: number | string;
   /** Long content scrolls inside the body (Figma `Style=Scrollbar`). */
   scrollable?: boolean;
+  /** Extra class on the panel, for a dialog that needs its own size or placement (e.g. the tab overview). */
+  className?: string;
 };
 
 function ActionButton({ action, variant }: { action: AppModalAction; variant: 'outline' | 'brand' }) {
@@ -54,9 +56,10 @@ function ActionButton({ action, variant }: { action: AppModalAction; variant: 'o
 }
 
 /**
- * The app's standard modal: Figma "_Sign In / Shell" › Modal page (782:12791), a "Modal Screen" with the
- * 800px "Dialog / Modal" over the shell, in light and dark. Built on the design-system Modal, so it gets the
- * scrim, focus handling, Escape to close and the close button's hover / press / focus states.
+ * The app's standard modal: the design-system "Dialog / Modal" (Base file, - Modal page, 429:687), 800px, shown over
+ * the shell inside "Modal Screen*" (805:922) as the "_Sign In / Shell" file's Modal page uses it (782:12791), in light
+ * and dark. Built on the design-system Modal, so it gets the scrim, focus handling, Escape to close and the close
+ * button's hover / press / focus states.
  *
  * Use it for every dialog in the app; pass content, not layout.
  */

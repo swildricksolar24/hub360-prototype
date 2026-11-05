@@ -1,0 +1,39 @@
+/* Figma "Tier 4" (3091:12939): a Surfaces/Sunken bar, 24px padding, 12px between its parts, Corner Radius/12 */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  font-family: var(--font-family-inter);
+}
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+/* Table View: a 2px Gray Stroke/Weak line between the view buttons and the toolbar */
+.divider {
+  flex: none;
+  align-self: center;
+  width: var(--stroke-width-2);
+  height: 50px; /* Figma line length; component dimension, no token */
+  background: var(--color-gray-stroke-weak);
+}
+/* The toolbar panel ("menu"): Surfaces/Sunken, 12px padding and gaps, takes the rest of the row */
+.toolbar {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}

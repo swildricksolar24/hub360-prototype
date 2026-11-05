@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Navigation/MenuSidebar',
+  title: 'Components/Navigation/MenuSidebar',
   component: MenuSidebar,
   args: {
     'aria-label': 'Account menu',

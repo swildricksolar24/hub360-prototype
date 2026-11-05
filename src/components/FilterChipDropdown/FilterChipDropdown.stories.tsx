@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Web Components/FilterChipDropdown',
+  title: 'Components/Forms/FilterChipDropdown',
   component: FilterChipDropdown,
   args: { options: STATE_OPTIONS, label: 'Label', placeholder: 'Select', chipsAppearance: 'brand' },
   argTypes: {

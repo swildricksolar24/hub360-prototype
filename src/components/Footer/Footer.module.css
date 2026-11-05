@@ -1,4 +1,8 @@
-/* Values come from the Figma Interior Nav "Footer" (1544:2832). */
+/*
+ * Figma "Footer" (Components / Navigation › - Footer, 1544:2832): Surfaces/Base with a 1px Gray Stroke/Disabled line
+ * on top, 12/24 padding, 42px tall. Version and links are Small/Regular, the copyright Tiny/Regular, all Gray
+ * Text/Strong; the "|" separators are Gray Text/Disabled.
+ */
 .footer {
   display: flex;
   align-items: center;
@@ -17,6 +21,11 @@
 .copyright,
 .version {
   margin: 0;
+}
+/* Figma: Tiny/Regular */
+.copyright {
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
 }
 /* Copyright and links share the remaining width equally, which centers the version text (as in Figma) */
 .copyright,

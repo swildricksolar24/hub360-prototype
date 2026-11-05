@@ -13,7 +13,7 @@ import { DESIGNED_TYPES, adjustLineError, count, formatDate, money, moveLineErro
 import { orderPath, updateOrder, useOrders } from './orderStore';
 import record from '../record.module.css';
 import styles from './orders.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 const LIST_PATH = '/app/inventory/orders';
 

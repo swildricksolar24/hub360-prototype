@@ -3,7 +3,7 @@ import { Footer } from './Footer';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Navigation/Footer',
+  title: 'Components/Navigation/Footer',
   component: Footer,
   args: {
     copyright: '© 2026 HUB360, All Rights Reserved',
@@ -25,5 +25,5 @@ export const Playground: Story = {};
 
 export const FooterSet: Story = {
   name: 'Footer',
-  parameters: { ...figma('1544:2832', 'Footer (Interior Nav) › Footer'), controls: { disable: true } },
+  parameters: { ...figma('1544:2832', 'Footer › Footer'), controls: { disable: true } },
 };

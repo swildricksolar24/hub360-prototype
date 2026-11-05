@@ -13,7 +13,7 @@ const PEOPLE: SearchResult[] = [
 ];
 
 const meta = {
-  title: 'Web Components/SearchBar',
+  title: 'Components/Forms/SearchBar',
   component: SearchBar,
   args: { placeholder: 'Search', disabled: false },
   decorators: [Story => <div style={{ maxWidth: 744, minHeight: 460 }}><Story /></div>],

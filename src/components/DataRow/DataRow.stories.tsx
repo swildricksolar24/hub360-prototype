@@ -24,7 +24,7 @@ const cellsFor = (screen: FigmaScreen, row = screen.row): Record<string, ReactNo
 const users = SCREENS[0];
 
 const meta = {
-  title: 'Custom/DataRow',
+  title: 'Components/Data Display/DataRow',
   component: DataRow,
   args: {
     columns: users.columns,

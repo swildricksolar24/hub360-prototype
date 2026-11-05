@@ -4,7 +4,7 @@ import { PageTracker } from './PageTracker';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Custom/PageTracker',
+  title: 'Components/Data Display/PageTracker',
   component: PageTracker,
   args: { page: 2, pageCount: 13, pageSize: 10 },
   argTypes: {

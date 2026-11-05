@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
 import { NavTab, NavTabBar, NavTabSmall } from './NavTabBar';
 import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
@@ -8,9 +9,9 @@ const tabs = [1, 2, 3, 4].map(n => ({ id: `t${n}`, label: `Label ${n}` }));
 const noop = () => {};
 
 const meta = {
-  title: 'Navigation/NavTabBar',
+  title: 'Components/Navigation/NavTabBar',
   component: NavTabBar,
-  args: { tabs, activeId: 't1', onHome: noop, onAdd: noop, onClose: noop },
+  args: { tabs, activeId: 't1', onShowAll: fn(), onHome: noop, onAdd: noop, onClose: noop },
 } satisfies Meta<typeof NavTabBar>;
 
 export default meta;
@@ -42,6 +43,15 @@ export const Playground: Story = {
       />
     );
   },
+};
+
+/**
+ * Not in Figma: `onShowAll` adds an "All tabs" button at the far right of the bar (tooltip "All tabs (N)"). The
+ * prototype opens an overview of every open tab from it; clicks show in the Actions panel here.
+ */
+export const AllTabsButton: Story = {
+  render: args => <NavTabBar {...args} />,
+  parameters: { controls: { disable: true } },
 };
 
 export const TabBar: Story = {

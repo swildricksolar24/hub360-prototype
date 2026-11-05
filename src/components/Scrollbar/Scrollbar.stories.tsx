@@ -13,7 +13,7 @@ const Content = () => (
 );
 
 const meta = {
-  title: 'Web Components/Scrollbar',
+  title: 'Primitives/Scrollbar',
   component: Scrollbar,
   args: { height: 200, label: 'Notes', step: 40, children: <Content /> },
   argTypes: { children: { control: false } },

@@ -22,7 +22,7 @@ import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection 
 import { STOCK_COLUMN_OPTIONS, StockTable } from './StockTable';
 import table from '../table.module.css';
 import styles from './items.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 
 const OVERVIEW_COLUMNS: DataColumn[] = [

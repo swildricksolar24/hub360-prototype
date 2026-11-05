@@ -6,7 +6,7 @@ import { pseudoStates } from '../../storybook/StateGrid';
 const dollars = (v: number) => `$${v}`;
 
 const meta = {
-  title: 'Web Components/RangeSlider',
+  title: 'Components/Forms/RangeSlider',
   component: RangeSlider,
   args: { label: 'Budget', min: 0, max: 100, step: 1, defaultValue: 50, format: dollars },
   decorators: [Story => <div style={{ maxWidth: 1080, padding: 'var(--space-16) var(--space-24)' }}><Story /></div>],
