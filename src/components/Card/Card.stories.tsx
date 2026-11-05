@@ -23,7 +23,7 @@ const FakeLogo = () => (
 );
 
 const meta = {
-  title: 'Web Components/Card',
+  title: 'Components/Data Display/Card',
   component: Card,
   args: { title: 'Label', mode: 'edit', media: <FakeLogo /> },
   argTypes: {

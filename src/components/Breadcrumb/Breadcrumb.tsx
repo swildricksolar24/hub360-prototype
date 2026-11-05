@@ -12,11 +12,6 @@ export type BreadcrumbItem = {
 export type BreadcrumbProps = {
   /** The trail after the home icon. Figma "Default" `Levels` = 1 + the number of items after the first. */
   items: BreadcrumbItem[];
-  /**
-   * small = Figma Primitive "Breadcrumb › Default" (Tiny/Medium text, 12px home and chevron icons) ·
-   * default = Figma Web "Breadcrumb" (Medium/Regular text, 24px home icon, "/" separators).
-   */
-  size?: 'small' | 'default';
   /** Link for the home icon. Without it the icon is shown but not linked. */
   homeHref?: string;
   /** Accessible name of the home icon. */
@@ -26,25 +21,21 @@ export type BreadcrumbProps = {
   className?: string;
 };
 
+/**
+ * Figma "Breadcrumb" (Components / Navigation › - Breadcrumb: Parts and Default, `Levels` 1–4): a home icon, then
+ * the trail in Tiny/Medium text with 12px chevrons. The last item is the current page.
+ */
 export function Breadcrumb({
   items,
-  size = 'small',
   homeHref,
   homeLabel = 'Home',
   'aria-label': ariaLabel = 'Breadcrumb',
   className,
 }: BreadcrumbProps) {
-  const iconSize = size === 'small' ? 12 : 24;
-  const separator =
-    size === 'small' ? (
-      <Icon name="chevron-right" size={12} color="currentColor" className={styles.separator} />
-    ) : (
-      <span className={styles.separator} aria-hidden="true">
-        /
-      </span>
-    );
+  const iconSize = 12;
+  const separator = <Icon name="chevron-right" size={12} color="currentColor" className={styles.separator} />;
   return (
-    <nav aria-label={ariaLabel} className={[styles.breadcrumb, className].filter(Boolean).join(' ')} data-size={size}>
+    <nav aria-label={ariaLabel} className={[styles.breadcrumb, className].filter(Boolean).join(' ')}>
       <ol className={styles.list}>
         <li className={styles.item}>
           {homeHref ? (

@@ -19,7 +19,8 @@ export type NavSection = { id: string; label: string; icon: string; pages?: NavP
 // The build starts with Dashboard and Inventory. Figma's other sections (Tasks, Schedule, Sites, Accounts,
 // Projects, Service, Sales, Reports, Users, Settings) come back here as they are built.
 export const SECTIONS: NavSection[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  // The home icon: Dashboard is where the app opens (the tab bar's Home button goes here too)
+  { id: 'dashboard', label: 'Dashboard', icon: 'home' },
   {
     id: 'inventory',
     label: 'Inventory',

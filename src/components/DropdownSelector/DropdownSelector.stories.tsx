@@ -10,7 +10,7 @@ import styles from './DropdownSelector.module.css';
 const PHOTOS: DropdownSelectorOption[] = Array.from({ length: 18 }, (_, i) => ({ value: `p${i + 1}`, label: `Photo ${i + 1}` }));
 
 const meta = {
-  title: 'Web Components/DropdownSelector',
+  title: 'Components/Forms/DropdownSelector',
   component: DropdownSelector,
   args: { options: STATE_OPTIONS, placeholder: 'Select', display: 'list', showIcon: true },
   argTypes: { display: { control: 'inline-radio', options: ['list', 'chips', 'gallery'] } },

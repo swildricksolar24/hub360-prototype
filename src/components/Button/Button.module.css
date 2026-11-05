@@ -233,6 +233,39 @@
   --ring-w: 0px;
 }
 
+/*
+ * ---------- brand-outline (base): Figma "Brand / Teal / Outline" (3234:4981) ----------
+ * Default: Brand Teal Fill/Weak, 2px Gray Stroke/Weaker. Hover: the stroke thickens to 4px.
+ * Press, Selected and Focus: Brand Teal Fill/Strong with the 4px stroke; Focus centers it on the edge (2px in, 2px
+ * out). Disabled: Brand Teal Fill/Disabled and a 4px Gray Stroke/Disabled.
+ * The label is Foundation/Solid/White in every state, as in Figma and the other brand buttons; there is no
+ * semantic "text on brand" token.
+ */
+.button[data-variant='brand-outline'] {
+  --bg: var(--color-brand-teal-fill-weak);
+  --fg: var(--color-foundation-solid-white);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-variant='brand-outline']:hover {
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-variant='brand-outline']:is(:active, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-teal-fill-strong);
+  --ring-w: var(--stroke-width-4);
+}
+/* Figma Focus: the 4px stroke is centered (Stroke align Center), so half of it sits outside the button */
+.button[data-variant='brand-outline']:focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-variant='brand-outline']:disabled {
+  --bg: var(--color-brand-teal-fill-disabled);
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-4);
+}
+
 /* ---------- brand-secondary (small) ---------- */
 
 .button[data-variant='brand-secondary'] {

@@ -16,7 +16,7 @@ import { useCurrentDevice } from './currentDevice';
 import { EditPhotoModal } from './EditPhotoModal';
 import { FieldRow, Fields, Range, SettingRow, SettingsCard, SettingsColumn } from './SettingsLayout';
 import styles from './AccountSettings.module.css';
-import { Toast } from '../../../components/Toast';
+import { Toast } from '../../../../components/Toast/Toast';
 
 const opts = (...values: string[]) => values.map(v => ({ value: v, label: v }));
 const TIMES = opts('5:00AM', '6:00AM', '7:00AM', '8:00AM', '9:00AM', '4:00PM', '5:00PM', '6:00PM', '8:00PM', '9:00PM', '10:00PM', '11:00PM');

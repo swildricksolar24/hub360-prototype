@@ -1,16 +1,22 @@
 /*
- * A notification floating at the top center of the window (Toast.tsx). The Message's own fills are see-through tints,
- * so the toast sits on the Overlay surface with a drop shadow to read over the page.
+ * Figma "Toast" (3079:263): the Message on Surfaces/Overlay with 4px corners and the drop shadow, 560px wide. The
+ * Message's own fills are see-through tints, so the Overlay under them keeps the toast readable over the page.
  */
+.frame {
+  box-sizing: border-box;
+  width: min(560px, 100%); /* layout width, no token */
+  border-radius: var(--radius-4);
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+}
+
+/* Floating at the top center of the window (not with `inline`) */
 .toast {
   position: fixed;
   z-index: 1000; /* above the page, its menus and the header; no token */
   top: var(--space-16);
   left: 50%;
   width: min(560px, calc(100vw - 2 * var(--space-16))); /* layout width, no token */
-  border-radius: var(--radius-4);
-  background: var(--color-surfaces-overlay);
-  box-shadow: var(--shadow-drop);
   transform: translateX(-50%);
   animation: toast-in 360ms cubic-bezier(0.2, 0, 0, 1);
 }

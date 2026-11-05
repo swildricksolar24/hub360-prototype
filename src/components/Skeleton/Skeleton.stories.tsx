@@ -3,7 +3,7 @@ import { Skeleton, type SkeletonShape } from './Skeleton';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Primitives/Skeleton',
+  title: 'Components/Feedback/Skeleton',
   component: Skeleton,
   args: { shape: 'bar' },
   argTypes: { shape: { control: 'inline-radio', options: ['circle', 'square', 'bar', 'block'] } },

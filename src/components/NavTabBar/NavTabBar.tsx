@@ -5,6 +5,18 @@ import styles from './NavTabBar.module.css';
 
 /** Duration of tab and underline slides when tabs move (ms). */
 const SLIDE_MS = 200;
+/** Duration of the underline rising up under a tab that has just opened (ms): slow on purpose. */
+const RISE_MS = 700;
+/** Marks the rise animation, so a move of its tab mid-rise continues it instead of replacing it. */
+const RISE_ID = 'tab-underline-rise';
+/**
+ * A named tab hugs its label: its padding, icon, gaps and close button take a fixed 76px (16 + 16 + 8 + 8 + 16 + 12),
+ * plus the name. When the tabs don't fit, names shrink and end in "…". A name stays while at least 3 letters and the
+ * "…" still fit, about 44px in the tab font (14px Inter: "New…" is 42px, 43px semi-bold on the active tab); with less
+ * it would be unreadable, so the tabs show their icons instead. (A name shorter than that just has to fit whole.)
+ */
+const NAMED_TAB_FIXED_PX = 76;
+const NAME_MIN_PX = 44;
 /** How far a press must move before it becomes a drag instead of a click (px). */
 const DRAG_START_PX = 4;
 
@@ -15,7 +27,7 @@ export type NavTabSmallProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'ch
   icon: string;
 };
 
-/** Figma "Tab Small": the 48×24 icon button at either end of the bar (Home, New tab). */
+/** Figma "Tab Small": the 48×24 icon button at either end of the bar (All tabs, Home, New tab). */
 export function NavTabSmall({ label, icon, type = 'button', className, ...rest }: NavTabSmallProps) {
   return (
     <button type={type} aria-label={label} title={label} className={[styles.small, className].filter(Boolean).join(' ')} {...rest}>
@@ -51,6 +63,13 @@ export type NavTabProps = {
   dragProps?: HTMLAttributes<HTMLDivElement>;
   /** The tab is being dragged (drawn lifted, following the pointer). */
   dragging?: boolean;
+  /**
+   * Not in Figma: shows only the icon (the name stays in the tooltip and for screen readers), with the close button
+   * on hover, focus or the active tab. NavTabBar sets it when the bar is too crowded for readable names.
+   */
+  compact?: boolean;
+  /** The narrowest the tab may shrink to (px), e.g. to keep 3 letters of its name. Set by NavTabBar. */
+  minWidth?: number;
 };
 
 /** Figma "Tab Button" (and its "Tab Label"): one closable tab. Use inside `role="tablist"`. */
@@ -68,13 +87,19 @@ export function NavTab({
   tabRef,
   dragProps,
   dragging = false,
+  compact = false,
+  minWidth,
 }: NavTabProps) {
+  // Only a tab with an icon can drop its name
+  const iconOnly = compact && !!icon;
   return (
     <div
       className={styles.tab}
       data-active={active || undefined}
       data-divider={divider || undefined}
       data-dragging={dragging || undefined}
+      data-compact={iconOnly || undefined}
+      style={iconOnly ? undefined : { minWidth }}
       title={title}
       {...dragProps}
     >
@@ -101,8 +126,11 @@ export function NavTab({
   );
 }
 
-/** `icon` and `title` are optional: see NavTab. */
-export type NavTabBarItem = { id: string; label: string; icon?: string; title?: string };
+/**
+ * `icon` and `title` are optional: see NavTab. `blank` marks an empty tab (like a browser's new tab from "+"): when it
+ * turns into a page, its underline rises in as it does for a newly opened tab.
+ */
+export type NavTabBarItem = { id: string; label: string; icon?: string; title?: string; blank?: boolean };
 
 export type NavTabBarProps = {
   /** The open tabs. */
@@ -117,10 +145,17 @@ export type NavTabBarProps = {
    * Called with the tab ids in their new order.
    */
   onReorder?: (ids: string[]) => void;
+  /**
+   * Shows an "All tabs" button at the far right of the bar (Figma Tab Bar, 2133:4457). Called when it's clicked, e.g. to open an
+   * overview of every open tab.
+   */
+  onShowAll?: () => void;
   /** Shows the leading Home button. */
   onHome?: () => void;
   /** Shows the trailing "+" button. */
   onAdd?: () => void;
+  /** Accessible name and tooltip of the All tabs button. Defaults to "All tabs (N)" with the open tab count. */
+  showAllLabel?: string;
   homeLabel?: string;
   addLabel?: string;
   /** Accessible name of the tab list. */
@@ -135,8 +170,10 @@ export function NavTabBar({
   onSelect,
   onClose,
   onReorder,
+  onShowAll,
   onHome,
   onAdd,
+  showAllLabel,
   homeLabel = 'Home',
   addLabel = 'New tab',
   'aria-label': ariaLabel = 'Open tabs',
@@ -144,7 +181,48 @@ export function NavTabBar({
 }: NavTabBarProps) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
   const listRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const activeIndex = tabs.findIndex(t => t.id === activeId);
+
+  // Crowded bar (Figma Tab Bar "Active Tab=Crowded" and the Compact tab states): tabs hug their labels and shrink when they don't all fit, the longer names giving way
+  // first. Each tab keeps at least 3 letters of its name (or the whole name if it's shorter), set as its min-width;
+  // once even those minimums don't fit, the tabs show only their icons. Worked out from each name's full width in
+  // the tab font and the room the bar gives the tab list (not from the drawn labels), so hiding names can't flip it
+  // back and forth. While there's room, every tab hugs its full label.
+  type Fit = { compact: boolean; minWidths: Record<string, number> };
+  const [fit, setFit] = useState<Fit>({ compact: false, minWidths: {} });
+  const compact = fit.compact;
+  const measurer = useRef<CanvasRenderingContext2D | null>(null);
+  useLayoutEffect(() => {
+    const bar = barRef.current;
+    const list = listRef.current;
+    if (!bar || !list) return;
+    const measure = () => {
+      const style = getComputedStyle(bar);
+      let room = bar.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      for (const child of Array.from(bar.children)) if (child !== list) room -= (child as HTMLElement).offsetWidth;
+      const ctx = (measurer.current ??= document.createElement('canvas').getContext('2d'));
+      if (!ctx || !tabs.length) return setFit({ compact: false, minWidths: {} });
+      const font = getComputedStyle(list);
+      const minWidths: Record<string, number> = {};
+      let needed = 0;
+      for (const t of tabs) {
+        // the active tab's name is semi-bold (600), the others medium (500)
+        ctx.font = `${t.id === activeId ? 600 : 500} ${font.fontSize} ${font.fontFamily}`;
+        const name = ctx.measureText(t.label).width;
+        const fixed = t.icon ? NAMED_TAB_FIXED_PX : NAMED_TAB_FIXED_PX - 24; // no icon: no 16px icon and 8px gap
+        minWidths[t.id] = Math.ceil(fixed + Math.min(name, NAME_MIN_PX));
+        needed += minWidths[t.id];
+      }
+      setFit({ compact: needed > room, minWidths });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    // Names are measured in the tab font: measure again once it has loaded
+    document.fonts?.ready.then(measure);
+    return () => observer.disconnect();
+  }, [tabs, activeId]);
 
   // Sliding underline: one indicator moves to the active tab instead of each tab drawing its own.
   type Indicator = { id: string; left: number; width: number };
@@ -157,6 +235,12 @@ export function NavTabBar({
     const place = () => {
       const tab = activeId ? refs.current[activeId]?.parentElement : null;
       setIndicator(tab && activeId ? { id: activeId, left: tab.offsetLeft, width: tab.offsetWidth } : null);
+      // A crowded list scrolls sideways: keep the active tab in view (without scrolling the page)
+      if (tab && list.scrollWidth > list.clientWidth) {
+        if (tab.offsetLeft < list.scrollLeft) list.scrollLeft = tab.offsetLeft;
+        else if (tab.offsetLeft + tab.offsetWidth > list.scrollLeft + list.clientWidth)
+          list.scrollLeft = tab.offsetLeft + tab.offsetWidth - list.clientWidth;
+      }
     };
     place();
     // Labels can change width (fonts loading, a tab closing), so follow the list's size too
@@ -167,12 +251,54 @@ export function NavTabBar({
   // When the active tab changes, the underline first shrinks in place to 25% of its width around its own center,
   // then travels to the new tab while expanding to its width. When the active tab only moves to another slot
   // (reordering, a tab closing) the underline slides along with it; while it is being dragged it rides with it.
+  // A tab that has just opened gets its underline rising up slowly from the bar's bottom edge instead (described on the Figma Tab Bar; motion isn't drawable there).
+  // Open tab ids, each with whether it was a blank tab
+  const seen = useRef<Map<string, boolean> | null>(null);
   useLayoutEffect(() => {
     const el = indicatorRef.current;
     const from = previous.current;
     previous.current = indicator;
-    if (!el || !indicator || !from || from.left === indicator.left) return;
+    if (!el || !indicator) return;
+    // The tabs that were open the last time the underline sat on a tab. (While a new tab opens the underline is
+    // briefly unset; recording the tabs then would already count the new one as open.) Only the tabs open right
+    // now count, so a tab that was closed and opened again rises too.
+    const known = seen.current;
+    seen.current = new Map(tabs.map(t => [t.id, !!t.blank]));
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // A new tab: one that wasn't open before, and either the bar now holds more tabs, or it took the place of a blank
+    // tab (a blank tab being filled with a page). A tab that takes the place of an ordinary one (a record's previous /
+    // next arrows) isn't new. `known` is null on the first render, so the tabs open from the start don't animate.
+    const ids = new Set(tabs.map(t => t.id));
+    const filledBlank = !!known && [...known].some(([id, blank]) => blank && !ids.has(id));
+    const added = !!known && tabs.length > known.size;
+    // The rise, at the tab's current position; `progress` (ms) resumes one already under way
+    const rise = (progress = 0) => {
+      const x = `translateX(${indicator.left}px)`;
+      const animation = el.animate(
+        [
+          { transform: `${x} translateY(100%) scaleY(0)`, opacity: 0 },
+          { transform: `${x} translateY(0) scaleY(1)`, opacity: 1 },
+        ],
+        { duration: RISE_MS, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
+      );
+      animation.id = RISE_ID;
+      animation.currentTime = progress;
+    };
+    if (known && !known.has(indicator.id) && (added || filledBlank) && from?.id !== indicator.id) {
+      el.getAnimations().forEach(a => a.cancel());
+      if (!reduced) rise();
+      return;
+    }
+    if (!from || from.left === indicator.left) return;
+    // Opening a tab shrinks the tabs before it (their widths follow the tab count), so the new tab moves while its
+    // underline is still rising: keep rising from where it is, at the tab's new position, instead of sliding over.
+    const rising = from.id === indicator.id ? el.getAnimations().find(a => a.id === RISE_ID && a.playState === 'running') : undefined;
+    if (rising) {
+      const progress = Number(rising.currentTime ?? 0);
+      rising.cancel();
+      rise(progress);
+      return;
+    }
     if (from.id === indicator.id) {
       el.getAnimations().forEach(a => a.cancel());
       if (!reduced && drag.current?.id !== indicator.id) {
@@ -223,7 +349,9 @@ export function NavTabBar({
   // just before a reorder so the tabs that move can slide from where they were seen.
   const positions = useRef<Record<string, number>>({});
   const snapshot = () => {
-    const listLeft = listRef.current?.getBoundingClientRect().left ?? 0;
+    const list = listRef.current;
+    // In list coordinates: a crowded list may be scrolled sideways
+    const listLeft = (list?.getBoundingClientRect().left ?? 0) - (list?.scrollLeft ?? 0);
     for (const t of tabs) {
       const el = wrapper(t.id);
       if (el) positions.current[t.id] = el.getBoundingClientRect().left - listLeft;
@@ -249,7 +377,9 @@ export function NavTabBar({
     const list = listRef.current;
     const el = d && wrapper(d.id);
     if (!d?.active || !list || !el) return null;
-    const left = Math.max(0, Math.min(list.offsetWidth - el.offsetWidth, d.lastX - list.getBoundingClientRect().left - d.grab));
+    // In list coordinates (offsetLeft), which include any sideways scroll of a crowded list
+    const pointer = d.lastX - list.getBoundingClientRect().left + list.scrollLeft;
+    const left = Math.max(0, Math.min(list.scrollWidth - el.offsetWidth, pointer - d.grab));
     const dx = left - el.offsetLeft;
     el.style.transform = `translateX(${dx}px)`;
     if (d.id === activeId) indicatorRef.current?.style.setProperty('--dx', `${dx}px`);
@@ -387,9 +517,15 @@ export function NavTabBar({
   };
 
   return (
-    <div className={[styles.bar, className].filter(Boolean).join(' ')}>
+    <div ref={barRef} className={[styles.bar, className].filter(Boolean).join(' ')}>
       {onHome && <NavTabSmall icon="home" label={homeLabel} onClick={onHome} />}
-      <div ref={listRef} role="tablist" aria-label={ariaLabel} className={styles.list} onKeyDown={onKeyDown}>
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label={ariaLabel}
+        className={styles.list}
+        onKeyDown={onKeyDown}
+      >
         {tabs.map((t, i) => (
           <NavTab
             key={t.id}
@@ -406,6 +542,8 @@ export function NavTabBar({
             }}
             dragProps={dragProps(t.id)}
             dragging={dragId === t.id}
+            compact={compact}
+            minWidth={compact ? undefined : fit.minWidths[t.id]}
           />
         ))}
         {indicator && (
@@ -418,6 +556,15 @@ export function NavTabBar({
         )}
       </div>
       {onAdd && <NavTabSmall icon="plus" label={addLabel} onClick={onAdd} />}
+      {onShowAll && (
+        <NavTabSmall
+          icon="dashboard"
+          label={showAllLabel ?? `All tabs (${tabs.length})`}
+          aria-haspopup="dialog"
+          className={styles.showAll}
+          onClick={onShowAll}
+        />
+      )}
     </div>
   );
 }

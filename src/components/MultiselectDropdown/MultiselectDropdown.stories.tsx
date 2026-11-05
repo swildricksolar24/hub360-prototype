@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Web Components/MultiselectDropdown',
+  title: 'Components/Forms/MultiselectDropdown',
   component: MultiselectDropdown,
   args: { options: STATE_OPTIONS, label: 'States', placeholder: 'Select' },
   decorators: [Story => <div style={{ maxWidth: 360, minHeight: 240 }}><Story /></div>],

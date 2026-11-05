@@ -5,7 +5,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Navigation/SideMenuButton',
+  title: 'Components/Navigation/SideMenuButton',
   component: SideMenuButton,
   args: { label: 'Label', icon: 'arrow-up', tier: 1, variant: 'default' },
   argTypes: {

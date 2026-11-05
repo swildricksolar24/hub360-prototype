@@ -3,7 +3,7 @@ import { NotificationBox, type NotificationType } from './NotificationBox';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Web Components/NotificationBox',
+  title: 'Components/Feedback/NotificationBox',
   component: NotificationBox,
   args: {
     type: 'chat',

@@ -3,7 +3,7 @@ import { Rating } from './Rating';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Web Components/Rating',
+  title: 'Components/Forms/Rating',
   component: Rating,
   args: { value: 3.5, max: 5, label: 'Label' },
   argTypes: {

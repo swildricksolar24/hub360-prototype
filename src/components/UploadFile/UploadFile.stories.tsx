@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Web Components/UploadFile',
+  title: 'Components/Forms/UploadFile',
   component: UploadFile,
   args: { accept: '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.csv', multiple: false, onFiles: files => console.log(files.map(f => f.name)) },
 } satisfies Meta<typeof UploadFile>;

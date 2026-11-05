@@ -11,7 +11,7 @@ const WORKSPACES = [
 ];
 
 const meta = {
-  title: 'Custom/MainDropDown',
+  title: 'Components/Navigation/MainDropDown',
   component: MainDropDown,
   args: { options: WORKSPACES, 'aria-label': 'Workspace', icon: 'account', defaultValue: 'st' },
   argTypes: { icon: { control: 'select', options: iconNames } },

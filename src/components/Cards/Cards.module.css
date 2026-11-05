@@ -1,0 +1,94 @@
+/*
+ * Figma "- Cards" page. Both cards: a 1px Gray Stroke/Disabled border (drawn inset, so it never shifts layout), 24px
+ * padding inside it (Figma counts the border in the layout, hence 24 + 1) and Corner Radius/12.
+ */
+
+/* ---------- Card / Large (3085:7392): Surfaces/Sunken, 24px between the title and the content ---------- */
+.large {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  min-width: 0;
+  box-sizing: border-box;
+  padding: calc(var(--space-24) + var(--stroke-width-1));
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+  font-family: var(--font-family-inter);
+}
+/* Title row: 8px above and below, then a 1px Gray Stroke/Strong rule (Figma counts it in the layout) */
+.largeHead {
+  padding: var(--space-8) 0 calc(var(--space-8) + var(--stroke-width-1));
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-strong);
+}
+.largeTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  font-weight: 700;
+}
+.largeBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+}
+
+/* ---------- Card / Row / Small (3085:7384): Surfaces/Overlay, picture · text · action, 24px apart ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  min-width: 0;
+  box-sizing: border-box;
+  padding: calc(var(--space-24) + var(--stroke-width-1));
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+  font-family: var(--font-family-inter);
+}
+/*
+ * Variant2: Brand Teal Fill/Weaker. It's a 10% tint, so it's layered over Overlay to stay opaque on any background
+ * (Figma shows the tint alone).
+ */
+.row[data-highlighted] {
+  background: linear-gradient(var(--color-brand-teal-fill-weaker), var(--color-brand-teal-fill-weaker)) var(--color-surfaces-overlay);
+}
+.media {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 80px; /* Figma picture box; component dimension, no token */
+  height: 80px;
+}
+/* Stretches the picture to the box. Doubled class plus [class]: outranks a component's own size rule (Avatar Medium is 62px) */
+.media.media > [class],
+.media > * {
+  width: 100%;
+  height: 100%;
+}
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--color-gray-text-strong);
+}
+.rowTitle {
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+  font-weight: 700;
+}
+.subtitle {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+}
+.action {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-12);
+}

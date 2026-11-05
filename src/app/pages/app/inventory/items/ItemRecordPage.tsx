@@ -19,7 +19,7 @@ import { STOCK_COLUMN_OPTIONS, StockTable } from './StockTable';
 import { Card } from './shared';
 import record from '../record.module.css';
 import styles from './items.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 /** The record's tabs for each type (ITEMS.md "How the pieces relate"). */
 const TABS: Record<ItemType, { id: string; label: string }[]> = {

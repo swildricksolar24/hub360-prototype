@@ -12,7 +12,7 @@ const ARTICLE = {
 const CATEGORY = { title: 'Inventory', description: 'Warehouses, items, stock and orders', count: '24 articles' };
 
 const meta = {
-  title: 'Custom/HelpCenter',
+  title: 'Templates/HelpCenter',
   component: HelpArticleRow,
   args: { ...ARTICLE, type: 'compact', href: '#' },
   argTypes: { type: { control: 'inline-radio', options: ['compact', 'result'] } },

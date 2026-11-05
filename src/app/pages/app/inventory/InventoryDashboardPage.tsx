@@ -5,9 +5,10 @@ import { Button } from '../../../../components/Button/Button';
 import { Dropdown } from '../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
+import { Tile } from '../../../../components/Tile/Tile';
 import { useWarehouses } from './warehouseStore';
 import styles from './dashboard.module.css';
-import { Toast } from '../../../components/Toast';
+import { Toast } from '../../../../components/Toast/Toast';
 
 const ORDERS_PATH = '/app/inventory/orders';
 const ITEMS_PATH = '/app/inventory/items';
@@ -123,18 +124,11 @@ export function InventoryDashboardPage() {
 
       {notice && <Toast type="info" title={notice} onClose={() => setNotice(null)} />}
 
-      {/* Figma "Tile / KPI" (design-system library, was "KPI Tile (Proposed)") */}
+      {/* Design-system Tile (Figma "Tile / KPI") */}
       <ul className={styles.kpis} aria-label="Key figures">
         {KPIS.map(k => (
           <li key={k.label}>
-            <button type="button" className={styles.kpi} onClick={() => navigate(k.to)}>
-              <span className={styles.kpiLabel}>
-                <Icon name={k.icon} size={20} color="currentColor" />
-                {k.label}
-              </span>
-              <span className={styles.kpiValue}>{k.value}</span>
-              <span className={styles.kpiNote}>{k.note}</span>
-            </button>
+            <Tile icon={k.icon} label={k.label} value={k.value} note={k.note} onClick={() => navigate(k.to)} />
           </li>
         ))}
       </ul>

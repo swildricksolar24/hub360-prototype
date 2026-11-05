@@ -3,7 +3,7 @@ import { Timeline, TimelineConnector, TimelineStep, type TimelineStepPosition, t
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Web Components/Timeline',
+  title: 'Components/Data Display/Timeline',
   component: Timeline,
   args: { steps: ['Step', 'Step', 'Step', 'Step'], current: 2, label: 'Order progress' },
   argTypes: { current: { control: { type: 'range', min: 0, max: 4 } } },

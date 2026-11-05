@@ -3,7 +3,7 @@ import { Progress } from './Progress';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Web Components/Progress',
+  title: 'Components/Feedback/Progress',
   component: Progress,
   args: { value: 50, max: 100, variant: 'bar', showValue: true, label: 'Upload progress' },
   argTypes: {

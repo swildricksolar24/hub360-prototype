@@ -52,6 +52,19 @@ const preview: Preview = {
   parameters: {
     layout: 'padded',
     controls: { expanded: true },
+    // Sidebar folder order, the same as the Figma file's sections (design-system/TAXONOMY-MAPPING.md). Components
+    // inside each folder, and stories inside each component, keep their file order.
+    options: {
+      storySort: {
+        order: [
+          'Foundations',
+          'Primitives',
+          'Components',
+          ['Forms', 'Feedback', 'Overlays', 'Data Display', 'Navigation'],
+          'Templates',
+        ],
+      },
+    },
     docs: defaultTheme === 'dark' ? { theme: darkDocs } : {},
   },
 };

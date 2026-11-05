@@ -29,7 +29,7 @@ const settings: NavItem[] = [
 ];
 
 const meta = {
-  title: 'Navigation/NavTier1',
+  title: 'Components/Navigation/NavTier1',
   component: NavTier1,
   args: { items: sections, value: 'dashboard', compact: false },
 } satisfies Meta<typeof NavTier1>;

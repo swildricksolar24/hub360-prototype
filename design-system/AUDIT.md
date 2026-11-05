@@ -166,9 +166,31 @@ A scan of every page found colors not bound to a variable in nine live component
 - **Card / Row / Small** and **Card / Large:** the 8% #191b26 stroke is bound to Gray Stroke/Disabled (10%).
 - **Upload File:** the "browse" link (#0063a0) is bound to Semantic Text/Information, as in the coded UploadFile.
 
+Card radius (2026-11-04): **Card / Large** and **Card / Row / Small** (both variants) had an unbound 16px corner
+radius, which isn't on the radius scale. They're now bound to Corner Radius/12, the radius of the app's other cards and
+of the coded `CardLarge` / `CardRow`.
+
 Still raw by design: the logos (brand artwork), the Pointer annotation arrow, the **Skeleton Gradient** paint style
 (three grays), documentation layers on the foundation pages, and the "not used" and Testing pages. Figma's purple
 component-set outline isn't a design color.
+
+## Prototype changes pushed to Figma (2026-11-04)
+
+Pushed from the code to the Base library with `/push-figma`, **not yet published**.
+
+| Set | Change |
+|---|---|
+| Card / Tabs (3264:5922) | "Property 1" renamed **State**: Tabs → Default, Variant2 → Current. Added **Hover** (Brand Teal Fill/Weaker) and **Focus** (Gray Stroke/Weak border). Current gets the "Current" badge (Brand Teal Fill/Strong, Tiny/Semi Bold white, Corner Radius/40). The preview's raw #D9D9D9 is now Gray Fill/Weaker. 2 → 4 variants. |
+| Tile / KPI (3168:3913) | Added **Focus** (Gray Stroke/Weak border) and **Disabled** (50% opacity). 2 → 4 variants. |
+| Tab Label (1994:326) | Added **Compact** and **Compact Hover**: icon only, label hidden, 12/4 padding, 4 gap, 52px; the close is invisible in Compact. 2 → 4. |
+| Tab Button (1994:336) | Added **Compact Active** and **Compact Inactive** on the compact label. 3 → 5. |
+| Tab Bar (2133:4457) | All 4 variants get an **All tabs** button (Tab Small, Dashboard icon) at the far right after a spacer. Added **Active Tab = Crowded**: 24 icon-only tabs, a Draft "new tab" last. 4 → 5. |
+| Tier 1 (708:1635) | The Dashboard item's icon is **Home** in both variants (Sites also uses Home there). |
+| Toast (3079:263) | Description only (code path updated). |
+
+Found while pushing, not changed: the leading icon inside Tab Label Default and Hover (2133:4432 and its Hover copy) is at **0% opacity**, so turning on *Show Icon* shows nothing. The compact variants set it to 100%.
+
+After publishing: the "_Sign In / Shell" file's Modal page got **All Tabs Overview / Light** (1096:1100) and **/ Dark** (1095:806), built from the published Tab Bar (Active Tab = Fourth), Card / Tabs, Outline button, icon button and the Modal Screen* overlay, with an annotation for the behaviour Figma can't show. Card / Tabs' close button was then pinned to the right edge (constraint Right) so it follows narrower cards; after a second publish the Shell screens' cards were replaced with fresh instances (the close sits 32px from the right on the 285px cards).
 
 ## Token coverage
 
@@ -219,7 +241,7 @@ component-set outline isn't a design color.
 |---|---|---|
 | **Status asterisks in names.** 60 sets and 38 pages end in `*` (e.g. `Icon*`, `Large*`, `Brand / Orange/ Primary / Icon*`). A few descriptions say the asterisk means "Under UX/UI review"; for most there's no explanation. | Throughout | Remove the `*` from names. Track status in the description, a page status emoji, or Figma's Ready-for-dev marking. Names flow into code and Code Connect. |
 | **Generic set names** that only make sense with the page as context: `Default` ×9, `Small` ×7, `Large` ×4, `Medium` ×2, `Icon` ×3, `Primary` ×2, `Brand`, `Text`, `Label`, `Number`, `Parts`. | Checkbox, Tag, Hyperlink, Text Area, Drop Down, Toggle, Tooltip, Avatar… | Fully qualify names: `Checkbox / Default`, `Tag / Small`. Assets-panel search currently returns 9 indistinguishable "Default" sets. |
-| **Duplicate names.** Two `Message` sets on one page (503:3072, 503:3176). Two `Breadcrumb` pages (Primitive and Web). Two `Tab Bar` pages (Web and Main Nav). `Header`/`Footer` exist in both Holder and Nav. `Chip` vs `chips` vs Chip page. `Box*` vs `box*`. | Several | Merge them, or rename each to say how it differs. |
+| **Duplicate names.** Two `Message` sets on one page (503:3072, 503:3176). Two `Breadcrumb` pages (Primitive and Web; the Web page was deleted Nov 4, 2026). Two `Tab Bar` pages (Web and Main Nav). `Header`/`Footer` exist in both Holder and Nav. `Chip` vs `chips` vs Chip page. `Box*` vs `box*`. | Several | Merge them, or rename each to say how it differs. |
 | **Spacing and casing in paths.** `Brand / Orange/ Primary*`, `Side Menu / Tier 1 /Compact`, `TimeLine` (page is "Timeline"), lowercase `chips`, `box*`. | Button Base, Side Menu, Timeline | Use ` / ` with a space on both sides and Title Case. |
 | **`State` used for non-state values.** Examples: `Part - Horizontal` State = Left/Center/Right; `Drop Down Label` State = "Default - Light", "Required", "Default - No Label"; Sub Menu State = Tiny/Text; Tier 2 State = Label; Tab Button State = "First / Last"; Header Item State = "Default - 2 Icons". | ~12 sets | Split these into separate axes (`Position`, `Size`, `Required` boolean, `Show Label` boolean). Keep `State` for interaction state only. |
 | **Generic property names.** `Property` (Timeline › Status Step), `Variant` (Menu Bar). | 2 sets | Rename them (e.g. `Position`). |

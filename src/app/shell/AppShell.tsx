@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { Footer } from '../../components/Footer/Footer';
 import { Header } from '../../components/Header/Header';
@@ -7,6 +7,8 @@ import { NavTabBar } from '../../components/NavTabBar/NavTabBar';
 import { NavTier1 } from '../../components/NavTier1/NavTier1';
 import { NavTier2 } from '../../components/NavTier2/NavTier2';
 import { AccountMenu } from './AccountMenu';
+import { AllTabsModal } from './AllTabsModal';
+import { capturePreview, whenIdle } from './tabPreviews';
 import { InboxModal, useInbox, type ShellContext } from './InboxModal';
 import { APP_VERSION, DEFAULT_SECTION, LEGAL_LINKS, SECTIONS, findSection, locationLabel, sectionPath } from './navigation';
 import { useMediaQuery } from './useMediaQuery';
@@ -17,15 +19,22 @@ const HOME_PATH = `/app/${DEFAULT_SECTION}`;
 /** Pages outside the sections (from the header, account menu and the tab bar's +): their tab label and icon. */
 const UTILITY_PAGES: Record<string, { label: string; icon?: string }> = {
   account: { label: 'Account Settings', icon: 'account' },
-  help: { label: 'Help', icon: 'life-preserver' },
-  'new-tab': { label: 'New Tab' },
+  help: { label: 'Help', icon: 'question-mark-help' },
+  // A tab added with +: the Icon Library's Draft icon (an empty page)
+  'new-tab': { label: 'New Tab', icon: 'draft' },
 };
 
 /** Blank tabs from the tab bar's + live at /app/new-tab/<n>, one path per tab. */
 const NEW_TAB = '/app/new-tab/';
 
-/** A tab shows the page name with that page's icon; `title` is the full "Section · Page" name. */
-type Tab = { id: string; label: string; icon?: string; title: string };
+/** How long after a page opens its preview is taken (ms): long enough for it to finish loading and animating. */
+const PREVIEW_DELAY_MS = 1000;
+
+/**
+ * A tab shows the page name with that page's icon; `title` is the full "Section · Page" name. `blank` marks a New Tab
+ * from the tab bar's +, so the bar knows when one turns into a page.
+ */
+type Tab = { id: string; label: string; icon?: string; title: string; blank?: boolean };
 
 /**
  * Figma "Shell" (798:4096 and its Tier variants): Tab Bar, Header, Tier 1 rail, optional Tier 2 menu,
@@ -118,7 +127,7 @@ export function AppShell() {
         const others = open.filter(t => t.id !== from);
         if (others.some(t => t.id === pathname)) return others;
       } else if (open.some(t => t.id === pathname)) return open;
-      const tab = { id: pathname, label: shortLabel, icon: tabIcon, title: label };
+      const tab = { id: pathname, label: shortLabel, icon: tabIcon, title: label, blank: pathname.startsWith(NEW_TAB) };
       if (replaceTab && open.some(t => t.id === from)) return open.map(t => (t.id === from ? tab : t));
       // (another + keeps the blank tab and opens a second one)
       const fills = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
@@ -141,6 +150,40 @@ export function AppShell() {
     if (id === pathname) navigate(remaining[Math.max(0, index - 1)]?.id ?? '/app');
   }
 
+  // The tab bar's "All tabs" button: every open tab as cards in a modal (Figma Shell file, "All Tabs Overview")
+  const [allTabsOpen, setAllTabsOpen] = useState(false);
+
+  // Previews for those cards: a small picture of each tab's page content (<main>), taken while the tab is on screen,
+  // since only the current tab's page is rendered. Taken about a second after a page loads (when the browser is
+  // idle) and again as the overview opens; kept in memory per tab, dropped when the tab closes.
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const currentPath = useRef(pathname);
+  currentPath.current = pathname;
+  const capture = useCallback(async (id: string) => {
+    const main = document.getElementById('main');
+    if (!main) return;
+    const image = await capturePreview(main);
+    // Keep it only if that tab is still the one showing (the user may have moved on while it was taken)
+    if (image && id === currentPath.current) setPreviews(open => ({ ...open, [id]: image }));
+  }, []);
+  useEffect(() => {
+    if (pathname === '/app') return;
+    let cancelIdle = () => {};
+    const timer = window.setTimeout(() => {
+      cancelIdle = whenIdle(() => void capture(pathname));
+    }, PREVIEW_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+      cancelIdle();
+    };
+  }, [pathname, capture]);
+  useEffect(() => {
+    setPreviews(open => {
+      const kept = Object.fromEntries(Object.entries(open).filter(([id]) => tabs.some(t => t.id === id)));
+      return Object.keys(kept).length === Object.keys(open).length ? open : kept;
+    });
+  }, [tabs]);
+
   // Header search: Enter jumps to the first section or page whose name matches.
   function onSearchKey(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key !== 'Enter') return;
@@ -162,6 +205,16 @@ export function AppShell() {
         onSelect={navigate}
         onClose={closeTab}
         onReorder={ids => setTabs(open => ids.map(id => open.find(t => t.id === id)!).filter(Boolean))}
+        // The All tabs button only appears once more than one tab is open
+        onShowAll={
+          tabs.length > 1
+            ? () => {
+                setAllTabsOpen(true);
+                // refresh the current tab's preview (the overview sits outside <main>, so it isn't in the picture)
+                void capture(pathname);
+              }
+            : undefined
+        }
         onHome={() => navigate('/app')}
         onAdd={openNewTab}
       />
@@ -179,7 +232,7 @@ export function AppShell() {
           { id: 'notifications', icon: 'notification', label: 'Notifications', count: inbox.unread('notifications'), onClick: () => inbox.open('notifications') },
           { id: 'messages', icon: 'chat', label: 'Messages', count: inbox.unread('messages'), onClick: () => inbox.open('messages') },
           { id: 'email', icon: 'email', label: 'Email', count: inbox.unread('email'), onClick: () => inbox.open('email') },
-          { id: 'help', icon: 'life-preserver', label: 'Help', onClick: () => navigate('/app/help') },
+          { id: 'help', icon: 'question-mark-help', label: 'Help', onClick: () => navigate('/app/help') },
         ]}
         avatar={<AccountMenu />}
       />
@@ -219,6 +272,19 @@ export function AppShell() {
         copyright="© 2026 HUB360, All Rights Reserved"
         version={`Version: ${APP_VERSION}`}
         links={LEGAL_LINKS}
+      />
+      <AllTabsModal
+        open={allTabsOpen}
+        tabs={tabs}
+        previews={previews}
+        activeId={pathname}
+        onSelect={id => {
+          setAllTabsOpen(false);
+          if (id !== pathname) navigate(id);
+        }}
+        onCloseTab={closeTab}
+        onCloseOthers={() => setTabs(open => open.filter(t => t.id === pathname))}
+        onClose={() => setAllTabsOpen(false)}
       />
       <InboxModal
         kind={inbox.openKind}

@@ -35,7 +35,7 @@ import {
 import styles from './record.module.css';
 import table from './table.module.css';
 import listStyles from './warehouses.module.css';
-import { Toast } from '../../../components/Toast';
+import { Toast } from '../../../../components/Toast/Toast';
 
 const LIST_PATH = '/app/inventory/warehouses';
 

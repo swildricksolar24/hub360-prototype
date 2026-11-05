@@ -5,7 +5,7 @@ import { SCREENS, TENANT_SCREEN } from './figmaScreens';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Custom/DataHeader',
+  title: 'Components/Data Display/DataHeader',
   component: DataHeader,
   args: { columns: SCREENS[0].columns, leading: 'checkbox-avatar', corners: 'all', actions: true },
   argTypes: {

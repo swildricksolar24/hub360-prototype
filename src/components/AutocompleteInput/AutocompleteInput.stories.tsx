@@ -6,7 +6,7 @@ import { pseudoStates } from '../../storybook/StateGrid';
 const OPTIONS = ['Smashburger', 'Smart & Final', 'Smallville', 'Smashing Pumpkins', 'Safeway', 'Starbucks', 'Subway'];
 
 const meta = {
-  title: 'Primitives/AutocompleteInput',
+  title: 'Components/Forms/AutocompleteInput',
   component: AutocompleteInput,
   args: { label: 'Search places', options: OPTIONS },
   decorators: [Story => <div style={{ maxWidth: 350, minHeight: 260 }}><Story /></div>],

@@ -57,7 +57,7 @@ Each component gets a folder `src/components/<Name>/` with three files:
 
 ## 3. Write the stories
 
-- **Title:** follow the Figma section: `Primitives/<Name>`, `Web Components/<Name>`, `Custom/<Name>`, `Navigation/<Name>` or `Foundations/<Name>`.
+- **Title:** follow the Figma section: `Foundations/<Name>`, `Primitives/<Name>`, `Components/Forms/<Name>`, `Components/Feedback/<Name>`, `Components/Overlays/<Name>`, `Components/Data Display/<Name>`, `Components/Navigation/<Name>` or `Templates/<Name>`. Primitives are single elements; anything built from other components goes under Components. The sidebar lists the folders in that order (`storySort` in `.storybook/preview.tsx`); a new folder needs adding there and as a Figma section.
 - **`Playground` story:** live controls.
 - **One story per Figma component set:**
   - Spread `figma(nodeId, 'Page › Set name')` from `src/storybook/figma.ts` into `parameters`.

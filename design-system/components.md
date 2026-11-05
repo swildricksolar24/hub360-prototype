@@ -3,12 +3,16 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**190 component sets + 10 standalone components** across 79 pages (Toast and Drop Down Menu added Nov 2, 2026; the Data Table page Nov 3, 2026). Nine of them sit on Testing and "not used" pages.
+**190 component sets + 10 standalone components** on 81 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4). Nine of them sit on Testing and "not used" pages.
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
-Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. No component in the file has an INSTANCE_SWAP property.
+Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. Tile / KPI's `Icon` is the only INSTANCE_SWAP property in the file.
 
 **In code:** every set below has a coded component in `src/components/`, except those under "Scaffolding, testing and unused", and `_Fake logo`. Several Figma sets usually map to one component with props. Each Storybook story names the Figma set it shows and links to it. `src/design-system.md` lists the components by Storybook group.
+
+Sections follow the Figma file (regrouped Nov 4, 2026; see `TAXONOMY-MAPPING.md`). Components on "not used" pages are listed under the group they would belong to.
+
+State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, Disabled, Error, Focus, Hover, Press · ³ Default, Hover, Press, Focus, Disabled, Error
 
 ## Foundations
 
@@ -27,11 +31,11 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Icon Library | Icon / Arrow | 23:137 | 4 | Direction | — |
 | Icon Library | Icon / Chevron | 32:920 | 6 | Direction (+ Double Up/Down) | — |
 | Icon Library | Icon / Last | 692:1076 | 4 | Direction | — |
-| Icon Library | Icon / Material | 56:932 | 95 | Icon | — |
+| Icon Library | Icon / Material | 56:932 | 97 | Icon (Draft added Nov 4, 2026) | — |
 | Colors | Block | 949:2217 | — | standalone | — |
 | Arrows | Pointer | 774:1557 | 2 | Type (Straight, Elbow) | — |
 
-## Primitive components
+## Primitives
 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
@@ -39,11 +43,8 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Avatar* | Medium | 429:13 | 3 | Type | — |
 | Avatar* | Small | 429:22 | 3 | Type | — |
 | Avatar* | Icon* | 1786:3173 | 3 | Size (Large, Medium, Small) | — |
-| AppBar* | AppBar* | 477:906 | 1 | State | — |
 | Badge | Round | 416:1806 | 5 | Color (Amber, Blue, Green, Red, Black) | Label |
 | Badge | Pill | 416:1819 | 5 | Color | Label |
-| Breadcrumb | Parts | 1537:1525 | 2 | Position (Start, Next) | Label |
-| Breadcrumb | Default | 1537:1545 | 4 | Levels (1–4) | — |
 | Button Base* | Base / Outline / Icon* | 25:230 | 6 | State¹ | Label |
 | Button Base* | Base / Outline* | 24:214 | 6 | State¹ | Label |
 | Button Base* | Base / Primary / Icon | 629:917 | 6 | State¹ | Label |
@@ -51,24 +52,16 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Button Base* | Brand / Teal / Primary* | 1751:3499 | 6 | State¹ | — |
 | Button Base* | Brand / Orange/ Primary* | 1751:3510 | 6 | State¹ | — |
 | Button Base* | Brand / Teal / Primary / Icon* | 1751:3521 | 6 | State¹ | Show Icon |
+| Button Large Brand | Brand / Teal / Outline (added Nov 4, 2026; Button `variant="brand-outline"`) | 3234:4981 | 6 | Property 1 (Default, Hover, Press, Selected, Focus, Disabled) | — |
 | Button Base* | Brand / Orange/ Primary / Icon* | 1751:3532 | 6 | State¹ | Show Icon |
 | Button Block* | Primary / Icon | 25:376 | 6 | State¹ | Label |
 | Button Block* | Primary | 25:408 | 6 | State¹ | Label |
 | Button Block* | Primary / Outline | 25:430 | 6 | State¹ | Label |
 | Button Block* | Brand / Default* | 1751:3585 | 6 | State¹ | — |
 | Button Block* | Brand / Icon* | 1751:3596 | 6 | State¹ | Label |
-| Button Group* | Part - Vertical | 79:1642 | 6 | Position (Top, Bottom, Center) × State (Default, Hover) | — |
-| Button Group* | Part - Horizontal | 28:751 | 6 | State (Left, Center, Right, + Hover of each) | — |
-| Button Group* | Button Group / Horizontal* | 523:795 | 4 | Position × State | — |
-| Button Group* | Button Group / Vertical* | 523:821 | 4 | Position × State | — |
 | Button Icon | Icon | 25:355 | 6 | State¹ | — |
 | Button Icon | Brand | 2388:4991 | 6 | State¹ | — |
 | Button Icon | Number | 692:1041 | 6 | State¹ | Label |
-| Button Side Menu | Side Menu / Tier 1 / Default | 683:2282 | 6 | State¹ | Label |
-| Button Side Menu | Side Menu / Tier 1 /Compact | 2171:2645 | 6 | State¹ | Label |
-| Button Side Menu | Side Menu / Tier 2 / Default | 685:196 | 6 | State¹ | Label |
-| Button Side Menu | Side Menu / Tier 2 / Label | 2190:5985 | 6 | State¹ | Label |
-| Button Side Menu | Side Menu / Tier 2 / Compact | 2171:2677 | 6 | State¹ | Label |
 | Button Small* | Outline / Icon* | 401:347 | 6 | State¹ | Label |
 | Button Small* | Outline / Default | 401:363 | 6 | State¹ | Label |
 | Button Small* | Primary / Icon | 401:401 | 6 | State¹ | Label |
@@ -93,31 +86,12 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Checkbox | Default - Icon* | 2499:4513 | 6 | State² | Label, Show Checkmark |
 | Checkbox | Small | 363:5386 | 6 | State² | Label, Show Checkmark |
 | Checkbox | Small - Icon | 2417:3224 | 6 | State² | Label, Show Checkmark |
-| Drop Down Label | Default | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
-| Drop Down Label | chips | 2676:6014 | 1 | State | — |
-| Drop Down Label | Drop Down Menu (component, added Nov 2, 2026) | 3078:320 | 1 | — | — |
-| Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
-| Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
-| Drop Down Button* | Default | 56:936 | 6 | State³ | Select |
-| Drop Down Button* | Small | 478:1190 | 6 | State³ | Select |
-| Editable Cell | Editable Cell | 2903:32 | 7 | Type (Input, Select, Read Only) × State (Default, Error, Hover) | Value |
 | Hyperlink* | Large* | 209:3842 | 5 | State (Default, Disabled, Focus, Hover, Press) | Label |
 | Hyperlink* | Medium | 195:3817 | 5 | State | Label |
 | Hyperlink* | Small | 385:5469 | 5 | State | Label |
 | Last Modified | Date | 2328:3773 | 1 | State | Label |
-| ListBox* | List Item / Icon | 432:998 | 6 | State² | Label |
-| ListBox* | List Item / Avatar | 432:1109 | 6 | State² | Label |
-| ListBox* | List Item / Tree | 500:2049 | 6 | State² | Label |
-| ListBox* | List Item / Checkbox | 432:1053 | 6 | State² | — |
-| ListBox* | List Item / Category | 433:1484 | 1 | State | — |
-| ListBox* | List Item / Default | 433:1149 | 6 | State² | Label |
-| ListBox* | ListViews* | 433:1231 | 5 | Type (Default, Avatar, Category, Checkbox, Chevron) | — |
-| ListBox* | Tree List* | 501:2238 | 1 | State | — |
-| OTP Input* | OTP Input* | 414:1616 | 6 | State² | Label |
-| Overlay | Overlay | 717:18047 | — | standalone | — |
 | Radio Button* | Default* | 397:1297 | 6 | State² | Label, Show Selected |
 | Radio Button* | Hint* | 2330:3837 | 6 | State² | Label, Show Selected, Description |
-| Skeleton* | Skeleton* | 521:345 | 4 | Shape (Circle, Bar, Block, Square) | — |
 | Tag* | Tiny | 2610:6045 | 6 | State¹ | Label |
 | Tag* | Small | 339:4909 | 6 | State¹ | Label |
 | Tag* | Outline* | 339:4922 | 6 | State¹ | Label |
@@ -127,23 +101,39 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Text Input - Label* | Left Icon* | 277:4338 | 7 | State² + Required | Label, Placeholder, Error |
 | Text Input - Label* | Right Icon | 303:4430 | 7 | State² + Required | Label, Placeholder, Error |
 | Text Input - Label* | Right Double Icon | 2717:185 | 7 | State² + Required | Label, Placeholder, Error |
-| Text Input - Autocomplete* | Text Input - Autocomplete* | 449:2189 | 4 | State (Default, Activated Search, Active Input, Selected) | — |
-| Text Input - Numeric* | Text Input - Numeric* | 397:691 | 6 | State² | Label, Placeholder, Error |
 | Toggle | Label | 2282:1930 | 12 | Position × Size × State (On, Off, Disabled) | Label |
 | Toggle | Large | 404:186 | 3 | State (On, Off, Disabled) | — |
 | Toggle | Small | 2283:1939 | 3 | State (Off, On, Disabled) | — |
 | Toggle | Toggle Button | 2634:295 | 1 | State × Size | — |
-| Tooltip* | Large* | 435:368 | 4 | Position (Top, Bottom, Left, Right) | Label |
-| Tooltip* | Small* | 497:785 | 4 | Position | Label |
+| Scrollbar | Scrollbar | 431:266 | 1 | State | — |
 
-¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, Disabled, Error, Focus, Hover, Press · ³ Default, Hover, Press, Focus, Disabled, Error
-
-## Web components
+## Components › Forms
 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
-| Drop Down - Accordion* | Categories | 476:5 | 4 | Type (Item, Category) × State | Show Icon |
-| Drop Down - Accordion* | Drop Down - Accordion* | 477:64 | 2 | State (Default, Open) | — |
+| Button Group* | Part - Vertical | 79:1642 | 6 | Position (Top, Bottom, Center) × State (Default, Hover) | — |
+| Button Group* | Part - Horizontal | 28:751 | 6 | State (Left, Center, Right, + Hover of each) | — |
+| Button Group* | Button Group / Horizontal* | 523:795 | 4 | Position × State | — |
+| Button Group* | Button Group / Vertical* | 523:821 | 4 | Position × State | — |
+| Drop Down Label | Default | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
+| Drop Down Label | chips | 2676:6014 | 1 | State | — |
+| Drop Down Label | Drop Down Menu (component, added Nov 2, 2026) | 3078:320 | 1 | — | — |
+| Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
+| Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
+| Drop Down Button* | Default | 56:936 | 6 | State³ | Select |
+| Drop Down Button* | Small | 478:1190 | 6 | State³ | Select |
+| Editable Cell | Editable Cell | 2903:32 | 7 | Type (Input, Select, Read Only) × State (Default, Error, Hover) | Value |
+| ListBox* | List Item / Icon | 432:998 | 6 | State² | Label |
+| ListBox* | List Item / Avatar | 432:1109 | 6 | State² | Label |
+| ListBox* | List Item / Tree | 500:2049 | 6 | State² | Label |
+| ListBox* | List Item / Checkbox | 432:1053 | 6 | State² | — |
+| ListBox* | List Item / Category | 433:1484 | 1 | State | — |
+| ListBox* | List Item / Default | 433:1149 | 6 | State² | Label |
+| ListBox* | ListViews* | 433:1231 | 5 | Type (Default, Avatar, Category, Checkbox, Chevron) | — |
+| ListBox* | Tree List* | 501:2238 | 1 | State | — |
+| OTP Input* | OTP Input* | 414:1616 | 6 | State² | Label |
+| Text Input - Autocomplete* | Text Input - Autocomplete* | 449:2189 | 4 | State (Default, Activated Search, Active Input, Selected) | — |
+| Text Input - Numeric* | Text Input - Numeric* | 397:691 | 6 | State² | Label, Placeholder, Error |
 | Drop Down - Filter Chip | Default | 2678:7113 | 9 | State (…, Default - Light, Press - Alt, Required) | Label, Select |
 | Drop Down - Selector | Autocomplete / Dropdown | 451:779 | 6 | State (Default, Hover, Active, Active Input, Selected, Disabled) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Chips | 2747:6026 | 6 | State (same) | Label |
@@ -152,43 +142,51 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Drop Down - Selector | Dropdown Holder | 455:472 | 3 | State (Scrollbar, Default, Gallery) | — |
 | Drop Down - Selector | Chip | 455:696 | 1 | State | Label |
 | Captcha | Captcha | 544:60 | 2 | State (Unchecked, Checked) | — |
-| Card* | Card* | 2220:3790 | 4 | Mode (Edit, Save, Active, Title) | Label |
-| Context Menu* | Menu Item | 485:1008 | 6 | State (…, Selected added Nov 2, 2026) | Show Icon, Show Submenu, Label |
-| Context Menu* | Context Menu* | 486:92 | 1 | State | — |
-| Breadcrumb | Breadcrumb | 483:1252 | 1 | State | — |
-| Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
-| Modal* | Modal - Dynamic | 2684:8355 | 1 | State | — |
-| Modal* | Modal - Dialog* | 2831:8727 | 1 | State | Title, Description |
 | Dropdown Tree* | Dropdown Tree* | 462:1445 | 5 | State (Default, Active, Active Hover, Active Open, Selected) | — |
-| Menu Sidebar* | Menu Sidebar Item | 490:750 | 5 | State | Label |
-| Menu Sidebar* | Menu Sidebar* | 490:809 | 1 | State | — |
-| Message | Message | 503:3072 | 2 | State (Default, Hover) | Title, Body |
-| Message | Message | 503:3176 | 8 | Type (Info, Caution, Error, Success) × State | — |
-| Toast | Toast (added Nov 2, 2026; coded as the app's src/app/components/Toast.tsx) | 3079:263 | 4 | Type (Info, Success, Caution, Error) | — |
-| Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
 | Multiselect Dropdown* | Multiselect Dropdown* | 455:647 | 5 | State (Default, Active, Active Hover, Active Selected, Selected) | Select |
-| Notification Box* | Notification Box* | 744:4494 | 4 | Type (Alert, Chat, Email, Read) | — |
-| Progress Bar* | Progress Bar* | 520:583 | 2 | Style (Default, With Percentage) | — |
-| Progress Bar* | Progress Circle | 520:588 | 2 | Style | — |
 | Rating* | Rating* | 408:370 | 1 | State | Label |
-| Scrollbar | Scrollbar | 431:266 | 1 | State | — |
 | Search Bar | Search Input | 605:10332 | 5 | State (Default, Active, Disabled, Focus, Hover) | Label |
 | Search Bar | Searched List Type | 2539:4739 | 4 | Type × State | Name, Nickname |
 | Signature* | Signature Pad* | 399:486 | 2 | State (Default, Active) | Label |
 | Slider* | Range Slider* | 398:1585 | 2 | State (Default, Active) | — |
-| Timeline | TimeLine | 440:1994 | 1 | State | — |
-| Timeline | Status Step | 2899:7484 | 9 | State (Done, Current, Upcoming) × Property (Start, Middle, End) | Label |
-| Timeline | Status Connector | 2900:5 | 2 | State (Done, Upcoming) | — |
-| Tab Bar* | Tab / Small | 494:266 | 5 | State (Default, Current Tab, Disabled, Focus, Hover) | — |
-| Tab Bar* | Tab / Tiny* | 742:4310 | 5 | State | — |
-| Tab Bar* | Tab Content | 494:454 | 1 | State | — |
-| Tab Bar* | Tab Bar* | 494:338 | 1 | State | — |
 | Upload Document | Upload File | 2334:4353 | 2 | State (Default, Hover) | — |
 
-## Custom components
+## Components › Feedback
 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
+| Skeleton* | Skeleton* | 521:345 | 4 | Shape (Circle, Bar, Block, Square) | — |
+| Message | Message | 503:3072 | 2 | State (Default, Hover) | Title, Body |
+| Message | Message | 503:3176 | 8 | Type (Info, Caution, Error, Success) × State | — |
+| Toast | Toast (added Nov 2, 2026; coded as src/components/Toast) | 3079:263 | 4 | Type (Info, Success, Caution, Error) | — |
+| Notification Box* | Notification Box* | 744:4494 | 4 | Type (Alert, Chat, Email, Read) | — |
+| Progress Bar* | Progress Bar* | 520:583 | 2 | Style (Default, With Percentage) | — |
+| Progress Bar* | Progress Circle | 520:588 | 2 | Style | — |
+
+## Components › Overlays
+
+| Page | Component | ID | Variants | Axes | Props |
+|---|---|---|---|---|---|
+| Overlay | Overlay | 717:18047 | — | standalone | — |
+| Tooltip* | Large* | 435:368 | 4 | Position (Top, Bottom, Left, Right) | Label |
+| Tooltip* | Small* | 497:785 | 4 | Position | Label |
+| Context Menu* | Menu Item | 485:1008 | 6 | State (…, Selected added Nov 2, 2026) | Show Icon, Show Submenu, Label |
+| Context Menu* | Context Menu* | 486:92 | 1 | State | — |
+| Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
+| Modal* | Modal - Dynamic | 2684:8355 | 1 | State | — |
+| Modal* | Modal - Dialog* | 2831:8727 | 1 | State | Title, Description |
+| Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
+
+## Components › Data display
+
+| Page | Component | ID | Variants | Axes | Props |
+|---|---|---|---|---|---|
+| Drop Down - Accordion* | Categories | 476:5 | 4 | Type (Item, Category) × State | Show Icon |
+| Drop Down - Accordion* | Drop Down - Accordion* | 477:64 | 2 | State (Default, Open) | — |
+| Card* | Card* | 2220:3790 | 4 | Mode (Edit, Save, Active, Title) | Label |
+| Timeline | TimeLine | 440:1994 | 1 | State | — |
+| Timeline | Status Step | 2899:7484 | 9 | State (Done, Current, Upcoming) × Property (Start, Middle, End) | Label |
+| Timeline | Status Connector | 2900:5 | 2 | State (Done, Upcoming) | — |
 | Data Headers* | User Headers | 707:5584 | 7 | Screen (Users, Departments, Locations, Roles, Supervisors, Tags, Notes) | — |
 | Data Headers* | Header Item | 754:2169 | 2 | State (Default, Default - 2 Icons) | Label |
 | Data Headers* | Tenant Headers* | 1098:813 | 1 | State | — |
@@ -199,18 +197,34 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Data Table | Data Table | 3131:272 | 1 | — | Header and Row 1–5 exposed |
 | Data Table | Data Table Header | 3131:247 | 1 | — | Checkbox, Actions; Column 1–5 exposed |
 | Data Table | Data Table Row | 3131:246 | 4 | State (Default, Striped, Hover, Selected) | Checkbox, Actions; Cell 1–5 exposed |
-| Main Drop Down* | Main Drop Down* | 711:13334 | 5 | State | Label |
 | Page Tracker | Tracker | 708:1452 | 1 | State | — |
-| Help Center | Help Article Row | 2903:53 | 4 | Type (Compact, Result) × State | Title, Meta, Path, Snippet |
-| Help Center | Help Category Card | 2921:7899 | 2 | State | Title, Description, Count |
+| Cards | Card / Large | 3085:7392 | 1 | Property 1 (Default) | — (content is a slot) |
+| Cards | Card / Row / Small | 3085:7384 | 2 | Property 1 (Default, Variant2 = teal) | — |
+| Cards | Card / Tabs (added Nov 4, 2026; coded in the app's All tabs overview, src/app/shell/AllTabsModal; states pushed from code Nov 4) | 3264:5922 | 4 | State (Default, Hover, Focus, Current) | — (preview, Title, Description, close button) |
+| Tiles | Tile / KPI | 3168:3913 | 4 | Property 1 (Default, Hover, Focus, Disabled) | Label, Value, Note; Icon (instance swap) |
 
-## Navigation
+## Components › Navigation
 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
-| Main Nav › Tab Bar | Tab Bar | 2133:4457 | 4 | Active Tab (First–Fourth) | — |
-| Main Nav › Tab Bar | Tab Button | 1994:336 | 3 | State (First / Last, Active, Inactive) | — |
-| Main Nav › Tab Bar | Tab Label | 1994:326 | 2 | State | Label |
+| AppBar* | AppBar* | 477:906 | 1 | State | — |
+| Breadcrumb | Parts | 1537:1525 | 2 | Position (Start, Next) | Label |
+| Breadcrumb | Default | 1537:1545 | 4 | Levels (1–4) | — |
+| Button Side Menu | Side Menu / Tier 1 / Default | 683:2282 | 6 | State¹ | Label |
+| Button Side Menu | Side Menu / Tier 1 /Compact | 2171:2645 | 6 | State¹ | Label |
+| Button Side Menu | Side Menu / Tier 2 / Default | 685:196 | 6 | State¹ | Label |
+| Button Side Menu | Side Menu / Tier 2 / Label | 2190:5985 | 6 | State¹ | Label |
+| Button Side Menu | Side Menu / Tier 2 / Compact | 2171:2677 | 6 | State¹ | Label |
+| Menu Sidebar* | Menu Sidebar Item | 490:750 | 5 | State | Label |
+| Menu Sidebar* | Menu Sidebar* | 490:809 | 1 | State | — |
+| Tab Bar* | Tab / Small | 494:266 | 5 | State (Default, Current Tab, Disabled, Focus, Hover) | — |
+| Tab Bar* | Tab / Tiny* | 742:4310 | 5 | State | — |
+| Tab Bar* | Tab Content | 494:454 | 1 | State | — |
+| Tab Bar* | Tab Bar* | 494:338 | 1 | State | — |
+| Main Drop Down* | Main Drop Down* | 711:13334 | 5 | State | Label |
+| Main Nav › Tab Bar | Tab Bar (All tabs button and Crowded added Nov 4) | 2133:4457 | 5 | Active Tab (First–Fourth, Crowded) | — |
+| Main Nav › Tab Bar | Tab Button | 1994:336 | 5 | State (First / Last, Active, Inactive, Compact Active, Compact Inactive) | — |
+| Main Nav › Tab Bar | Tab Label | 1994:326 | 4 | State (Default, Hover, Compact, Compact Hover) | Label |
 | Main Nav › Tab Bar | Tab Small | 2049:540 | 2 | State | — |
 | Main Nav › Header | Header | 708:1883 | 2 | State (Default, Notifications) | — |
 | Main Nav › Tier 1 | Tier 1 | 708:1635 | 2 | State (Default, Compact) | — |
@@ -222,7 +236,15 @@ Legend: **Variants** = variant count · **Axes** = variant properties · **Props
 | Main Nav › Tier 3 | Tier 3 | 2644:3738 | 2 | State (Expanded, Collapsed) | — |
 | Main Nav › Tier 3 | Tier 3 Icon | 2648:4086 | 4 | Size × State | — |
 | Interior Nav › Sub Menu | Sub Menu | 708:1502 | 3 | State (Default, Tiny, Text) | — |
+| Interior Nav › Tier 4 | Tier 4 | 3091:12939 | 3 | Property 1 (Warehouse) × Property 2 (Overview, Table View, Table View - 2) | — |
 | Interior Nav › Footer | Footer | 1544:2832 | 1 | State | — |
+
+## Templates
+
+| Page | Component | ID | Variants | Axes | Props |
+|---|---|---|---|---|---|
+| Help Center | Help Article Row | 2903:53 | 4 | Type (Compact, Result) × State | Title, Meta, Path, Snippet |
+| Help Center | Help Category Card | 2921:7899 | 2 | State | Title, Description, Count |
 
 ## Scaffolding, testing and unused
 

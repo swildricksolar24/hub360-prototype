@@ -45,7 +45,8 @@ export const BaseOutline = figmaSet('24:214', 'Button Base › Base / Outline*',
 export const BaseOutlineIcon = figmaSet('25:230', 'Button Base › Base / Outline / Icon*', { size: 'base', variant: 'outline', icon: 'arrow-up' });
 export const BaseBrandTeal = figmaSet('1751:3499', 'Button Base › Brand / Teal / Primary*', { size: 'base', variant: 'brand' });
 export const BaseBrandTealIcon = figmaSet('1751:3521', 'Button Base › Brand / Teal / Primary / Icon*', { size: 'base', variant: 'brand', icon: 'arrow-up' });
-export const BaseBrandOrange = figmaSet('1751:3510', 'Button Base › Brand / Orange/ Primary*', { size: 'base', variant: 'brand-orange' });
+export const BaseBrandTealOutline = figmaSet('3234:4981', 'Button Large Brand › Brand / Teal / Outline', { size: 'base', variant: 'brand-outline' });
+export const BaseBrandOrange =figmaSet('1751:3510', 'Button Base › Brand / Orange/ Primary*', { size: 'base', variant: 'brand-orange' });
 export const BaseBrandOrangeIcon = figmaSet('1751:3532', 'Button Base › Brand / Orange/ Primary / Icon*', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' });
 
 // Button Block

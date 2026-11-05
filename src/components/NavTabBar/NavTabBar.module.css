@@ -18,7 +18,19 @@
   position: relative;
   display: flex;
   align-items: stretch;
+  /* As wide as its tabs, shrinking when the bar runs out of space; "+" stays right after the last tab */
+  flex: 0 1 auto;
   min-width: 0;
+  /*
+   * When even icon-only tabs don't fit, the list scrolls sideways (wheel, trackpad or keyboard; NavTabBar keeps the
+   * active tab in view). The scrollbar itself stays hidden, like a browser's tab strip.
+   */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.list::-webkit-scrollbar {
+  display: none;
 }
 
 /*
@@ -37,6 +49,13 @@
   border-radius: var(--radius-4) var(--radius-4) 0 0;
   background: var(--color-brand-teal-stroke-strongest);
   pointer-events: none;
+  /* A new tab's underline grows up from the bar's bottom edge */
+  transform-origin: bottom center;
+}
+
+/* All tabs (Figma Tab Bar "All tabs"): pushed to the far right of the bar, away from the tabs and + */
+.showAll.showAll {
+  margin-left: auto;
 }
 
 /* ---------- Tab Small (Home / +) ---------- */
@@ -136,8 +155,8 @@
 }
 
 /*
- * Like browser tabs, tabs shrink when there are too many to fit, and long names end in "…" (the full name stays in
- * the tab's tooltip), so the bar never grows wider than the window.
+ * Each tab hugs its label (icon, name and close button). When there are too many to fit, they shrink and long
+ * names end in "…" (the full name stays in the tab's tooltip), so the bar never grows wider than the window.
  */
 .tab {
   flex: 0 1 auto;
@@ -164,6 +183,47 @@
   white-space: nowrap;
   cursor: pointer;
   outline: none;
+}
+
+/*
+ * Crowded bar (Figma Tab Label "Compact" / Tab Button "Compact Active" and "Compact Inactive"; data-compact from NavTabBar): only the icon shows. The name is visually hidden but stays
+ * in the tooltip and for screen readers. The close button keeps its space but stays invisible until the tab is
+ * hovered or focused, and on the active tab, so tabs don't shift under the pointer.
+ *
+ * Icon-only tabs keep sharing the room equally and shrinking as more open. Below 52px (icon + close space) the close
+ * button's space gives way first, down to 36px (icon and padding only); the active tab stays at least 52px so its
+ * close button fits. Only when even 36px tabs don't fit does the tab list scroll sideways.
+ */
+.tab[data-compact] {
+  gap: var(--space-4);
+  min-width: 36px; /* 12px padding + 16px icon + 4px gap + 4px padding; component dimension, no token */
+  padding-right: var(--space-4);
+}
+.tab[data-compact] .tabButton {
+  flex: 0 0 auto;
+  padding-left: var(--space-12);
+}
+.tab[data-compact] .close {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.tab[data-compact][data-active] {
+  min-width: 52px; /* icon + close button; component dimension, no token */
+}
+.tab[data-compact][data-active] .close {
+  flex-shrink: 0;
+}
+.tab[data-compact] .tabLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.tab[data-compact]:not([data-active], :hover, :focus-within) .close {
+  opacity: 0;
 }
 
 .close {
@@ -207,7 +267,8 @@
   transition:
     background-color 150ms ease,
     color 150ms ease,
-    box-shadow 150ms ease;
+    box-shadow 150ms ease,
+    opacity 150ms ease;
 }
 @media (prefers-reduced-motion: reduce) {
   .small,

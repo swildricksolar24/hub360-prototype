@@ -12,7 +12,7 @@ const SAMPLE = [
 ];
 
 const meta = {
-  title: 'Web Components/SignaturePad',
+  title: 'Components/Forms/SignaturePad',
   component: SignaturePad,
   args: { label: 'Sign Below', onSave: fn(), onClear: fn(), onSignedChange: fn() },
   decorators: [Story => <div style={{ maxWidth: 719 }}><Story /></div>],

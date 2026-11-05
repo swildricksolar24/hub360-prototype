@@ -20,7 +20,7 @@ export type FooterProps = {
   className?: string;
 };
 
-/** Figma Interior Nav "Footer" (1544:2832). */
+/** Figma "Footer" (Components / Navigation › - Footer, 1544:2832): copyright · version · legal links. */
 export function Footer({ copyright, version, links = [], linksLabel = 'Legal', className }: FooterProps) {
   return (
     <footer className={[styles.footer, className].filter(Boolean).join(' ')}>

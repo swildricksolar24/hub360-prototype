@@ -123,7 +123,7 @@ export function TopNavigation({
 }: TopNavigationProps) {
   return (
     <div className={[styles.topNav, className].filter(Boolean).join(' ')} data-size={size}>
-      <Breadcrumb size="small" items={breadcrumb} homeHref={homeHref} />
+      <Breadcrumb items={breadcrumb} homeHref={homeHref} />
       <SubMenu items={items} value={value} onChange={onChange} variant={SUB_MENU_VARIANT[size]} aria-label={ariaLabel} />
     </div>
   );

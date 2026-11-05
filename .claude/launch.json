@@ -20,6 +20,17 @@
         "dev"
       ],
       "port": 5173
+    },
+    {
+      "name": "playground",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "--port",
+        "5180",
+        "--strictPort"
+      ],
+      "port": 5180
     }
   ]
 }

@@ -16,7 +16,7 @@ import type { Warehouse } from './warehouseData';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
 import styles from './record.module.css';
 import listStyles from './warehouses.module.css';
-import { Toast } from '../../../components/Toast';
+import { Toast } from '../../../../components/Toast/Toast';
 
 /** The record's tabs, in Figma's order. Tabs without content show RecordPage's "not built yet" placeholder. */
 const TABS = [

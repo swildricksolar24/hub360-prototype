@@ -4,7 +4,7 @@ import { Button } from '../Button/Button';
 import { figma } from '../../storybook/figma';
 
 const meta = {
-  title: 'Primitives/Tooltip',
+  title: 'Components/Overlays/Tooltip',
   component: Tooltip,
   args: { label: 'Label', size: 'small', position: 'top', open: false, children: <Button size="small" variant="outline">Hover or focus me</Button> },
   argTypes: {

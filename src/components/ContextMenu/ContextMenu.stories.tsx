@@ -4,7 +4,7 @@ import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGrid';
 
 const meta = {
-  title: 'Web Components/ContextMenu',
+  title: 'Components/Overlays/ContextMenu',
   component: ContextMenu,
   args: {
     'aria-label': 'Actions',

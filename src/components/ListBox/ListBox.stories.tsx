@@ -15,7 +15,7 @@ const OPTIONS: ListBoxOption[] = [
 ];
 
 const meta = {
-  title: 'Primitives/ListBox',
+  title: 'Components/Forms/ListBox',
   component: ListBox,
   args: { options: OPTIONS, type: 'default', appearance: 'list', multiple: false, 'aria-label': 'States' },
   argTypes: {

@@ -9,7 +9,7 @@ import { RowMenu } from './RowMenu';
 import { Pager, TableToolbar, count, useColumns, useTableControls, type TableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 /** A stock record with its item and location looked up. */
 export type StockView = StockRow & { item?: CatalogItem; location?: WarehouseLocation; available: number };

@@ -12,7 +12,7 @@ import { MenuButton, Pager, Segmented, StatusPill, TableToolbar, useColumns, use
 import { MAX_LOCATION_DEPTH } from '../warehouseRecordData';
 import styles from '../record.module.css';
 import table from '../table.module.css';
-import { Toast } from '../../../../components/Toast';
+import { Toast } from '../../../../../components/Toast/Toast';
 
 // Fixed widths fit the record card (~1070px at a 1440px window): 708 + checkbox 28 + ••• 44 + 9 gaps × 16 + 40
 // padding = 964, leaving Description (the fill column, which wraps) about 110px. To make room, the three Yes / No
