@@ -70,6 +70,20 @@
   line-height: var(--line-height-large);
   font-weight: 700;
 }
+/* Figma: a card title with a figure on the right (both Large/Bold, 16px apart) */
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+.titleRow > h2 {
+  flex: 1;
+  min-width: 0;
+}
+.cardTotal {
+  flex: none;
+  white-space: nowrap;
+}
 .footnote {
   margin: 0;
   color: var(--color-gray-text-weak);
