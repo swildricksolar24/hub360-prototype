@@ -65,8 +65,8 @@ const RANGES = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year'];
 const dollars = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 /**
- * Inventory › Dashboard (Figma "Inventory / Dashboard", 819:7974): a toolbar (warehouse, Export, date range, search,
- * New Order), seven KPI tiles, Needs Your Attention, Open Orders by Status, Low Stock and Value by Warehouse. The
+ * Inventory › Dashboard (Figma "Inventory / Dashboard", 819:7974): a toolbar (warehouse, Export, date range, and a
+ * search box filling the rest), seven KPI tiles, Needs Your Attention, Open Orders by Status, Low Stock and Value by Warehouse. The
  * figures are Figma's sample values; the cards link to the Items and Orders lists. Purchasing and Receiving aren't
  * designed yet, so their actions explain that instead.
  */
@@ -89,6 +89,7 @@ export function InventoryDashboardPage() {
   const statusMax = Math.max(...STATUSES.map(s => s.count));
   const openCount = STATUSES.reduce((sum, s) => sum + s.count, 0);
   const valueMax = Math.max(...VALUE_BY_WAREHOUSE.map(v => v.value));
+  const valueTotal = VALUE_BY_WAREHOUSE.reduce((sum, v) => sum + v.value, 0);
 
   return (
     <div className={styles.page}>
@@ -117,9 +118,6 @@ export function InventoryDashboardPage() {
             if (e.key === 'Enter' && query.trim()) navigate(ITEMS_PATH);
           }}
         />
-        <Button size="small" variant="brand" onClick={() => navigate(ORDERS_PATH)}>
-          New Order
-        </Button>
       </div>
 
       {notice && <Toast type="info" title={notice} onClose={() => setNotice(null)} />}
@@ -161,9 +159,15 @@ export function InventoryDashboardPage() {
         </section>
 
         <section className={styles.card} aria-labelledby="dash-status">
-          <h2 id="dash-status" className={styles.cardTitle}>
-            Open Orders by Status
-          </h2>
+          {/* Figma: the title with the open-order total on the right */}
+          <div className={styles.titleRow}>
+            <h2 id="dash-status" className={styles.cardTitle}>
+              Open Orders by Status
+            </h2>
+            <span className={`${styles.cardTitle} ${styles.cardTotal}`} aria-label={`${openCount} open orders`}>
+              {openCount}
+            </span>
+          </div>
           <ul className={styles.bars}>
             {STATUSES.map(s => (
               <li key={s.label}>
@@ -181,7 +185,7 @@ export function InventoryDashboardPage() {
               </li>
             ))}
           </ul>
-          <p className={styles.footnote}>{openCount} open · Completed and Cancelled are not counted. Select a status to open the filtered Orders list.</p>
+          <p className={styles.footnote}>Completed and Cancelled are not counted. Select a status to open the filtered Orders list.</p>
         </section>
       </div>
 
@@ -240,9 +244,18 @@ export function InventoryDashboardPage() {
         </section>
 
         <section className={styles.card} aria-labelledby="dash-value">
-          <h2 id="dash-value" className={styles.cardTitle}>
-            Value by Warehouse
-          </h2>
+          {/*
+           * Figma: the title with the total on the right. Figma's sample total ($1,688,041) doesn't match its rows, so
+           * the total is their sum, which is also the Inventory Value tile.
+           */}
+          <div className={styles.titleRow}>
+            <h2 id="dash-value" className={styles.cardTitle}>
+              Value by Warehouse
+            </h2>
+            <span className={`${styles.cardTitle} ${styles.cardTotal}`} aria-label={`Total ${dollars(valueTotal)}`}>
+              {dollars(valueTotal)}
+            </span>
+          </div>
           <ul className={styles.values}>
             {VALUE_BY_WAREHOUSE.map(v => (
               <li key={v.label} className={styles.value}>
