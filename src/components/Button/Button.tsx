@@ -19,7 +19,7 @@ export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'childre
   children: ReactNode;
   /**
    * Figma sets per size — base ("- Button Large"): primary (Solid / Gray / Base), outline (Clear / Base),
-   * brand (Solid / Teal / Base), brand-orange (Solid / Orange / ), brand-outline (Solid / Teal / Outline),
+   * brand (Solid / Teal / Base), brand-orange (Solid / Orange / Base), brand-outline (Solid / Teal / Outline),
    * orange-outline (Solid / Orange / Outline), gray-outline (Solid / Gray / Outline); the last two exist at base only ·
    * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-red (Brand / Small / Red: destructive
    * and error actions, e.g. Deactivate, Delete), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).

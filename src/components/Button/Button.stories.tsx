@@ -50,7 +50,7 @@ export const BaseOutlineIcon = named('Clear / Icon', figmaSet('25:230', 'Button 
 export const BaseBrandTeal = named('Solid / Teal / Base', figmaSet('1751:3499', 'Button Large › Solid / Teal / Base', { size: 'base', variant: 'brand' }));
 export const BaseBrandTealIcon = named('Solid / Teal / Icon', figmaSet('1751:3521', 'Button Large › Solid / Teal / Icon', { size: 'base', variant: 'brand', icon: 'arrow-up' }));
 export const BaseBrandTealOutline = named('Solid / Teal / Outline', figmaSet('3234:4981', 'Button Large › Solid / Teal / Outline', { size: 'base', variant: 'brand-outline' }));
-export const BaseBrandOrange = named('Solid / Orange', figmaSet('1751:3510', 'Button Large › Solid / Orange / ', { size: 'base', variant: 'brand-orange' }));
+export const BaseBrandOrange = named('Solid / Orange / Base', figmaSet('1751:3510', 'Button Large › Solid / Orange / Base', { size: 'base', variant: 'brand-orange' }));
 export const BaseBrandOrangeIcon = named('Solid / Orange / Icon', figmaSet('1751:3532', 'Button Large › Solid / Orange / Icon', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' }));
 export const BaseOrangeOutline = named('Solid / Orange / Outline', figmaSet('3368:249', 'Button Large › Solid / Orange / Outline', { size: 'base', variant: 'orange-outline' }));
 

@@ -53,7 +53,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Large | Solid / Teal / Base (was Brand / Teal / Primary*) | 1751:3499 | 6 | State¹ | — |
 | Button Large | Solid / Teal / Icon (was Brand / Teal / Primary / Icon*) | 1751:3521 | 6 | State¹ | — |
 | Button Large | Solid / Teal / Outline (added Nov 4, 2026, moved from Button Large Brand Nov 6; Button `variant="brand-outline"`) | 3234:4981 | 6 | State¹ | — |
-| Button Large | Solid / Orange /  (was Brand / Orange/ Primary*) | 1751:3510 | 6 | State¹ | — |
+| Button Large | Solid / Orange / Base (was Brand / Orange/ Primary*; Teal and Orange Base / Icon are built from Solid / Gray / Base / Icon since Nov 6, 2026) | 1751:3510 | 6 | State¹ | — |
 | Button Large | Solid / Orange / Icon (was Brand / Orange/ Primary / Icon*) | 1751:3532 | 6 | State¹ | — |
 | Button Large | Solid / Orange / Outline (added Nov 6, 2026; Button `variant="orange-outline"`) | 3368:249 | 6 | State¹ | — |
 | Button Block* | Primary / Icon | 25:376 | 6 | State¹ | Label |

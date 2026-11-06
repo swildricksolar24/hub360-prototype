@@ -278,8 +278,10 @@
  * ---------- Button Large outlines (base size): Figma "- Button Large" page ----------
  * brand-outline = "Solid / Teal / Outline" (3234:4981), orange-outline = "Solid / Orange / Outline" (3368:249),
  * gray-outline = "Solid / Gray / Outline" (3368:236).
- * Shared: a Foundation/Solid/White label (Gray Text/Disabled when disabled) and a Gray Stroke/Weak stroke, 2px at rest
- * and 4px in every other state; Focus centers it on the edge (2px in, 2px out). Disabled uses Gray Stroke/Disabled.
+ * Shared: a Gray Stroke/Weak stroke, 2px at rest and 4px in every other state; Focus centers it on the edge (2px in,
+ * 2px out) and, on teal and orange, switches it to Gray Stroke/Weaker. Disabled uses Gray Stroke/Disabled.
+ * Label: teal and orange use Foundation/Solid/White (Foundation/Solid/200 when disabled); gray uses Gray Text/Strong
+ * (Gray Text/Disabled when disabled).
  * Fills per set:
  *   Teal:   Default, Selected, Focus Brand Teal Fill/Strong · Hover Fill/Weak · Press Fill/Press · Disabled Fill/Disabled
  *   Orange: Default Brand Orange Fill/Strong · Hover, Selected, Focus Fill/Hover · Press Fill/Press · Disabled Fill/Disabled
@@ -297,6 +299,12 @@
   box-shadow:
     inset 0 0 0 var(--stroke-width-2) var(--ring),
     0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-size='base']:is([data-variant='brand-outline'], [data-variant='orange-outline']):focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+}
+.button[data-size='base'][data-variant='gray-outline'] {
+  --fg: var(--color-gray-text-strong);
 }
 
 .button[data-size='base'][data-variant='brand-outline'] {
@@ -334,9 +342,13 @@
 
 /* Disabled comes last so it wins over hover, press and selected */
 .button[data-size='base']:is([data-variant='brand-outline'], [data-variant='orange-outline'], [data-variant='gray-outline']):disabled {
-  --fg: var(--color-gray-text-disabled);
+  /* Figma uses the Foundation/Solid/200 primitive for the teal and orange disabled label */
+  --fg: var(--color-foundation-solid-200);
   --ring: var(--color-gray-stroke-disabled);
   --ring-w: var(--stroke-width-4);
+}
+.button[data-size='base'][data-variant='gray-outline']:disabled {
+  --fg: var(--color-gray-text-disabled);
 }
 .button[data-size='base'][data-variant='brand-outline']:disabled {
   --bg: var(--color-brand-teal-fill-disabled);
@@ -405,6 +417,43 @@
 }
 .button[data-variant='brand'][data-size='tiny']:hover .label {
   text-decoration: none;
+}
+
+/*
+ * ---------- Button Large solids (base size, not block): Figma "- Button Large" ----------
+ * Solid / Teal and Solid / Orange (Base and Icon) are built from Solid / Gray / Base and Icon, so all six share its
+ * strokes: Press a 2px Gray Stroke/Weaker inside; Selected 2px and Focus 4px, both centered on the edge (half in, half
+ * out). Selected uses Brand Teal Stroke/Weaker on gray, Gray Stroke/Weaker on teal and orange.
+ * Teal fills: Default, Selected, Focus Brand Teal Fill/Strong · Hover Fill/Weak · Press Fill/Press · Disabled Fill/Disabled.
+ * Orange fills: Default Fill/Strong · Hover, Selected, Focus Fill/Hover · Press Fill/Press · Disabled Fill/Disabled.
+ * Teal and orange disabled labels use the Foundation/Solid/200 primitive. Clear (outline) shares the Selected and
+ * Focus strokes.
+ */
+.button[data-size='base']:not([data-block]):is([data-variant='primary'], [data-variant='outline'], [data-variant='brand'], [data-variant='brand-orange'])[aria-pressed='true'] {
+  --ring-w: var(--stroke-width-2);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-1) var(--ring),
+    0 0 0 var(--stroke-width-1) var(--ring);
+}
+.button[data-size='base']:not([data-block]):is([data-variant='primary'], [data-variant='outline'], [data-variant='brand'], [data-variant='brand-orange']):focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-4);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-size='base']:not([data-block])[data-variant='brand']:hover {
+  --bg: var(--color-brand-teal-fill-weak);
+}
+.button[data-size='base']:not([data-block])[data-variant='brand']:is(:focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-size='base']:not([data-block])[data-variant='brand']:active {
+  --bg: var(--color-brand-teal-fill-press);
+}
+.button[data-size='base']:not([data-block]):is([data-variant='brand'], [data-variant='brand-orange']):disabled {
+  --fg: var(--color-foundation-solid-200);
+  box-shadow: none;
 }
 
 /* ---------- brand-secondary (small) ---------- */

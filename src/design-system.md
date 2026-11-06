@@ -126,7 +126,7 @@ Most-used APIs:
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:
-- **base** (Figma "- Button Large"): `primary` (Solid / Gray / Base), `outline` (Clear / Base), `brand` (teal, Solid / Teal / Base), `brand-orange` (Solid / Orange), and three outlined solids with a Gray Stroke/Weak border and a white label: `brand-outline` (Solid / Teal / Outline), `orange-outline` (Solid / Orange / Outline) and `gray-outline` (Solid / Gray / Outline). `orange-outline` and `gray-outline` exist at base size only. `gray-outline`'s white label sits on a translucent gray fill, so it is meant for dark surfaces.
+- **base** (Figma "- Button Large"): `primary` (Solid / Gray / Base), `outline` (Clear / Base), `brand` (teal, Solid / Teal / Base), `brand-orange` (Solid / Orange / Base), and three outlined solids with a Gray Stroke/Weak border: `brand-outline` (Solid / Teal / Outline) and `orange-outline` (Solid / Orange / Outline) with a white label, and `gray-outline` (Solid / Gray / Outline) with a Gray Text/Strong label. `orange-outline` and `gray-outline` exist at base size only.
 - **small:** `primary`, `outline`, `brand`, `brand-outline` (Figma "Brand / Small / Outline"; use it for card actions such as the Inventory dashboard's Review), `brand-red` (Figma "Brand / Small / Red": destructive and error actions such as Deactivate or Delete; `AppModal` uses it for every `danger` action), `brand-secondary`
 - **tiny:** `primary`, `text`, `brand` (Figma "Primary / Tiny / Brand"; use it for an action inside a table row, such as Low Stock's View PO / Create PO)
 
