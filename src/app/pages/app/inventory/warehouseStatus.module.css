@@ -1,0 +1,35 @@
+/* Activate / Deactivate warehouse confirmations (Figma "Activation" 843:60109, "Deactivate Warehouse — Improved" 843:60078) */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+/* What's affected: Semantic Fill/Warning Weak when deactivating, Brand Teal Fill/Weaker when activating */
+.impact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  color: var(--color-gray-text-strong);
+}
+.impact[data-tone='warning'] {
+  background: var(--color-semantic-fill-warning-weak);
+}
+.impact[data-tone='brand'] {
+  background: var(--color-brand-teal-fill-weaker);
+}
+.impact p {
+  margin: 0;
+}
+.impact .footnote {
+  color: var(--color-gray-text-weak);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+}

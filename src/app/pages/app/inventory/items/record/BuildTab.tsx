@@ -182,8 +182,6 @@ export function BuildTab({ item, onNotice }: { item: Item; onNotice: (text: stri
 
       <AppModal
         open={removing !== null}
-        variant="confirm"
-        icon="delete"
         onClose={() => setRemoving(null)}
         title="Remove Item From Build"
         description={removing && `${removing.name} will be removed from the ${item.name} build, and its cost taken off the Net Cost.`}

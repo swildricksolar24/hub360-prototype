@@ -299,8 +299,8 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
                       onClose={() => setMenuFor(null)}
                       items={[
                         ...(f.type === 'Folder' ? folderItems : fileItems),
-                        { label: f.active ? 'Deactivate' : 'Activate', icon: f.active ? 'visibility-off' : 'check', onSelect: () => setActive([f], !f.active) },
-                        { label: 'Delete', icon: 'delete', onSelect: () => setDeleting([f]) },
+                        { label: f.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([f], !f.active) },
+                        { label: 'Delete', onSelect: () => setDeleting([f]) },
                       ]}
                     />
                   )}

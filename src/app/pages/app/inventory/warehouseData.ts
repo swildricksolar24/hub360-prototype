@@ -26,9 +26,13 @@ export const money = (n: number) => n.toLocaleString('en-US', { style: 'currency
 const count = (n: number) => n.toLocaleString('en-US');
 
 /** A field a table column (or an uploaded spreadsheet column) can show. `align` follows the Figma table. */
+export type FieldGroup = 'Warehouse' | 'Address' | 'Inventory';
+
 export type WarehouseField = {
   key: string;
   label: string;
+  /** Edit Columns groups the fields by this (the Available fields chips). */
+  group: FieldGroup;
   width: number | 'fill';
   align?: 'start' | 'end';
   /** Text shown in the table. */
@@ -38,24 +42,25 @@ export type WarehouseField = {
 };
 
 export const FIELDS: WarehouseField[] = [
-  { key: 'code', label: 'Code', width: 120, show: w => w.code, sortValue: w => w.code },
-  { key: 'name', label: 'Name', width: 160, show: w => w.name, sortValue: w => w.name },
+  { key: 'code', label: 'Code', group: 'Warehouse', width: 120, show: w => w.code, sortValue: w => w.code },
+  { key: 'name', label: 'Name', group: 'Warehouse', width: 160, show: w => w.name, sortValue: w => w.name },
   {
     key: 'address',
     label: 'Address',
+    group: 'Address',
     width: 'fill',
     // In the country's own order (formatAddress), e.g. "11565 W Summertime, Phoenix, AZ 85085"
     show: w => formatAddress(w),
     sortValue: w => `${w.address1} ${w.city}`,
   },
-  { key: 'city', label: 'City', width: 140, show: w => w.city, sortValue: w => w.city },
-  { key: 'state', label: 'State', width: 100, show: w => w.state, sortValue: w => w.state },
-  { key: 'zip', label: 'Zip Code', width: 110, show: w => w.zip, sortValue: w => w.zip },
-  { key: 'country', label: 'Country', width: 180, show: w => w.country, sortValue: w => w.country },
-  { key: 'value', label: 'Inventory Value', width: 185, show: w => money(w.value), sortValue: w => w.value },
-  { key: 'locations', label: 'Locations', width: 140, show: w => count(w.locations), sortValue: w => w.locations },
-  { key: 'filled', label: 'Filled Locations', width: 185, show: w => count(w.filled), sortValue: w => w.filled },
-  { key: 'empty', label: 'Empty', width: 130, show: w => count(w.locations - w.filled), sortValue: w => w.locations - w.filled },
+  { key: 'city', label: 'City', group: 'Address', width: 140, show: w => w.city, sortValue: w => w.city },
+  { key: 'state', label: 'State', group: 'Address', width: 100, show: w => w.state, sortValue: w => w.state },
+  { key: 'zip', label: 'Zip Code', group: 'Address', width: 110, show: w => w.zip, sortValue: w => w.zip },
+  { key: 'country', label: 'Country', group: 'Address', width: 180, show: w => w.country, sortValue: w => w.country },
+  { key: 'value', label: 'Inventory Value', group: 'Inventory', width: 185, show: w => money(w.value), sortValue: w => w.value },
+  { key: 'locations', label: 'Locations', group: 'Inventory', width: 140, show: w => count(w.locations), sortValue: w => w.locations },
+  { key: 'filled', label: 'Filled Locations', group: 'Inventory', width: 185, show: w => count(w.filled), sortValue: w => w.filled },
+  { key: 'empty', label: 'Empty', group: 'Inventory', width: 130, show: w => count(w.locations - w.filled), sortValue: w => w.locations - w.filled },
 ];
 
 export const fieldByKey = (key: string) => FIELDS.find(f => f.key === key);
@@ -114,16 +119,60 @@ export const SAMPLE_WAREHOUSES: Warehouse[] = [
 export const TEMPLATE_HEADERS = ['Code', 'Name', 'Address 1', 'Address 2', 'City', 'State', 'Zip Code', 'Country', 'Inventory Value', 'Locations', 'Filled Locations'];
 
 export const COUNTRIES = ['United States of America', 'Canada', 'Mexico'];
-export const STATES = ['Arizona', 'California', 'Colorado', 'Nevada', 'New Mexico', 'Texas', 'Utah'];
+/** All 50 US states, alphabetical, with their USPS two-letter codes (the State dropdown for USA addresses). */
 export const STATE_CODES: Record<string, string> = {
+  Alabama: 'AL',
+  Alaska: 'AK',
   Arizona: 'AZ',
+  Arkansas: 'AR',
   California: 'CA',
   Colorado: 'CO',
+  Connecticut: 'CT',
+  Delaware: 'DE',
+  Florida: 'FL',
+  Georgia: 'GA',
+  Hawaii: 'HI',
+  Idaho: 'ID',
+  Illinois: 'IL',
+  Indiana: 'IN',
+  Iowa: 'IA',
+  Kansas: 'KS',
+  Kentucky: 'KY',
+  Louisiana: 'LA',
+  Maine: 'ME',
+  Maryland: 'MD',
+  Massachusetts: 'MA',
+  Michigan: 'MI',
+  Minnesota: 'MN',
+  Mississippi: 'MS',
+  Missouri: 'MO',
+  Montana: 'MT',
+  Nebraska: 'NE',
   Nevada: 'NV',
+  'New Hampshire': 'NH',
+  'New Jersey': 'NJ',
   'New Mexico': 'NM',
+  'New York': 'NY',
+  'North Carolina': 'NC',
+  'North Dakota': 'ND',
+  Ohio: 'OH',
+  Oklahoma: 'OK',
+  Oregon: 'OR',
+  Pennsylvania: 'PA',
+  'Rhode Island': 'RI',
+  'South Carolina': 'SC',
+  'South Dakota': 'SD',
+  Tennessee: 'TN',
   Texas: 'TX',
   Utah: 'UT',
+  Vermont: 'VT',
+  Virginia: 'VA',
+  Washington: 'WA',
+  'West Virginia': 'WV',
+  Wisconsin: 'WI',
+  Wyoming: 'WY',
 };
+export const STATES = Object.keys(STATE_CODES);
 
 export const USA = 'United States of America';
 export const MEXICO = 'Mexico';

@@ -4,12 +4,24 @@ import { TextInput } from '../../../../components/TextInput/TextInput';
 import { AppModal } from '../../../components/AppModal';
 import { AddressFields, addressDraftOf, addressErrors, addressFromDraft, withCountry, type AddressDraft } from './AddressFields';
 import { FindAddress } from './FindAddress';
-import { COUNTRIES, type Warehouse } from './warehouseData';
+import { COUNTRIES, stateCodesFor, type Warehouse } from './warehouseData';
 import styles from './modals.module.css';
 
 type Form = { code: string; name: string } & AddressDraft;
 
 const empty = (): Form => ({ code: '', name: '', ...addressDraftOf(null, COUNTRIES[0]) });
+
+/**
+ * The default Warehouse ID for a new warehouse: the state's code and the next free 3-digit number for that state
+ * (AZ-001, AZ-002, ...). Empty until a state is chosen.
+ */
+export function defaultWarehouseCode(country: string, state: string, existingCodes: string[]): string {
+  const stateCode = stateCodesFor(country)[state];
+  if (!stateCode) return '';
+  const prefix = `${stateCode}-`;
+  const used = existingCodes.filter(c => c.startsWith(prefix)).map(c => Number(c.slice(prefix.length)) || 0);
+  return `${prefix}${String(Math.max(0, ...used) + 1).padStart(3, '0')}`;
+}
 
 /** A required field's label: the text and a red asterisk (as on Sign Up). */
 const required = (text: string): ReactNode => (
@@ -39,12 +51,23 @@ export function AddWarehouseModal({
 }) {
   const [form, setForm] = useState<Form>(empty);
   const [tried, setTried] = useState(false);
+  // A new warehouse's ID follows the chosen state until someone types their own (clearing it hands it back)
+  const [codeTyped, setCodeTyped] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setTried(false);
+    setCodeTyped(false);
     setForm(warehouse ? { code: warehouse.code, name: warehouse.name, ...addressDraftOf(warehouse) } : empty());
   }, [open, warehouse]);
+
+  useEffect(() => {
+    if (!open || warehouse || codeTyped) return;
+    setForm(f => {
+      const code = defaultWarehouseCode(f.country, f.state, existingCodes);
+      return code === f.code ? f : { ...f, code };
+    });
+  }, [open, warehouse, codeTyped, form.country, form.state, existingCodes]);
 
   const set = (key: 'code' | 'name') => (value: string) => setForm(f => ({ ...f, [key]: value }));
   const code = form.code.trim().toUpperCase();
@@ -93,9 +116,13 @@ export function AddWarehouseModal({
         <div className={styles.fieldRow}>
           <TextInput
             label={required('Warehouse ID')}
-            placeholder="WH-001"
+            autoComplete="off"
+            placeholder="Set by the state, e.g. AZ-001"
             value={form.code}
-            onChange={e => set('code')(e.target.value)}
+            onChange={e => {
+              setCodeTyped(e.target.value.trim() !== '');
+              set('code')(e.target.value);
+            }}
             error={tried ? errors.code : undefined}
             required
           />
@@ -109,6 +136,7 @@ export function AddWarehouseModal({
         </div>
         <TextInput
           label={required('Warehouse Name')}
+          autoComplete="off"
           value={form.name}
           onChange={e => set('name')(e.target.value)}
           error={tried ? errors.name : undefined}

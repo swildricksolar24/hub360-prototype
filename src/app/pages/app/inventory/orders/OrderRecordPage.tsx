@@ -198,7 +198,6 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
       {/* Actions › Process Move / Post Adjustment */}
       <AppModal
         open={confirming === 'process' || confirming === 'post'}
-        variant="confirm"
         onClose={() => setConfirming(null)}
         title={confirming === 'post' ? 'Confirm Adjustment' : 'Confirm Move'}
         description={
@@ -222,8 +221,6 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
       {/* Actions › Cancel Order */}
       <AppModal
         open={confirming === 'cancel'}
-        variant="confirm"
-        icon="close"
         onClose={() => setConfirming(null)}
         title="Confirm Cancellation"
         description={

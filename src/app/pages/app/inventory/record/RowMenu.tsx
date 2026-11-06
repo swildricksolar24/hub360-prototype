@@ -3,7 +3,7 @@ import { ContextMenu } from '../../../../../components/ContextMenu/ContextMenu';
 import table from '../table.module.css';
 
 /**
- * A row's ••• menu, under its button; clicking anywhere else closes it. It's placed against the window (fixed), so a
+ * A row's ••• menu (text-only options), under its button; clicking anywhere else closes it. It's placed against the window (fixed), so a
  * table's scroll area can't clip it, and it opens upward when there's no room below the button.
  */
 export function RowMenu({
@@ -12,7 +12,8 @@ export function RowMenu({
   onClose,
 }: {
   label: string;
-  items: { label: string; icon: string; onSelect: () => void }[];
+  /** Text-only options: the row menus don't show icons. A disabled option shows dimmed and can't be chosen. */
+  items: { label: string; onSelect: () => void; disabled?: boolean }[];
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);

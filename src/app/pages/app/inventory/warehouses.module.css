@@ -23,6 +23,10 @@
   flex: 1;
   min-width: 0;
 }
+/* Actions with no rows checked: fully inert, so it doesn't react to the pointer at all (no hover, no cursor change) */
+.actions[data-disabled] {
+  pointer-events: none;
+}
 
 /* ---------- Table ---------- */
 .tableCard {

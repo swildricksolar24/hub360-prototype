@@ -84,6 +84,7 @@ export function MultiselectDropdown({
       {dd.isOpen && (
         <div className={styles.popup}>
           <ListBox
+            menu
             id={listId}
             aria-label={label}
             appearance="selector"

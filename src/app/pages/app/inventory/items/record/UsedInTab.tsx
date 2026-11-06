@@ -202,10 +202,10 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
                       label={u.name}
                       onClose={() => setMenuFor(null)}
                       items={[
-                        { label: `View ${kind}`, icon: 'visibility', onSelect: () => setViewing(u) },
-                        { label: `Go To ${kind}`, icon: 'arrow-right', onSelect: () => navigate(itemPath(u.id)) },
-                        { label: u.active ? 'Deactivate' : 'Activate', icon: u.active ? 'visibility-off' : 'check', onSelect: () => setActive([u], !u.active) },
-                        { label: `Remove ${item.type} (${quantityIn(u)})`, icon: 'delete', onSelect: () => setRemoving([u]) },
+                        { label: `View ${kind}`, onSelect: () => setViewing(u) },
+                        { label: `Go To ${kind}`, onSelect: () => navigate(itemPath(u.id)) },
+                        { label: u.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([u], !u.active) },
+                        { label: `Remove ${item.type} (${quantityIn(u)})`, onSelect: () => setRemoving([u]) },
                       ]}
                     />
                   )}
@@ -241,8 +241,6 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
 
       <AppModal
         open={!!removing && removing.length > 0}
-        variant="confirm"
-        icon="delete"
         onClose={() => setRemoving(null)}
         title={`Remove ${item.type} From ${removing?.length === 1 ? kind : kind === 'Assembly' ? 'Assemblies' : 'Kits'}`}
         description={

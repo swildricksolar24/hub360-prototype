@@ -212,7 +212,6 @@ export function DeactivateItemModal({
     return (
       <AppModal
         open
-        variant="confirm"
         onClose={onClose}
         title="Confirm Deactivation"
         description={`You are about to DEACTIVATE ${item.name}. It stays on file and can be activated again. Do you want to continue?`}

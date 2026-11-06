@@ -184,6 +184,12 @@ export type ListBoxProps = {
   className?: string;
   /** Text shown when `options` is empty. */
   emptyMessage?: ReactNode;
+  /**
+   * Frames the list like the row ••• menu (Figma Context Menu): a 16px inset, rows 8px by 12px with 8px corners and no
+   * dividers, on a 12px-rounded Surfaces/Overlay panel. The dropdowns turn it on for their popups, so every popup menu
+   * matches. Not part of the Figma ListViews, which run their rows edge to edge.
+   */
+  menu?: boolean;
 };
 
 /**
@@ -203,6 +209,7 @@ export function ListBox({
   id,
   className,
   emptyMessage = 'No results',
+  menu = false,
   ...aria
 }: ListBoxProps) {
   const autoId = useId();
@@ -322,6 +329,7 @@ export function ListBox({
       aria-multiselectable={multiple || undefined}
       className={[styles.listbox, className].filter(Boolean).join(' ')}
       data-appearance={appearance}
+      data-menu={menu || undefined}
       onKeyDown={onKeyDown}
       {...aria}
     >

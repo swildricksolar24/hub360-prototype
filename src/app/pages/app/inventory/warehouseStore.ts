@@ -79,6 +79,8 @@ const carriers = createRecordStore<Carrier[]>(SAMPLE_CARRIERS);
 
 export const useCarriers = carriers.use;
 export const setCarriers = carriers.set;
+/** A warehouse's carrier accounts, read once (the Activate / Deactivate confirmations). */
+export const getCarriers = carriers.get;
 
 const contacts = createRecordStore<Contact[]>(SAMPLE_CONTACTS);
 
@@ -103,6 +105,8 @@ const locations = createRecordStore<WarehouseLocation[]>(SAMPLE_LOCATIONS);
 
 export const useLocations = locations.use;
 export const setLocations = locations.set;
+/** A warehouse's locations, read once (the Activate confirmation counts the frozen ones). */
+export const getLocations = locations.get;
 
 const items = createRecordStore<WarehouseItem[]>(sampleItemsFor);
 
@@ -119,6 +123,18 @@ export const setStock = stock.set;
 const history = createRecordStore<HistoryEntry[]>(SAMPLE_HISTORY);
 
 export const useHistory = history.use;
+
+/**
+ * Each warehouse's activations and deactivations, newest last: who, when (local ISO date and time) and the optional
+ * note. The Activate confirmation shows the last deactivation ("Deactivated Oct 12, 2026 by L. Nguyen · “Seasonal
+ * closure”").
+ */
+export type StatusEvent = { active: boolean; by: string; date: string; note?: string };
+
+const statusLog = createRecordStore<StatusEvent[]>([]);
+
+export const getStatusLog = statusLog.get;
+export const addStatusEvent = (code: string, event: StatusEvent) => statusLog.set(code, list => [...list, event]);
 
 /** Every item in the company, plus the ones created from a warehouse's Add Part / Assembly / Kit. */
 const catalog = createStore<CatalogItem[]>(CATALOG_ITEMS);

@@ -139,17 +139,16 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
                     label={c.name}
                     onClose={() => setMenuFor(null)}
                     items={[
-                      { label: 'Edit', icon: 'edit', onSelect: () => setEditing(c) },
-                      ...(c.primary ? [] : [{ label: 'Make Primary', icon: 'star', onSelect: () => makePrimary(c) }]),
+                      { label: 'Edit', onSelect: () => setEditing(c) },
+                      ...(c.primary ? [] : [{ label: 'Make Primary', onSelect: () => makePrimary(c) }]),
                       {
                         label: c.active ? 'Deactivate' : 'Activate',
-                        icon: c.active ? 'visibility-off' : 'check',
                         onSelect: () => {
                           update(list => list.map(x => (x.id === c.id ? { ...x, active: !c.active } : x)));
                           onNotice(`${c.name} ${c.active ? 'deactivated' : 'activated'}.`);
                         },
                       },
-                      { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(c) },
+                      { label: 'Remove', onSelect: () => setRemoving(c) },
                     ]}
                   />
                 )}

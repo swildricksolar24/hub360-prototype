@@ -173,16 +173,15 @@ function CarrierAccounts({ code, onNotice }: { code: string; onNotice: (text: st
                   label={`${c.name} ${c.account}`}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: 'Edit', icon: 'edit', onSelect: () => setEditing(c) },
+                    { label: 'Edit', onSelect: () => setEditing(c) },
                     {
                       label: c.active ? 'Deactivate' : 'Activate',
-                      icon: c.active ? 'visibility-off' : 'check',
                       onSelect: () => {
                         update(list => list.map(x => (x.id === c.id ? { ...x, active: !c.active } : x)));
                         onNotice(`${c.name} account ${c.account} ${c.active ? 'deactivated' : 'activated'}.`);
                       },
                     },
-                    { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(c) },
+                    { label: 'Remove', onSelect: () => setRemoving(c) },
                   ]}
                 />
               )}

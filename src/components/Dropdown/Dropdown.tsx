@@ -31,6 +31,11 @@ export type DropdownProps = DropdownOpenProps & {
   /** Figma `State=Required` (teal outline). */
   required?: boolean;
   disabled?: boolean;
+  /**
+   * Shows the trigger in the small buttons' Selected look (Brand Teal Fill/Weaker, 2px Brand Teal Stroke/Weak), e.g. an
+   * Actions menu while table rows are checked. Not a Figma Drop Down Button state; it borrows Button Small's Selected.
+   */
+  selected?: boolean;
   /** Multi-select: the list stays open and `value` is an array. */
   multiple?: boolean;
   value?: string | string[] | null;
@@ -68,6 +73,7 @@ export function Dropdown({
   error,
   required = false,
   disabled = false,
+  selected: selectedLook = false,
   multiple = false,
   value,
   defaultValue,
@@ -114,6 +120,7 @@ export function Dropdown({
       data-error={error ? true : undefined}
       data-required={required || undefined}
       data-disabled={disabled || undefined}
+      data-selected={(selectedLook && !disabled) || undefined}
       data-placement={menuPlacement === 'above' ? 'above' : undefined}
     >
       {label && (
@@ -148,6 +155,7 @@ export function Dropdown({
         {dd.isOpen && (
           <div className={styles.popup}>
             <ListBox
+              menu
               id={listId}
               aria-labelledby={label ? labelId : undefined}
               aria-label={label ? undefined : ariaLabel}

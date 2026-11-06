@@ -77,6 +77,14 @@ no search results, and rows selected (Actions enabled only when at least one row
 
 ## 2–3. Confirm Activation / Deactivation
 
+> **Redesigned (Nov 2026):** the row menu and the Actions menu now open `WarehouseStatusModal.tsx`, built from Figma
+> "Activation" (843:60109) and "Deactivate Warehouse — Improved" (843:60078). Deactivate names the warehouse, lists its
+> stock and open orders by type (View Open Orders → Orders searched by code), takes a note, red Deactivate. Activate
+> lists stock, frozen locations and carrier accounts, the last deactivation (who, when, note; `warehouseStore`
+> status log), three toggles (notify contacts, unfreeze locations — really unfreezes them, Suggested Orders), a note,
+> View Warehouse Details, Activate. Several rows: "Deactivate 3 warehouses?" with totals. The warehouse record page's
+> Active toggle uses it too (without View Warehouse Details). The original spec below no longer applies.
+
 Figma uses the confirm layout: a teal bar across the top and a round check badge. In code that is the design-system
 `Modal variant="confirm"` (560px). `AppModal` only renders the default layout today, so add a
 `variant: 'default' | 'confirm'` prop to `AppModal` rather than using `Modal` directly (keeps the brand primary and
@@ -88,6 +96,12 @@ the Cancel default).
 - Actions: Cancel (outline), **Confirm** (brand). Confirm flips the row's status and shows a success `Message`.
 
 ## 4–7. Edit Columns
+
+> **Redesigned (Nov 2026):** Edit Columns now follows Figma "Edit Columns — Dual List" (826:57907), built in
+> `EditColumnsModal.tsx` + `editColumns.module.css`, 1280px wide: Save as a View toggle + View Name; Available fields
+> (search, All / Warehouse / Address / Inventory chips, tick then Add, or double-click); Add n / Remove / Add All;
+> Columns in table (handle, freeze, ×; frozen columns move to the top); Reset to Default, Cancel, Apply. The original
+> spec below (and Delete View) no longer applies.
 
 `AppModal` with `width` wider than 800 (see open question 3; Figma is about 905px).
 

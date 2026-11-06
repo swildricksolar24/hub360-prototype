@@ -92,8 +92,11 @@
   left: 0;
   right: 0;
   z-index: 10;
-  max-height: 144px; /* four 36px rows; a component dimension with no token */
+  /* Four 40px checkbox rows, 8px apart, inside the ••• menu frame's 16px inset (ListBox `menu`); a component dimension with no token */
+  max-height: calc(160px + 3 * var(--space-8) + 2 * var(--space-16));
   overflow-y: auto;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
   box-shadow:
     0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weak),
     var(--shadow-drop);

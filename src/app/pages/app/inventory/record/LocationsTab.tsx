@@ -186,16 +186,15 @@ export function LocationsTab({ code, onNotice }: { code: string; onNotice: (text
                         label={l.name}
                         onClose={() => setMenuFor(null)}
                         items={[
-                          { label: 'Edit', icon: 'edit', onSelect: () => open(l) },
+                          { label: 'Edit', onSelect: () => open(l) },
                           ...(depthOf(locations, l.id) < MAX_LOCATION_DEPTH
-                            ? [{ label: 'Add Sublocation', icon: 'sub-directory', onSelect: () => setAdding({ sublocation: true, parentId: l.id }) }]
+                            ? [{ label: 'Add Sublocation', onSelect: () => setAdding({ sublocation: true, parentId: l.id }) }]
                             : []),
                           {
                             label: l.active ? 'Deactivate' : 'Activate',
-                            icon: l.active ? 'visibility-off' : 'check',
                             onSelect: () => setActive([l.id], !l.active),
                           },
-                          { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(l) },
+                          { label: 'Remove', onSelect: () => setRemoving(l) },
                         ]}
                       />
                     )}

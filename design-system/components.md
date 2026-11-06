@@ -3,7 +3,7 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**190 component sets + 10 standalone components** on 81 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4). Nine of them sit on Testing and "not used" pages.
+**190 component sets + 10 standalone components** on 81 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4). Ten of them sit on Testing and "not used" pages (Modal - Dialog* moved to one Nov 6).
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. Tile / KPI's `Icon` is the only INSTANCE_SWAP property in the file.
@@ -45,15 +45,17 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Avatar* | Icon* | 1786:3173 | 3 | Size (Large, Medium, Small) | — |
 | Badge | Round | 416:1806 | 5 | Color (Amber, Blue, Green, Red, Black) | Label |
 | Badge | Pill | 416:1819 | 5 | Color | Label |
-| Button Base* | Base / Outline / Icon* | 25:230 | 6 | State¹ | Label |
-| Button Base* | Base / Outline* | 24:214 | 6 | State¹ | Label |
-| Button Base* | Base / Primary / Icon | 629:917 | 6 | State¹ | Label |
-| Button Base* | Base / Primary | 629:933 | 6 | State¹ | Label |
-| Button Base* | Brand / Teal / Primary* | 1751:3499 | 6 | State¹ | — |
-| Button Base* | Brand / Orange/ Primary* | 1751:3510 | 6 | State¹ | — |
-| Button Base* | Brand / Teal / Primary / Icon* | 1751:3521 | 6 | State¹ | Show Icon |
-| Button Large Brand | Brand / Teal / Outline (added Nov 4, 2026; Button `variant="brand-outline"`) | 3234:4981 | 6 | Property 1 (Default, Hover, Press, Selected, Focus, Disabled) | — |
-| Button Base* | Brand / Orange/ Primary / Icon* | 1751:3532 | 6 | State¹ | Show Icon |
+| Button Large | Clear /  Icon (was Base / Outline / Icon*) | 25:230 | 6 | State¹ | Label |
+| Button Large | Clear / Base (was Base / Outline*) | 24:214 | 6 | State¹ | Label |
+| Button Large | Solid / Gray / Icon (was Base / Primary / Icon) | 629:917 | 6 | State¹ | Label |
+| Button Large | Solid / Gray / Base (was Base / Primary) | 629:933 | 6 | State¹ | Label |
+| Button Large | Solid / Gray / Outline (added Nov 6, 2026; Button `variant="gray-outline"`) | 3368:236 | 6 | State¹ | — |
+| Button Large | Solid / Teal / Base (was Brand / Teal / Primary*) | 1751:3499 | 6 | State¹ | — |
+| Button Large | Solid / Teal / Icon (was Brand / Teal / Primary / Icon*) | 1751:3521 | 6 | State¹ | — |
+| Button Large | Solid / Teal / Outline (added Nov 4, 2026, moved from Button Large Brand Nov 6; Button `variant="brand-outline"`) | 3234:4981 | 6 | State¹ | — |
+| Button Large | Solid / Orange / Base (was Brand / Orange/ Primary*; Teal and Orange Base / Icon are built from Solid / Gray / Base / Icon since Nov 6, 2026) | 1751:3510 | 6 | State¹ | — |
+| Button Large | Solid / Orange / Icon (was Brand / Orange/ Primary / Icon*) | 1751:3532 | 6 | State¹ | — |
+| Button Large | Solid / Orange / Outline (added Nov 6, 2026; Button `variant="orange-outline"`) | 3368:249 | 6 | State¹ | — |
 | Button Block* | Primary / Icon | 25:376 | 6 | State¹ | Label |
 | Button Block* | Primary | 25:408 | 6 | State¹ | Label |
 | Button Block* | Primary / Outline | 25:430 | 6 | State¹ | Label |
@@ -119,7 +121,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Group* | Button Group / Vertical* | 523:821 | 4 | Position × State | — |
 | Drop Down Label | Default | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
 | Drop Down Label | chips | 2676:6014 | 1 | State | — |
-| Drop Down Label | Drop Down Menu (component, added Nov 2, 2026) | 3078:320 | 1 | — | — |
+| Drop Down Label | Drop Down Menu (component, added Nov 2, 2026; 16px inset and 8px between rows like Context Menu since Nov 6) | 3078:320 | 1 | — | — |
 | Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
 | Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
 | Drop Down Button* | Default | 56:936 | 6 | State³ | Select |
@@ -176,7 +178,6 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Context Menu* | Context Menu* | 486:92 | 1 | State | — |
 | Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
 | Modal* | Modal - Dynamic | 2684:8355 | 1 | State | — |
-| Modal* | Modal - Dialog* | 2831:8727 | 1 | State | Title, Description |
 | Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
 
 ## Components › Data display
@@ -260,3 +261,4 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Status Pill -- not used | Status Pill | 2895:7444 | Proposal: Gray/Teal Pill colors |
 | Menu Bar -- not used* | Menu Bar*, box* | 490:646, 605:10806 | |
 | Toolbars -- not used | Toolbar | 707:5627 | 7 screen variants |
+| Modal Dialog - not used | Modal - Dialog* | 2831:8727 | Moved off the Modal page Nov 6, 2026: no instances in Base, Shell or Inventory. Coded as `Modal variant="confirm"` (Storybook only; `AppModal` never uses it). 1 variant (State); props Title, Description |

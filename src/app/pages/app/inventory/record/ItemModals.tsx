@@ -260,8 +260,6 @@ export function ConfirmCloneModal({
   return (
     <AppModal
       open={from !== null}
-      variant="confirm"
-      icon="import"
       onClose={onClose}
       title="Clone Warehouse"
       description={

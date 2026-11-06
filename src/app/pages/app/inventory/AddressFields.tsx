@@ -104,7 +104,37 @@ const required = (text: string): ReactNode => (
 );
 
 /**
- * A warehouse's address fields, laid out the way the selected country writes addresses. The country field itself
+ * Browser autofill (Chrome's saved addresses) can't fill the State dropdown, a custom control, so this hidden native
+ * select takes the state from autofill (`address-level1`) and sets the dropdown. It stays out of the tab order and away
+ * from screen readers; the dropdown remains the field people use.
+ */
+function StateAutofill({ country, state, onChange }: { country: string; state: string; onChange: (state: string) => void }) {
+  const codes = stateCodesFor(country);
+  return (
+    <select
+      className={styles.autofillOnly}
+      autoComplete="address-level1"
+      tabIndex={-1}
+      aria-hidden
+      value={codes[state] ?? ''}
+      onChange={e => {
+        const name = Object.entries(codes).find(([, code]) => code === e.target.value)?.[0];
+        if (name) onChange(name);
+      }}
+    >
+      <option value="" />
+      {Object.entries(codes).map(([name, code]) => (
+        <option key={code} value={code}>
+          {name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+/**
+ * A warehouse's address fields, laid out the way the selected country writes addresses. Each field carries its HTML
+ * autofill type, so picking a saved address in the browser fills the street, unit, city, state and postal code. The country field itself
  * stays with the form, since each form places it differently.
  * - United States: Address 1, Address 2, then City · State · Zip Code.
  * - Canada: Street Address, Unit / Suite, then City · Province / Territory (the 13) · Postal Code (A1A 1A1).
@@ -122,19 +152,21 @@ export function AddressFields({
 }) {
   const set = (key: keyof AddressDraft) => (value: string) => onChange({ ...draft, [key]: value });
   const stateOptions = Object.keys(stateCodesFor(draft.country)).map(s => ({ value: s, label: s }));
+  const stateAutofill = <StateAutofill country={draft.country} state={draft.state} onChange={set('state')} />;
 
   if (draft.country === MEXICO) {
     return (
       <>
         <div className={styles.street}>
-          <TextInput label={required('Street (Calle)')} value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
+          <TextInput label={required('Street (Calle)')} autoComplete="address-line1" value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
           <TextInput label={required('Exterior # (Núm. ext.)')} value={draft.exteriorNumber} onChange={e => set('exteriorNumber')(e.target.value)} error={errors.exteriorNumber} required />
           <TextInput label="Interior # (Núm. int.)" value={draft.interiorNumber} onChange={e => set('interiorNumber')(e.target.value)} />
         </div>
         <div className={styles.wideNarrow}>
-          <TextInput label={required('Neighborhood (Colonia)')} value={draft.colonia} onChange={e => set('colonia')(e.target.value)} error={errors.colonia} required />
+          <TextInput label={required('Neighborhood (Colonia)')} autoComplete="address-level3" value={draft.colonia} onChange={e => set('colonia')(e.target.value)} error={errors.colonia} required />
           <TextInput
             label={required('Postal Code (C.P.)')}
+            autoComplete="postal-code"
             inputMode="numeric"
             maxLength={5}
             value={draft.zip}
@@ -144,9 +176,10 @@ export function AddressFields({
           />
         </div>
         <div className={styles.halves}>
-          <TextInput label={required('Municipality (Municipio / Alcaldía)')} value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
+          <TextInput label={required('Municipality (Municipio / Alcaldía)')} autoComplete="address-level2" value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
           <Dropdown label="State (Estado) *" placeholder="Select" options={stateOptions} value={draft.state || null} onChange={v => set('state')(v as string)} error={errors.state} required />
         </div>
+        {stateAutofill}
       </>
     );
   }
@@ -154,13 +187,16 @@ export function AddressFields({
   if (draft.country === CANADA) {
     return (
       <>
-        <TextInput label={required('Street Address')} value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
-        <TextInput label="Unit / Suite" value={draft.address2} onChange={e => set('address2')(e.target.value)} />
+        <div className={styles.halves}>
+          <TextInput label={required('Street Address')} autoComplete="address-line1" value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
+          <TextInput label="Unit / Suite" autoComplete="address-line2" value={draft.address2} onChange={e => set('address2')(e.target.value)} />
+        </div>
         <div className={styles.thirds}>
-          <TextInput label={required('City')} value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
+          <TextInput label={required('City')} autoComplete="address-level2" value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
           <Dropdown label="Province / Territory *" placeholder="Select" options={stateOptions} value={draft.state || null} onChange={v => set('state')(v as string)} error={errors.state} required />
           <TextInput
             label={required('Postal Code')}
+            autoComplete="postal-code"
             autoCapitalize="characters"
             maxLength={7}
             value={draft.zip}
@@ -169,6 +205,7 @@ export function AddressFields({
             required
           />
         </div>
+        {stateAutofill}
       </>
     );
   }
@@ -176,13 +213,16 @@ export function AddressFields({
   // United States: Address 1, City, State and Zip Code are required (Address 2, the suite or unit, stays optional)
   return (
     <>
-      <TextInput label={required('Address 1')} value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
-      <TextInput label="Address 2" value={draft.address2} onChange={e => set('address2')(e.target.value)} />
+      <div className={styles.halves}>
+        <TextInput label={required('Address 1')} autoComplete="address-line1" value={draft.address1} onChange={e => set('address1')(e.target.value)} error={errors.address1} required />
+        <TextInput label="Address 2" autoComplete="address-line2" value={draft.address2} onChange={e => set('address2')(e.target.value)} />
+      </div>
       <div className={styles.thirds}>
-        <TextInput label={required('City')} value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
+        <TextInput label={required('City')} autoComplete="address-level2" value={draft.city} onChange={e => set('city')(e.target.value)} error={errors.city} required />
         <Dropdown label="State *" placeholder="Select" options={stateOptions} value={draft.state || null} onChange={v => set('state')(v as string)} error={errors.state} required />
         <TextInput
           label={required('Zip Code')}
+          autoComplete="postal-code"
           inputMode="numeric"
           maxLength={10}
           value={draft.zip}
@@ -191,6 +231,7 @@ export function AddressFields({
           required
         />
       </div>
+      {stateAutofill}
     </>
   );
 }

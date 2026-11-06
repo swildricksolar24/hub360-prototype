@@ -194,6 +194,40 @@
   object-fit: cover;
 }
 
+/*
+ * ---------- Menu frame (`menu`): the row ••• menu's spacing (ContextMenu.module.css) ----------
+ * A 16px inset on a 12px-rounded Surfaces/Overlay panel; rows 8px by 12px with 8px corners, so the hover fill sits
+ * inside the panel, and 8px between rows (Figma Context Menu, Spacing/8); no 1px dividers. The doubled class beats the
+ * ListViews rule above.
+ */
+.listbox.listbox[data-menu] {
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: none;
+}
+.listbox[data-menu] .group,
+.listbox[data-menu] .groupWrap {
+  gap: var(--space-8);
+}
+.listbox[data-menu] .item,
+.listbox[data-menu] .empty {
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+}
+/* A disabled option looks like Figma Menu Item State=Disabled: no fill; text and icons in Gray Fill/Disabled */
+.listbox[data-menu] .item[aria-disabled='true'] {
+  --bg: transparent;
+  --fg: var(--color-gray-fill-disabled);
+  --icon: var(--color-gray-fill-disabled);
+}
+.listbox[data-menu] .category {
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-weaker);
+}
+
 /* ---------- Category ---------- */
 
 .category {

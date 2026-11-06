@@ -35,3 +35,15 @@
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
 }
+
+/* StateAutofill: a native select only the browser's autofill uses; invisible and takes no space (1px is the usual
+   visually-hidden size, not a design value) */
+.autofillOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+}

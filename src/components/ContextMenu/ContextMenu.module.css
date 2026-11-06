@@ -2,6 +2,8 @@
 .menu {
   display: flex;
   flex-direction: column;
+  /* Figma Spacing/8 between the rows (the Context Menu's "box", since Nov 6, 2026) */
+  gap: var(--space-8);
   box-sizing: border-box;
   width: 240px; /* Figma menu width, padding included; no token */
   overflow: hidden;
@@ -60,9 +62,10 @@
 .item:active {
   --bg: var(--color-gray-fill-press);
 }
+/* Figma Menu Item State=Disabled (486:28, Nov 6, 2026): no fill; the label and icons in Gray Fill/Disabled */
 .item[aria-disabled='true'] {
-  --bg: var(--color-gray-fill-disabled);
-  --fg: var(--color-gray-text-disabled);
+  --bg: transparent;
+  --fg: var(--color-gray-fill-disabled);
   cursor: not-allowed;
 }
 .item[aria-disabled='true'] .icon {
