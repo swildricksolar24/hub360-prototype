@@ -38,21 +38,18 @@ const figmaSet = (nodeId: string, figmaName: string, props: Omit<ButtonProps, 'c
 
 export const Playground: Story = {};
 
-/** Like figmaSet, but the story is named after the Figma set. */
-const named = (name: string, story: Story): Story => ({ ...story, name });
-
 // Button Large (Figma page "- Button Large")
-export const BasePrimary = named('Solid / Gray / Base', figmaSet('629:933', 'Button Large › Solid / Gray / Base', { size: 'base', variant: 'primary' }));
-export const BasePrimaryIcon = named('Solid / Gray / Icon', figmaSet('629:917', 'Button Large › Solid / Gray / Icon', { size: 'base', variant: 'primary', icon: 'arrow-up' }));
-export const BaseGrayOutline = named('Solid / Gray / Outline', figmaSet('3368:236', 'Button Large › Solid / Gray / Outline', { size: 'base', variant: 'gray-outline' }));
-export const BaseOutline = named('Clear / Base', figmaSet('24:214', 'Button Large › Clear / Base', { size: 'base', variant: 'outline' }));
-export const BaseOutlineIcon = named('Clear / Icon', figmaSet('25:230', 'Button Large › Clear /  Icon', { size: 'base', variant: 'outline', icon: 'arrow-up' }));
-export const BaseBrandTeal = named('Solid / Teal / Base', figmaSet('1751:3499', 'Button Large › Solid / Teal / Base', { size: 'base', variant: 'brand' }));
-export const BaseBrandTealIcon = named('Solid / Teal / Icon', figmaSet('1751:3521', 'Button Large › Solid / Teal / Icon', { size: 'base', variant: 'brand', icon: 'arrow-up' }));
-export const BaseBrandTealOutline = named('Solid / Teal / Outline', figmaSet('3234:4981', 'Button Large › Solid / Teal / Outline', { size: 'base', variant: 'brand-outline' }));
-export const BaseBrandOrange = named('Solid / Orange / Base', figmaSet('1751:3510', 'Button Large › Solid / Orange / Base', { size: 'base', variant: 'brand-orange' }));
-export const BaseBrandOrangeIcon = named('Solid / Orange / Icon', figmaSet('1751:3532', 'Button Large › Solid / Orange / Icon', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' }));
-export const BaseOrangeOutline = named('Solid / Orange / Outline', figmaSet('3368:249', 'Button Large › Solid / Orange / Outline', { size: 'base', variant: 'orange-outline' }));
+export const BasePrimary: Story = { ...figmaSet('629:933', 'Button Large › Solid / Gray / Base', { size: 'base', variant: 'primary' }), name: 'Solid / Gray / Base' };
+export const BasePrimaryIcon: Story = { ...figmaSet('629:917', 'Button Large › Solid / Gray / Icon', { size: 'base', variant: 'primary', icon: 'arrow-up' }), name: 'Solid / Gray / Icon' };
+export const BaseGrayOutline: Story = { ...figmaSet('3368:236', 'Button Large › Solid / Gray / Outline', { size: 'base', variant: 'gray-outline' }), name: 'Solid / Gray / Outline' };
+export const BaseOutline: Story = { ...figmaSet('24:214', 'Button Large › Clear / Base', { size: 'base', variant: 'outline' }), name: 'Clear / Base' };
+export const BaseOutlineIcon: Story = { ...figmaSet('25:230', 'Button Large › Clear /  Icon', { size: 'base', variant: 'outline', icon: 'arrow-up' }), name: 'Clear / Icon' };
+export const BaseBrandTeal: Story = { ...figmaSet('1751:3499', 'Button Large › Solid / Teal / Base', { size: 'base', variant: 'brand' }), name: 'Solid / Teal / Base' };
+export const BaseBrandTealIcon: Story = { ...figmaSet('1751:3521', 'Button Large › Solid / Teal / Icon', { size: 'base', variant: 'brand', icon: 'arrow-up' }), name: 'Solid / Teal / Icon' };
+export const BaseBrandTealOutline: Story = { ...figmaSet('3234:4981', 'Button Large › Solid / Teal / Outline', { size: 'base', variant: 'brand-outline' }), name: 'Solid / Teal / Outline' };
+export const BaseBrandOrange: Story = { ...figmaSet('1751:3510', 'Button Large › Solid / Orange / Base', { size: 'base', variant: 'brand-orange' }), name: 'Solid / Orange / Base' };
+export const BaseBrandOrangeIcon: Story = { ...figmaSet('1751:3532', 'Button Large › Solid / Orange / Icon', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' }), name: 'Solid / Orange / Icon' };
+export const BaseOrangeOutline: Story = { ...figmaSet('3368:249', 'Button Large › Solid / Orange / Outline', { size: 'base', variant: 'orange-outline' }), name: 'Solid / Orange / Outline' };
 
 // Button Block
 export const BlockPrimary = figmaSet('25:408', 'Button Block › Primary', { size: 'base', variant: 'primary', block: true }, 440);
