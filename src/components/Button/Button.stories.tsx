@@ -38,16 +38,21 @@ const figmaSet = (nodeId: string, figmaName: string, props: Omit<ButtonProps, 'c
 
 export const Playground: Story = {};
 
-// Button Base
-export const BasePrimary = figmaSet('629:933', 'Button Base › Base / Primary', { size: 'base', variant: 'primary' });
-export const BasePrimaryIcon = figmaSet('629:917', 'Button Base › Base / Primary / Icon', { size: 'base', variant: 'primary', icon: 'arrow-up' });
-export const BaseOutline = figmaSet('24:214', 'Button Base › Base / Outline*', { size: 'base', variant: 'outline' });
-export const BaseOutlineIcon = figmaSet('25:230', 'Button Base › Base / Outline / Icon*', { size: 'base', variant: 'outline', icon: 'arrow-up' });
-export const BaseBrandTeal = figmaSet('1751:3499', 'Button Base › Brand / Teal / Primary*', { size: 'base', variant: 'brand' });
-export const BaseBrandTealIcon = figmaSet('1751:3521', 'Button Base › Brand / Teal / Primary / Icon*', { size: 'base', variant: 'brand', icon: 'arrow-up' });
-export const BaseBrandTealOutline = figmaSet('3234:4981', 'Button Large Brand › Brand / Teal / Outline', { size: 'base', variant: 'brand-outline' });
-export const BaseBrandOrange =figmaSet('1751:3510', 'Button Base › Brand / Orange/ Primary*', { size: 'base', variant: 'brand-orange' });
-export const BaseBrandOrangeIcon = figmaSet('1751:3532', 'Button Base › Brand / Orange/ Primary / Icon*', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' });
+/** Like figmaSet, but the story is named after the Figma set. */
+const named = (name: string, story: Story): Story => ({ ...story, name });
+
+// Button Large (Figma page "- Button Large")
+export const BasePrimary = named('Solid / Gray / Base', figmaSet('629:933', 'Button Large › Solid / Gray / Base', { size: 'base', variant: 'primary' }));
+export const BasePrimaryIcon = named('Solid / Gray / Icon', figmaSet('629:917', 'Button Large › Solid / Gray / Icon', { size: 'base', variant: 'primary', icon: 'arrow-up' }));
+export const BaseGrayOutline = named('Solid / Gray / Outline', figmaSet('3368:236', 'Button Large › Solid / Gray / Outline', { size: 'base', variant: 'gray-outline' }));
+export const BaseOutline = named('Clear / Base', figmaSet('24:214', 'Button Large › Clear / Base', { size: 'base', variant: 'outline' }));
+export const BaseOutlineIcon = named('Clear / Icon', figmaSet('25:230', 'Button Large › Clear /  Icon', { size: 'base', variant: 'outline', icon: 'arrow-up' }));
+export const BaseBrandTeal = named('Solid / Teal / Base', figmaSet('1751:3499', 'Button Large › Solid / Teal / Base', { size: 'base', variant: 'brand' }));
+export const BaseBrandTealIcon = named('Solid / Teal / Icon', figmaSet('1751:3521', 'Button Large › Solid / Teal / Icon', { size: 'base', variant: 'brand', icon: 'arrow-up' }));
+export const BaseBrandTealOutline = named('Solid / Teal / Outline', figmaSet('3234:4981', 'Button Large › Solid / Teal / Outline', { size: 'base', variant: 'brand-outline' }));
+export const BaseBrandOrange = named('Solid / Orange', figmaSet('1751:3510', 'Button Large › Solid / Orange / ', { size: 'base', variant: 'brand-orange' }));
+export const BaseBrandOrangeIcon = named('Solid / Orange / Icon', figmaSet('1751:3532', 'Button Large › Solid / Orange / Icon', { size: 'base', variant: 'brand-orange', icon: 'arrow-up' }));
+export const BaseOrangeOutline = named('Solid / Orange / Outline', figmaSet('3368:249', 'Button Large › Solid / Orange / Outline', { size: 'base', variant: 'orange-outline' }));
 
 // Button Block
 export const BlockPrimary = figmaSet('25:408', 'Button Block › Primary', { size: 'base', variant: 'primary', block: true }, 440);
@@ -65,6 +70,7 @@ export const SmallBrand = figmaSet('1751:3632', 'Button Small › Brand / Defaul
 export const SmallBrandIconLeft = figmaSet('1751:3643', 'Button Small › Brand / Default / Icon - Left*', { size: 'small', variant: 'brand', icon: 'account' });
 export const SmallBrandIconRight = figmaSet('2392:572', 'Button Small › Brand / Default / Icon - Right*', { size: 'small', variant: 'brand', icon: 'account', iconPosition: 'right' });
 export const SmallBrandOutline = figmaSet('3290:6405', 'Button Small › Brand / Small / Outline', { size: 'small', variant: 'brand-outline' });
+export const SmallBrandRed = figmaSet('3358:6168', 'Button Small Brand › Brand / Small / Red', { size: 'small', variant: 'brand-red' });
 export const SmallBrandSecondary =figmaSet('2548:3743', 'Button Small › Brand / Secondary*', { size: 'small', variant: 'brand-secondary' });
 export const SmallBrandSecondaryIconLeft = figmaSet('2734:1004', 'Button Small › Brand / Secondary / Icon - Left*', { size: 'small', variant: 'brand-secondary', icon: 'account' });
 export const SmallBrandSecondaryIconRight = figmaSet('2734:1035', 'Button Small › Brand / Secondary / Icon - Right*', { size: 'small', variant: 'brand-secondary', icon: 'account', iconPosition: 'right' });

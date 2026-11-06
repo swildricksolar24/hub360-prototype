@@ -2,14 +2,27 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './Button.module.css';
 
-export type ButtonVariant = 'primary' | 'outline' | 'brand' | 'brand-outline' | 'brand-orange' | 'brand-secondary' | 'text';
+export type ButtonVariant =
+  | 'primary'
+  | 'outline'
+  | 'brand'
+  | 'brand-outline'
+  | 'brand-orange'
+  | 'orange-outline'
+  | 'gray-outline'
+  | 'brand-red'
+  | 'brand-secondary'
+  | 'text';
 export type ButtonSize = 'base' | 'small' | 'tiny';
 
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   children: ReactNode;
   /**
-   * Figma sets per size — base: primary, outline, brand, brand-outline (Brand / Teal / Outline), brand-orange ·
-   * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).
+   * Figma sets per size — base ("- Button Large"): primary (Solid / Gray / Base), outline (Clear / Base),
+   * brand (Solid / Teal / Base), brand-orange (Solid / Orange / ), brand-outline (Solid / Teal / Outline),
+   * orange-outline (Solid / Orange / Outline), gray-outline (Solid / Gray / Outline); the last two exist at base only ·
+   * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-red (Brand / Small / Red: destructive
+   * and error actions, e.g. Deactivate, Delete), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).
    */
   variant?: ButtonVariant;
   /** base = Button Base / Block (76px) · small = Button Small (44px) · tiny = Button Tiny (32px). */

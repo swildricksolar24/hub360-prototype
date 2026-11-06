@@ -193,7 +193,6 @@ export function ItemRecordPage() {
 
       <AppModal
         open={activating}
-        variant="confirm"
         onClose={() => setActivating(false)}
         title="Confirm Activation"
         description={

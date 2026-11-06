@@ -114,8 +114,8 @@ Most-used APIs:
 | Button | `variant`, `size` (base / small / tiny), `block`, `icon`, `iconPosition`, `selected`, `disabled` |
 | IconButton | `label` (required), `icon` or `number`, `variant` (default / brand), `size` (base 80px / compact 40px), `selected` |
 | TextInput | `label` (text or markup, e.g. a red required `*`), `error` (message), `leftIcon`, `rightIcons`, `trailingAction` (an interactive control after the divider, e.g. show/hide password), plus native input props (`required`, `disabled`, …) |
-| Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required` |
-| Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm), `width`. The close button is Figma "Button / Icon Only / Small / Secondary" (44px; Hover fades to Gray Fill/Hover). In the prototype app use `AppModal`, which wraps it |
+| Dropdown | `options`, `label`, `variant` (field / button / small / icon), `multiple`, `value` / `onChange`, `error`, `required`, `disabled`, `selected` (Button Small's Selected look, e.g. an Actions menu while rows are checked). Its popup (like MultiselectDropdown, MainDropDown and DropdownTree) uses ListBox `menu`: the row ••• menu's 16px inset, 8 x 12px rows and 12px corners, so every popup menu matches |
+| Modal | `open`, `onClose`, `title`, `description`, `actions`, `variant` (default / sectioned / confirm), `width`, `footerDivider` (a line above the buttons, inside the padding; `AppModal` turns it on for every app modal). The close button is Figma "Button / Icon Only / Small / Secondary" (44px; Hover fades to Gray Fill/Hover). In the prototype app use `AppModal`, which wraps it |
 | Message | `title`, `body`, `type`, `onClose` |
 | Toast | `type`, `title`, `body`, `onClose`, `inline`. A page notice that slides down at the top center and leaves after 5 seconds; `onClose` runs once it has gone. `inline` draws it in place (previews only) |
 | CardLarge / CardRow | CardLarge: `title`, `headingLevel`, `children` (Figma Card / Large: a titled section on Surfaces/Sunken). CardRow: `media` (80px), `title`, `subtitle`, `action`, `highlighted` (Figma Card / Row / Small) |
@@ -126,8 +126,8 @@ Most-used APIs:
 | Footer | `copyright`, `version` (centered), `links` (`{ label, href, newWindow? }`; `newWindow` opens the link in a new window and says so to screen readers) |
 
 Button variants that exist in Figma, by size:
-- **base:** `primary`, `outline`, `brand` (teal), `brand-outline` (teal fill with a gray border: Figma "Brand / Teal / Outline"), `brand-orange`
-- **small:** `primary`, `outline`, `brand`, `brand-outline` (Figma "Brand / Small / Outline"; use it for card actions such as the Inventory dashboard's Review), `brand-secondary`
+- **base** (Figma "- Button Large"): `primary` (Solid / Gray / Base), `outline` (Clear / Base), `brand` (teal, Solid / Teal / Base), `brand-orange` (Solid / Orange), and three outlined solids with a Gray Stroke/Weak border and a white label: `brand-outline` (Solid / Teal / Outline), `orange-outline` (Solid / Orange / Outline) and `gray-outline` (Solid / Gray / Outline). `orange-outline` and `gray-outline` exist at base size only. `gray-outline`'s white label sits on a translucent gray fill, so it is meant for dark surfaces.
+- **small:** `primary`, `outline`, `brand`, `brand-outline` (Figma "Brand / Small / Outline"; use it for card actions such as the Inventory dashboard's Review), `brand-red` (Figma "Brand / Small / Red": destructive and error actions such as Deactivate or Delete; `AppModal` uses it for every `danger` action), `brand-secondary`
 - **tiny:** `primary`, `text`, `brand` (Figma "Primary / Tiny / Brand"; use it for an action inside a table row, such as Low Stock's View PO / Create PO)
 
 Other combinations render, but have no Figma design.

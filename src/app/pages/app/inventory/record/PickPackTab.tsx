@@ -226,8 +226,8 @@ function LabelDefaults({ warehouse, onNotice }: { warehouse: { code: string; nam
                   label={l.name}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: 'Edit', icon: 'edit', onSelect: () => setEditing(l) },
-                    { label: 'Delete', icon: 'delete', onSelect: () => setDeleting(l) },
+                    { label: 'Edit', onSelect: () => setEditing(l) },
+                    { label: 'Delete', onSelect: () => setDeleting(l) },
                   ]}
                 />
               )}

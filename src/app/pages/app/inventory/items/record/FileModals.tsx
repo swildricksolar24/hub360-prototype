@@ -466,8 +466,6 @@ export function DeleteFilesModal({ files, all, onClose, onConfirm }: { files: It
   return (
     <AppModal
       open={!!files && files.length > 0}
-      variant="confirm"
-      icon="delete"
       onClose={onClose}
       title={files?.length === 1 ? (files[0].type === 'Folder' ? 'Delete Folder' : 'Delete File') : 'Delete Files'}
       description={

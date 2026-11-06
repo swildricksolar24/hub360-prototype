@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '../../../../components/Icon/Icon';
 import { AppLink } from '../../../components/AppLink';
@@ -14,8 +14,9 @@ import { StockTab } from './record/StockTab';
 import { addressDraftOf, addressErrors, addressFromDraft } from './AddressFields';
 import type { Warehouse } from './warehouseData';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
+import { WarehouseStatusModal, applyWarehouseStatus } from './WarehouseStatusModal';
+import { useAuth } from '../../../auth/AuthContext';
 import styles from './record.module.css';
-import listStyles from './warehouses.module.css';
 import { Toast } from '../../../../components/Toast/Toast';
 
 /** The record's tabs, in Figma's order. Tabs without content show RecordPage's "not built yet" placeholder. */
@@ -50,6 +51,10 @@ export function WarehouseRecordPage() {
   const [errors, setErrors] = useState<DetailsErrors>({});
   const [notice, setNotice] = useState<string | null>(null);
   const [statusChange, setStatusChange] = useState<boolean | null>(null);
+  // The dialog keeps showing Activate or Deactivate while it closes
+  const shownActive = useRef(false);
+  if (statusChange !== null) shownActive.current = statusChange;
+  const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
 
   // A different warehouse (previous / next) starts from its own saved details
@@ -129,7 +134,9 @@ export function WarehouseRecordPage() {
             active={w.active}
             onActiveChange={on => setStatusChange(on)}
             options={[
-              w.active ? { value: 'deactivate', label: 'Deactivate' } : { value: 'activate', label: 'Activate' },
+              // Both, with the one matching the current status disabled
+              { value: 'activate', label: 'Activate', disabled: w.active },
+              { value: 'deactivate', label: 'Deactivate', disabled: !w.active },
               { value: 'export', label: 'Export' },
               { value: 'delete', label: 'Delete' },
             ]}
@@ -156,26 +163,16 @@ export function WarehouseRecordPage() {
         onSectionChange={id => setParams(id === 'details' ? {} : { tab: id }, { replace: true })}
       />
 
-      {/* Header Active toggle / Actions: Figma "Action Confirmation" (508:75882) */}
-      <AppModal
+      {/* Header Active toggle / Actions: Figma "Activation" (843:60109) and "Deactivate Warehouse — Improved" (843:60078) */}
+      <WarehouseStatusModal
         open={statusChange !== null}
-        variant="confirm"
+        warehouses={[w]}
+        active={shownActive.current}
+        onRecord
         onClose={() => setStatusChange(null)}
-        title={statusChange ? 'Confirm Activation' : 'Confirm Deactivation'}
-        description={
-          <>
-            You are about to <strong className={listStyles.verb}>{statusChange ? 'ACTIVATE' : 'DEACTIVATE'}</strong> this warehouse. This
-            change will take effect immediately. Do you want to continue?
-          </>
-        }
-        primaryAction={{
-          label: 'Confirm',
-          onClick: () => {
-            const active = statusChange === true;
-            setWarehouses(list => list.map(x => (x.code === w.code ? { ...x, active } : x)));
-            setNotice(`${w.name} ${active ? 'activated' : 'deactivated'}.`);
-            setStatusChange(null);
-          },
+        onConfirm={(note, options) => {
+          setNotice(applyWarehouseStatus([w], statusChange === true, note, options, user?.name ?? 'You'));
+          setStatusChange(null);
         }}
       />
 

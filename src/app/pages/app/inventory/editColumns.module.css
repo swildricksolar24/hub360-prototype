@@ -1,0 +1,198 @@
+/* Edit Columns (Figma "Edit Columns — Dual List", Inventory Management 826:57907) */
+
+/* ---------- Save as a View ---------- */
+.saveView {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-24);
+}
+.viewName {
+  width: 344px; /* Figma field width, no token */
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- The two lists and the buttons between them ---------- */
+.dualList {
+  display: flex;
+  gap: var(--space-16);
+  /* Figma list height 720, capped so the dialog still fits a laptop window; no token */
+  height: min(720px, 60vh);
+  min-height: 320px;
+  margin-top: var(--space-16);
+}
+.available,
+.columns {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  /* Both lists: Surfaces/Overlay inside an Outline-width Brand Teal Stroke/Strong border */
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-brand-teal-stroke-strong);
+  font-family: var(--font-family-inter);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.head h3 {
+  flex: 1;
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}
+.head span {
+  color: var(--color-gray-text-weak);
+  white-space: nowrap;
+}
+.groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.moves {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: var(--space-12);
+}
+
+/* ---------- Rows ---------- */
+.fields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.columns .fields {
+  gap: var(--space-12);
+}
+.field,
+.column {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-12);
+  border-radius: var(--radius-8);
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+/* Available field: white row; ticked = Brand Teal Fill/Weaker with a 1px Brand Teal Stroke/Strong outline, bold */
+.field {
+  padding: var(--space-10) var(--space-12);
+  background: var(--color-surfaces-overlay);
+}
+.field:hover {
+  background: var(--color-gray-fill-weaker);
+}
+.field[aria-selected='true'],
+.column[data-selected] {
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-brand-teal-stroke-strong);
+}
+.field:focus-visible,
+.column:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+/* A column in the table: sunken row with its handle, name, freeze and remove */
+.column {
+  padding: var(--space-8);
+  background: var(--color-surfaces-sunken);
+}
+.column[data-dragging] {
+  background: var(--color-surfaces-raised);
+  box-shadow: var(--shadow-drop);
+}
+.check {
+  flex: none;
+}
+.fieldName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta {
+  color: var(--color-gray-text-weak);
+  white-space: nowrap;
+}
+.handle {
+  display: inline-flex;
+  color: var(--color-gray-text-weak);
+  cursor: grab;
+  touch-action: none;
+}
+.column[data-dragging] .handle {
+  cursor: grabbing;
+}
+
+/* Freeze: Figma's 44 x 36 button. Frozen = solid brand (IconButton brand); not frozen = a 1px Gray Stroke/Weaker outline */
+.freeze {
+  padding: var(--space-4) var(--space-10);
+  border-radius: var(--radius-8);
+}
+.freeze[data-variant='default'] {
+  --bg: transparent;
+  --fg: var(--color-gray-text-strong);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-1);
+}
+
+/* Remove (×): a bare icon until hovered */
+.remove {
+  display: inline-flex;
+  flex: none;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+  outline: none;
+}
+.remove:hover {
+  background: var(--color-gray-fill-hover);
+}
+.remove:active {
+  background: var(--color-gray-fill-press);
+}
+.remove:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weak);
+}
+
+/* ---------- Notes ---------- */
+.note,
+.empty {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.empty {
+  flex: 1;
+  padding: var(--space-16);
+  text-align: center;
+}
+.noteEnd {
+  margin-top: auto;
+}

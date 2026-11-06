@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../../../../components/Button/Button';
 import { ContextMenu } from '../../../../../components/ContextMenu/ContextMenu';
 import { DataHeader, type DataColumn, type DataSort } from '../../../../../components/DataHeader/DataHeader';
@@ -46,7 +46,9 @@ export function OrdersPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const [view, setView] = useState<string>(ALL);
-  const [query, setQuery] = useState('');
+  // ?q= starts the search, e.g. a warehouse code from the Deactivate confirmation's "View Open Orders"
+  const [params] = useSearchParams();
+  const [query, setQuery] = useState(() => params.get('q') ?? '');
   const [sort, setSort] = useState<DataSort | undefined>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -227,9 +229,9 @@ export function OrdersPage() {
                         label={o.number}
                         onClose={() => setMenuFor(null)}
                         items={[
-                          { label: 'View', icon: 'visibility', onSelect: () => navigate(orderPath(o)) },
+                          { label: 'View', onSelect: () => navigate(orderPath(o)) },
                           ...(o.status === 'In Process'
-                            ? [{ label: 'Cancel Order', icon: 'close', onSelect: () => setCancelling([o.id]) }]
+                            ? [{ label: 'Cancel Order', onSelect: () => setCancelling([o.id]) }]
                             : []),
                         ]}
                       />
@@ -254,8 +256,6 @@ export function OrdersPage() {
 
       <AppModal
         open={cancelling !== null}
-        variant="confirm"
-        icon="close"
         onClose={() => setCancelling(null)}
         title="Confirm Cancellation"
         description={

@@ -328,10 +328,10 @@ export function MoveItemsTable({
                       onClose={() => setMenuFor(null)}
                       items={[
                         isEditing
-                          ? { label: 'Done', icon: 'check', onSelect: () => setEdit(id, false) }
-                          : { label: 'Edit', icon: 'edit', onSelect: () => setEdit(id, true) },
-                        { label: 'Split', icon: 'sub-directory', onSelect: () => split(row) },
-                        { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(row) },
+                          ? { label: 'Done', onSelect: () => setEdit(id, false) }
+                          : { label: 'Edit', onSelect: () => setEdit(id, true) },
+                        { label: 'Split', onSelect: () => split(row) },
+                        { label: 'Remove', onSelect: () => setRemoving(row) },
                       ]}
                     />
                   )}

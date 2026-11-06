@@ -18,11 +18,20 @@ import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, fieldByKey, type SavedView, type
 import { RowMenu } from './record/RowMenu';
 import { PAGE_SIZES } from './record/tableKit';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
+import { WarehouseStatusModal, applyWarehouseStatus, type ActivateOptions } from './WarehouseStatusModal';
+import { useAuth } from '../../../auth/AuthContext';
 import table from './table.module.css';
 import styles from './warehouses.module.css';
 import { Toast } from '../../../../components/Toast/Toast';
 
 const ALL_VIEW = '__all';
+/** The View menu: which warehouses the table shows */
+type StatusView = 'all' | 'active' | 'inactive';
+const STATUS_VIEWS: { value: StatusView; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+];
 
 type StatusChange = { ids: string[]; active: boolean };
 
@@ -38,7 +47,8 @@ export function WarehousesPage() {
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Columns and saved views (Edit Columns)
+  // View menu: a status filter (All / Active / Inactive) plus the column layouts saved from Edit Columns
+  const [statusView, setStatusView] = useState<StatusView>('all');
   const [views, setViews] = useState<SavedView[]>(SAMPLE_VIEWS);
   const [viewName, setViewName] = useState<string>(ALL_VIEW);
   const [columns, setColumns] = useState<string[]>(DEFAULT_COLUMNS);
@@ -56,6 +66,10 @@ export function WarehousesPage() {
   // Modals and menus
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [statusChange, setStatusChange] = useState<StatusChange | null>(null);
+  // The dialog keeps showing the last change while it closes
+  const shownChange = useRef(statusChange);
+  if (statusChange) shownChange.current = statusChange;
+  const { user } = useAuth();
   const [editing, setEditing] = useState<Warehouse | 'new' | null>(null);
   const [deleting, setDeleting] = useState<Warehouse | null>(null);
   const [columnsOpen, setColumnsOpen] = useState(false);
@@ -73,7 +87,9 @@ export function WarehousesPage() {
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = warehouses.filter(w => {
-      if (q && !`${w.code} ${w.name} ${FIELDS[2].show(w)}`.toLowerCase().includes(q)) return false;
+      if (statusView === 'active' && !w.active) return false;
+      if (statusView === 'inactive' && w.active) return false;
+      if (q &&!`${w.code} ${w.name} ${FIELDS[2].show(w)}`.toLowerCase().includes(q)) return false;
       return Object.entries(filters).every(([key, text]) => {
         const field = key === 'status' ? null : fieldByKey(key);
         const shown = field ? field.show(w) : w.active ? 'Active' : 'Inactive';
@@ -85,12 +101,12 @@ export function WarehousesPage() {
     const value = (w: Warehouse) => (field ? field.sortValue(w) : w.active ? 1 : 0);
     const dir = sort.direction === 'ascending' ? 1 : -1;
     return [...list].sort((a, b) => (value(a) > value(b) ? dir : value(a) < value(b) ? -dir : 0));
-  }, [warehouses, query, filters, sort]);
+  }, [warehouses, statusView, query, filters, sort]);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, pageCount);
   const pageRows = rows.slice((current - 1) * pageSize, current * pageSize);
-  useEffect(() => setPage(1), [query, filters, pageSize]);
+  useEffect(() => setPage(1), [statusView, query, filters, pageSize]);
 
   // Table columns: frozen ones first (they stay put when the others are rearranged), then the status pill
   const ordered = [...columns.filter(k => frozen.includes(k)), ...columns.filter(k => !frozen.includes(k))];
@@ -116,20 +132,16 @@ export function WarehousesPage() {
     });
   }
 
-  function applyView(name: string) {
-    setViewName(name);
-    const view = views.find(v => v.name === name);
-    setColumns(view ? view.columns : DEFAULT_COLUMNS);
-    setFrozen(view ? view.frozen : []);
-  }
-
-  function changeStatus({ ids, active }: StatusChange) {
-    setWarehouses(list => list.map(w => (ids.includes(w.id) ? { ...w, active } : w)));
+  function changeStatus({ ids, active }: StatusChange, note: string, options: ActivateOptions) {
+    setNotice(applyWarehouseStatus(warehouses.filter(w => ids.includes(w.id)), active, note, options, user?.name ?? 'You'));
     setSelected(new Set());
-    setNotice(`${ids.length === 1 ? '1 warehouse' : `${ids.length} warehouses`} ${active ? 'activated' : 'deactivated'}.`);
   }
 
-  const viewOptions = [{ value: ALL_VIEW, label: 'All' }, ...views.map(v => ({ value: v.name, label: v.name }))];
+  // The View menu filters the rows by status
+  const activeCount = warehouses.filter(w => w.active).length;
+  const statusCounts: Record<StatusView, number> = { all: warehouses.length, active: activeCount, inactive: warehouses.length - activeCount };
+  const viewOptions = STATUS_VIEWS.map(s => ({ value: s.value, label: `${s.label} (${statusCounts[s.value]})` }));
+  const viewLabel = `View: ${STATUS_VIEWS.find(s => s.value === statusView)!.label}`;
 
   return (
     <div className={styles.page}>
@@ -139,9 +151,9 @@ export function WarehousesPage() {
           label="View"
           hideLabel
           options={viewOptions}
-          value={viewName}
-          onChange={v => applyView(v as string)}
-          renderValue={sel => `View: ${sel[0]?.label ?? 'All'}`}
+          value={statusView}
+          onChange={v => setStatusView(v as StatusView)}
+          renderValue={() => viewLabel}
         />
         <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
           Columns
@@ -154,15 +166,20 @@ export function WarehousesPage() {
           label="Actions"
           hideLabel
           placeholder="Actions"
+          // Disabled (and inert to the pointer) until a row is checked; Selected while any are
+          className={styles.actions}
+          disabled={selectedRows.length === 0}
+          selected={selectedRows.length > 0}
           options={[
-            { value: 'activate', label: 'Activate selected', disabled: selectedRows.length === 0 },
-            { value: 'deactivate', label: 'Deactivate selected', disabled: selectedRows.length === 0 },
-            { value: 'export', label: 'Export to CSV' },
+            // Disabled when every checked warehouse already has that status
+            { value: 'activate', label: 'Activate', disabled: selectedRows.every(w => w.active) },
+            { value: 'deactivate', label: 'Deactivate', disabled: selectedRows.every(w => !w.active) },
           ]}
           value={null}
+          // Only the checked warehouses that change: activating skips the ones already active, and the reverse
           onChange={v => {
-            if (v === 'export') return setNotice(`Exported ${rows.length} warehouses to CSV.`);
-            setStatusChange({ ids: selectedRows.map(w => w.id), active: v === 'activate' });
+            const active = v === 'activate';
+            setStatusChange({ ids: selectedRows.filter(w => w.active !== active).map(w => w.id), active });
           }}
           renderValue={() => (selectedRows.length ? `Actions (${selectedRows.length})` : 'Actions')}
         />
@@ -251,14 +268,11 @@ export function WarehousesPage() {
                         label={w.name}
                         onClose={() => setMenuFor(null)}
                         items={[
-                          { label: 'View', icon: 'visibility', onSelect: () => navigate(recordPath(w)) },
-                          { label: 'Edit', icon: 'edit', onSelect: () => setEditing(w) },
-                          {
-                            label: w.active ? 'Deactivate' : 'Activate',
-                            icon: w.active ? 'visibility-off' : 'check',
-                            onSelect: () => setStatusChange({ ids: [w.id], active: !w.active }),
-                          },
-                          { label: 'Delete', icon: 'delete', onSelect: () => setDeleting(w) },
+                          { label: 'View', onSelect: () => navigate(recordPath(w)) },
+                          // Both, with the one matching the current status disabled
+                          { label: 'Activate', disabled: w.active, onSelect: () => setStatusChange({ ids: [w.id], active: true }) },
+                          { label: 'Deactivate', disabled: !w.active, onSelect: () => setStatusChange({ ids: [w.id], active: false }) },
+                          { label: 'Delete', onSelect: () => setDeleting(w) },
                         ]}
                       />
                     )}
@@ -300,27 +314,15 @@ export function WarehousesPage() {
         />
       </div>
 
-      {/* 2–3: Confirm Activation / Deactivation */}
-      <AppModal
+      {/* 2–3: Activate / Deactivate (Figma "Activation" 843:60109, "Deactivate Warehouse — Improved" 843:60078) */}
+      <WarehouseStatusModal
         open={statusChange !== null}
-        variant="confirm"
+        warehouses={warehouses.filter(w => shownChange.current?.ids.includes(w.id))}
+        active={shownChange.current?.active ?? false}
         onClose={() => setStatusChange(null)}
-        title={statusChange?.active ? 'Confirm Activation' : 'Confirm Deactivation'}
-        description={
-          statusChange && (
-            <>
-              You are about to <strong className={styles.verb}>{statusChange.active ? 'ACTIVATE' : 'DEACTIVATE'}</strong>{' '}
-              {statusChange.ids.length === 1 ? 'this record' : `${statusChange.ids.length} records`}. This change will take effect
-              immediately. Do you want to continue?
-            </>
-          )
-        }
-        primaryAction={{
-          label: 'Confirm',
-          onClick: () => {
-            if (statusChange) changeStatus(statusChange);
-            setStatusChange(null);
-          },
+        onConfirm={(note, options) => {
+          if (statusChange) changeStatus(statusChange, note, options);
+          setStatusChange(null);
         }}
       />
 
@@ -371,12 +373,6 @@ export function WarehousesPage() {
             setViewName(name);
             setNotice(`View "${name}" saved.`);
           }
-          setColumnsOpen(false);
-        }}
-        onDeleteView={name => {
-          setViews(list => list.filter(v => v.name !== name));
-          applyView(ALL_VIEW);
-          setNotice(`View "${name}" deleted.`);
           setColumnsOpen(false);
         }}
       />

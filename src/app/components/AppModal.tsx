@@ -7,8 +7,13 @@ export type AppModalAction = {
   label: string;
   onClick: () => void;
   disabled?: boolean;
-  /** Destructive action (delete, deactivate account…): drawn red instead of brand teal. */
+  /** Destructive action (delete, deactivate…): the red Button (`brand-red`, Figma Brand / Small / Red) instead of brand teal. */
   danger?: boolean;
+  /**
+   * Start action only: a leading icon, drawn as Figma's gray "Button Small / Primary / Icon" (e.g. "View Open Orders"),
+   * for a link-like step away from the dialog.
+   */
+  icon?: string;
 };
 
 export type AppModalProps = {
@@ -26,27 +31,24 @@ export type AppModalProps = {
   secondaryAction?: AppModalAction | false;
   /** An action at the start of the footer, away from the others (e.g. a red "Delete View"). */
   startAction?: AppModalAction;
-  /**
-   * default = the app's 800px "Dialog / Modal" · confirm = the design system's "Modal - Dialog*" (560px, teal bar
-   * across the top and a round icon badge next to the title), for "are you sure?" questions.
-   */
-  variant?: 'default' | 'confirm';
-  /** Confirm only: the badge icon. Default `check`. */
-  icon?: string;
-  /** Panel width; the app's modals are 800px (narrower screens shrink it to fit). Confirm modals keep 560px. */
+  /** Panel width; the app's modals are 800px (narrower screens shrink it to fit). */
   width?: number | string;
   /** Long content scrolls inside the body (Figma `Style=Scrollbar`). */
   scrollable?: boolean;
+  /** The line above the buttons (inside the padding). On by default for every app modal; pass false to hide it. */
+  footerDivider?: boolean;
   /** Extra class on the panel, for a dialog that needs its own size or placement (e.g. the tab overview). */
   className?: string;
 };
 
-function ActionButton({ action, variant }: { action: AppModalAction; variant: 'outline' | 'brand' }) {
+function ActionButton({ action, variant }: { action: AppModalAction; variant: 'outline' | 'brand' | 'primary' }) {
+  // A destructive action is the red button wherever it sits (Figma Brand / Small / Red)
+  const shown = action.danger ? 'brand-red' : variant;
   return (
     <Button
       size="small"
-      variant={variant}
-      className={action.danger ? styles.danger : undefined}
+      variant={shown}
+      icon={action.icon}
       onClick={action.onClick}
       disabled={action.disabled}
     >
@@ -61,16 +63,16 @@ function ActionButton({ action, variant }: { action: AppModalAction; variant: 'o
  * and dark. Built on the design-system Modal, so it gets the scrim, focus handling, Escape to close and the close
  * button's hover / press / focus states.
  *
- * Use it for every dialog in the app; pass content, not layout.
+ * Use it for every dialog in the app; pass content, not layout. Every dialog has the same look, "are you sure?"
+ * confirmations and errors included: title and close button, description, a line, then Cancel and the teal action.
  */
 export function AppModal({
   onClose,
   primaryAction,
   secondaryAction,
   startAction,
-  variant = 'default',
-  icon,
   width,
+  footerDivider = true,
   ...rest
 }: AppModalProps) {
   const secondary = secondaryAction === false ? null : (secondaryAction ?? { label: 'Cancel', onClick: onClose });
@@ -79,7 +81,7 @@ export function AppModal({
       <>
         {startAction && (
           <span className={styles.start}>
-            <ActionButton action={startAction} variant={startAction.danger ? 'brand' : 'outline'} />
+            <ActionButton action={startAction} variant={startAction.danger ? 'brand' : startAction.icon ? 'primary' : 'outline'} />
           </span>
         )}
         {secondary && <ActionButton action={secondary} variant="outline" />}
@@ -87,8 +89,5 @@ export function AppModal({
       </>
     ) : undefined;
 
-  if (variant === 'confirm') {
-    return <Modal {...rest} variant="confirm" icon={icon} width={width} onClose={onClose} actions={actions} />;
-  }
-  return <Modal {...rest} variant="default" width={width ?? 800} onClose={onClose} actions={actions} />;
+  return <Modal {...rest} variant="default" footerDivider={footerDivider} width={width ?? 800} onClose={onClose} actions={actions} />;
 }

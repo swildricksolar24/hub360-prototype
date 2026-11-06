@@ -228,7 +228,6 @@ export function LocationDetailsPage() {
 
       <AppModal
         open={statusChange !== null}
-        variant="confirm"
         onClose={() => setStatusChange(null)}
         title={statusChange ? 'Confirm Activation' : 'Confirm Deactivation'}
         description={
@@ -486,10 +485,10 @@ function LocationContents({
                         onClose={() => setMenuFor(null)}
                         items={[
                           ...(r.location && r.location.id !== location.id
-                            ? [{ label: 'View Location', icon: 'location', onSelect: () => navigate(locationPath(code, r.location!.id)) }]
+                            ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }]
                             : []),
-                          { label: 'View in Items', icon: 'visibility', onSelect: () => navigate('/app/inventory/items') },
-                          { label: 'Remove from Location', icon: 'delete', onSelect: () => stockRow && setRemoving(stockRow) },
+                          { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
+                          { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
                         ]}
                       />
                     )}

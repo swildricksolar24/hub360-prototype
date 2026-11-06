@@ -67,6 +67,7 @@ export function MainDropDown({
       {dd.isOpen && (
         <div className={styles.popup}>
           <ListBox
+            menu
             id={listId}
             aria-label={ariaLabel}
             type={listType}

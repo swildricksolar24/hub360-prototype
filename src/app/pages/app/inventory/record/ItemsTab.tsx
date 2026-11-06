@@ -156,13 +156,12 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
                     label={i.name}
                     onClose={() => setMenuFor(null)}
                     items={[
-                      { label: 'View in Items', icon: 'visibility', onSelect: () => navigate('/app/inventory/items') },
+                      { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
                       {
                         label: i.active ? 'Deactivate' : 'Activate',
-                        icon: i.active ? 'visibility-off' : 'check',
                         onSelect: () => setActive([i.id], !i.active),
                       },
-                      { label: 'Remove', icon: 'delete', onSelect: () => setRemoving([i]) },
+                      { label: 'Remove', onSelect: () => setRemoving([i]) },
                     ]}
                   />
                 )}

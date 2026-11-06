@@ -162,6 +162,16 @@
   --fg: var(--color-semantic-text-error);
   --icon: var(--color-semantic-fill-error-strong);
 }
+/* Selected (the `selected` prop): Button Small's Selected look, kept while hovered or open */
+.dropdown[data-selected] .trigger {
+  --bg: var(--color-brand-teal-fill-weaker);
+  --fg: var(--color-gray-text-strong);
+  --ring: var(--color-brand-teal-stroke-weak);
+  --ring-w: var(--stroke-width-2);
+}
+.dropdown[data-selected] .trigger:focus-visible {
+  --ring-w: var(--stroke-width-4);
+}
 .dropdown .trigger:disabled {
   --bg: var(--color-gray-fill-disabled);
   --fg: var(--color-gray-text-disabled);
@@ -178,8 +188,11 @@
   left: 0;
   z-index: 10;
   min-width: 100%;
-  max-height: 320px; /* about seven rows; a component dimension with no token */
+  max-height: 320px; /* about six rows; a component dimension with no token */
   overflow-y: auto;
+  /* The list inside uses the ••• menu frame (ListBox `menu`), so the popup rounds to match */
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
   box-shadow: var(--shadow-drop);
 }
 .dropdown:not([data-variant='field']) .popup {
@@ -192,19 +205,18 @@
 
 /*
  * The open menu looks like the app's other small menus (ContextMenu: the account menu, row ••• menus): a rounded
- * Surfaces/Overlay panel (Figma Drop Down Menu) with an 8px inset and the drop shadow, 40px rounded rows of Large text, and hover / press
- * fills, with no lines between rows. A selected option keeps a teal tint. Figma's ListViews (square, 1px gaps on
- * Surfaces/Base) stay in ListBox itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own
- * rules whatever the CSS order.
+ * Surfaces/Overlay panel (Figma Drop Down Menu) with the drop shadow. The inset (16px) and the 8px between rows come
+ * from ListBox `menu`, shared with every popup menu; here the rows get Large text and the Context Menu's hover / press
+ * fills, and a selected option keeps a teal tint. Figma's ListViews (square, 1px gaps on Surfaces/Base) stay in
+ * ListBox itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own rules whatever the
+ * CSS order.
  */
 .popup.popup {
-  box-sizing: border-box; /* the 8px inset sits inside the field's width, as in Figma (240px field, 240px menu) */
-  padding: var(--space-8);
+  box-sizing: border-box;
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);
 }
 .popup.popup [role='listbox'] {
-  gap: 0;
   background: transparent;
   box-shadow: none;
 }

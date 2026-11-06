@@ -399,8 +399,8 @@ function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
                   label={`${w.category} warranty`}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: 'Edit', icon: 'edit', onSelect: () => setEditing('edit') },
-                    { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(w) },
+                    { label: 'Edit', onSelect: () => setEditing('edit') },
+                    { label: 'Remove', onSelect: () => setRemoving(w) },
                   ]}
                 />
               )}
@@ -410,8 +410,6 @@ function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
       </div>
       <AppModal
         open={removing !== null}
-        variant="confirm"
-        icon="delete"
         onClose={() => setRemoving(null)}
         title="Remove Warranty"
         description={removing && `The ${removing.category} warranty (${months(removing)} months) will be removed from ${item.name}.`}
@@ -500,7 +498,6 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
                   items={[
                     {
                       label: 'Remove',
-                      icon: 'delete',
                       onSelect: () => {
                         updateItem(item.id, x => ({ ...x, replacements: x.replacements.filter(id => id !== r.id) }));
                         onNotice(`${r.name} is no longer a replacement.`);
@@ -686,9 +683,9 @@ function SupplierCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
                   label={s.supplier}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: 'Edit', icon: 'edit', onSelect: () => setEditing(s) },
-                    ...(s.primary ? [] : [{ label: 'Make Primary', icon: 'star', onSelect: () => makePrimary(s) }]),
-                    { label: 'Remove', icon: 'delete', onSelect: () => setRemoving(s) },
+                    { label: 'Edit', onSelect: () => setEditing(s) },
+                    ...(s.primary ? [] : [{ label: 'Make Primary', onSelect: () => makePrimary(s) }]),
+                    { label: 'Remove', onSelect: () => setRemoving(s) },
                   ]}
                 />
               )}
@@ -818,8 +815,8 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
                   label={`note by ${n.author}`}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: 'Edit', icon: 'edit', onSelect: () => setEditing(n) },
-                    { label: 'Delete', icon: 'delete', onSelect: () => setDeleting(n) },
+                    { label: 'Edit', onSelect: () => setEditing(n) },
+                    { label: 'Delete', onSelect: () => setDeleting(n) },
                   ]}
                 />
               )}

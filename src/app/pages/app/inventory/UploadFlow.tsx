@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '../../../../components/Badge/Badge';
 import { Button } from '../../../../components/Button/Button';
-import { DataHeader, type DataColumn } from '../../../../components/DataHeader/DataHeader';
+import { DataHeader, type DataColumn, type DataSort } from '../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../components/DataRow/DataRow';
 import { EditableCell } from '../../../../components/EditableCell/EditableCell';
 import { Icon } from '../../../../components/Icon/Icon';
@@ -174,11 +174,14 @@ function download(name: string, href: string) {
 }
 
 const MATCH_COLUMNS: DataColumn[] = [
-  { key: 'column', label: 'Column in Your File', width: 220, sortable: false },
-  { key: 'samples', label: 'Sample Values', width: 'fill', sortable: false },
-  { key: 'field', label: 'HUB360 Field', width: 300, sortable: false },
-  { key: 'status', label: 'Status', width: 170, sortable: false },
+  { key: 'column', label: 'Column in Your File', width: 220 },
+  { key: 'samples', label: 'Sample Values', width: 'fill' },
+  { key: 'field', label: 'HUB360 Field', width: 300 },
+  { key: 'status', label: 'Status', width: 170 },
 ];
+
+/** Status sorts in the order the pills read: matched, needs a match, skipped */
+const STATUS_RANK = { matched: 0, needs: 1, skipped: 2 } as const;
 
 /**
  * Warehouses toolbar › Upload: a three-step import in one dialog (Figma "Upload Spreadsheet" 826:58304, "Map Columns -
@@ -203,6 +206,9 @@ export function UploadFlow({
   const [mapping, setMapping] = useState<string[]>([]);
   // How many columns matched by name when the file arrived (the Match Columns description)
   const [autoMatched, setAutoMatched] = useState(0);
+  // Match Columns sort: the row order is taken when a header is pressed, so a row stays put while its match is changed
+  const [sort, setSort] = useState<DataSort | null>(null);
+  const [order, setOrder] = useState<number[] | null>(null);
   const run = useRef(0);
 
   useEffect(() => {
@@ -233,6 +239,8 @@ export function UploadFlow({
     const matched = autoMatch(sheet.headers);
     setMapping(matched);
     setAutoMatched(matched.filter(Boolean).length);
+    setSort(null);
+    setOrder(null);
   }
 
   function cancelUpload() {
@@ -246,6 +254,35 @@ export function UploadFlow({
   mapping.forEach(m => counts[statusOf(m)]++);
   const missing = REQUIRED.filter(f => !mapping.includes(f.key));
   const plan = step === 'review' && sheet ? planImport(sheet, mapping, existing) : null;
+
+  // Match Columns rows: each file column, its sample values, its field and its status
+  const columnName = (i: number) => (sheet?.headers[i] || `Column ${i + 1}`);
+  const samplesOf = (i: number) =>
+    (sheet?.rows ?? [])
+      .map(r => (r[i] ?? '').trim())
+      .filter(Boolean)
+      .slice(0, 3);
+  const fieldLabel = (key: string) => (key === SKIP ? 'Don’t import' : FIELDS.find(f => f.key === key)?.label ?? '');
+  function sortBy(key: string) {
+    if (!sheet) return;
+    const direction = sort?.key === key && sort.direction === 'ascending' ? 'descending' : 'ascending';
+    const value = (i: number): string | number =>
+      key === 'column' ? columnName(i) : key === 'samples' ? samplesOf(i).join(', ') : key === 'field' ? fieldLabel(mapping[i] ?? '') : STATUS_RANK[statusOf(mapping[i] ?? '')];
+    const sign = direction === 'ascending' ? 1 : -1;
+    const next = sheet.headers
+      .map((_, i) => i)
+      .sort((a, b) => {
+        const x = value(a);
+        const y = value(b);
+        // Empty values (no samples, no field yet) go last either way
+        if (x === '' || y === '') return x === y ? a - b : x === '' ? 1 : -1;
+        const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true });
+        return c * sign || a - b;
+      });
+    setSort({ key, direction });
+    setOrder(next);
+  }
+  const rowOrder = order ?? sheet?.headers.map((_, i) => i) ?? [];
   const importing = plan ? plan.creates.length + plan.updates.length : 0;
 
   const steps = <Timeline className={styles.timeline} steps={STEPS} current={step === 'match' ? 1 : step === 'review' ? 2 : 0} label="Import steps" />;
@@ -263,7 +300,7 @@ export function UploadFlow({
       >
         <div className={styles.body}>
           {steps}
-          <Button className={styles.start} size="small" variant="primary" icon="import" onClick={() => download('warehouses-template.csv', TEMPLATE_URL)}>
+          <Button className={styles.start} size="small" variant="primary" icon="export-download" onClick={() => download('warehouses-template.csv', TEMPLATE_URL)}>
             Download Template
           </Button>
           <UploadFile
@@ -337,18 +374,23 @@ export function UploadFlow({
           )}
           <div className={table.tableScroll}>
             <div role="table" aria-label="Column matching" className={table.table}>
-              <DataHeader className={table.head} corners="none" columns={MATCH_COLUMNS} leading="none" actions={false} />
-              {sheet?.headers.map((header, i) => {
-                const name = header || `Column ${i + 1}`;
+              <DataHeader
+                className={table.head}
+                corners="none"
+                columns={MATCH_COLUMNS}
+                leading="none"
+                actions={false}
+                sort={sort ?? undefined}
+                onSortChange={sortBy}
+              />
+              {sheet && rowOrder.map((i, row) => {
+                const name = columnName(i);
                 const status = statusOf(mapping[i] ?? '');
-                const samples = sheet.rows
-                  .map(r => (r[i] ?? '').trim())
-                  .filter(Boolean)
-                  .slice(0, 3);
+                const samples = samplesOf(i);
                 // A field matched to another column isn't offered again
                 const taken = new Set(mapping.filter((m, j) => j !== i && m && m !== SKIP));
                 return (
-                  <div key={`${header}-${i}`} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
+                  <div key={`${sheet.headers[i]}-${i}`} className={table.rowWrap} data-stripe={row % 2 === 0 || undefined}>
                     <DataRow
                       className={table.row}
                       columns={MATCH_COLUMNS}

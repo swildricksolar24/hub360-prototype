@@ -235,19 +235,18 @@ export function ItemsPage() {
                             label={item.name}
                             onClose={() => setMenuFor(null)}
                             items={[
-                              { label: 'View', icon: 'visibility', onSelect: () => navigate(itemPath(item.id)) },
-                              { label: 'Merge', icon: 'collapse-all', onSelect: () => setMerging([item]) },
+                              { label: 'View', onSelect: () => navigate(itemPath(item.id)) },
+                              { label: 'Merge', onSelect: () => setMerging([item]) },
                               item.active
-                                ? { label: 'Deactivate', icon: 'visibility-off', onSelect: () => setDeactivating(item) }
+                                ? { label: 'Deactivate', onSelect: () => setDeactivating(item) }
                                 : {
                                     label: 'Activate',
-                                    icon: 'check',
                                     onSelect: () => {
                                       setItems(list => list.map(x => (x.id === item.id ? { ...x, active: true } : x)));
                                       setNotice(`${item.name} activated.`);
                                     },
                                   },
-                              { label: 'Delete', icon: 'delete', onSelect: () => setDeleting([item]) },
+                              { label: 'Delete', onSelect: () => setDeleting([item]) },
                             ]}
                           />
                         )}

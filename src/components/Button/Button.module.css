@@ -234,13 +234,13 @@
 }
 
 /*
- * ---------- brand-outline: Figma "Brand / Teal / Outline" (base, 3234:4981) and "Brand / Small / Outline" (small,
- * 3290:6405) ----------
+ * ---------- brand-outline (small): Figma "Brand / Small / Outline" (3290:6405) ----------
+ * The large size is overridden below by the Button Large outline family.
  * Default: Brand Teal Fill/Weak, 2px Gray Stroke/Weaker. Hover: the stroke thickens to 4px.
  * Press, Selected and Focus: Brand Teal Fill/Strong with the 4px stroke; Focus centers it on the edge (2px in, 2px
  * out). Disabled: Brand Teal Fill/Disabled and a 4px Gray Stroke/Disabled.
  * The label is Foundation/Solid/White, as in Figma and the other brand buttons (there is no semantic "text on brand"
- * token); only the small Disabled state switches it to Gray Text/Disabled.
+ * token); only the Disabled state switches it to Gray Text/Disabled.
  */
 .button[data-variant='brand-outline'] {
   --bg: var(--color-brand-teal-fill-weak);
@@ -272,6 +272,108 @@
 }
 .button[data-variant='brand-outline'][data-size='small']:disabled {
   --fg: var(--color-gray-text-disabled);
+}
+
+/*
+ * ---------- Button Large outlines (base size): Figma "- Button Large" page ----------
+ * brand-outline = "Solid / Teal / Outline" (3234:4981), orange-outline = "Solid / Orange / Outline" (3368:249),
+ * gray-outline = "Solid / Gray / Outline" (3368:236).
+ * Shared: a Foundation/Solid/White label (Gray Text/Disabled when disabled) and a Gray Stroke/Weak stroke, 2px at rest
+ * and 4px in every other state; Focus centers it on the edge (2px in, 2px out). Disabled uses Gray Stroke/Disabled.
+ * Fills per set:
+ *   Teal:   Default, Selected, Focus Brand Teal Fill/Strong · Hover Fill/Weak · Press Fill/Press · Disabled Fill/Disabled
+ *   Orange: Default Brand Orange Fill/Strong · Hover, Selected, Focus Fill/Hover · Press Fill/Press · Disabled Fill/Disabled
+ *   Gray:   Default Gray Fill/Weaker · Hover, Selected, Focus Fill/Hover · Press Fill/Press · Disabled Fill/Disabled
+ */
+.button[data-size='base']:is([data-variant='brand-outline'], [data-variant='orange-outline'], [data-variant='gray-outline']) {
+  --fg: var(--color-foundation-solid-white);
+  --ring: var(--color-gray-stroke-weak);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-size='base']:is([data-variant='brand-outline'], [data-variant='orange-outline'], [data-variant='gray-outline']):is(:hover, :active, :focus-visible, [aria-pressed='true']) {
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-size='base']:is([data-variant='orange-outline'], [data-variant='gray-outline']):focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+
+.button[data-size='base'][data-variant='brand-outline'] {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-size='base'][data-variant='brand-outline']:hover {
+  --bg: var(--color-brand-teal-fill-weak);
+}
+.button[data-size='base'][data-variant='brand-outline']:is(:focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-size='base'][data-variant='brand-outline']:active {
+  --bg: var(--color-brand-teal-fill-press);
+}
+
+.button[data-size='base'][data-variant='orange-outline'] {
+  --bg: var(--color-brand-orange-fill-strong);
+}
+.button[data-size='base'][data-variant='orange-outline']:is(:hover, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-brand-orange-fill-hover);
+}
+.button[data-size='base'][data-variant='orange-outline']:active {
+  --bg: var(--color-brand-orange-fill-press);
+}
+
+.button[data-size='base'][data-variant='gray-outline'] {
+  --bg: var(--color-gray-fill-weaker);
+}
+.button[data-size='base'][data-variant='gray-outline']:is(:hover, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-gray-fill-hover);
+}
+.button[data-size='base'][data-variant='gray-outline']:active {
+  --bg: var(--color-gray-fill-press);
+}
+
+/* Disabled comes last so it wins over hover, press and selected */
+.button[data-size='base']:is([data-variant='brand-outline'], [data-variant='orange-outline'], [data-variant='gray-outline']):disabled {
+  --fg: var(--color-gray-text-disabled);
+  --ring: var(--color-gray-stroke-disabled);
+  --ring-w: var(--stroke-width-4);
+}
+.button[data-size='base'][data-variant='brand-outline']:disabled {
+  --bg: var(--color-brand-teal-fill-disabled);
+}
+.button[data-size='base'][data-variant='orange-outline']:disabled {
+  --bg: var(--color-brand-orange-fill-disabled);
+}
+.button[data-size='base'][data-variant='gray-outline']:disabled {
+  --bg: var(--color-gray-fill-disabled);
+}
+
+/*
+ * ---------- brand-red: Figma "Brand / Small / Red" (Base 3358:6168), destructive and error actions ----------
+ * Default, Press and Selected: Semantic Fill/Error Strong with a Foundation/Solid/White label (no semantic "text on
+ * error" token). Hover: Semantic Fill/Error Weak. Focus: Error Strong with a 4px Gray Stroke/Weaker stroke centered on
+ * the edge. Disabled: Gray Fill/Disabled with Gray Text/Disabled.
+ */
+.button[data-variant='brand-red'] {
+  --bg: var(--color-semantic-fill-error-strong);
+  --fg: var(--color-foundation-solid-white);
+}
+.button[data-variant='brand-red']:hover {
+  --bg: var(--color-semantic-fill-error-weak);
+}
+.button[data-variant='brand-red']:is(:active, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-semantic-fill-error-strong);
+}
+.button[data-variant='brand-red']:focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-variant='brand-red']:disabled {
+  --bg: var(--color-gray-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+  box-shadow: none;
 }
 
 /*

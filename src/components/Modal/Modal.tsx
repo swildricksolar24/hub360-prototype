@@ -31,6 +31,8 @@ export type ModalPanelProps = {
   scrollable?: boolean;
   /** Height of the scrolling box when `scrollable` (Figma 137px). */
   scrollHeight?: number | string;
+  /** Default and confirm: a full-width Gray Stroke/Disabled line above the buttons, as on the sectioned footer. */
+  footerDivider?: boolean;
   /** Shows the close button (default and sectioned). */
   onClose?: () => void;
   closeLabel?: string;
@@ -54,6 +56,7 @@ export function ModalPanel({
   icon = 'check',
   scrollable = false,
   scrollHeight = 137,
+  footerDivider = false,
   onClose,
   closeLabel = 'Close',
   width,
@@ -107,7 +110,7 @@ export function ModalPanel({
 
   if (variant === 'confirm') {
     return (
-      <div className={cls} data-variant="confirm" style={style}>
+      <div className={cls} data-variant="confirm" data-divider={footerDivider || undefined} style={style}>
         <div className={styles.content}>
           <div className={styles.confirmHeading}>
             <span className={styles.badge} aria-hidden>
@@ -128,7 +131,7 @@ export function ModalPanel({
   }
 
   return (
-    <div className={cls} data-variant="default" data-close={close ? true : undefined} style={style}>
+    <div className={cls} data-variant="default" data-close={close ? true : undefined} data-divider={footerDivider || undefined} style={style}>
       {scrollable ? (
         <div className={styles.scrollHead}>
           <div className={styles.titleBox}>{titleEl}</div>

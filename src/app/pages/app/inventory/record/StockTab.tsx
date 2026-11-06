@@ -121,8 +121,8 @@ export function StockTable({
                   label={`${s.item?.number ?? 'stock record'} in ${s.location?.name ?? 'unknown location'}`}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    ...(s.location ? [{ label: 'View Location', icon: 'location', onSelect: () => navigate(locationPath(code, s.location!.id)) }] : []),
-                    { label: 'View in Items', icon: 'part', onSelect: () => navigate('/app/inventory/items') },
+                    ...(s.location ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, s.location!.id)) }] : []),
+                    { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
                   ]}
                 />
               )}
