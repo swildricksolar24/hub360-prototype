@@ -1,6 +1,6 @@
-# Design System
+# Volt design system
 
-Read this before changing anything that touches UI, styling or components.
+Volt is the name of the HUB360 design system: the tokens, components and Storybook in this repo. Read this before changing anything that touches UI, styling or components.
 
 ## Source of truth
 
