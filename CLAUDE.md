@@ -4,7 +4,7 @@ This file guides Claude Code (claude.ai/code) when working in this repository.
 
 ## Project overview
 
-hub360-prototype is a React component library and Storybook built from the Figma design system "__Design System - Base" ([Figma](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base), file key `ieTXU4rFsUAmlEsF93zF5T`).
+hub360-prototype is a React component library and Storybook for **Volt**, the HUB360 design system, built from its Figma file "__Design System - Base" ([Figma](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base), file key `ieTXU4rFsUAmlEsF93zF5T`).
 
 It contains:
 - the design tokens as CSS variables and DTCG JSON
