@@ -9,11 +9,15 @@ import { DetailsTab, type DetailsDraft, type DetailsErrors } from './record/Deta
 import { HistoryTab } from './record/HistoryTab';
 import { ItemsTab } from './record/ItemsTab';
 import { LocationsTab } from './record/LocationsTab';
-import { PickPackTab } from './record/PickPackTab';
+import { EditBanner, countChanges } from './record/EditBanner';
+import { PickPackTab, commitError, emailError } from './record/PickPackTab';
+import { changeCount, type PrinterDraft } from './record/PrinterDetails';
+import { PrintersTab } from './record/PrintersTab';
 import { StockTab } from './record/StockTab';
 import { addressDraftOf, addressErrors, addressFromDraft } from './AddressFields';
 import type { Warehouse } from './warehouseData';
-import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
+import type { PickPackSettings } from './warehouseRecordData';
+import { recordPath, setPickPack, setPrintDefaults, setPrinters, setWarehouses, usePickPack, usePrintDefaults, usePrinters, useWarehouses } from './warehouseStore';
 import { WarehouseStatusModal, applyWarehouseStatus } from './WarehouseStatusModal';
 import { useAuth } from '../../../auth/AuthContext';
 import styles from './record.module.css';
@@ -32,7 +36,7 @@ const TABS = [
 ];
 
 const LIST_PATH = '/app/inventory/warehouses';
-const toDraft = (w: Warehouse): DetailsDraft => ({ name: w.name, ...addressDraftOf(w) });
+const toDraft = (w: Warehouse): DetailsDraft => ({ name: w.name, timeZone: w.timeZone ?? '', ...addressDraftOf(w) });
 
 /**
  * Inventory › Warehouses › one warehouse (see WAREHOUSE_RECORD.md): the Figma Tier 3 header with the warehouse's
@@ -49,6 +53,8 @@ export function WarehouseRecordPage() {
 
   const [draft, setDraft] = useState<DetailsDraft | null>(null);
   const [errors, setErrors] = useState<DetailsErrors>({});
+  // Figma 18:11145: Warehouse Details is read-only until the header's Edit
+  const [editing, setEditing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [statusChange, setStatusChange] = useState<boolean | null>(null);
   // The dialog keeps showing Activate or Deactivate while it closes
@@ -57,11 +63,23 @@ export function WarehouseRecordPage() {
   const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
 
+  // Printers › one printer: the header's Edit edits its settings and default use; a banner above the header saves them
+  const printers = usePrinters(code);
+  const printDefaults = usePrintDefaults(code);
+  const openPrinter = tab === 'printers' ? printers.find(p => p.id === params.get('printer')) : undefined;
+  const [printerDraft, setPrinterDraft] = useState<PrinterDraft | null>(null);
+  // Pick / Pack (Figma 899:3331): read-only until the header's Edit; the same banner saves it
+  const pickPack = usePickPack(code);
+  const [pickPackDraft, setPickPackDraft] = useState<PickPackSettings | null>(null);
+  useEffect(() => setPickPackDraft(null), [code]);
+  useEffect(() => setPrinterDraft(null), [code, openPrinter?.id]);
+
   // A different warehouse (previous / next) starts from its own saved details
   useEffect(() => {
     setDraft(warehouse ? toDraft(warehouse) : null);
     setErrors({});
     setNotice(null);
+    setEditing(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
@@ -93,12 +111,51 @@ export function WarehouseRecordPage() {
           ? {
               ...x,
               name: draft.name.trim(),
+              timeZone: draft.timeZone || undefined,
               ...addressFromDraft(draft),
             }
           : x,
       ),
     );
+    setEditing(false);
     setNotice(`${draft.name.trim()} was saved.`);
+  }
+
+  function savePrinter() {
+    if (!printerDraft || !openPrinter) return;
+    const p = printerDraft.printer;
+    // Errors show on the Settings view's fields
+    if (!p.name.trim() || (p.connection === 'network' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(p.ip ?? ''))) {
+      setParams({ tab: 'printers', printer: openPrinter.id }, { replace: true });
+      return;
+    }
+    setPrinters(code, list => list.map(x => (x.id === p.id ? { ...p, name: p.name.trim() } : x)));
+    setPrintDefaults(code, () => printerDraft.defaults);
+    setPrinterDraft(null);
+    setNotice(`${p.name.trim()} · ${p.area} was saved.`);
+  }
+
+  function savePickPack() {
+    if (!pickPackDraft) return;
+    // Errors show on the fields; switch back to Pick / Pack if the user moved away
+    if (commitError(pickPackDraft) || emailError(pickPackDraft.exceptionsEmail) || emailError(pickPackDraft.packedEmail)) {
+      setParams({ tab: 'pick-pack' }, { replace: true });
+      return;
+    }
+    setPickPack(code, () => ({ ...pickPackDraft, exceptionsEmail: pickPackDraft.exceptionsEmail.trim(), packedEmail: pickPackDraft.packedEmail.trim() }));
+    setPickPackDraft(null);
+    setNotice(`${w.name}’s Pick / Pack settings were saved.`);
+  }
+
+  function startEditing() {
+    setEditing(true);
+    setParams({}, { replace: true });
+  }
+
+  function cancelEditing() {
+    setDraft(toDraft(w));
+    setErrors({});
+    setEditing(false);
   }
 
   // Previous / next warehouse in the list's order, on the same tab, reusing this app tab
@@ -107,12 +164,25 @@ export function WarehouseRecordPage() {
   const notices: ReactNode = notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />;
   const content: Record<string, ReactNode> = {
     details: (
-      <DetailsTab code={w.code} draft={draft} errors={errors} onDraftChange={setDraft} onNotice={setNotice} />
+      <DetailsTab
+        warehouse={w}
+        editing={editing}
+        draft={draft}
+        errors={errors}
+        onDraftChange={setDraft}
+        onNotice={setNotice}
+        onOpenTab={id => setParams({ tab: id }, { replace: true })}
+      />
     ),
-    contacts: <ContactsTab code={w.code} onNotice={setNotice} />,
-    'pick-pack': <PickPackTab warehouse={w} onNotice={setNotice} />,
-    // Printers has no Figma design: it keeps RecordPage's "not built yet" placeholder
-    locations: <LocationsTab code={w.code} onNotice={setNotice} />,
+    contacts: <ContactsTab code={w.code} warehouseName={w.name} onNotice={setNotice} />,
+    'pick-pack': <PickPackTab warehouse={w} draft={pickPackDraft} onDraftChange={setPickPackDraft} onNotice={setNotice} />,
+    // Figma: the Printers screens sit on one white card under the header
+    printers: (
+      <div className={styles.card}>
+        <PrintersTab warehouse={w} onNotice={setNotice} draft={printerDraft} onDraftChange={setPrinterDraft} />
+      </div>
+    ),
+    locations: <LocationsTab code={w.code} warehouseName={w.name} onNotice={setNotice} />,
     items: <ItemsTab code={w.code} onNotice={setNotice} />,
     stock: <StockTab code={w.code} onNotice={setNotice} />,
     history: <HistoryTab code={w.code} />,
@@ -124,11 +194,8 @@ export function WarehouseRecordPage() {
         title={w.name.toUpperCase()}
         icon="warehouse"
         breadcrumb={[{ label: 'Inventory' }, { label: 'Warehouses', to: LIST_PATH }, { label: w.name }]}
-        meta={
-          <>
-            SYSTEM ID: <strong>{w.code}</strong>
-          </>
-        }
+        // Figma: a Tier 3 Label under the title
+        labels={[{ label: 'ID', value: w.code }]}
         actions={
           <RecordActions
             active={w.active}
@@ -145,7 +212,16 @@ export function WarehouseRecordPage() {
               else if (value === 'export') setNotice(`Exported ${w.name} to CSV.`);
               else if (value === 'delete') setDeleting(true);
             }}
-            onSave={save}
+            // Edit opens the Warehouse Details form; while editing the button saves it, with Cancel beside it
+            {...(tab === 'printers'
+              ? // Printers: the list has no Edit (Figma 886:64894); a printer's Edit opens its settings for editing
+                openPrinter
+                ? { saveLabel: 'Edit', saveDisabled: printerDraft !== null, onSave: () => setPrinterDraft({ printer: { ...openPrinter }, defaults: printDefaults.map(d => ({ ...d })) }) }
+                : { hideSave: true }
+              : tab === 'pick-pack'
+                ? // Pick / Pack: Edit opens the settings; the banner saves them, so Edit stays off meanwhile
+                  { saveLabel: 'Edit', saveDisabled: pickPackDraft !== null, onSave: () => setPickPackDraft({ ...pickPack, rules: { ...pickPack.rules } }) }
+                : { saveLabel: editing ? 'Save' : 'Edit', onSave: editing ? save : startEditing, onCancel: editing ? cancelEditing : undefined })}
             onPrevious={go(warehouses[index - 1])}
             onNext={go(warehouses[index + 1])}
           />
@@ -159,6 +235,13 @@ export function WarehouseRecordPage() {
             </>
           ),
         }))}
+        banner={
+          tab === 'pick-pack' && pickPackDraft ? (
+            <EditBanner what="Warehouse Pick / Pack Settings" changes={countChanges(pickPackDraft, pickPack)} onDiscard={() => setPickPackDraft(null)} onSave={savePickPack} />
+          ) : printerDraft && openPrinter ? (
+            <EditBanner what="Warehouse Printer Settings" changes={changeCount(printerDraft, openPrinter, printDefaults)} onDiscard={() => setPrinterDraft(null)} onSave={savePrinter} />
+          ) : undefined
+        }
         section={tab}
         onSectionChange={id => setParams(id === 'details' ? {} : { tab: id }, { replace: true })}
       />

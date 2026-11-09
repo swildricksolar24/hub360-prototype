@@ -1,0 +1,6 @@
+/* The switch's label: Volt's Mode Dark icon, then "Dark mode" */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}

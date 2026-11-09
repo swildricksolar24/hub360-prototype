@@ -1,5 +1,11 @@
-/* The start action sits at the left of the footer, away from Cancel and the primary action */
-.start {
-  margin-right: auto;
+/*
+ * scrollable: long content scrolls inside the body, so the header and footer stay in view. 60vh keeps the dialog
+ * inside short windows (a layout height with no token).
+ */
+.scrollBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  max-height: 60vh;
+  overflow-y: auto;
 }
-

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Status } from '../../../../../components/Status/Status';
 import { Button } from '../../../../../components/Button/Button';
 import { ButtonGroup, ButtonGroupItem } from '../../../../../components/ButtonGroup/ButtonGroup';
 import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
@@ -64,13 +65,9 @@ export function useSelection() {
   };
 }
 
-/** The table's status pill (table.module.css). */
+/** A row's Active / Inactive status: Volt's Status (a dot and the word). `data-status` lets table.module.css start it at the left of its cell. */
 export function StatusPill({ active }: { active: boolean }) {
-  return (
-    <span className={table.status} data-active={active || undefined}>
-      {active ? 'Active' : 'Inactive'}
-    </span>
-  );
+  return <Status active={active} data-status />;
 }
 
 /** Figma's ⓘ after a checkbox: a focusable info icon with a tooltip. */

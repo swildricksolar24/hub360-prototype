@@ -38,6 +38,49 @@
   font-weight: 700;
 }
 
+/* ---------- Details: KPI tiles (Figma "KPIs") ---------- */
+/* Eight design-system Tiles in a row; they wrap to fewer per row below 150px each (a layout width with no token) */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Details: Warehouse Details fields ---------- */
+/* Figma: half the card, then two quarters (Name | ID; Address | Country | Time Zone). The edit form uses the same grid. */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-16) var(--space-12);
+  margin: 0;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.field[data-wide] {
+  grid-column: span 2;
+}
+.field dt {
+  color: var(--color-gray-text-weak);
+}
+.field dd {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+  overflow-wrap: anywhere;
+}
+
+/* Holds a table's scroll box and its header filter pop-over (ColumnFilter), which may reach below a short table */
+.tableWrap {
+  position: relative;
+  min-width: 0;
+}
+
 /* ---------- Forms ---------- */
 .form {
   display: flex;
@@ -123,6 +166,89 @@
 .noResults {
   margin: var(--space-16) 0 0;
   color: var(--color-gray-text-weak);
+}
+
+/* Add Carrier Account (Figma 848:17307): a checkbox row per account; the picked one is teal, ones already on the
+   warehouse are dimmed with a note at the right */
+.pickList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-height: 320px; /* about five rows before the list scrolls; a component dimension with no token */
+  margin: var(--space-16) 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.pickRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.pickRow[data-picked] {
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.pickRow[data-disabled] {
+  color: var(--color-gray-text-weak);
+}
+.pickText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.pickNote {
+  flex: none;
+  color: var(--color-gray-text-weak);
+}
+
+.pickCount {
+  margin: var(--space-12) 0 0;
+  color: var(--color-gray-text-weak);
+}
+.pickPerson {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.pickCount + .pickList {
+  margin-top: var(--space-8);
+}
+
+/* Contacts (Figma 848:20960): All / Internal / External, search, Add Contact */
+.contactToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+.contactToolbar .toolbarSearch {
+  flex: 1;
+  min-width: 220px; /* keeps the field usable when the toolbar wraps; a layout width with no token */
+}
+
+/* Edit Carrier Account: the Service Types chips */
+.chipField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.chipField legend {
+  margin-bottom: var(--space-8);
+  padding: 0;
+}
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
 }
 
 /* A table with no rows yet */
@@ -674,4 +800,140 @@
   text-align: center;
   font-weight: 600;
   letter-spacing: 0.08em;
+}
+
+/* ---------- Locations (Figma 857:28319 tree, 872:53895 flat list) ---------- */
+/* "Locations: 542  In use: 478  Empty: 64 …" */
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-24);
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.summary strong {
+  color: var(--color-gray-text-strong);
+}
+.hint {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+/* Tree: the name indents 24px a level, after an expand / collapse chevron */
+.treeName {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  padding-left: calc((var(--depth, 1) - 1) * var(--space-24));
+}
+.treeName[data-parent] .cellLink {
+  font-weight: 700;
+}
+.chevron,
+.chevronSpacer {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-24);
+  height: var(--space-24);
+}
+.chevron {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+}
+.chevron:hover {
+  background: var(--color-gray-fill-hover);
+}
+.chevron:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+}
+.chevron[aria-expanded='false'] svg {
+  transform: rotate(-90deg);
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+/* A row being dragged over another: the drop target */
+.rowWrap[data-drop],
+[data-drop] {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+
+/* Add Location: the preview and the rules */
+.previewBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.previewBox p {
+  margin: 0;
+}
+.rulesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  color: var(--color-gray-text-strong);
+}
+.rulesBlock > p {
+  margin: 0;
+}
+.ruleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.ruleRow p {
+  margin: 0;
+}
+.ruleRow p + p {
+  color: var(--color-gray-text-weak);
+}
+
+/* Location Details (Figma 857:28345): the details card beside the narrower Rules card */
+.locationTop {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); /* Rules keeps room for its sentences; a layout width with no token */
+  gap: var(--space-16);
+  align-items: stretch;
+}
+@media (max-width: 1100px) {
+  .locationTop {
+    grid-template-columns: 1fr;
+  }
+}
+.locationFields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-16) var(--space-12);
+  margin: 0;
+}
+.locationFields .field[data-wide] {
+  grid-column: span 2;
+}
+
+/* A Volt DataTable whose body rows open their record when clicked anywhere (e.g. Carrier Accounts) */
+.clickRows [role='row']:not(:has([role='columnheader'])) {
+  cursor: pointer;
+}
+
+/* Volt DataTable rows: a row's status (data-status) starts at the left of its column, like the Inventory tables */
+.clickRows [role='cell']:has([data-status]) {
+  justify-content: flex-start;
+  text-align: start;
 }

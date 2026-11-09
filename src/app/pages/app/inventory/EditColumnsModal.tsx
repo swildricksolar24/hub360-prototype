@@ -206,7 +206,7 @@ export function EditColumnsModal({
           <SearchInput aria-label="Search fields" placeholder="Search fields" value={query} onChange={e => setQuery(e.target.value)} />
           <div className={styles.groups} role="group" aria-label="Field groups">
             {GROUPS.map(g => (
-              <Tag key={g} variant="small" selected={group === g} onClick={() => setGroup(g)}>
+              <Tag key={g} size="small" selected={group === g} onClick={() => setGroup(g)}>
                 {g}
               </Tag>
             ))}

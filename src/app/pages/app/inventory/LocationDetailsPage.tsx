@@ -11,13 +11,13 @@ import { AppLink } from '../../../components/AppLink';
 import { AppModal } from '../../../components/AppModal';
 import { RecordActions, RecordPage } from '../../../components/RecordPage';
 import { SearchItemsModal } from './record/ItemModals';
-import { LocationFormModal, RemoveLocationModal } from './record/LocationModals';
+import { LocationFormModal, RemoveLocationModal, RuleToggle, parentOptions } from './record/LocationModals';
 import { LocationTree } from './record/LocationStructure';
 import { createLocation, removeLocation } from './record/LocationsTab';
-import { STATUS_INFO, depthOf, descendantIds, flattenTree } from './record/locationTree';
+import { canMoveUnder, codeOf, depthOf, descendantIds, flattenTree, moveUnder, pathOf } from './record/locationTree';
 import { RowMenu } from './record/RowMenu';
 import { STOCK_COLUMNS, StockTable, useStockTable, useStockView, type StockView } from './record/StockTab';
-import { CheckboxWithInfo, Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './record/tableKit';
+import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './record/tableKit';
 import type { Warehouse } from './warehouseData';
 import { LOCATION_TYPES, MAX_LOCATION_DEPTH, type CatalogItem, type WarehouseLocation } from './warehouseRecordData';
 import {
@@ -40,8 +40,15 @@ import { Toast } from '../../../../components/Toast/Toast';
 const LIST_PATH = '/app/inventory/warehouses';
 
 /** The Location Details card's fields; the header's Save saves them. */
-type Draft = Pick<WarehouseLocation, 'name' | 'type' | 'description' | 'frozen' | 'nonPickable' | 'empty'>;
-const toDraft = ({ name, type, description, frozen, nonPickable, empty }: WarehouseLocation): Draft => ({ name, type, description, frozen, nonPickable, empty });
+type Draft = { name: string; type: string; description: string; code: string; capacity: string; parentId: string | null };
+const toDraft = (l: WarehouseLocation, list: WarehouseLocation[]): Draft => ({
+  name: l.name,
+  type: l.type,
+  description: l.description,
+  code: codeOf(list, l.id),
+  capacity: l.capacity ?? '',
+  parentId: l.parentId,
+});
 
 const required = (text: string): ReactNode => (
   <>
@@ -64,7 +71,9 @@ export function LocationDetailsPage() {
   const stock = useStock(code);
   const location = locations.find(l => l.id === locationId);
 
-  const [draft, setDraft] = useState<Draft | null>(() => (location ? toDraft(location) : null));
+  const [draft, setDraft] = useState<Draft | null>(() => (location ? toDraft(location, locations) : null));
+  // Figma 857:28345: the details are read-only until the header's Edit (872:62836)
+  const [editing, setEditing] = useState(false);
   const [tried, setTried] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [statusChange, setStatusChange] = useState<boolean | null>(null);
@@ -73,9 +82,10 @@ export function LocationDetailsPage() {
 
   // Another location (‹ / ›, or a sublocation's edit) starts from its own saved details
   useEffect(() => {
-    setDraft(location ? toDraft(location) : null);
+    setDraft(location ? toDraft(location, locations) : null);
     setTried(false);
     setNotice(null);
+    setEditing(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, locationId]);
 
@@ -109,14 +119,35 @@ export function LocationDetailsPage() {
         ? `There’s already a location named “${name}” here`
         : undefined,
     type: !draft.type ? 'Choose a type' : undefined,
+    code: !draft.code.trim()
+      ? 'Enter a code'
+      : locations.some(x => x.id !== l.id && codeOf(locations, x.id).toLowerCase() === draft.code.trim().toLowerCase())
+        ? `Another location already has the code “${draft.code.trim()}”`
+        : undefined,
+    parent: draft.parentId !== l.parentId && !canMoveUnder(locations, l.id, draft.parentId) ? `It can’t move there: the tree would be deeper than ${MAX_LOCATION_DEPTH} levels` : undefined,
   };
   function save() {
     if (!draft) return;
     setTried(true);
-    if (errors.name || errors.type) return;
-    setLocations(code, list => list.map(x => (x.id === l.id ? { ...x, ...draft, name, description: draft.description.trim() } : x)));
+    if (Object.values(errors).some(Boolean)) return;
+    const fields = { name, type: draft.type, description: draft.description.trim(), code: draft.code.trim(), capacity: draft.capacity.trim() || undefined };
+    setLocations(code, list => {
+      const moved = draft.parentId !== l.parentId ? moveUnder(list, l.id, draft.parentId) : list;
+      return moved.map(x => (x.id === l.id ? { ...x, ...fields } : x));
+    });
+    setEditing(false);
+    setTried(false);
     setNotice(`${name} was saved.`);
   }
+  function cancelEditing() {
+    setDraft(toDraft(l, locations));
+    setTried(false);
+    setEditing(false);
+  }
+  const toggleRule = (rule: 'frozen' | 'nonPickable') => {
+    setLocations(code, list => list.map(x => (x.id === l.id ? { ...x, [rule]: !l[rule] } : x)));
+    setNotice(`${l.name} is ${l[rule] ? 'no longer ' : ''}${rule === 'frozen' ? 'frozen' : 'non-pickable'}.`);
+  };
   const set =
     <K extends keyof Draft>(key: K) =>
     (value: Draft[K]) =>
@@ -137,49 +168,93 @@ export function LocationDetailsPage() {
     <div className={styles.tab}>
       {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
 
-      {/* Figma "Location Details" card: the status options on the title row, then Name / Type and Description */}
-      <section className={styles.card} aria-labelledby="loc-details-title">
-        <div className={styles.cardHead}>
-          <h2 id="loc-details-title" className={styles.cardTitle}>
-            Location Details
-          </h2>
-          <div className={styles.headChecks} role="group" aria-label="Status options">
-            <CheckboxWithInfo label="Frozen" info={STATUS_INFO.frozen} checked={draft.frozen} onChange={set('frozen')} />
-            <CheckboxWithInfo label="Non-Pickable" info={STATUS_INFO.nonPickable} checked={draft.nonPickable} onChange={set('nonPickable')} />
-            <CheckboxWithInfo label="Empty" info={STATUS_INFO.empty} checked={draft.empty} onChange={set('empty')} />
+      {/* Figma 857:28345: the Location Details card (read-only until Edit) beside the Rules card */}
+      <div className={styles.locationTop}>
+        <section className={styles.card} aria-labelledby="loc-details-title">
+          <div className={styles.cardHead}>
+            <h2 id="loc-details-title" className={styles.cardTitle}>
+              Location Details
+            </h2>
+            <Button size="small" variant="primary" icon="document" onClick={() => setNotice(`The barcode label for ${l.name} (${codeOf(locations, l.id)}) was sent to the label printer.`)}>
+              Print Label
+            </Button>
           </div>
-        </div>
-        <form
-          className={styles.form}
-          noValidate
-          onSubmit={e => {
-            e.preventDefault();
-            save();
-          }}
-        >
-          <div className={styles.wideNarrow}>
-            <TextInput
-              label={required('Name')}
-              value={draft.name}
-              onChange={e => set('name')(e.target.value)}
-              error={tried ? errors.name : undefined}
-              autoComplete="off"
-              required
-            />
-            <Dropdown
-              label="Type *"
-              placeholder="Select"
-              options={LOCATION_TYPES.map(t => ({ value: t, label: t }))}
-              value={draft.type || null}
-              onChange={v => set('type')(v as string)}
-              error={tried ? errors.type : undefined}
-              required
-            />
+          {editing ? (
+            <form
+              className={styles.form}
+              noValidate
+              onSubmit={e => {
+                e.preventDefault();
+                save();
+              }}
+            >
+              <div className={styles.halves}>
+                <TextInput label={required('Name')} value={draft.name} onChange={e => set('name')(e.target.value)} error={tried ? errors.name : undefined} autoComplete="off" required />
+                <TextInput label={required('Code (barcode)')} value={draft.code} onChange={e => set('code')(e.target.value)} error={tried ? errors.code : undefined} autoComplete="off" required />
+                <Dropdown
+                  label="Type *"
+                  placeholder="Select"
+                  options={LOCATION_TYPES.map(t => ({ value: t, label: t }))}
+                  value={draft.type || null}
+                  onChange={v => set('type')(v as string)}
+                  error={tried ? errors.type : undefined}
+                  required
+                />
+                <Dropdown
+                  label="Parent location"
+                  options={[
+                    { value: '', label: `Top level (${w.name})` },
+                    ...parentOptions(locations).filter(o => o.value !== l.id && !descendantIds(locations, l.id).includes(o.value)),
+                  ]}
+                  value={draft.parentId ?? ''}
+                  onChange={v => set('parentId')((v as string) || null)}
+                  error={tried ? errors.parent : undefined}
+                />
+              </div>
+              <TextArea label="Description" value={draft.description} onChange={e => set('description')(e.target.value)} />
+              <TextInput label="Capacity (optional)" value={draft.capacity} placeholder="e.g. 1 pallet · 2,500 lb" onChange={e => set('capacity')(e.target.value)} autoComplete="off" />
+              <button type="submit" hidden />
+            </form>
+          ) : (
+            <dl className={styles.locationFields}>
+              <div className={styles.field}>
+                <dt className="text-tiny-regular">Name</dt>
+                <dd className="text-medium-bold">{l.name}</dd>
+              </div>
+              <div className={styles.field}>
+                <dt className="text-tiny-regular">Code (barcode)</dt>
+                <dd className="text-medium-bold">{codeOf(locations, l.id)}</dd>
+              </div>
+              <div className={styles.field}>
+                <dt className="text-tiny-regular">Type</dt>
+                <dd className="text-medium-bold">{l.type || '—'}</dd>
+              </div>
+              <div className={styles.field}>
+                <dt className="text-tiny-regular">Parent location</dt>
+                <dd className="text-medium-bold">{l.parentId ? pathOf(locations, l.parentId) : `Top level (${w.name})`}</dd>
+              </div>
+              <div className={styles.field} data-wide>
+                <dt className="text-tiny-regular">Description</dt>
+                <dd className="text-medium-bold">{l.description || '—'}</dd>
+              </div>
+              <div className={styles.field} data-wide>
+                <dt className="text-tiny-regular">Capacity (optional)</dt>
+                <dd className="text-medium-bold">{l.capacity || '—'}</dd>
+              </div>
+            </dl>
+          )}
+        </section>
+
+        <section className={styles.card} aria-labelledby="loc-rules-title">
+          <div className={styles.cardHead}>
+            <h2 id="loc-rules-title" className={styles.cardTitle}>
+              Rules
+            </h2>
           </div>
-          <TextArea label="Description" value={draft.description} onChange={e => set('description')(e.target.value)} />
-          <button type="submit" hidden />
-        </form>
-      </section>
+          <RuleToggle label="Frozen" description="Blocks all stock movement in and out, e.g. during a cycle count." on={l.frozen} onChange={() => toggleRule('frozen')} />
+          <RuleToggle label="Non-pickable" description="Stock here is counted but left out of pick lists, e.g. returns or QC." on={l.nonPickable} onChange={() => toggleRule('nonPickable')} />
+        </section>
+      </div>
 
       <LocationContents code={code} location={l} locations={locations} onNotice={setNotice} onAddSublocation={setAddingUnder} />
     </div>
@@ -218,7 +293,10 @@ export function LocationDetailsPage() {
               else if (value === 'export') setNotice(`Exported ${l.name} to CSV.`);
               else if (value === 'delete') setRemoving(true);
             }}
-            onSave={save}
+            // Edit opens the details for editing; while editing the button saves them, with Cancel beside it
+            saveLabel={editing ? 'Save' : 'Edit'}
+            onSave={editing ? save : () => setEditing(true)}
+            onCancel={editing ? cancelEditing : undefined}
             onPrevious={go(order[index - 1])}
             onNext={go(order[index + 1])}
           />
@@ -389,9 +467,10 @@ function LocationContents({
           <Segmented
             label="Show"
             options={[
-              { value: 'overview', label: 'Overview' },
+              // Figma 857:28345: Tree (the sublocations), Flat List (the items here) and Stock
+              { value: 'structure', label: 'Tree' },
+              { value: 'overview', label: 'Flat List' },
               { value: 'stock', label: 'Stock' },
-              { value: 'structure', label: 'Structure' },
             ]}
             value={mode}
             onChange={changeMode}

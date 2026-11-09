@@ -123,7 +123,7 @@ the Cancel default).
 - Footer: Cancel (outline) and **Apply** (brand). Once a View Name is typed (5) the primary becomes **Save**.
 - **Saved view (6):** "Last Modified: May 18, 2026" at the top right, View Name filled ("WH Pref 261006"), and a
   red **Delete View** button at the start of the footer (the destructive red style from Account Settings:
-  `--color-semantic-fill-error-strong` with `--color-gray-text-inverse-strong` text).
+  `--color-semantic-fill-error-strongest` with `--color-gray-text-inverse-strong` text).
 - **Delete confirmation (7):** title "Deleting View - Confirmation Required", the View Name shown read-only, body
   "Please confirm that you want to proceed with the deletion. This action cannot be undone.", Cancel and a red
   **Delete Item**.

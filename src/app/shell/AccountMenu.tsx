@@ -57,7 +57,8 @@ export function AccountMenu() {
           onClose={close}
           items={[
             { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account') },
-            { label: `Theme: ${dark ? 'Dark' : 'Light'}`, icon: 'preferences', onSelect: () => setTheme(dark ? 'light' : 'dark') },
+            // A command: the label ("Light Mode" / "Dark Mode") and Volt's Mode Light (sun) / Mode Dark (moon) icon name the theme it switches to
+            { label: dark ? 'Light Mode' : 'Dark Mode', icon: dark ? 'mode-light' : 'mode-dark', onSelect: () => setTheme(dark ? 'light' : 'dark') },
             { label: 'Sign Out', icon: 'sign-out', onSelect: () => setConfirmSignOut(true) },
           ]}
         />

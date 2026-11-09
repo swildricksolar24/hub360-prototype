@@ -1,50 +1,63 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '../../../../../components/Badge/Badge';
+import { Button } from '../../../../../components/Button/Button';
 import { DataHeader, type DataColumn } from '../../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../../components/DataRow/DataRow';
+import { Icon } from '../../../../../components/Icon/Icon';
+import { IconButton } from '../../../../../components/IconButton/IconButton';
 import type { WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, setLocations, setStock, useLocations, useStock } from '../warehouseStore';
-import { LocationFormModal, RemoveLocationModal, type LocationFields } from './LocationModals';
-import { LocationTree } from './LocationStructure';
-import { childrenOf, depthOf, descendantIds, flattenTree } from './locationTree';
+import { AddLocationsModal, RemoveLocationModal, type LocationFields } from './LocationModals';
+import { canMoveUnder, childrenOf, codeOf, depthOf, descendantIds, flattenTree, itemsIn, moveUnder, pathOf, slotsOf, usedOf, utilizationText } from './locationTree';
 import { RowMenu } from './RowMenu';
-import { MenuButton, Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
 import { MAX_LOCATION_DEPTH } from '../warehouseRecordData';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
-// Fixed widths fit the record card (~1070px at a 1440px window): 708 + checkbox 28 + ••• 44 + 9 gaps × 16 + 40
-// padding = 964, leaving Description (the fill column, which wraps) about 110px. To make room, the three Yes / No
-// columns are centered and have no sort icon (the View filter and search cover them).
-const COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Location', width: 96 },
-  { key: 'description', label: 'Description', width: 'fill' },
-  { key: 'type', label: 'Type', width: 84 },
-  { key: 'frozen', label: 'Frozen', width: 66, align: 'center', sortable: false },
-  { key: 'nonPickable', label: 'Non-Pickable', width: 108, align: 'center', sortable: false },
-  { key: 'empty', label: 'Empty', width: 62, align: 'center', sortable: false },
-  { key: 'subs', label: '# of Sublocations', width: 150, align: 'center' },
-  // Figma: the status pill has no header, and sits right before the ••• button
-  { key: 'status', label: 'Status', width: 108, align: 'end', labelHidden: true, sortable: false },
+const TREE_COLUMNS: DataColumn[] = [
+  { key: 'name', label: 'Location Name', width: 'fill', filterable: true },
+  { key: 'code', label: 'Code', width: 130, filterable: true },
+  { key: 'type', label: 'Type', width: 116, filterable: true },
+  { key: 'items', label: 'Items', width: 116, filterable: true },
+  { key: 'utilization', label: 'Utilization', width: 140, filterable: true },
+  { key: 'rules', label: 'Rules', width: 180, filterable: true },
+  { key: 'status', label: 'Status', width: 110, filterable: true },
+  // Figma: a + to add a location inside this one, before the •••
+  { key: 'add', label: 'Add location inside', width: 40, labelHidden: true, sortable: false },
+];
+const FLAT_COLUMNS: DataColumn[] = [
+  { key: 'name', label: 'Location', width: 130, filterable: true },
+  { key: 'parent', label: 'Parent', width: 'fill', filterable: true },
+  { key: 'code', label: 'Code', width: 130, filterable: true },
+  { key: 'type', label: 'Type', width: 116, filterable: true },
+  { key: 'items', label: 'Items', width: 116, filterable: true },
+  { key: 'utilization', label: 'Utilization', width: 140, filterable: true },
+  { key: 'rules', label: 'Rules', width: 160, filterable: true },
+  { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
-const yesNo = (on: boolean) => (on ? 'Yes' : 'No');
 const VIEWS = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
+  { value: 'frozen', label: 'Frozen' },
+  { value: 'nonPickable', label: 'Non-pickable' },
+  { value: 'empty', label: 'Empty' },
 ];
+const inView = (l: WarehouseLocation, view: string) =>
+  view === 'all' || (view === 'active' ? l.active : view === 'inactive' ? !l.active : view === 'frozen' ? l.frozen : view === 'nonPickable' ? l.nonPickable : l.empty);
 
-/** Who adds what: a new top-level location, or a sublocation (optionally under a given parent). */
-export type AddingLocation = { sublocation: boolean; parentId?: string | null } | null;
-
-/** Creates a location from the Add Location / Add Sublocation fields and returns it. */
-export function createLocation(code: string, fields: LocationFields): WarehouseLocation {
-  const location: WarehouseLocation = { ...fields, id: `loc-${Date.now()}`, active: true };
-  setLocations(code, list => [...list, location]);
-  return location;
+/** Creates locations from Add Location and returns them. */
+export function createLocations(code: string, list: LocationFields[]): WarehouseLocation[] {
+  const created = list.map((fields, i) => ({ ...fields, id: `loc-${Date.now()}-${i}`, active: true }));
+  setLocations(code, all => [...all, ...created]);
+  return created;
 }
+/** One location (Location Details' Add Sublocation). */
+export const createLocation = (code: string, fields: LocationFields) => createLocations(code, [fields])[0]!;
 
 /**
  * Removes a location with its sublocations and their stock records. Returns how many locations went.
@@ -57,68 +70,158 @@ export function removeLocation(code: string, locations: WarehouseLocation[], loc
 }
 
 /**
- * Warehouse record › Locations (Figma 80:10030 Overview, 562:4260 Structure). Overview is the standard table with a
- * pager; Structure is the location tree. Add New ▾ adds a location or a sublocation; a location's name (or its
- * ••• › Edit) opens Location Details.
+ * Warehouse record › Locations (Figma 857:28319 tree, 872:53895 flat list): the warehouse's totals, then the locations
+ * as a tree (expand / collapse, + to add a location inside one, drag a row onto another to move it) or a flat list
+ * with each one's parent. A location's name opens Location Details.
  */
-export function LocationsTab({ code, onNotice }: { code: string; onNotice: (text: string) => void }) {
+export function LocationsTab({ code, warehouseName, onNotice }: { code: string; warehouseName: string; onNotice: (text: string) => void }) {
   const navigate = useNavigate();
   const locations = useLocations(code);
   const stock = useStock(code);
-  const [mode, setMode] = useState<'overview' | 'structure'>('overview');
+  const [mode, setMode] = useState<'tree' | 'flat'>('tree');
   const [view, setView] = useState('all');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [menuFor, setMenuFor] = useState<string | null>(null);
-  const [adding, setAdding] = useState<AddingLocation>(null);
+  const [adding, setAdding] = useState<{ parentId: string | null } | null>(null);
   const [removing, setRemoving] = useState<WarehouseLocation | null>(null);
   const [info, setInfo] = useState<string | null>(null);
-  const cols = useColumns(COLUMNS);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [dropOn, setDropOn] = useState<string | null>(null);
+  const cols = useColumns(mode === 'tree' ? TREE_COLUMNS : FLAT_COLUMNS);
 
-  // Overview lists every location in tree order (a location, then its sublocations)
-  const ordered = flattenTree(locations).map(r => r.location);
-  const subs = (l: WarehouseLocation) => childrenOf(locations, l.id).length;
-  const t = useTableControls(ordered, {
-    search: l => `${l.name} ${l.description} ${l.type}`,
-    sortValue: (l, key) =>
-      key === 'subs' ? subs(l) : key === 'frozen' || key === 'nonPickable' || key === 'empty' ? yesNo(l[key]) : String(l[key as keyof WarehouseLocation] ?? ''),
-    filter: l => view === 'all' || l.active === (view === 'active'),
-  });
+  const items = (l: WarehouseLocation) => itemsIn(stock, locations, l.id);
+  const rows = flattenTree(locations);
+  const depth = new Map(rows.map(r => [r.location.id, r.depth]));
+  const hasChildren = (l: WarehouseLocation) => childrenOf(locations, l.id).length > 0;
+  // Tree mode hides the sublocations of a collapsed location (searching expands them all; a view shows every match)
+  const hiddenByCollapse = (l: WarehouseLocation) => {
+    let p = l.parentId;
+    while (p) {
+      if (collapsed.has(p)) return true;
+      p = locations.find(x => x.id === p)?.parentId ?? null;
+    }
+    return false;
+  };
+  const t = useTableControls(
+    rows.map(r => r.location),
+    {
+      search: l => `${l.name} ${codeOf(locations, l.id)} ${l.description} ${l.type}`,
+      sortValue: (l, key) =>
+        key === 'code'
+          ? codeOf(locations, l.id)
+          : key === 'items'
+            ? items(l)
+            : key === 'utilization'
+              ? usedOf(l) / slotsOf(l)
+              : key === 'parent'
+                ? l.parentId
+                  ? pathOf(locations, l.parentId)
+                  : ''
+                : key === 'rules'
+                  ? `${l.frozen ? 'Frozen' : ''}${l.nonPickable ? 'Non-pickable' : ''}`
+                  : key === 'status'
+                    ? String(l.active)
+                    : String(l[key as keyof WarehouseLocation] ?? ''),
+      // A view other than All lists every match, collapsed or not
+      filter: l => inView(l, view) && (mode === 'flat' || view !== 'all' || !hiddenByCollapse(l)),
+    },
+  );
+
+  // The warehouse's totals (Figma: Locations · In use · Empty · Utilization · Frozen · Non-pickable)
+  const used = locations.reduce((n, l) => n + usedOf(l), 0);
+  const slots = locations.reduce((n, l) => n + slotsOf(l), 0);
+  const totals = [
+    ['Locations', locations.length],
+    ['In use', locations.filter(l => !l.empty).length],
+    ['Empty', locations.filter(l => l.empty).length],
+    ['Utilization', `${slots ? Math.round((used / slots) * 100) : 0}%`],
+    ['Frozen', locations.filter(l => l.frozen).length],
+    ['Non-pickable', locations.filter(l => l.nonPickable).length],
+  ] as const;
 
   const open = (l: WarehouseLocation) => navigate(locationPath(code, l.id));
   const setActive = (ids: string[], active: boolean) => {
     setLocations(code, list => list.map(l => (ids.includes(l.id) ? { ...l, active } : l)));
     onNotice(`${ids.length === 1 ? (locations.find(l => l.id === ids[0])?.name ?? '1 location') : `${ids.length} locations`} ${active ? 'activated' : 'deactivated'}.`);
   };
+  const toggleRule = (l: WarehouseLocation, rule: 'frozen' | 'nonPickable') => {
+    setLocations(code, list => list.map(x => (x.id === l.id ? { ...x, [rule]: !l[rule] } : x)));
+    onNotice(`${l.name} is ${l[rule] ? 'no longer ' : ''}${rule === 'frozen' ? 'frozen' : 'non-pickable'}.`);
+  };
+  function move(id: string, target: string | null) {
+    const l = locations.find(x => x.id === id);
+    if (!l || l.parentId === target) return;
+    if (!canMoveUnder(locations, id, target)) {
+      setInfo(target && descendantIds(locations, id).includes(target) ? 'A location can’t move inside itself.' : `That would make the tree deeper than ${MAX_LOCATION_DEPTH} levels.`);
+      return;
+    }
+    setLocations(code, list => moveUnder(list, id, target));
+    if (target) setCollapsed(c => new Set([...c].filter(x => x !== target)));
+    onNotice(`${l.name} moved ${target ? `into ${locations.find(x => x.id === target)?.name}` : 'to the top level'}.`);
+  }
+
+  const rules = (l: WarehouseLocation) =>
+    l.frozen || l.nonPickable ? (
+      <span className={styles.badges}>
+        {l.frozen && (
+          <Badge shape="pill" color="blue">
+            Frozen
+          </Badge>
+        )}
+        {l.nonPickable && (
+          <Badge shape="pill" color="amber">
+            Non-pickable
+          </Badge>
+        )}
+      </span>
+    ) : (
+      '—'
+    );
+  // The app's table status: a dot and the word (orange Active, gray Inactive)
+  const status = (l: WarehouseLocation) => <StatusPill active={l.active} />;
+  const canAddInside = (l: WarehouseLocation) => depthOf(locations, l.id) < MAX_LOCATION_DEPTH;
 
   return (
     <div className={styles.tab}>
       {info && <Toast type="info" title={info} onClose={() => setInfo(null)} />}
       <section className={styles.card} aria-label="Locations">
+        <p className={`text-small-regular ${styles.summary}`}>
+          {totals.map(([label, value]) => (
+            <span key={label}>
+              {label}: <strong>{value}</strong>
+            </span>
+          ))}
+        </p>
         <TableToolbar
           label="Locations"
           lead={
             <Segmented
               label="Locations view"
               options={[
-                { value: 'overview', label: 'Overview' },
-                { value: 'structure', label: 'Structure' },
+                { value: 'tree', label: 'Tree' },
+                { value: 'flat', label: 'Flat List' },
               ]}
               value={mode}
               onChange={setMode}
             />
           }
-          // View filters the Overview table; Structure always shows the whole tree
-          view={mode === 'overview' ? { options: VIEWS, value: view, onChange: setView } : undefined}
-          onColumns={mode === 'overview' ? () => cols.setOpen(true) : undefined}
+          view={{ options: VIEWS, value: view, onChange: setView }}
+          onColumns={() => cols.setOpen(true)}
           onUpload={() => setInfo('Uploading locations from a spreadsheet isn’t part of this prototype yet.')}
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
               { value: 'activate', label: 'Activate selected', disabled: t.selectedRows.length === 0 },
               { value: 'deactivate', label: 'Deactivate selected', disabled: t.selectedRows.length === 0 },
+              { value: 'labels', label: 'Print barcode labels', disabled: t.selectedRows.length === 0 },
               { value: 'export', label: 'Export to CSV' },
             ],
             onAction: v => {
               if (v === 'export') return onNotice(`Exported ${locations.length} locations to CSV.`);
+              if (v === 'labels') {
+                onNotice(`Sent ${t.selectedRows.length} barcode label${t.selectedRows.length === 1 ? '' : 's'} to the label printer.`);
+                return t.clearSelection();
+              }
               setActive(
                 t.selectedRows.map(l => l.id),
                 v === 'activate',
@@ -126,97 +229,178 @@ export function LocationsTab({ code, onNotice }: { code: string; onNotice: (text
               t.clearSelection();
             },
           }}
-          search={{ value: t.query, onChange: t.setQuery, label: 'Search locations' }}
+          search={{
+            value: t.query,
+            onChange: q => {
+              t.setQuery(q);
+              if (q.trim()) setCollapsed(new Set());
+            },
+            label: 'Search by name or code (e.g. A-01-02)',
+          }}
           trailing={
-            <MenuButton
-              label="Add New"
-              items={[
-                { label: 'Add Location', icon: 'location', onSelect: () => setAdding({ sublocation: false }) },
-                { label: 'Add Sublocation', icon: 'sub-directory', onSelect: () => setAdding({ sublocation: true }) },
-              ]}
-            />
+            <Button size="small" variant="brand" onClick={() => setAdding({ parentId: null })}>
+              Add Location
+            </Button>
           }
         />
-
-        {mode === 'structure' ? (
-          <LocationTree
-            locations={locations}
-            query={t.query}
-            onChange={next => setLocations(code, () => next)}
-            onAddChild={parentId => setAdding({ sublocation: true, parentId })}
-            onEdit={open}
-          />
-        ) : (
-          <>
-            <div className={table.tableScroll}>
-              <div role="table" aria-label="Warehouse locations" className={`${table.table} ${table.fillNarrow}`}>
-                <DataHeader className={table.head} corners="none" columns={cols.columns} leading="checkbox" {...t.headerProps} />
-                {t.pageRows.length === 0 && (
-                  <p className={`text-medium-regular ${styles.emptyRow}`}>
-                    {locations.length === 0 ? 'No locations yet. Use Add New to add one.' : 'No locations match your search or view.'}
-                  </p>
-                )}
-                {t.pageRows.map((l, i) => (
-                  <div key={l.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!l.active || undefined}>
-                    <DataRow
-                      className={table.row}
-                      columns={cols.columns}
-                      leading="checkbox"
-                      cells={{
-                        name: (
-                          <button type="button" className={styles.cellLink} onClick={() => open(l)}>
-                            {l.name}
-                          </button>
-                        ),
-                        description: l.description || '—',
-                        type: l.type || '—',
-                        frozen: yesNo(l.frozen),
-                        nonPickable: yesNo(l.nonPickable),
-                        empty: yesNo(l.empty),
-                        subs: String(subs(l)),
-                        status: <StatusPill active={l.active} />,
-                      }}
-                      {...t.rowSelect(l.id)}
-                      selectLabel={`Select ${l.name}`}
-                      moreLabel={`More actions for ${l.name}`}
-                      onMore={() => setMenuFor(m => (m === l.id ? null : l.id))}
-                    />
-                    {menuFor === l.id && (
-                      <RowMenu
-                        label={l.name}
-                        onClose={() => setMenuFor(null)}
-                        items={[
-                          { label: 'Edit', onSelect: () => open(l) },
-                          ...(depthOf(locations, l.id) < MAX_LOCATION_DEPTH
-                            ? [{ label: 'Add Sublocation', onSelect: () => setAdding({ sublocation: true, parentId: l.id }) }]
-                            : []),
-                          {
-                            label: l.active ? 'Deactivate' : 'Activate',
-                            onSelect: () => setActive([l.id], !l.active),
-                          },
-                          { label: 'Remove', onSelect: () => setRemoving(l) },
-                        ]}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Pager table={t} label="Location pages" />
-          </>
+        {mode === 'tree' && (
+          <p className={`text-tiny-regular ${styles.hint}`}>
+            Drag a row onto another location to move it. + adds a child location. Rules: Frozen blocks stock movement (e.g. during a count); Non-pickable
+            keeps stock out of pick lists (e.g. returns or QC).
+          </p>
         )}
+
+        <div className={table.tableScroll}>
+          <div role="table" aria-label="Warehouse locations" className={`${table.table} ${table.fillNarrow} ${table.moreVisible}`}>
+            <DataHeader className={table.head} corners="none" columns={cols.columns} leading="checkbox" {...t.headerProps} />
+            {t.pageRows.length === 0 && (
+              <p className={`text-medium-regular ${styles.emptyRow}`}>
+                {locations.length === 0 ? 'No locations yet. Use Add Location to add one.' : 'No locations match your search or view.'}
+              </p>
+            )}
+            {/* Top-level drop zone while dragging: drop here to move a location to the top level */}
+            {dragging && mode === 'tree' && (
+              <div
+                className={`text-small-regular ${styles.emptyRow}`}
+                data-drop={dropOn === 'top' || undefined}
+                onDragOver={e => {
+                  e.preventDefault();
+                  setDropOn('top');
+                }}
+                onDragLeave={() => setDropOn(null)}
+                onDrop={e => {
+                  e.preventDefault();
+                  move(dragging, null);
+                  setDragging(null);
+                  setDropOn(null);
+                }}
+              >
+                Drop here to move to the top level
+              </div>
+            )}
+            {t.pageRows.map((l, i) => {
+              const d = depth.get(l.id) ?? 1;
+              const parent = hasChildren(l);
+              const name =
+                mode === 'tree' ? (
+                  <span className={styles.treeName} data-parent={parent || undefined} style={{ ['--depth' as string]: d }}>
+                    {parent ? (
+                      <button
+                        type="button"
+                        className={styles.chevron}
+                        aria-expanded={!collapsed.has(l.id)}
+                        aria-label={`${collapsed.has(l.id) ? 'Expand' : 'Collapse'} ${l.name}`}
+                        onClick={() =>
+                          setCollapsed(c => {
+                            const next = new Set(c);
+                            if (next.has(l.id)) next.delete(l.id);
+                            else next.add(l.id);
+                            return next;
+                          })
+                        }
+                      >
+                        <Icon name="chevron-down" size={20} color="currentColor" />
+                      </button>
+                    ) : (
+                      <span className={styles.chevronSpacer} aria-hidden />
+                    )}
+                    <button type="button" className={styles.cellLink} onClick={() => open(l)}>
+                      {l.name}
+                    </button>
+                  </span>
+                ) : (
+                  <button type="button" className={styles.cellLink} onClick={() => open(l)}>
+                    {l.name}
+                  </button>
+                );
+              return (
+                <div
+                  key={l.id}
+                  className={table.rowWrap}
+                  data-stripe={i % 2 === 0 || undefined}
+                  data-inactive={!l.active || undefined}
+                  data-drop={dropOn === l.id || undefined}
+                  draggable={mode === 'tree'}
+                  onDragStart={e => {
+                    e.dataTransfer.setData('text/plain', l.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    setDragging(l.id);
+                  }}
+                  onDragEnd={() => {
+                    setDragging(null);
+                    setDropOn(null);
+                  }}
+                  onDragOver={e => {
+                    if (!dragging || dragging === l.id || !canMoveUnder(locations, dragging, l.id)) return;
+                    e.preventDefault();
+                    setDropOn(l.id);
+                  }}
+                  onDragLeave={() => setDropOn(d2 => (d2 === l.id ? null : d2))}
+                  onDrop={e => {
+                    e.preventDefault();
+                    if (dragging) move(dragging, l.id);
+                    setDragging(null);
+                    setDropOn(null);
+                  }}
+                >
+                  <DataRow
+                    className={table.row}
+                    columns={cols.columns}
+                    leading="checkbox"
+                    cells={{
+                      name,
+                      parent: l.parentId ? pathOf(locations, l.parentId) : '—',
+                      code: codeOf(locations, l.id),
+                      type: l.type || '—',
+                      items: items(l).toLocaleString('en-US'),
+                      utilization: utilizationText(l),
+                      rules: rules(l),
+                      status: status(l),
+                      add: canAddInside(l) ? (
+                        <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} />
+                      ) : null,
+                    }}
+                    {...t.rowSelect(l.id)}
+                    selectLabel={`Select ${l.name}`}
+                    moreLabel={`More actions for ${l.name}`}
+                    onMore={() => setMenuFor(m => (m === l.id ? null : l.id))}
+                  />
+                  {menuFor === l.id && (
+                    <RowMenu
+                      label={l.name}
+                      onClose={() => setMenuFor(null)}
+                      items={[
+                        { label: 'View', onSelect: () => open(l) },
+                        ...(canAddInside(l) ? [{ label: 'Add Location Inside', onSelect: () => setAdding({ parentId: l.id }) }] : []),
+                        ...(l.parentId ? [{ label: 'Move to Top Level', onSelect: () => move(l.id, null) }] : []),
+                        { label: l.frozen ? 'Unfreeze' : 'Freeze', onSelect: () => toggleRule(l, 'frozen') },
+                        { label: l.nonPickable ? 'Make Pickable' : 'Make Non-pickable', onSelect: () => toggleRule(l, 'nonPickable') },
+                        { label: l.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([l.id], !l.active) },
+                        { label: 'Remove', onSelect: () => setRemoving(l) },
+                      ]}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <Pager table={t} label="Location pages" />
       </section>
 
       {cols.modal}
-      <LocationFormModal
+      <AddLocationsModal
         open={adding !== null}
-        sublocation={adding?.sublocation ?? false}
         parentId={adding?.parentId}
         locations={locations}
+        warehouseName={warehouseName}
         onClose={() => setAdding(null)}
-        onCreate={fields => {
-          const l = createLocation(code, fields);
-          onNotice(`${l.name} added${fields.parentId ? ` to ${locations.find(p => p.id === fields.parentId)?.name}` : ''}.`);
+        onCreate={(list, printLabels) => {
+          const created = createLocations(code, list);
+          const where = list[0]?.parentId ? ` to ${locations.find(p => p.id === list[0]!.parentId)?.name}` : '';
+          const what = created.length === 1 ? created[0]!.name : `${created.length} locations`;
+          onNotice(`${what} added${where}.${printLabels ? ` ${created.length === 1 ? 'Its barcode label was' : 'Their barcode labels were'} sent to the label printer.` : ''}`);
+          if (list[0]?.parentId) setCollapsed(c => new Set([...c].filter(x => x !== list[0]!.parentId)));
           setAdding(null);
         }}
       />

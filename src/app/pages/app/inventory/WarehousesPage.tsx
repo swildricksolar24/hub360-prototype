@@ -8,7 +8,6 @@ import { Icon } from '../../../../components/Icon/Icon';
 import { PageTracker } from '../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
 import { Skeleton } from '../../../../components/Skeleton/Skeleton';
-import { TextInput } from '../../../../components/TextInput/TextInput';
 import { AppLink } from '../../../components/AppLink';
 import { AppModal } from '../../../components/AppModal';
 import { AddWarehouseModal } from './AddWarehouseModal';
@@ -16,8 +15,9 @@ import { EditColumnsModal } from './EditColumnsModal';
 import { UploadFlow } from './UploadFlow';
 import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, fieldByKey, type SavedView, type Warehouse } from './warehouseData';
 import { RowMenu } from './record/RowMenu';
-import { PAGE_SIZES } from './record/tableKit';
+import { PAGE_SIZES, StatusPill } from './record/tableKit';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
+import { ColumnFilter } from './ColumnFilter';
 import { WarehouseStatusModal, applyWarehouseStatus, type ActivateOptions } from './WarehouseStatusModal';
 import { useAuth } from '../../../auth/AuthContext';
 import table from './table.module.css';
@@ -240,11 +240,7 @@ export function WarehousesPage() {
                 for (const key of ['code', 'name'] as const) {
                   if (key in cells) cells[key] = <AppLink to={recordPath(w)} size="small">{cells[key]}</AppLink>;
                 }
-                cells.status = (
-                  <span className={table.status} data-active={w.active || undefined}>
-                    {w.active ? 'Active' : 'Inactive'}
-                  </span>
-                );
+                cells.status = <StatusPill active={w.active} />;
                 return (
                   <div
                     key={w.id}
@@ -395,63 +391,6 @@ export function WarehousesPage() {
           setUploadOpen(false);
         }}
       />
-    </div>
-  );
-}
-
-/* ---------- Column filter (header filter icon) ---------- */
-
-function ColumnFilter({
-  anchor,
-  label,
-  value,
-  onApply,
-  onClose,
-}: {
-  anchor: HTMLElement | null | undefined;
-  label: string;
-  value: string;
-  onApply: (text: string) => void;
-  onClose: () => void;
-}) {
-  const [text, setText] = useState(value);
-  const ref = useRef<HTMLDivElement>(null);
-  const left = anchor ? anchor.offsetLeft : 0;
-  useEffect(() => {
-    ref.current?.querySelector('input')?.focus();
-    const away = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node) && !(e.target as Element).closest('[role="columnheader"]')) onClose();
-    };
-    document.addEventListener('pointerdown', away);
-    return () => document.removeEventListener('pointerdown', away);
-  }, [onClose]);
-  return (
-    <div
-      ref={ref}
-      className={styles.filter}
-      style={{ left }}
-      role="dialog"
-      aria-label={`Filter ${label}`}
-      onKeyDown={e => {
-        if (e.key === 'Escape') onClose();
-      }}
-    >
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-          onApply(text);
-        }}
-      >
-        <TextInput label={`Filter ${label}`} value={text} onChange={e => setText(e.target.value)} placeholder="Contains…" />
-        <div className={styles.filterActions}>
-          <Button size="small" variant="outline" type="button" onClick={() => onApply('')}>
-            Clear
-          </Button>
-          <Button size="small" variant="brand" type="submit">
-            Apply
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }

@@ -155,7 +155,7 @@
  * Raised specificity beats the component's own hover / press fills.
  */
 .card .danger.danger[data-variant] {
-  --bg: var(--color-semantic-fill-error-strong);
+  --bg: var(--color-semantic-fill-error-strongest);
   --fg: var(--color-gray-text-inverse-strong);
   --ring-w: 0px;
   color: var(--fg);

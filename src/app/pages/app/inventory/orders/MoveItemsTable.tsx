@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Status } from '../../../../../components/Status/Status';
 import { Button } from '../../../../../components/Button/Button';
 import { DataHeader, type DataColumn, type DataSort } from '../../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../../components/DataRow/DataRow';
@@ -166,9 +167,9 @@ export function MoveItemsTable({
     const errors = moveLineErrors(line);
     const ready = Object.keys(errors).length === 0;
     const statusPill = (
-      <span className={table.status} data-active={(status === 'In Process' && ready) || undefined}>
+      <Status active={status === 'In Process' && ready} data-status>
         {status === 'Completed' ? 'Moved' : status === 'Cancelled' ? 'Cancelled' : ready ? 'Ready' : 'Incomplete'}
-      </span>
+      </Status>
     );
     const shown = {
       item: row.itemNo,

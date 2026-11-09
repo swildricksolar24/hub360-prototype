@@ -1,4 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
+import { Tag } from '../../../../../components/Tag/Tag';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
@@ -19,58 +21,86 @@ const requiredNote = (
 );
 const options = (list: string[]) => list.map(v => ({ value: v, label: v }));
 
+/** "Account •••• 4687": the last four characters of an account #. */
+const masked = (account: string) => `Account •••• ${account.replace(/\W/g, '').slice(-4)}`;
+
 /**
- * Figma "Modal- Add Key Carrier" Default / Search (384:33406, 384:33429): search the carrier accounts on file and
- * pick one, or go on to Add New Carrier.
+ * Figma "Add Carrier Account — Improved" (848:17307): the company's carrier accounts, searchable, with a checkbox each.
+ * Accounts already on this warehouse can't be picked again. "Add New Carrier Account" opens the form for one the
+ * company doesn't have yet.
  */
 export function SearchCarrierModal({
   open,
+  existing,
   onClose,
-  onPick,
+  onAdd,
   onAddNew,
 }: {
   open: boolean;
+  /** The warehouse's carrier accounts. */
+  existing: Carrier[];
   onClose: () => void;
-  onPick: (carrier: Omit<Carrier, 'id'>) => void;
+  onAdd: (carriers: Omit<Carrier, 'id'>[]) => void;
   onAddNew: () => void;
 }) {
   const [query, setQuery] = useState('');
+  const [picked, setPicked] = useState<Set<string>>(new Set());
   useEffect(() => {
-    if (open) setQuery('');
+    if (!open) return;
+    setQuery('');
+    setPicked(new Set());
   }, [open]);
   const q = query.trim().toLowerCase();
-  const results = q ? KNOWN_CARRIER_ACCOUNTS.filter(a => `${a.name} ${a.region} ${a.account}`.toLowerCase().includes(q)) : [];
+  const results = KNOWN_CARRIER_ACCOUNTS.filter(a => !q || `${a.name} ${a.nickname} ${a.account}`.toLowerCase().includes(q));
+  const onWarehouse = (account: string) => existing.some(c => c.account === account);
+  const toggle = (account: string, on: boolean) =>
+    setPicked(p => {
+      const next = new Set(p);
+      if (on) next.add(account);
+      else next.delete(account);
+      return next;
+    });
 
   return (
     <AppModal
       open={open}
       onClose={onClose}
-      title="Search Carrier Account"
-      primaryAction={{ label: 'Add New Carrier', onClick: onAddNew }}
+      title="Add Carrier Account"
+      description="Pick an account your company already has, or add a new one."
+      startAction={{ label: 'Add New Carrier Account', icon: 'plus', onClick: onAddNew }}
+      primaryAction={{
+        label: 'Add to Warehouse',
+        disabled: picked.size === 0,
+        onClick: () => onAdd(KNOWN_CARRIER_ACCOUNTS.filter(a => picked.has(a.account)).map(a => ({ ...a, services: [...a.services], active: true }))),
+      }}
     >
-      <SearchInput aria-label="Search carrier accounts" placeholder="Search by carrier, region or account #" value={query} onChange={e => setQuery(e.target.value)} autoFocus />
-      {q && results.length === 0 && <p className={`text-medium-regular ${styles.noResults}`}>No carrier accounts match “{query}”.</p>}
-      {results.length > 0 && (
-        <ul className={styles.results} aria-label="Carrier accounts">
-          {results.map(a => (
-            <li key={a.account}>
-              <button
-                type="button"
-                className={styles.result}
-                onClick={() => onPick({ name: a.name, account: a.account, nickname: a.region, billing: 'Prepaid', services: ['Ground'], active: true })}
-              >
-                <span className={styles.resultText}>
-                  <span className={styles.resultName}>{a.name}</span>
-                  <span className={styles.resultSub}>{a.region}</span>
-                </span>
-                <span className={styles.resultSide}>
-                  Account #
-                  <br />
-                  <strong>{a.account}</strong>
-                </span>
-              </button>
-            </li>
-          ))}
+      <SearchInput aria-label="Search carrier accounts" placeholder="Search by carrier, nickname or account #" value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+      {results.length === 0 ? (
+        <p className={`text-medium-regular ${styles.noResults}`}>No carrier accounts match “{query}”. Use Add New Carrier Account to add it.</p>
+      ) : (
+        <ul className={styles.pickList} aria-label="Carrier accounts">
+          {results.map(a => {
+            const already = onWarehouse(a.account);
+            return (
+              <li key={a.account} className={styles.pickRow} data-picked={picked.has(a.account) || undefined} data-disabled={already || undefined}>
+                <Checkbox
+                  size="small"
+                  label={
+                    <span className={styles.pickText}>
+                      <span className="text-medium-bold">
+                        {a.name} · {a.nickname}
+                      </span>
+                      <span className="text-tiny-regular">{masked(a.account)}</span>
+                    </span>
+                  }
+                  checked={picked.has(a.account)}
+                  disabled={already}
+                  onChange={e => toggle(a.account, e.target.checked)}
+                />
+                {already && <span className={`text-tiny-regular ${styles.pickNote}`}>Already on this warehouse</span>}
+              </li>
+            );
+          })}
         </ul>
       )}
     </AppModal>
@@ -81,12 +111,14 @@ type Form = { name: string; account: string; nickname: string; billing: string; 
 const EMPTY: Form = { name: '', account: '', nickname: '', billing: '', services: [], active: true };
 
 /**
- * Figma "Modal- Add Key Carrier - Create New Carrier" (384:33589) and "Modal- Edit Carrier" (525:30327). Editing adds
- * an Active toggle and a red Remove Carrier.
+ * Figma "Edit Carrier Account — Improved" (848:20546), also used to add a new account: Carrier, Account Nickname,
+ * Account #, Billing Type and the Service Types chips. Editing adds the Active toggle and a red Remove from Warehouse. Copying (a row's ••• › Copy) opens the Add form filled from another account:
+ * same carrier, billing and services, the nickname marked "(copy)", and an empty Account # to fill in.
  */
 export function CarrierFormModal({
   open,
   carrier,
+  copyOf,
   onClose,
   onSave,
   onRemove,
@@ -94,6 +126,8 @@ export function CarrierFormModal({
   open: boolean;
   /** The carrier being edited; null adds a new one. */
   carrier: Carrier | null;
+  /** Adding only: the account to start from (••• › Copy). */
+  copyOf?: Carrier | null;
   onClose: () => void;
   onSave: (carrier: Omit<Carrier, 'id'>) => void;
   onRemove?: () => void;
@@ -103,8 +137,14 @@ export function CarrierFormModal({
   useEffect(() => {
     if (!open) return;
     setTried(false);
-    setForm(carrier ? { ...carrier } : EMPTY);
-  }, [open, carrier]);
+    setForm(
+      carrier
+        ? { ...carrier }
+        : copyOf
+          ? { ...EMPTY, name: copyOf.name, nickname: copyOf.nickname && `${copyOf.nickname} (copy)`, billing: copyOf.billing, services: [...copyOf.services] }
+          : EMPTY,
+    );
+  }, [open, carrier, copyOf]);
 
   const set = <K extends keyof Form>(key: K) => (value: Form[K]) => setForm(f => ({ ...f, [key]: value }));
   const errors = {
@@ -124,9 +164,20 @@ export function CarrierFormModal({
     <AppModal
       open={open}
       onClose={onClose}
-      title={carrier ? 'Edit Carrier' : 'Add Carrier Account'}
-      description={requiredNote}
-      startAction={carrier && onRemove ? { label: 'Remove Carrier', danger: true, onClick: onRemove } : undefined}
+      title={carrier ? 'Edit Carrier Account' : copyOf ? 'Copy Carrier Account' : 'New Carrier Account'}
+      description={
+        carrier ? (
+          <span className="text-small-regular">
+            Carrier accounts are shared across warehouses. Turning off Active disables this account everywhere it’s used. To stop using it here only, use
+            Remove from Warehouse.
+          </span>
+        ) : (
+          requiredNote
+        )
+      }
+      // Figma: Active sits in the header, beside the close button
+      headerActions={carrier && <Toggle contained label="Active" checked={form.active} onChange={e => set('active')(e.target.checked)} />}
+      startAction={carrier && onRemove ? { label: 'Remove from Warehouse', danger: true, onClick: onRemove } : undefined}
       primaryAction={{ label: 'Save', onClick: save }}
     >
       <form
@@ -137,14 +188,9 @@ export function CarrierFormModal({
           save();
         }}
       >
-        {carrier && (
-          <div className={styles.modalToggle}>
-            <Toggle contained label="Active" checked={form.active} onChange={e => set('active')(e.target.checked)} />
-          </div>
-        )}
-        <div className={styles.wideNarrow}>
+        <div className={styles.halves}>
           <Dropdown
-            label="Carrier Name *"
+            label="Carrier *"
             placeholder="Select"
             options={options(CARRIER_NAMES)}
             value={form.name || null}
@@ -152,6 +198,7 @@ export function CarrierFormModal({
             error={tried ? errors.name : undefined}
             required
           />
+          <TextInput label="Account Nickname" value={form.nickname} onChange={e => set('nickname')(e.target.value)} />
           <TextInput
             label={required('Account #')}
             value={form.account}
@@ -159,9 +206,6 @@ export function CarrierFormModal({
             error={tried ? errors.account : undefined}
             required
           />
-        </div>
-        <TextInput label="Account Nickname" value={form.nickname} onChange={e => set('nickname')(e.target.value)} />
-        <div className={styles.wideNarrow}>
           <Dropdown
             label="Billing Type *"
             placeholder="Select"
@@ -171,32 +215,52 @@ export function CarrierFormModal({
             error={tried ? errors.billing : undefined}
             required
           />
-          <Dropdown
-            label="Service Type *"
-            placeholder="Select"
-            multiple
-            options={options(SERVICE_TYPES)}
-            value={form.services}
-            onChange={v => set('services')(v as string[])}
-            error={tried ? errors.services : undefined}
-            required
-          />
         </div>
+        <fieldset className={styles.chipField}>
+          <legend className="text-medium-regular">Service Types * (select all that apply)</legend>
+          <div className={styles.chipRow}>
+            {SERVICE_TYPES.map(t => (
+              <Tag
+                key={t}
+                size="small"
+                selected={form.services.includes(t)}
+                onClick={() => set('services')(form.services.includes(t) ? form.services.filter(x => x !== t) : [...form.services, t])}
+              >
+                {t}
+              </Tag>
+            ))}
+          </div>
+          {tried && errors.services && (
+            <p className={`text-small-regular ${styles.fieldError}`} role="alert">
+              {errors.services}
+            </p>
+          )}
+        </fieldset>
         <button type="submit" hidden />
       </form>
     </AppModal>
   );
 }
 
-/** Asks before a carrier account is removed (Figma draws no confirmation; it follows the app's delete pattern). */
-export function RemoveCarrierModal({ carrier, onClose, onConfirm }: { carrier: Carrier | null; onClose: () => void; onConfirm: () => void }) {
+/** Figma "Remove Carrier Account — Improved" (848:20626), in the app's one modal layout. */
+export function RemoveCarrierModal({
+  carrier,
+  warehouseName,
+  onClose,
+  onConfirm,
+}: {
+  carrier: Carrier | null;
+  warehouseName: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <AppModal
       open={carrier !== null}
       onClose={onClose}
-      title="Remove carrier account?"
-      description={carrier && `${carrier.name} account ${carrier.account} (${carrier.nickname || 'no nickname'}) will be removed from this warehouse.`}
-      primaryAction={{ label: 'Remove Carrier', danger: true, onClick: onConfirm }}
+      title={carrier ? `Remove ${carrier.nickname || `${carrier.name} ${carrier.account}`} from ${warehouseName}?` : ''}
+      description="The account stays available for other warehouses. Shipments already booked with it aren’t affected."
+      primaryAction={{ label: 'Remove', danger: true, onClick: onConfirm }}
     />
   );
 }

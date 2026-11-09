@@ -132,7 +132,7 @@
   background: var(--color-brand-teal-fill-weaker);
 }
 .tile[data-tone='error'] {
-  background: var(--color-semantic-fill-error-weak);
+  background: var(--color-semantic-fill-error-weakest);
 }
 .errorsHead {
   display: flex;

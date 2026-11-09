@@ -9,6 +9,7 @@ import { Icon } from '../../../../../components/Icon/Icon';
 import { PageTracker } from '../../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { Tooltip } from '../../../../../components/Tooltip/Tooltip';
+import { Status } from '../../../../../components/Status/Status';
 import { AppModal } from '../../../../components/AppModal';
 import styles from '../record.module.css';
 import table from '../table.module.css';
@@ -123,13 +124,9 @@ export function Pager<T extends { id: string }>({ table: t, label }: { table: Ta
   );
 }
 
-/** The Active / Inactive pill (table.module.css). */
+/** A row's Active / Inactive status: Volt's Status (a dot and the word). `data-status` lets table.module.css start it at the left of its cell. */
 export function StatusPill({ active }: { active: boolean }) {
-  return (
-    <span className={table.status} data-active={active || undefined}>
-      {active ? 'Active' : 'Inactive'}
-    </span>
-  );
+  return <Status active={active} data-status />;
 }
 
 /* ---------- Columns ---------- */

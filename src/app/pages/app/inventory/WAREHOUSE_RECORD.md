@@ -32,27 +32,30 @@ It uses the coded design system in this repo as the source of truth.
 
 | # | Screen | Figma frame | Opens from |
 |---|---|---|---|
-| 1 | Details | Details / Filled Out (380:28637) | A warehouse row (or its ••• › View / Edit), or after Add Warehouse saves ("WAREHOUSE ADDED") |
+| 1 | Details | Inventory / Warehouse - A (18:11145); edit form from Details / Filled Out (380:28637) | A warehouse row (or its ••• › View / Edit), or after Add Warehouse saves ("WAREHOUSE ADDED") |
 | 1a | Confirm Deactivation | Action Confirmation (508:75882) | Turning the header's Active toggle off |
-| 1b | Search Carrier Account | Modal- Add Key Carrier - Default / Search (384:33406, 384:33429) | Details › Add Carrier |
-| 1c | Add Carrier Account | Modal- Add Key Carrier - Create New Carrier (384:33589) | Add New Carrier in 1b |
-| 1d | Edit Carrier | Modal- Edit Carrier (525:30327) | A carrier row's ••• › Edit |
-| 2 | Contacts | 537:57135 (named ".../Details/Filled Out" in Figma) | Contacts tab |
-| 2a | Search Contacts | Modal- Add Contact / Search (537:57691, 537:57757) | Contacts › Add Contact |
-| 2b | Add Contact | Modal- Add Contact - Create New Contact (537:57704) | Add New Contact in 2a |
-| 2c | Edit Contact | Modal- Edit Contact (537:57724) | A contact row, or its ••• › Edit |
-| 3 | Pick / Pack | Inventory / Warehouse / Pick - Pack (84:11914) | Pick / Pack tab |
-| 3a | Add / Edit Label | Pick/Pack Label Defaults Modal (723:15932, 723:17434) | Label Defaults › Add Label, or a label row |
-| 4 | Printers | none in Figma | Printers tab: "not built yet" placeholder |
-| 5 | Locations: Overview | Inventory / Warehouse / Location (80:10030) | Locations tab |
-| 5a | Locations: Structure | Inventory / Warehouse / Location (562:4260) | Structure in 5's toolbar |
-| 5b | Add Location / Add Sublocation | Add Location (80:10747), Add Location (562:3249) | Add New ▾ in 5 |
-| 5c | Location Details | Location Details (421:13272), Structure sub-tab (570:34435) | A location row, or its ••• › Edit |
+| 1b | Add Carrier Account | Add Carrier Account — Improved (848:17307) | Details › Add Carrier |
+| 1c | New / Copy Carrier Account | Edit Carrier Account — Improved (848:20546) layout | Add New Carrier Account in 1b, or a row's ••• › Copy |
+| 1d | Edit Carrier Account / Remove | Edit Carrier Account — Improved (848:20546), Remove Carrier Account — Improved (848:20626) | A carrier row's ••• › Edit |
+| 2 | Contacts | Inventory / Warehouse / Details / Filled Out (848:20960) | Contacts tab |
+| 2a | Add Contact (CRM search) | Modal- Add Contact - Search (848:21038) | Contacts › Add Contact |
+| 2b | Create New Contact | Modal- Add Contact - Create New Contact (848:20988) | Create New Contact in 2a |
+| 2c | Edit Contact / Remove | Modal- Edit Contact (848:21010), Modal- Remove Contact (857:22542) | A contact's name, or its ••• |
+| 3 | Pick / Pack | View (899:3331), edit (84:11914) | Pick / Pack tab; the header's Edit |
+| 3a | Add / Edit Label | Pick/Pack Label Defaults Modal (723:15932, 723:17434) | 4 · Labels while editing |
+| 4 | Printers: first setup | Printers · Empty (First Setup) (891:3248) | Printers tab, for a warehouse without printers |
+| 4a | Set Up Print Agent | Set Up Print Agent (Modal) (891:3722) | First setup step 1, or Settings › Set Up Print Agent |
+| 4b | Add Printer (3 steps) | Add Printer · 1 Connection / 2 Find Printer / 3 Settings & Test (891:3801, 891:3882, 891:4036) | First setup step 2, or List › Add Printer |
+| 4c | Printers: List / Settings | 886:64894, 911:5680 | Printers tab |
+| 4d | Printer Details | Settings (901:24728, edit 891:12852), Default Use (901:25215, edit 901:25764), Print Jobs (901:26381) | A printer's name |
+| 5 | Locations: Tree / Flat List | Inventory / Warehouse / Location (857:28319 tree, 872:53895 flat list) | Locations tab |
+| 5b | Add Location (one or a range) | Add Location (Improved) (872:53690), Add Location - Range (857:28408) | Add Location, or a row's + |
+| 5c | Location Details | Location Details (857:28345; stock 872:56252; edit 872:62836) | A location's name, or its ••• › View |
 | 6 | Items | Inventory / Warehouse / Items (335:47354 › 571:24397) | Items tab |
 | 6a | Search Items | Modal- Add Item / Search (571:41931, 571:41966) | Add Item ▾ › Add Item |
 | 6b | Add Part / Assembly / Kit | Modal Screen (571:53644, 571:53661, 571:53678) | Add New ▾ in 6a |
 | 6c | Clone Warehouse | Modal- Add Warehouse / Search (571:54749, 571:54762) | Add Item ▾ › Clone Warehouse |
-| 7 | Stock | Inventory / Warehouse / Stock (76:11638) | Stock tab |
+| 7 | Stock | Inventory / Warehouse / Stock (571:56332) | Stock tab |
 | 8 | History | 571:57601 (named ".../Items" in Figma) | History tab |
 
 ## Routing and data
@@ -83,8 +86,8 @@ Build it with `RecordPage`:
 | `icon` | `warehouse` |
 | `title` | The warehouse name in capitals, e.g. "PHOENIX WH" |
 | `breadcrumb` | Inventory › Warehouses (link to the list) › the warehouse name |
-| `meta` | `SYSTEM ID: PHX-124` (the warehouse code) |
-| `labels` / `tag` | None. Figma shows none. |
+| `labels` | One Tier 3 Label under the title: `ID: PHX-124` (the warehouse code) |
+| `tag` | None. Figma shows none. |
 | `sections` | Details · Contacts · Pick / Pack · Printers · Locations · Items · Stock · History, in Figma's order |
 | `actions` | The full `RecordActions` set on every tab, described below |
 
@@ -93,7 +96,9 @@ instead, so the header doesn't jump between tabs.
 - **Active toggle:** reflects the warehouse's status. Turning it off opens Confirm Deactivation (1a); turning it on
   opens Confirm Activation. Reuse the confirm modals from the Warehouses page.
 - **Actions ▾:** Activate or Deactivate, Export, Delete.
-- **Save:** saves the Details form (a Message confirms it).
+- **Edit / Save:** Figma 18:11145 shows **Edit**. It opens the Warehouse Details form (and the Details tab). While
+  editing, the button reads **Save**, with an outline **Cancel** before it. Save validates and saves the form (a Toast
+  confirms it), then goes back to the read-only view; Cancel drops the changes. ‹ / › also leave edit mode.
 - **‹ / ›:** move to the previous / next warehouse in the list order, staying on the same tab.
 
 **Inactive warehouses:** when a warehouse is inactive, its record still opens and can be edited.
@@ -114,14 +119,37 @@ copy them.
 
 ## 1. Details
 
-Two cards, each with a title and a divider under it (`Card`).
+Figma 18:11145: a row of KPI tiles, then two cards, each with a title and a divider under it (`Card`).
 
-**Warehouse Details**, editable inline. Save in the header saves it.
+**KPI tiles.** Eight design-system `Tile`s (Base "Tile / KPI"), wrapping to fewer per row on narrow screens. Each opens
+what it counts.
+
+| Tile | Value | Note | Opens |
+|---|---|---|---|
+| Inventory Value | The warehouse's value, whole dollars | +3.2% vs last 30 days (sample) | Stock tab |
+| Locations | The warehouse's location count | "478 Filled. 88% Utilization" from its filled count | Locations tab |
+| Below Reorder Point | 14 items (sample) | 5 with no open PO | Items tab |
+| Open Orders | Its In Process orders | How many are due in the next 7 days | Orders, searched by the code |
+| Waiting for Approval | 6 (sample) | 2 older than 3 days | Orders, searched by the code |
+| Pending Review | 4 (sample) | 1 with a discrepancy | Orders, searched by the code |
+| In Transit | 3 (sample) | 2 arriving tomorrow | Orders, searched by the code |
+| Stock needed for projects | 3 short (sample) | For Sale orders due in 14 days | Orders, searched by the code |
+
+**Warehouse Details**, read-only until the header's Edit. Each field is a label (Tiny / Regular, Gray Text/Weak) over
+its value (Medium / Bold, Gray Text/Strong), on a grid of a half and two quarters:
+- Row 1: Warehouse Name, Warehouse ID (the code).
+- Row 2: Address (one line, `formatAddress`), Country, Time Zone.
+
+**Time Zone** (`timeZones.ts`): the zone the state or province is in (Arizona: "Mountain Time (Arizona, no DST)")
+until one is picked in the form; a picked zone is saved on the warehouse as `timeZone`.
+
+**Edit form** (after Edit; the header's Save saves it):
 
 | Field | Control | Sample | Layout |
 |---|---|---|---|
-| Warehouse Name * | TextInput | Phoenix WH | Row 1, wide |
-| Country * | Dropdown | United States of America | Row 1, narrow |
+| Warehouse Name * | TextInput | Phoenix WH | Row 1, half |
+| Country * | Dropdown | United States of America | Row 1, quarter |
+| Time Zone | Dropdown (follows the state until picked) | Mountain Time (Arizona, no DST) | Row 1, quarter |
 | Address 1 * | TextInput | 11565 W Summertime | Full width |
 | Address 2 | TextInput | — | Full width |
 | City * | TextInput | Phoenix | Row 4, thirds |
@@ -142,7 +170,11 @@ warehouse itself, so they match the list.
 | Billing Type | Prepaid |
 | Service Type | Tags: Ground, LTL |
 | (status pill) | Active |
-| ••• | Edit, Activate / Deactivate, Remove |
+| ••• | Edit, Copy, Activate / Deactivate, Remove |
+
+The table is Volt's Data Table (`DataTable`, Base 3299:1399): sort icons on each header (Service Type sorts on its
+tags), Active / Inactive badges, ••• on every row. Clicking anywhere on a row opens Edit Carrier Account; the
+underlined name is the keyboard way in.
 
 The second sample row is FedEx · 465798 · FX - PHX WH01 · Collect · Ground, LTL · Inactive. There is no pager.
 
@@ -163,6 +195,9 @@ The second sample row is FedEx · 465798 · FX - PHX WH01 · Collect · Ground, 
   - Service Type * (MultiselectDropdown: Ground, LTL, International, Express)
 - Buttons: Cancel, Save.
 
+**Copy** (••• › Copy) opens 1c filled from that account: same carrier, billing type and services, the nickname with
+" (copy)" added, and an empty Account # to fill in.
+
 **1d Edit Carrier**
 - The same fields as 1c, filled in.
 - An Active toggle in the header.
@@ -170,6 +205,14 @@ The second sample row is FedEx · 465798 · FX - PHX WH01 · Collect · Ground, 
 - Footer: red "Remove Carrier" on the left (asks to confirm), with Cancel and Save on the right.
 
 ## 2. Contacts
+
+**Latest Figma (848:20960 …), as built:** All / Internal / External chips (internal = the company's own people,
+shown "HUB360 (Internal)"), a search and Add Contact; columns ★, Name, Company, Phone, Email, Primary Role, Additional
+Roles, status. Add Contact searches the CRM with a checkbox per person ("Already on this warehouse" can't be picked),
+Create New Contact has First / Last Name and "Make Primary Contact for Warehouse", Edit adds Active, View in CRM and
+Remove from Warehouse; removing the primary contact offers a New Primary Contact. The notes below describe the first
+version.
+
 
 One untitled card, with `⊕ Add Contact` on the right above the table.
 
@@ -224,6 +267,15 @@ Other.
 
 ## 3. Pick / Pack
 
+**Latest Figma (899:3331 view, 84:11914 edit), as built:** five numbered cards, read-only until the header's Edit;
+the edit banner above the header ("You're editing Warehouse Pick / Pack Settings. 2 unsaved changes.") saves or
+discards. 1 · Allocation & Commit (stages, commit at or after allocation, "Start allocating N days before the order's
+Due date"), 2 · Picking (format, printer, auto-print, sort chips, then by, rotation chips, pick rules and scanning &
+validation switches), 3 · Packing, 4 · Labels (edit / delete and Add Label Default while editing; these save as they
+change) and 5 · Notifications. The printer menus list the Printers tab's printers. The notes below describe the first
+version.
+
+
 A two-column grid of cards, each with a title and a divider. The fields save with the header's Save.
 
 **Left column**
@@ -268,9 +320,47 @@ Figma draws Number of Days as a select; it's a `NumericInput` here.
 
 ## 4. Printers
 
-The tab is in every Figma header, but no page is designed. Show `RecordPage`'s "not built yet" placeholder.
+Figma "Printers" page (886:64893). Data: `printerData.ts` (printers, print agents, document defaults, print jobs,
+printing defaults); stores in `warehouseStore.ts`. Phoenix WH (PHX-124) starts set up; every other warehouse starts at
+first setup. The list view, the open printer and its view are in the URL: `?tab=printers&view=settings`,
+`&printer=pr3&pview=jobs`.
+
+- **First setup (891:3248):** three steps. 1 Set Up Print Agent; 2 Add Printer (on once an agent is paired); 3 Go to
+  Pick / Pack (off until there's a printer).
+- **Set Up Print Agent (891:3722):** Download · Install · Pair stepper, Windows / macOS, a pairing code with a 10-minute
+  countdown, "Waiting for the agent to connect…". In the prototype the agent pairs 4 seconds after a download is picked;
+  Done adds it.
+- **Add Printer (891:3801 → 891:4036):** 1 Connection (print agent, Find it on the network / Enter an IP address /
+  USB); 2 Find printer (what the agent found, one at a time; ones already added can't be picked; Scan Again); 3 Settings &
+  test (name, area, type, label sizes, resolution, speed, darkness, "Use as default for" chips, label preview, Print
+  Test Label → "did it come out right?"). Save Printer adds it, and makes it the default for the chosen documents.
+- **List (886:64894):** All / Online / Offline chips, search, Add Printer; Printer, Area, Type, Connection, Label Sizes,
+  Used For (its default documents), Status; ••• View, Pause / Resume, Remove. The header has no Edit here.
+- **Settings (911:5680):** Printing Defaults (label language, retries, history, who's notified, fall back to another
+  printer) save as they change; Print Agents lists every agent in the company.
+- **Printer Details (901:24728 …):** title with its status, a trail back to Printers, Print Test Page, Pause / Resume
+  Printing and Remove from Warehouse (Figma's red outline button isn't in the design system yet, so it's an outline
+  button that opens a red confirmation). Settings (Printer, Connection with Test Connection, Labels & Print Quality,
+  Maintenance), Default Use (the warehouse's document defaults, "If this printer is offline", "Who can print here") and
+  Print Jobs (the failed-job notice with Send to Another Printer / Retry Job, filters, the job table with Reprint /
+  Retry / Cancel). The header's Edit edits Settings and Default Use together, with the edit banner above the header.
+- **Default Use and Pick / Pack:** Default Use edits the warehouse's document defaults (`printerData` defaults). Figma
+  says these are the same as Pick / Pack › Label Defaults; in the prototype the two lists are still separate.
 
 ## 5. Locations
+
+**Latest Figma (857:28319 tree, 872:53895 flat list, 872:53690 / 857:28408 Add Location, 857:28345 Location Details),
+as built:** the warehouse's totals (Locations, In use, Empty, Utilization, Frozen, Non-pickable), Tree / Flat List,
+View (All, Active, Inactive, Frozen, Non-pickable, Empty), Columns, Upload, Actions (incl. Print barcode labels),
+search by name or code, Add Location. Columns: name (tree: indented, expand / collapse), Parent (flat list), Code,
+Type, Items (units on hand here and below), Utilization ("used/total (free)" slots), Rules badges, status, a + (add a
+location inside) and •••. Drag a row onto another to move it there (within 4 levels), or onto "Drop here to move to the
+top level". Codes come from the tree (A, A-01, A-01-01) unless set. Add Location adds one location or a numbered range
+(prefix, From, To) with generated codes, a preview, capacity, the Frozen / Non-pickable rules and "Print barcode labels
+after creating". Location Details: read-only details (Name, Code, Type, Parent, Description, Capacity) with Print
+Label, a Rules card whose switches save at once, Edit / Save / Cancel in the header (Edit can rename, recode or move
+it), and Tree / Flat List / Stock below. The notes below describe the first version.
+
 
 **Toolbar** (the Warehouses list toolbar):
 - `ButtonGroup` Overview | Structure, then a divider;
@@ -367,6 +457,9 @@ There is a pager. Use real-looking sample items in place of Figma's placeholders
 - Picking a warehouse copies its items into this one: confirm first, then show a Message with the count added.
 
 ## 7. Stock
+
+**Latest Figma (571:56332), as built:** the toolbar sits on its own card above the table. The rest is as below.
+
 
 **Toolbar:** View ▾, Columns, Upload, Actions ▾, Search. Leave out Figma's "Create Order ▾" until Orders is built
 (Figma's note: "When orders get built").

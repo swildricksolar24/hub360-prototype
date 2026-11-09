@@ -16,6 +16,8 @@ export type Warehouse = {
   state: string;
   zip: string;
   country: string;
+  /** Warehouse Details › Time Zone, when it was picked; otherwise it follows the address (timeZones.ts). */
+  timeZone?: string;
   value: number;
   locations: number;
   filled: number;
