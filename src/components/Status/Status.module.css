@@ -1,0 +1,28 @@
+/* Figma "Status" (Base 3412:428): State = Active | Inactive */
+.status {
+  --dot: var(--color-gray-fill-weak);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-8);
+  color: var(--color-gray-text-weak);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.status[data-active] {
+  --dot: var(--color-brand-orange-fill-strong);
+  color: var(--color-gray-text-strong);
+}
+
+.dot {
+  /* The 10px dot is a component dimension; the token scale has no size tokens */
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-80);
+  background: var(--dot);
+}

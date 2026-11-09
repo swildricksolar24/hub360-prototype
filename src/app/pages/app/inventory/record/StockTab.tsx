@@ -152,8 +152,9 @@ export function StockTable({
 }
 
 /**
- * Warehouse record › Stock (Figma 76:11638). Figma's "Create Order ▾" is left out until Orders is built (Figma's note:
- * "When orders get built").
+ * Warehouse record › Stock (Figma 571:56332): the toolbar on its own card (View · Columns · Upload · Actions · Search),
+ * then the stock table with its Totals row. Figma's "Create Order ▾" waits for Orders (Figma's note: "When orders get
+ * built").
  */
 export function StockTab({ code, onNotice }: { code: string; onNotice: (text: string) => void }) {
   const rows = useStockView(code);
@@ -165,7 +166,7 @@ export function StockTab({ code, onNotice }: { code: string; onNotice: (text: st
   return (
     <div className={styles.tab}>
       {info && <Toast type="info" title={info} onClose={() => setInfo(null)} />}
-      <section className={styles.card} aria-label="Stock">
+      <section className={styles.card} aria-label="Stock tools">
         <TableToolbar
           label="Stock"
           view={{
@@ -186,6 +187,8 @@ export function StockTab({ code, onNotice }: { code: string; onNotice: (text: st
           }}
           search={{ value: t.query, onChange: t.setQuery, label: 'Search stock' }}
         />
+      </section>
+      <section className={styles.card} aria-label="Stock">
         <StockTable code={code} t={t} columns={cols.columns} />
       </section>
       {cols.modal}

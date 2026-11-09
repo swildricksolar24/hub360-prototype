@@ -11,6 +11,7 @@ export type ButtonVariant =
   | 'orange-outline'
   | 'gray-outline'
   | 'brand-red'
+  | 'red-outline'
   | 'brand-secondary'
   | 'text';
 export type ButtonSize = 'base' | 'small' | 'tiny';
@@ -21,8 +22,9 @@ export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'childre
    * Figma sets per size — base ("- Button Large"): primary (Solid / Gray / Base), outline (Clear / Base),
    * brand (Solid / Teal / Base), brand-orange (Solid / Orange / Base), brand-outline (Solid / Teal / Outline),
    * orange-outline (Solid / Orange / Outline), gray-outline (Solid / Gray / Outline); the last two exist at base only ·
-   * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-red (Brand / Small / Red: destructive
-   * and error actions, e.g. Deactivate, Delete), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).
+   * small: primary, outline, brand, brand-outline (Brand / Small / Outline), brand-red (Solid / Red / Base: destructive
+   * and error actions, e.g. Deactivate, Delete), red-outline (Clear / Red: a secondary destructive action, e.g. Remove
+   * from Warehouse; small only), brand-secondary · tiny: primary, text, brand (Primary / Tiny / Brand).
    */
   variant?: ButtonVariant;
   /** base = Button Base / Block (76px) · small = Button Small (44px) · tiny = Button Tiny (32px). */

@@ -82,12 +82,6 @@ export function ModalPanel({
     return (
       <div className={cls} data-variant="sectioned" style={style}>
         <header className={styles.header}>
-          {(headerActions || close) && (
-            <div className={styles.toolbar}>
-              {headerActions}
-              {close}
-            </div>
-          )}
           <div className={styles.heading}>
             {titleEl}
             {description && (
@@ -96,6 +90,12 @@ export function ModalPanel({
               </p>
             )}
           </div>
+          {(headerActions || close) && (
+            <div className={styles.toolbar}>
+              {headerActions}
+              {close}
+            </div>
+          )}
         </header>
         {children && <div className={styles.body}>{children}</div>}
         {(footerStart || actions) && (

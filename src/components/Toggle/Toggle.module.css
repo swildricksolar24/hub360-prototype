@@ -27,9 +27,10 @@
   --knob-x: 8px;
 }
 
-/* Toggle Button: the switch and label inside a filled box */
+/* Toggle Button: the switch and label inside a filled box, 44px tall like the small buttons beside it in a modal
+   header (Figma padding 10 / 16 / 10 / 12, Nov 2026) */
 .toggle[data-contained] {
-  padding: var(--space-12) var(--space-16) var(--space-12) var(--space-12);
+  padding: var(--space-10) var(--space-16) var(--space-10) var(--space-12);
   gap: var(--space-12);
   border-radius: var(--radius-12);
   background: var(--color-gray-fill-weaker);

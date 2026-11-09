@@ -89,14 +89,14 @@
   --ring-w: var(--stroke-width-4);
 }
 .field[data-error] {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --label: var(--color-semantic-text-error);
   --text: var(--color-semantic-text-error);
-  --icon: var(--color-semantic-fill-error-strong);
+  --icon: var(--color-semantic-fill-error-strongest);
   --divider: var(--color-semantic-stroke-error-strong);
 }
 .field[data-error] .control {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
 }
 .field[data-disabled] {
   --label: var(--color-gray-text-disabled);

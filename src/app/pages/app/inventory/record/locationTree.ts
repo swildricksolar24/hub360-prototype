@@ -106,3 +106,52 @@ export const STATUS_INFO = {
   nonPickable: 'Stock here counts as on hand but is never chosen for picking, e.g. overflow or quarantine.',
   empty: 'Nothing is stored here right now, so the location is open for put-away.',
 };
+
+/* ---------- Codes, items and utilization (Figma 857:28319) ---------- */
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** A location's code: its own, or one from its place in the tree (A, A-01, A-01-01, …). */
+export function codeOf(list: WarehouseLocation[], id: string): string {
+  const l = list.find(x => x.id === id);
+  if (!l) return '';
+  if (l.code) return l.code;
+  const i = childrenOf(list, l.parentId).findIndex(s => s.id === id);
+  return l.parentId ? `${codeOf(list, l.parentId)}-${pad(i + 1)}` : `${LETTERS[i % 26]}${i >= 26 ? Math.floor(i / 26) : ''}`;
+}
+/** The code a new location would get under `parentId` as its `nth` child (1-based). */
+export function nextCode(list: WarehouseLocation[], parentId: string | null, nth: number) {
+  if (!parentId) return `${LETTERS[(nth - 1) % 26]}${nth > 26 ? Math.floor((nth - 1) / 26) : ''}`;
+  return `${codeOf(list, parentId)}-${pad(nth)}`;
+}
+
+const SLOTS: Record<string, number> = { Zone: 254, Aisle: 254, Pallet: 254, Rack: 120, Shelf: 96, Shelves: 96, Bin: 24 };
+export const slotsOf = (l: WarehouseLocation) => l.slots ?? SLOTS[l.type] ?? 100;
+/** Slots in use: the location's own number, none when it's empty, or a steady sample figure. */
+export function usedOf(l: WarehouseLocation) {
+  if (l.used !== undefined) return Math.min(l.used, slotsOf(l));
+  if (l.empty) return 0;
+  let h = 0;
+  for (const c of l.id) h = (h * 31 + c.charCodeAt(0)) % 997;
+  return Math.round(slotsOf(l) * (0.35 + (h % 50) / 100));
+}
+/** "152/254 (102)": slots used / total (free). */
+export const utilizationText = (l: WarehouseLocation) => `${usedOf(l)}/${slotsOf(l)} (${slotsOf(l) - usedOf(l)})`;
+/** Units on hand in a location and its sublocations. */
+export function itemsIn(stock: { locationId: string; onHand: number }[], list: WarehouseLocation[], id: string) {
+  const ids = new Set([id, ...descendantIds(list, id)]);
+  return stock.filter(s => ids.has(s.locationId)).reduce((n, s) => n + s.onHand, 0);
+}
+/** Can `id` (with its sublocations) move under `target`? Not into itself or below, and within 4 levels. */
+export function canMoveUnder(list: WarehouseLocation[], id: string, target: string | null) {
+  if (target === id) return false;
+  if (target && descendantIds(list, id).includes(target)) return false;
+  return (target ? depthOf(list, target) : 0) + heightOf(list, id) <= MAX_LOCATION_DEPTH;
+}
+/** Moves a location (with its sublocations) to be the last child of `target` (null: the top level). */
+export function moveUnder(list: WarehouseLocation[], id: string, target: string | null): WarehouseLocation[] {
+  const item = list.find(l => l.id === id);
+  if (!item || !canMoveUnder(list, id, target)) return list;
+  return [...list.filter(l => l.id !== id), { ...item, parentId: target }];
+}

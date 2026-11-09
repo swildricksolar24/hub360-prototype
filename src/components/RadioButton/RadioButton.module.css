@@ -77,9 +77,9 @@
   --box-ring-w: var(--stroke-width-2);
 }
 .radio[data-error] {
-  --box-bg: var(--color-semantic-fill-error-weak);
+  --box-bg: var(--color-semantic-fill-error-weakest);
   --box-ring-w: 0px;
-  --dot: var(--color-semantic-fill-error-strong);
+  --dot: var(--color-semantic-fill-error-strongest);
   --text: var(--color-semantic-text-error);
 }
 .radio:has(.input:disabled) {

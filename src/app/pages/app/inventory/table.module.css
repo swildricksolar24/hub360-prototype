@@ -144,35 +144,11 @@
 
 /* Status: a 10px dot and the text. Active is a Brand Orange Fill/Strong dot with strong text; anything else is a
    Gray Fill/Weak dot with weak text. */
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-8);
-  color: var(--color-gray-text-weak);
-  font-size: var(--font-size-medium);
-  line-height: var(--line-height-medium);
-  font-weight: 500;
-  white-space: nowrap;
-}
-/* The status starts at the left of its column (even where the column is end-aligned), so the dots line up from row
-   to row and the words end raggedly */
-.row [role='cell']:has(.status) {
+/* A row's status (Volt Status, marked data-status) starts at the left of its column, even where the column is
+   end-aligned, so the dots line up from row to row and the words end raggedly */
+.row [role='cell']:has([data-status]) {
   justify-content: flex-start;
   text-align: start;
-}
-.status::before {
-  content: '';
-  flex: none;
-  width: 10px; /* dot size; component dimension, no token */
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-gray-fill-weak);
-}
-.status[data-active] {
-  color: var(--color-gray-text-strong);
-}
-.status[data-active]::before {
-  background: var(--color-brand-orange-fill-strong);
 }
 
 /* Row menu: the ••• menu opens under the row's actions button */
@@ -187,4 +163,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+}
+
+/* A row that opens its record when clicked anywhere (e.g. Carrier Accounts) */
+.rowWrap[data-clickable] {
+  cursor: pointer;
 }

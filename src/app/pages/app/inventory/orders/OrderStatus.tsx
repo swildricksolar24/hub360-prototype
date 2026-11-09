@@ -1,6 +1,6 @@
 import { Chip } from '../../../../../components/Chip/Chip';
+import { Status } from '../../../../../components/Status/Status';
 import type { OrderStatus } from './orderData';
-import table from '../table.module.css';
 
 const TAG_ICON: Record<OrderStatus, string> = { 'In Process': 'in-process', Completed: 'check', Cancelled: 'close-small' };
 
@@ -10,9 +10,9 @@ const TAG_ICON: Record<OrderStatus, string> = { 'In Process': 'in-process', Comp
  */
 export function OrderStatusPill({ status }: { status: OrderStatus }) {
   return (
-    <span className={table.status} data-active={status === 'In Process' || undefined}>
+    <Status active={status === 'In Process'} data-status>
       {status}
-    </span>
+    </Status>
   );
 }
 

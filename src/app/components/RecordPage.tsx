@@ -28,6 +28,12 @@ export type RecordActionsProps = {
   active?: boolean;
   onActiveChange?: (active: boolean) => void;
   onSave?: () => void;
+  /** The brand button's label (default "Save"), e.g. "Edit" on a record shown read-only until edited. */
+  saveLabel?: string;
+  /** Shows an outline Cancel button before Save, e.g. while a record is being edited. */
+  onCancel?: () => void;
+  /** Turns the Save button off (Figma: Edit while a record is already being edited). */
+  saveDisabled?: boolean;
   /** Hides the Save button. */
   hideSave?: boolean;
   onPrevious?: () => void;
@@ -53,6 +59,9 @@ export function RecordActions({
   active,
   onActiveChange,
   onSave,
+  saveLabel = 'Save',
+  onCancel,
+  saveDisabled,
   hideSave,
   onPrevious,
   onNext,
@@ -78,9 +87,14 @@ export function RecordActions({
           onChange={onAction ? v => onAction(v as string) : undefined}
         />
       )}
+      {!hideSave && onCancel && (
+        <Button size="small" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+      )}
       {!hideSave && (
-        <Button size="small" variant="brand" onClick={onSave}>
-          Save
+        <Button size="small" variant="brand" onClick={onSave} disabled={saveDisabled}>
+          {saveLabel}
         </Button>
       )}
       {!hideArrows && (
@@ -116,6 +130,8 @@ export type RecordPageProps = {
   section?: string;
   onSectionChange?: (id: string) => void;
   onViewPhoto?: () => void;
+  /** A bar above the header, e.g. "You're editing … Discard Changes / Save Changes". */
+  banner?: ReactNode;
 };
 
 /**
@@ -136,6 +152,7 @@ export function RecordPage({
   section: sectionProp,
   onSectionChange,
   onViewPhoto,
+  banner,
 }: RecordPageProps) {
   const navigate = useNavigate();
   const homeTo = '/app';
@@ -177,6 +194,7 @@ export function RecordPage({
 
   return (
     <div className={styles.page} onClickCapture={onClickCapture}>
+      {banner}
       <NavTier3
         title={title}
         icon={icon}

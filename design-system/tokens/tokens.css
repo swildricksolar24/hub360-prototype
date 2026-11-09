@@ -64,6 +64,8 @@
   --color-foundation-semantic-amber-1000: #8f6c1a;
   --color-foundation-semantic-red-1000: #c73a3a;
   --color-foundation-semantic-red-800: #c73a3acc;
+  --color-foundation-semantic-red-600: #c73a3a99;
+  --color-foundation-semantic-red-400: #c73a3a66;
   --color-foundation-semantic-red-200: #c73a3a24;
   --color-foundation-semantic-amber-800: #8f6c1acc;
   --color-foundation-semantic-amber-200: #8f6c1a33;
@@ -121,8 +123,11 @@
   --color-surfaces-raised: var(--color-foundation-solid-400);
   --color-surfaces-overlay: var(--color-foundation-solid-white);
   --color-surfaces-inverse: var(--color-foundation-solid-950);
-  --color-semantic-fill-error-strong: var(--color-foundation-semantic-red-1000);
-  --color-semantic-fill-error-weak: var(--color-foundation-semantic-red-200);
+  --color-semantic-fill-error-strongest: var(--color-foundation-semantic-red-1000);
+  --color-semantic-fill-error-stronger: var(--color-foundation-semantic-red-800);
+  --color-semantic-fill-error-weak: var(--color-foundation-semantic-red-600);
+  --color-semantic-fill-error-weaker: var(--color-foundation-semantic-red-400);
+  --color-semantic-fill-error-weakest: var(--color-foundation-semantic-red-200);
   --color-semantic-fill-info-strong: var(--color-foundation-semantic-blue-1000);
   --color-semantic-fill-info-weak: var(--color-foundation-semantic-blue-200);
   --color-semantic-fill-success-strong: var(--color-foundation-semantic-green-1000);

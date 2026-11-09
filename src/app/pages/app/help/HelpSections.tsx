@@ -140,11 +140,11 @@ export function Guides({
     <div className={styles.panel}>
       <Heading title="Guides">Step-by-step help for everyday work.</Heading>
       <div className={styles.filters} role="group" aria-label="Filter guides by topic">
-        <Tag selected={topic === null} onClick={() => onTopic(null)}>
+        <Tag size="small" selected={topic === null} onClick={() => onTopic(null)}>
           All
         </Tag>
         {TOPICS.map(t => (
-          <Tag key={t.id} selected={topic === t.id} onClick={() => onTopic(t.id)}>
+          <Tag key={t.id} size="small" selected={topic === t.id} onClick={() => onTopic(t.id)}>
             {t.id}
           </Tag>
         ))}

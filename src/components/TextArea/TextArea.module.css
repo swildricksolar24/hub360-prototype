@@ -95,10 +95,10 @@
 .field[data-error] {
   --label: var(--color-semantic-text-error);
   --text: var(--color-semantic-text-error);
-  --grip: var(--color-semantic-fill-error-weak);
+  --grip: var(--color-semantic-fill-error-weakest);
 }
 .field[data-error] .control {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
 }
 .field[data-disabled] {
   --label: var(--color-gray-text-disabled);

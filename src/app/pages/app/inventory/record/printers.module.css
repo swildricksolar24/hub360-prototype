@@ -1,0 +1,552 @@
+/* Warehouse record › Printers (Figma "Printers" page, 886:64893). Tokens only. */
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  font-family: var(--font-family-inter);
+  color: var(--color-gray-text-strong);
+}
+
+/* Cards on the white record card: Figma's light gray panels */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  padding: var(--space-16) var(--space-16) var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-height: 40px; /* keeps titles level whether or not the row has a button; Figma button height */
+}
+.panelHead h3 {
+  margin: 0;
+}
+.panelActions {
+  display: flex;
+  gap: var(--space-8);
+}
+
+/* ---------- Empty: first setup (891:3248) ---------- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-48) var(--space-24);
+  text-align: center;
+}
+.empty h2,
+.empty p {
+  margin: 0;
+}
+.empty > p {
+  color: var(--color-gray-text-weak);
+}
+.setupSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+  width: 100%;
+  max-width: 1080px; /* Figma's three cards; a layout width with no token */
+  margin-top: var(--space-12);
+  text-align: left;
+}
+.setupStep {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.setupStep p {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.setupTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.stepNumber {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-32);
+  height: var(--space-32);
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-strong);
+  color: var(--color-foundation-solid-white);
+  font-weight: 700;
+}
+.stepNumber[data-done] {
+  background: var(--color-semantic-fill-success-strong);
+}
+@media (max-width: 900px) {
+  .setupSteps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- List / Settings ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+.toolbarSearch {
+  flex: 1;
+  min-width: 200px; /* keeps the field usable when the toolbar wraps; a layout width with no token */
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+.nameButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.nameButton:hover {
+  color: var(--color-brand-teal-text-strong);
+}
+.nameButton:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+  outline-offset: var(--space-2);
+  border-radius: var(--radius-4);
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.muted {
+  color: var(--color-gray-text-weak);
+}
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16) var(--space-12);
+  align-items: end;
+}
+.settingsGrid > .wide {
+  grid-column: span 2;
+}
+.toggleRow {
+  display: flex;
+  align-items: center;
+  min-height: 44px; /* sits level with the dropdown beside it; Figma field height */
+}
+
+/* ---------- Detail page (901:24728 …) ---------- */
+.detailHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+.detailTitle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.detailTitle h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin: 0;
+}
+.trail {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.trail button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.trail button:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+  outline-offset: var(--space-2);
+}
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-16);
+  align-items: start;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+}
+@media (max-width: 1100px) {
+  .twoColumns {
+    grid-template-columns: 1fr;
+  }
+}
+/* Read-only label over value (Figma: Tiny / Regular over Medium / Regular) */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  gap: var(--space-16) var(--space-12);
+  margin: 0;
+}
+.fields[data-cols='3'] {
+  --cols: 3;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.field[data-span] {
+  grid-column: 1 / -1;
+}
+.field dt {
+  color: var(--color-gray-text-weak);
+}
+.field dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.yesNo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.yesNo .box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-24);
+  height: var(--space-24);
+  border-radius: var(--radius-4);
+  background: var(--color-gray-fill-weaker);
+}
+.intro {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.cell {
+  min-width: 0;
+}
+
+/* Print Jobs: the failed job notice (901:26381) */
+.alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-16) var(--space-16) var(--space-24);
+  border-radius: var(--radius-8);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-semantic-stroke-error-strong);
+}
+.alert p {
+  margin: 0;
+}
+.alert > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.sender {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* ---------- Modals ---------- */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+/* Stepper (Download · Install · Pair; Connection · Find printer · Settings & test) */
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.track {
+  display: flex;
+  align-items: center;
+}
+.dot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-32);
+  height: var(--space-32);
+  border-radius: 50%;
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
+  color: var(--color-foundation-solid-white);
+}
+.dot[data-state='done'] {
+  background: var(--color-brand-teal-fill-strong);
+  box-shadow: none;
+}
+.dot[data-state='current'] {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.dot[data-state='current']::after {
+  content: '';
+  width: var(--space-10);
+  height: var(--space-10);
+  border-radius: 50%;
+  background: var(--color-brand-teal-fill-strong);
+}
+.line {
+  flex: 1;
+  height: var(--stroke-width-2);
+  background: var(--color-brand-teal-stroke-strong);
+}
+.stepLabels {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-gray-text-weak);
+}
+.stepLabels [aria-current],
+.stepLabels [data-done] {
+  color: var(--color-gray-text-strong);
+  font-weight: 700;
+}
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-24);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.box h3,
+.box p {
+  margin: 0;
+}
+.box p {
+  color: var(--color-gray-text-weak);
+}
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+.code {
+  color: var(--color-brand-teal-text-strong);
+  letter-spacing: 0.04em;
+}
+.waiting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding-bottom: var(--space-16);
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-disabled);
+}
+.waiting p {
+  margin: 0;
+}
+.spinner {
+  flex: none;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+/* Connection choices: whole-card radio buttons */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.choice {
+  display: block;
+  padding: var(--space-16) var(--space-24);
+  border-radius: var(--radius-8);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-weak);
+  cursor: pointer;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.choice:has(input:checked) {
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.found {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-24);
+  border-radius: var(--radius-8);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.found p {
+  margin: 0;
+}
+/* Step 3: settings beside the label preview */
+.settingsAndPreview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 368px; /* Figma's preview panel width; a layout width with no token */
+  gap: var(--space-16);
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .settingsAndPreview {
+    grid-template-columns: 1fr;
+  }
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-16) var(--space-12);
+}
+.formGrid[data-cols='3'] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.full {
+  grid-column: 1 / -1;
+}
+.chipGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.chipGroup legend {
+  margin-bottom: var(--space-8);
+  padding: 0;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.previewHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+/* The label itself is paper: white with black print in both themes */
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  align-self: center;
+  width: 212px; /* a 4 × 6 in label at preview scale; a component dimension with no token */
+  padding: var(--space-16);
+  border-radius: var(--radius-4);
+  background: var(--color-foundation-solid-white);
+  box-shadow: 0 0 0 var(--stroke-width-1) var(--color-foundation-solid-black);
+  color: var(--color-foundation-solid-black);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+}
+.label p {
+  margin: 0;
+}
+.label hr {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: var(--stroke-width-1) solid var(--color-foundation-solid-black);
+}
+.barcode {
+  height: 64px; /* label barcode height at preview scale */
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-foundation-solid-black) 0 2px,
+    transparent 2px 4px,
+    var(--color-foundation-solid-black) 4px 5px,
+    transparent 5px 8px,
+    var(--color-foundation-solid-black) 8px 11px,
+    transparent 11px 12px
+  );
+}
+.center {
+  text-align: center;
+}
+.previewActions {
+  display: flex;
+  gap: var(--space-8);
+  justify-content: center;
+}
+.testResult {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-24);
+  border-radius: var(--radius-8);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-semantic-stroke-success-strong);
+}
+.testResult > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px; /* readable line length; a layout width with no token */
+}
+.testResult p {
+  margin: 0;
+}

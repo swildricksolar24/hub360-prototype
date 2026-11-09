@@ -118,9 +118,9 @@
   --bg: var(--color-brand-teal-fill-weaker);
 }
 .item[data-error] {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --fg: var(--color-semantic-text-error);
-  --icon: var(--color-semantic-fill-error-strong);
+  --icon: var(--color-semantic-fill-error-strongest);
 }
 .item[aria-disabled='true'] {
   --bg: var(--color-gray-fill-disabled);
@@ -154,8 +154,8 @@
   visibility: visible;
 }
 .item[data-error] .box {
-  --box-bg: var(--color-semantic-fill-error-weak);
-  --check: var(--color-semantic-fill-error-strong);
+  --box-bg: var(--color-semantic-fill-error-weakest);
+  --check: var(--color-semantic-fill-error-strongest);
 }
 .item[aria-disabled='true'] .box {
   --box-bg: var(--color-gray-fill-disabled);

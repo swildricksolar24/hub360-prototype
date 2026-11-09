@@ -20,6 +20,18 @@ import {
   type WarehouseLocation,
 } from './warehouseRecordData';
 import { SAMPLE_WAREHOUSES, type Warehouse } from './warehouseData';
+import {
+  SAMPLE_AGENTS,
+  SAMPLE_DEFAULTS,
+  SAMPLE_JOBS,
+  SAMPLE_PRINTERS,
+  SAMPLE_PRINT_SETTINGS,
+  type PrintAgent,
+  type PrintDefault,
+  type PrintJob,
+  type PrintSettings,
+  type Printer,
+} from './printerData';
 
 /**
  * In-memory stores shared by the Warehouses list and the warehouse record pages (see WAREHOUSE_RECORD.md), so both
@@ -98,6 +110,36 @@ const labels = createRecordStore<PickLabel[]>(SAMPLE_LABELS);
 
 export const useLabels = labels.use;
 export const setLabels = labels.set;
+
+/* ---------- Printers ---------- */
+
+// Phoenix WH starts with Figma's printers; every other warehouse starts at the empty first-setup screen
+const SET_UP = 'PHX-124';
+const printers = createRecordStore<Printer[]>(code => (code === SET_UP ? SAMPLE_PRINTERS : []));
+
+export const usePrinters = printers.use;
+export const setPrinters = printers.set;
+
+const printDefaults = createRecordStore<PrintDefault[]>(code => (code === SET_UP ? SAMPLE_DEFAULTS : []));
+
+export const usePrintDefaults = printDefaults.use;
+export const setPrintDefaults = printDefaults.set;
+
+const printJobs = createRecordStore<PrintJob[]>(code => (code === SET_UP ? SAMPLE_JOBS : []));
+
+export const usePrintJobs = printJobs.use;
+export const setPrintJobs = printJobs.set;
+
+const printSettings = createRecordStore<PrintSettings>(SAMPLE_PRINT_SETTINGS);
+
+export const usePrintSettings = printSettings.use;
+export const setPrintSettings = printSettings.set;
+
+/** Every print agent in the company (Printers › Settings lists them all, with their warehouse). */
+const agents = createStore<PrintAgent[]>(SAMPLE_AGENTS);
+
+export const useAgents = agents.use;
+export const setAgents = agents.set;
 
 /* ---------- Locations, items, stock, history ---------- */
 

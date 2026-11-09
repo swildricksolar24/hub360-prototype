@@ -106,11 +106,11 @@
 .field[data-error] {
   --label: var(--color-semantic-text-error);
   --text: var(--color-semantic-text-error);
-  --step-bg: var(--color-semantic-fill-error-weak);
-  --step-fg: var(--color-semantic-fill-error-strong);
+  --step-bg: var(--color-semantic-fill-error-weakest);
+  --step-fg: var(--color-semantic-fill-error-strongest);
 }
 .field[data-error] .control {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --ring: var(--color-semantic-stroke-error-strong);
   --ring-w: var(--stroke-width-2);
 }

@@ -1,6 +1,8 @@
+import { Icon } from '../../components/Icon/Icon';
 import { Toggle } from '../../components/Toggle/Toggle';
 import { useMediaQuery } from '../shell/useMediaQuery';
 import { useTheme } from '../theme';
+import styles from './ThemeToggle.module.css';
 
 type ThemeToggleProps = { contained?: boolean; className?: string };
 
@@ -12,7 +14,13 @@ export function ThemeToggle({ contained = false, className }: ThemeToggleProps) 
   return (
     <Toggle
       className={className}
-      label="Dark mode"
+      // An on / off switch labeled "Dark mode": its icon matches the label (Volt Mode Dark), and the switch shows whether it's on
+      label={
+        <span className={styles.label}>
+          <Icon name="mode-dark" size={20} />
+          Dark mode
+        </span>
+      }
       contained={contained}
       checked={dark}
       onChange={e => setTheme(e.target.checked ? 'dark' : 'light')}

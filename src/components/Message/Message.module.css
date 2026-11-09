@@ -76,7 +76,7 @@
   --close-hover: var(--color-semantic-fill-warning-weak);
 }
 .message[data-type='error'] {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --fg: var(--color-semantic-text-error);
-  --close-hover: var(--color-semantic-fill-error-weak);
+  --close-hover: var(--color-semantic-fill-error-weakest);
 }

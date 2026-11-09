@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Avatar } from '../../../../../components/Avatar/Avatar';
 import { Button } from '../../../../../components/Button/Button';
+import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Message } from '../../../../../components/Message/Message';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
@@ -10,80 +11,112 @@ import { AppModal } from '../../../../components/AppModal';
 import { COMPANIES, CONTACT_ROLES, CRM_PEOPLE, initialsOf, type Contact } from '../warehouseRecordData';
 import styles from '../record.module.css';
 
-type ContactFields = Omit<Contact, 'id' | 'primary'>;
+export type ContactFields = Omit<Contact, 'id' | 'primary'>;
 
 const required = (text: string): ReactNode => (
   <>
     {text} <span className={styles.requiredMark}>*</span>
   </>
 );
-const requiredNote = (
-  <span className="text-small-regular">
-    <span className={styles.requiredMark}>*</span>Indicates required field
-  </span>
-);
 const options = (list: string[]) => list.map(v => ({ value: v, label: v }));
+const firstName = (name: string) => name.split(' ')[0] ?? name;
 
 /**
- * Figma "Modal- Add Contact" Default / Search (537:57691, 537:57757): search the people in the CRM and pick one, or
- * go on to Add New Contact. People already on this warehouse are left out.
+ * Figma "Modal- Add Contact - Search" (848:21038): search the CRM, check the people to add, or create a new contact.
+ * People already on this warehouse show "Already on this warehouse" and can't be picked.
  */
 export function SearchContactsModal({
   open,
   existingNames,
   onClose,
-  onPick,
+  onAdd,
   onAddNew,
 }: {
   open: boolean;
   existingNames: string[];
   onClose: () => void;
-  onPick: (contact: ContactFields) => void;
+  onAdd: (contacts: ContactFields[]) => void;
   onAddNew: () => void;
 }) {
   const [query, setQuery] = useState('');
+  const [picked, setPicked] = useState<Set<string>>(new Set());
   useEffect(() => {
-    if (open) setQuery('');
+    if (!open) return;
+    setQuery('');
+    setPicked(new Set());
   }, [open]);
   const q = query.trim().toLowerCase();
-  const results = q
-    ? CRM_PEOPLE.filter(p => !existingNames.includes(p.name) && `${p.name} ${p.company} ${p.role}`.toLowerCase().includes(q))
-    : [];
+  const results = CRM_PEOPLE.filter(p => !q || `${p.name} ${p.company} ${p.role} ${p.email}`.toLowerCase().includes(q));
+  const toggle = (name: string, on: boolean) =>
+    setPicked(p => {
+      const next = new Set(p);
+      if (on) next.add(name);
+      else next.delete(name);
+      return next;
+    });
 
   return (
-    <AppModal open={open} onClose={onClose} title="Search Contacts" primaryAction={{ label: 'Add New Contact', onClick: onAddNew }}>
-      <SearchInput aria-label="Search contacts" placeholder="Search by name, company or role" value={query} onChange={e => setQuery(e.target.value)} autoFocus />
-      {q && results.length === 0 && <p className={`text-medium-regular ${styles.noResults}`}>No contacts match “{query}”. Use Add New Contact to add them.</p>}
-      {results.length > 0 && (
-        <ul className={styles.results} aria-label="Contacts">
-          {results.map(p => (
-            <li key={p.name}>
-              <button type="button" className={styles.result} onClick={() => onPick({ ...p, active: true })}>
-                <Avatar size="small" initials={initialsOf(p.name)} />
-                <span className={styles.resultText}>
-                  <span className={styles.resultName}>{p.name}</span>
-                  <span className={styles.resultSub}>{p.company}</span>
-                </span>
-                <span className={styles.resultSide}>
-                  Primary Role
-                  <br />
-                  <strong>{p.role}</strong>
-                </span>
-              </button>
-            </li>
-          ))}
+    <AppModal
+      open={open}
+      onClose={onClose}
+      title="Add Contact"
+      description="Search the CRM for an existing contact, or create a new one."
+      startAction={{ label: 'Create New Contact', icon: 'plus', onClick: onAddNew }}
+      primaryAction={{
+        label: 'Add to Warehouse',
+        disabled: picked.size === 0,
+        onClick: () => onAdd(CRM_PEOPLE.filter(p => picked.has(p.name)).map(p => ({ ...p, additionalRoles: [...p.additionalRoles], active: true }))),
+      }}
+    >
+      <SearchInput aria-label="Search the CRM" placeholder="Search by name, company, role or email" value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+      {q && (
+        <p className={`text-tiny-regular ${styles.pickCount}`} role="status">
+          {results.length === 1 ? '1 contact' : `${results.length} contacts`} in the CRM match “{query}”
+        </p>
+      )}
+      {results.length === 0 ? (
+        <p className={`text-medium-regular ${styles.noResults}`}>Nobody in the CRM matches “{query}”. Use Create New Contact to add them.</p>
+      ) : (
+        <ul className={styles.pickList} aria-label="CRM contacts">
+          {results.map(p => {
+            const already = existingNames.includes(p.name);
+            return (
+              <li key={p.name} className={styles.pickRow} data-picked={picked.has(p.name) || undefined} data-disabled={already || undefined}>
+                <Checkbox
+                  size="small"
+                  label={
+                    <span className={styles.pickPerson}>
+                      <Avatar size="small" type="initial" initials={initialsOf(p.name)} label={p.name} />
+                      <span className={styles.pickText}>
+                        <span className="text-medium-bold">{p.name}</span>
+                        <span className="text-tiny-regular">
+                          {p.company} · {p.role} · {p.email}
+                        </span>
+                      </span>
+                    </span>
+                  }
+                  checked={picked.has(p.name)}
+                  disabled={already}
+                  onChange={e => toggle(p.name, e.target.checked)}
+                />
+                {already && <span className={`text-tiny-regular ${styles.pickNote}`}>Already on this warehouse</span>}
+              </li>
+            );
+          })}
         </ul>
       )}
     </AppModal>
   );
 }
 
-const EMPTY: ContactFields = { name: '', company: '', phone: '', email: '', role: '', additionalRoles: [], active: true };
+type Form = { first: string; last: string; company: string; phone: string; email: string; role: string; additionalRoles: string[]; active: boolean; primary: boolean };
+const EMPTY: Form = { first: '', last: '', company: '', phone: '', email: '', role: '', additionalRoles: [], active: true, primary: false };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Figma "Modal- Add Contact - Create New Contact" (537:57704) and "Modal- Edit Contact" (537:57724). Editing adds an
- * Active toggle, View Profile (the CRM, not in this prototype) and a red Remove Contact.
+ * Figma "Modal- Add Contact - Create New Contact" (848:20988) and "Modal- Edit Contact" (848:21010): Make Primary
+ * Contact, First / Last Name, Company, Primary Role, Phone, Email and Additional Roles. Editing adds the Active toggle,
+ * View in CRM and a red Remove from Warehouse; creating has Back to Search.
  */
 export function ContactFormModal({
   open,
@@ -91,51 +124,83 @@ export function ContactFormModal({
   onClose,
   onSave,
   onRemove,
+  onBack,
 }: {
   open: boolean;
-  /** The contact being edited; null adds a new one. */
+  /** The contact being edited; null creates a new one. */
   contact: Contact | null;
   onClose: () => void;
-  onSave: (contact: ContactFields) => void;
+  /** `primary`: make them the warehouse's primary contact. */
+  onSave: (contact: ContactFields, primary: boolean) => void;
   onRemove?: () => void;
+  /** Creating: back to the CRM search. */
+  onBack?: () => void;
 }) {
-  const [form, setForm] = useState<ContactFields>(EMPTY);
+  const [form, setForm] = useState<Form>(EMPTY);
   const [tried, setTried] = useState(false);
-  const [profileNote, setProfileNote] = useState(false);
+  const [crmNote, setCrmNote] = useState(false);
   useEffect(() => {
     if (!open) return;
     setTried(false);
-    setProfileNote(false);
-    setForm(contact ? { ...contact } : EMPTY);
+    setCrmNote(false);
+    if (!contact) return setForm(EMPTY);
+    const [first = '', ...rest] = contact.name.split(' ');
+    setForm({ ...contact, first, last: rest.join(' ') });
   }, [open, contact]);
 
-  const set = <K extends keyof ContactFields>(key: K) => (value: ContactFields[K]) => setForm(f => ({ ...f, [key]: value }));
+  const set = <K extends keyof Form>(key: K) => (value: Form[K]) => setForm(f => ({ ...f, [key]: value }));
   const errors = {
-    name: !form.name.trim() ? 'Enter the contact’s name' : undefined,
+    first: !form.first.trim() ? 'Enter a first name' : undefined,
+    last: !form.last.trim() ? 'Enter a last name' : undefined,
+    role: !form.role ? 'Choose a primary role' : undefined,
     email: form.email.trim() && !EMAIL.test(form.email.trim()) ? 'Enter an email address like name@company.com' : undefined,
   };
 
   function save() {
     setTried(true);
-    if (errors.name || errors.email) return;
-    onSave({
-      ...form,
-      name: form.name.trim(),
-      phone: form.phone.trim(),
-      email: form.email.trim(),
-      // The primary role isn't repeated as an additional one
-      additionalRoles: form.additionalRoles.filter(r => r !== form.role),
-    });
+    if (Object.values(errors).some(Boolean)) return;
+    onSave(
+      {
+        name: `${form.first.trim()} ${form.last.trim()}`,
+        company: form.company,
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        // The primary role isn't repeated as an additional one
+        additionalRoles: form.additionalRoles.filter(r => r !== form.role),
+        active: form.active,
+      },
+      form.primary,
+    );
   }
 
   return (
     <AppModal
       open={open}
       onClose={onClose}
-      title={contact ? 'Edit Contact' : 'Add Contact'}
-      description={requiredNote}
-      startAction={contact && onRemove ? { label: 'Remove Contact', danger: true, onClick: onRemove } : undefined}
-      primaryAction={{ label: 'Save', onClick: save }}
+      title={contact ? 'Edit Contact' : 'Create New Contact'}
+      description={
+        <span className="text-small-regular">
+          {contact
+            ? 'Turning off Active deactivates this contact everywhere, including the CRM and all warehouses. To stop using it here only, use Remove from Warehouse.'
+            : '* Required. This contact will also be created in the CRM.'}
+        </span>
+      }
+      // Figma: Active and View in CRM sit in the header, beside the close button
+      headerActions={
+        contact && (
+          <>
+            <Toggle contained label="Active" checked={form.active} onChange={e => set('active')(e.target.checked)} />
+            <Button size="small" variant="brand" icon="link-add" type="button" onClick={() => setCrmNote(true)}>
+              View in CRM
+            </Button>
+          </>
+        )
+      }
+      startAction={
+        contact && onRemove ? { label: 'Remove from Warehouse', danger: true, onClick: onRemove } : !contact && onBack ? { label: 'Back to Search', onClick: onBack } : undefined
+      }
+      primaryAction={{ label: contact ? 'Save' : 'Create & Add', onClick: save }}
     >
       <form
         className={styles.form}
@@ -145,70 +210,88 @@ export function ContactFormModal({
           save();
         }}
       >
-        {contact && (
-          <div className={styles.modalToggle}>
-            <Toggle contained label="Active" checked={form.active} onChange={e => set('active')(e.target.checked)} />
-            <Button size="small" variant="brand" type="button" onClick={() => setProfileNote(true)}>
-              View Profile
-            </Button>
-          </div>
-        )}
-        {profileNote && (
+        {crmNote && (
           <Message
             type="info"
             title="The CRM isn’t part of this prototype yet"
-            body={`${contact?.name ?? 'This contact'}’s full profile will open in the CRM once it’s built.`}
-            onClose={() => setProfileNote(false)}
+            body={`${contact?.name ?? 'This contact'}’s record will open in the CRM once it’s built.`}
+            onClose={() => setCrmNote(false)}
           />
         )}
-        <div className={styles.wideNarrow}>
-          <TextInput
-            label={required('Contact Name')}
-            value={form.name}
-            onChange={e => set('name')(e.target.value)}
-            error={tried ? errors.name : undefined}
-            autoComplete="off"
+        <Checkbox
+          size="small"
+          label="Make Primary Contact for Warehouse"
+          checked={form.primary}
+          // The primary contact can't be unset here; pick another one instead
+          disabled={!!contact?.primary}
+          onChange={e => set('primary')(e.target.checked)}
+        />
+        <div className={styles.halves}>
+          <TextInput label={required('First Name')} value={form.first} onChange={e => set('first')(e.target.value)} error={tried ? errors.first : undefined} autoComplete="off" required />
+          <TextInput label={required('Last Name')} value={form.last} onChange={e => set('last')(e.target.value)} error={tried ? errors.last : undefined} autoComplete="off" required />
+          <Dropdown label="Company" placeholder="Select" options={options(COMPANIES)} value={form.company || null} onChange={v => set('company')(v as string)} />
+          <Dropdown
+            label="Primary Role *"
+            placeholder="Select"
+            options={options(CONTACT_ROLES)}
+            value={form.role || null}
+            onChange={v => set('role')(v as string)}
+            error={tried ? errors.role : undefined}
             required
           />
-          <Dropdown label="Company Name" placeholder="Select" options={options(COMPANIES)} value={form.company || null} onChange={v => set('company')(v as string)} />
+          <TextInput label="Phone" type="tel" value={form.phone} onChange={e => set('phone')(e.target.value)} autoComplete="off" />
+          <TextInput label="Email" type="email" value={form.email} onChange={e => set('email')(e.target.value)} error={tried ? errors.email : undefined} autoComplete="off" />
         </div>
-        <div className={styles.halves}>
-          <TextInput label="Contact Phone #" type="tel" value={form.phone} onChange={e => set('phone')(e.target.value)} autoComplete="off" />
-          <TextInput
-            label="Contact Email Address"
-            type="email"
-            value={form.email}
-            onChange={e => set('email')(e.target.value)}
-            error={tried ? errors.email : undefined}
-            autoComplete="off"
-          />
-        </div>
-        <div className={styles.halves}>
-          <Dropdown label="Primary Role" placeholder="Select" options={options(CONTACT_ROLES)} value={form.role || null} onChange={v => set('role')(v as string)} />
-          <Dropdown
-            label="Additional Roles"
-            placeholder="Select"
-            multiple
-            options={options(CONTACT_ROLES.filter(r => r !== form.role))}
-            value={form.additionalRoles}
-            onChange={v => set('additionalRoles')(v as string[])}
-          />
-        </div>
+        <Dropdown
+          label="Additional Roles"
+          placeholder="Select"
+          multiple
+          options={options(CONTACT_ROLES.filter(r => r !== form.role))}
+          value={form.additionalRoles}
+          onChange={v => set('additionalRoles')(v as string[])}
+        />
         <button type="submit" hidden />
       </form>
     </AppModal>
   );
 }
 
-/** Asks before a contact is removed from the warehouse (Figma draws no confirmation). */
-export function RemoveContactModal({ contact, onClose, onConfirm }: { contact: Contact | null; onClose: () => void; onConfirm: () => void }) {
+/**
+ * Figma "Modal- Remove Contact" (857:22542), in the app's one modal layout. Removing the primary contact offers to
+ * pick a new one (or leave it empty).
+ */
+export function RemoveContactModal({
+  contact,
+  others,
+  warehouseName,
+  onClose,
+  onConfirm,
+}: {
+  contact: Contact | null;
+  /** The warehouse's other active contacts, for New Primary Contact. */
+  others: Contact[];
+  warehouseName: string;
+  onClose: () => void;
+  /** `newPrimary`: the contact id to make primary, if one was picked. */
+  onConfirm: (newPrimary: string | null) => void;
+}) {
+  const [next, setNext] = useState<string | null>(null);
+  useEffect(() => setNext(null), [contact]);
+  const first = contact ? firstName(contact.name) : '';
   return (
     <AppModal
       open={contact !== null}
       onClose={onClose}
-      title="Remove contact?"
-      description={contact && `${contact.name} will be removed from this warehouse’s contacts. Their profile stays in the CRM.`}
-      primaryAction={{ label: 'Remove Contact', danger: true, onClick: onConfirm }}
-    />
+      title={contact ? `Remove ${contact.name} from ${warehouseName}?` : ''}
+      description={
+        contact &&
+        `${first} stays in the CRM and on any other warehouses.${contact.primary ? ` ${first} is the Primary contact here; you can pick a new one or leave it empty.` : ''}`
+      }
+      primaryAction={{ label: 'Remove', danger: true, onClick: () => onConfirm(next) }}
+    >
+      {contact?.primary && others.length > 0 && (
+        <Dropdown label="New Primary Contact" placeholder="Select" options={others.map(c => ({ value: c.id, label: c.name }))} value={next} onChange={v => setNext(v as string)} />
+      )}
+    </AppModal>
   );
 }

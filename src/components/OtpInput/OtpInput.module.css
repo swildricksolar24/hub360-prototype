@@ -42,7 +42,7 @@
   --ring-w: var(--stroke-width-4);
 }
 .otp[data-error] .cell {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --ring: var(--color-semantic-stroke-error-strong);
   --ring-w: var(--stroke-width-2);
 }

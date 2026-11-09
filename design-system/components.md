@@ -70,6 +70,8 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Small* | Primary / Default | 401:417 | 6 | State¹ | Label |
 | Button Small* | Brand / Default | 1751:3632 | 6 | State¹ | Label |
 | Button Small* | Brand / Small / Outline (Button `variant="brand-outline" size="small"`) | 3290:6405 | 6 | State¹ | Label |
+| Button Small* | Solid / Red / Base (Button `variant="brand-red"`) | 3358:6168 | 6 | State¹ | Label |
+| Button Small* | Clear / Red (added Nov 9, 2026; Button `variant="red-outline"`) | 3392:197 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary* | 2548:3743 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary / Icon - Left* | 2734:1004 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary / Icon - Right* | 2734:1035 | 6 | State¹ | Label |
@@ -96,10 +98,12 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Last Modified | Date | 2328:3773 | 1 | State | Label |
 | Radio Button* | Default* | 397:1297 | 6 | State² | Label, Show Selected |
 | Radio Button* | Hint* | 2330:3837 | 6 | State² | Label, Show Selected, Description |
-| Tag* | Tiny | 2610:6045 | 6 | State¹ | Label |
-| Tag* | Small | 339:4909 | 6 | State¹ | Label |
-| Tag* | Outline* | 339:4922 | 6 | State¹ | Label |
-| Tag* | Default* | 318:4725 | 6 | State¹ | Label |
+| Tag | Base / Large (was Default*; Tag `variant="base" size="large"`) | 318:4725 | 2 | State (Default, Selected) | Label |
+| Tag | Base / Small (was Small) | 339:4909 | 2 | State (Default, Selected) | Label |
+| Tag | Base / Tiny (was Tiny) | 2610:6045 | 2 | State (Default, Selected) | Label |
+| Tag | Outline / Large (was Outline*) | 339:4922 | 2 | State (Default, Selected) | Label |
+| Tag | Outline / Small (added Nov 2026) | 3404:2475 | 2 | State (Default, Selected) | Label |
+| Tag | Outline / Tiny (added Nov 2026) | 3404:2482 | 2 | State (Default, Selected) | Label |
 | Text Area | Default | 303:4524 | 6 | State² | Label, Placeholder, Error |
 | Text Input - Label* | Default | 218:3960 | 7 | State² + Required | Label, Placeholder, Error |
 | Text Input - Label* | Left Icon* | 277:4338 | 7 | State² + Required | Label, Placeholder, Error |
@@ -200,6 +204,8 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Data Table | Data Table | 3131:272 | 1 | — | Header and Row 1–5 exposed |
 | Data Table | Data Table Header | 3131:247 | 1 | — | Checkbox, Actions; Column 1–5 exposed |
 | Data Table | Data Table Row | 3131:246 | 4 | State (Default, Striped, Hover, Selected) | Checkbox, Actions; Cell 1–5 exposed |
+| Data Table | Status (added Nov 2026; `<Status active>`) | 3412:428 | 2 | State (Active, Inactive) | — |
+| Data Table | Row Status (dot status + •••; uses Status since Nov 2026) | 3321:239 | 2 | Status (Active, Inactive) | Actions |
 | Page Tracker | Tracker | 708:1452 | 1 | State | — |
 | Cards | Card / Large | 3085:7392 | 1 | Property 1 (Default) | — (content is a slot) |
 | Cards | Card / Row / Small | 3085:7384 | 2 | Property 1 (Default, Variant2 = teal) | — |

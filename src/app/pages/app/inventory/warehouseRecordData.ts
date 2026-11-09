@@ -12,7 +12,8 @@ export type Carrier = {
 
 export const CARRIER_NAMES = ['UPS', 'FedEx', 'USPS', 'DHL'];
 export const BILLING_TYPES = ['Prepaid', 'Collect', 'Third Party'];
-export const SERVICE_TYPES = ['Ground', 'LTL', 'International', 'Express'];
+/** Figma "Edit Carrier Account — Improved" (848:20546): the Service Types chips, in its order. */
+export const SERVICE_TYPES = ['Ground', 'Express', 'LTL', 'International', 'Freight'];
 
 /** Figma "Carrier Accounts" (380:28637) */
 export const SAMPLE_CARRIERS: Carrier[] = [
@@ -20,13 +21,18 @@ export const SAMPLE_CARRIERS: Carrier[] = [
   { id: 'c2', name: 'FedEx', account: '465798', nickname: 'FX - PHX WH01', billing: 'Collect', services: ['Ground', 'LTL'], active: false },
 ];
 
-/** Carrier accounts the Search Carrier Account modal finds (Figma 384:33429: a name, a region line and the account #). */
-export const KNOWN_CARRIER_ACCOUNTS = [
-  { name: 'FedEx', region: 'FedEx - Florida', account: '4589-5693-5214-73961' },
-  { name: 'UPS', region: 'UPS - South Idaho', account: '1Z-8840-2271' },
-  { name: 'UPS', region: 'UPS - Arizona Freight', account: '1Z-3315-0098' },
-  { name: 'USPS', region: 'USPS - Phoenix Business', account: '9402-1180-55' },
-  { name: 'DHL', region: 'DHL - Southwest', account: 'DHL-77120-4' },
+/**
+ * The company's carrier accounts, which Add Carrier Account lists (Figma "Add Carrier Account — Improved", 848:17307:
+ * "UPS · UPS South Idaho", "Account •••• 4687"). The first two are Phoenix WH's own sample accounts.
+ */
+export const KNOWN_CARRIER_ACCOUNTS: Omit<Carrier, 'id' | 'active'>[] = [
+  { name: 'UPS', nickname: 'UPS - PHX WH01', account: '132456', billing: 'Prepaid', services: ['Ground', 'LTL'] },
+  { name: 'FedEx', nickname: 'FX - PHX WH01', account: '465798', billing: 'Collect', services: ['Ground', 'LTL'] },
+  { name: 'UPS', nickname: 'UPS South Idaho', account: '1Z-8840-4687', billing: 'Prepaid', services: ['Ground', 'Express'] },
+  { name: 'UPS', nickname: 'UPS Arizona Freight', account: '1Z-3315-0098', billing: 'Third Party', services: ['LTL', 'Freight'] },
+  { name: 'FedEx', nickname: 'FedEx Florida', account: '4589-5693-5214-73961', billing: 'Prepaid', services: ['Ground', 'International'] },
+  { name: 'USPS', nickname: 'USPS Phoenix Business', account: '9402-1180-55', billing: 'Prepaid', services: ['Ground'] },
+  { name: 'DHL', nickname: 'DHL Southwest', account: 'DHL-77120-4', billing: 'Collect', services: ['Express', 'International'] },
 ];
 
 export type Contact = {
@@ -44,6 +50,7 @@ export type Contact = {
 
 /** Contact roles: the archived Figma role list (525:11924) without its duplicate Receiving, plus Accounting and Associate from the sample rows. */
 export const CONTACT_ROLES = [
+  'Warehouse Manager',
   'Manager',
   'Assistant Manager',
   'Inventory Control',
@@ -71,21 +78,27 @@ export const CONTACT_ROLES = [
   'Service Tech',
   'Accounting',
   'Associate',
+  'Supplier Rep',
+  'Installer Lead',
   'Other',
 ];
 
-export const COMPANIES = ['HUB360', 'Solar Topps', 'ABC Holding Company', 'Beacon Depot'];
+/** The company's own name: its people are "Internal" contacts (Figma's "Acme Solar (Internal)"). */
+export const INTERNAL_COMPANY = 'HUB360';
+export const COMPANIES = [INTERNAL_COMPANY, 'Solar Topps', 'Wesco Solar Supply', 'ABC Holding Company', 'Beacon Depot'];
 
-/** Figma "Contacts" (537:57135) */
+/** Figma "Contacts" (848:20960) */
 export const SAMPLE_CONTACTS: Contact[] = [
-  { id: 'p1', name: 'Waylon Jones', company: 'HUB360', phone: '602-358-9652', email: 'wjones@hb360.com', role: 'Manager', additionalRoles: ['Shipping', 'Receiving'], primary: true, active: true },
-  { id: 'p2', name: 'Obi Wan', company: 'HUB360', phone: '526-365-5569', email: 'owan@hb360.com', role: 'Accounting', additionalRoles: [], primary: false, active: false },
-  { id: 'p3', name: 'Pamela Isley', company: 'HUB360', phone: '480-320-2253', email: 'pisely@hb360.com', role: 'Associate', additionalRoles: ['Inventory Control'], primary: false, active: true },
+  { id: 'p1', name: 'Waylon Jones', company: 'HUB360', phone: '(602) 358-9652', email: 'wjones@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'], primary: true, active: true },
+  { id: 'p3', name: 'Pamela Isley', company: 'HUB360', phone: '(480) 320-2253', email: 'pisley@hb360.com', role: 'Associate', additionalRoles: ['Inventory Control'], primary: false, active: true },
+  { id: 'p4', name: 'Dana Ruiz', company: 'Wesco Solar Supply', phone: '(602) 555-0142', email: 'dana.ruiz@example.com', role: 'Supplier Rep', additionalRoles: [], primary: false, active: true },
+  { id: 'p2', name: 'Oliver Wan', company: 'HUB360', phone: '(526) 365-5569', email: 'owan@hb360.com', role: 'Accounting', additionalRoles: [], primary: false, active: false },
 ];
 
 /** People in the CRM that Search Contacts finds (Figma 537:57757: a photo, the name, the company and the primary role). */
 export const CRM_PEOPLE: Omit<Contact, 'id' | 'primary' | 'active'>[] = [
-  { name: 'Wayne Nelson', company: 'Solar Topps', phone: '602-555-0141', email: 'wnelson@solartopps.com', role: 'Lead Installer', additionalRoles: [] },
+  { name: 'Wayne Nelson', company: 'Solar Topps', phone: '(602) 555-0199', email: 'wnelson@solartopps.com', role: 'Installer Lead', additionalRoles: [] },
+  { name: 'Waylon Jones', company: 'HUB360', phone: '(602) 358-9652', email: 'wjones@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'] },
   { name: 'Jeremy Wonder', company: 'ABC Holding Company', phone: '480-555-0178', email: 'jwonder@abcholding.com', role: 'Purchasing', additionalRoles: ['Billing'] },
   { name: 'Selina Kyle', company: 'Beacon Depot', phone: '623-555-0110', email: 'skyle@beacondepot.com', role: 'Dock Coordinator', additionalRoles: ['Receiving'] },
   { name: 'Harvey Dent', company: 'Solar Topps', phone: '602-555-0192', email: 'hdent@solartopps.com', role: 'Safety Officer', additionalRoles: [] },
@@ -101,108 +114,90 @@ export const initialsOf = (name: string) =>
     .slice(0, 2)
     .join('');
 
-/* ---------- Pick / Pack (Figma 84:11914) ---------- */
+/* ---------- Pick / Pack (Figma 899:3331 view, 84:11914 edit) ---------- */
 
+/** The warehouse's printers, as Pick / Pack and the label defaults name them (Printers tab: "CJ3000 · Shipping Office"). */
 export const PRINTERS = [
-  'CJ3000 - Shipping Office',
-  'CJ3000 - Front Office',
-  'HP02156 - Back Office',
-  'HP0034 - Warehouse Office',
-  'ZT410 - Receiving Dock',
+  'CJ3000 · Shipping Office',
+  'CJ3000 · Front Office',
+  'HP02156 · Back Office',
+  'HP0034 · Warehouse Office',
+  'ZD421 · Receiving Dock',
 ];
-export const PICKING_FORMATS = ['Standard pick ticket', 'Batch pick list', 'Zone pick list', 'Wave pick list'];
-export const PRINT_ORDERS = ['Entry date / creation', 'Due date', 'Pick route', 'Priority'];
-export const PACKING_FORMATS = ['Default', 'Itemized', 'Summary by carton'];
-export const ALLOCATE_WHEN = ['Order Creation', 'Order Release', 'Pick Start'];
-export const COMMIT_WHEN = ['Pick Complete', 'Pack Complete', 'Ship Confirm'];
-export const DAYS_ENTRY = ['Due Date', 'Order Date', 'Ship Date'];
+/** An order's stages, in order: allocation and commit each pick one; commit must come at or after allocation. */
+export const ORDER_STAGES = ['Order is placed', 'Order is approved', 'Picking is started', 'Picking is complete', 'Packing is complete', 'Order is shipped'];
+/** The order date fields allocation can count from (set up in settings; the list can grow). */
+export const ORDER_DATES = ['Due date', 'Ship date', 'Install date', 'Order date'];
+export const PICK_TICKET_FORMATS = ['Grouped by zone', 'One ticket per order', 'Batch pick list', 'Wave pick list'];
+export const SORT_BY = ['Walking path (recommended)', 'Location / bin #', 'Item #', 'Quantity, high → low'];
+/** Shown as a disabled chip: not available yet. */
+export const SORT_LATER = 'AI-optimized (later)';
+export const THEN_BY = ['None', 'Item #', 'Location / bin #', 'Quantity, high → low'];
+export const ROTATIONS = ['FIFO · oldest first', 'FEFO · earliest expiry first', 'None'];
+export const SLIP_FORMATS = ['Standard', 'Itemized', 'Summary by carton'];
 
-/** Fulfillment and Optimization: the checkbox groups, each under a bold sub-heading, in Figma's order. */
-export const FULFILLMENT_RULES = [
-  {
-    title: 'Stock Default Rules',
-    rules: [
-      { key: 'onlyAvailable', label: 'Show Only Available Items' },
-      { key: 'fifo', label: 'Enable FIFO / FEFO Rotation' },
-    ],
-  },
-  {
-    title: 'Pick Operations',
-    rules: [
-      { key: 'partialPick', label: 'Allow Partial Pick' },
-      { key: 'overpick', label: 'Allow Overpicking on Orders' },
-      { key: 'substitutions', label: 'Allow Item Substitutions' },
-    ],
-  },
-  {
-    title: 'Path and Route Optimization',
-    rules: [
-      { key: 'routeByItem', label: 'Route by Item #' },
-      { key: 'routeByQuantity', label: 'Route by Quantity (Highest → Lowest)' },
-      { key: 'travelPath', label: 'Travel Path Optimization' },
-      { key: 'aiRoute', label: 'AI Route Optimization Engine' },
-    ],
-  },
-  {
-    title: 'Scanning and Validation',
-    rules: [
-      { key: 'scanLocation', label: 'Scan Location Before Selecting Item' },
-      { key: 'validateLots', label: 'Validate Lot Numbers' },
-      { key: 'validateSerials', label: 'Validate Serial Numbers' },
-      { key: 'manualQuantity', label: 'Manual Confirmation of Quantity' },
-    ],
-  },
+/** Picking › Pick rules and Scanning & validation: a title, a line under it, and an on / off each. */
+export const PICK_RULES = [
+  { key: 'onlyAvailable', label: 'Show only available stock', description: 'Hide locations with no unallocated quantity.' },
+  { key: 'partialPick', label: 'Allow partial picks', description: 'Ship what’s available and backorder the rest.' },
+  { key: 'overpick', label: 'Allow over-picking', description: 'Let pickers pick more than ordered (e.g. full case).' },
+  { key: 'substitutions', label: 'Allow substitutions', description: 'Let pickers swap in an approved replacement item.' },
 ] as const;
-
-export type FulfillmentRule = (typeof FULFILLMENT_RULES)[number]['rules'][number]['key'];
+export const SCAN_RULES = [
+  { key: 'scanLocation', label: 'Scan location before item', description: 'Confirms the picker is at the right bin.' },
+  { key: 'validateLots', label: 'Validate lot numbers', description: 'Required for lot-controlled items.' },
+  { key: 'validateSerials', label: 'Validate serial numbers', description: 'Required for serialized items.' },
+  { key: 'manualQuantity', label: 'Confirm quantity manually', description: 'Picker types the quantity instead of scanning each unit.' },
+] as const;
+export type PickRule = (typeof PICK_RULES)[number]['key'] | (typeof SCAN_RULES)[number]['key'];
 
 export type PickPackSettings = {
-  pickingFormat: string | null;
-  printOrder: string;
-  defaultPrinter: string;
-  pickEmail: string;
-  autoPrint: boolean;
-  packingFormat: string;
-  packingPrinter: string;
-  packEmail: string;
-  showPricing: boolean;
   allocateWhen: string;
   commitWhen: string;
-  days: number | null;
-  daysEntry: string;
-  rules: Record<FulfillmentRule, boolean>;
+  /** Start allocating this many days before the order's `startDate` field (empty: no lead time). */
+  startDays: number | null;
+  startDate: string;
+  ticketFormat: string;
+  ticketPrinter: string;
+  autoPrint: boolean;
+  sortBy: string;
+  thenBy: string;
+  rotation: string;
+  rules: Record<PickRule, boolean>;
+  slipFormat: string;
+  slipPrinter: string;
+  showPrices: boolean;
+  /** Notifications: pick exceptions (shorts, substitutions) and packing complete. */
+  exceptionsEmail: string;
+  packedEmail: string;
 };
 
-/** Figma "Inventory / Warehouse / Pick - Pack" (84:11914) */
 export const SAMPLE_PICK_PACK: PickPackSettings = {
-  pickingFormat: null,
-  printOrder: 'Entry date / creation',
-  defaultPrinter: 'HP02156 - Back Office',
-  pickEmail: 'warehouse-alerts@beacondepot.com',
+  allocateWhen: 'Order is placed',
+  commitWhen: 'Picking is complete',
+  startDays: 3,
+  startDate: 'Due date',
+  ticketFormat: 'Grouped by zone',
+  ticketPrinter: 'HP02156 · Back Office',
   autoPrint: true,
-  packingFormat: 'Default',
-  packingPrinter: 'HP0034 - Warehouse Office',
-  packEmail: 'invoices@beacondepot.com',
-  showPricing: true,
-  allocateWhen: 'Order Creation',
-  commitWhen: 'Pack Complete',
-  days: 0,
-  daysEntry: 'Due Date',
+  sortBy: 'Walking path (recommended)',
+  thenBy: 'Item #',
+  rotation: 'FIFO · oldest first',
   rules: {
     onlyAvailable: true,
-    fifo: true,
     partialPick: true,
     overpick: false,
     substitutions: true,
-    routeByItem: false,
-    routeByQuantity: true,
-    travelPath: true,
-    aiRoute: true,
     scanLocation: true,
     validateLots: true,
     validateSerials: true,
     manualQuantity: false,
   },
+  slipFormat: 'Standard',
+  slipPrinter: 'HP0034 · Warehouse Office',
+  showPrices: true,
+  exceptionsEmail: 'warehouse-alerts@beacondepot.com',
+  packedEmail: 'shipping@beacondepot.com',
 };
 
 export const LABEL_SIZES = ['2 × 1 in', '3 × 2 in', '4 × 6 in', '4 × 8 in', 'Custom'] as const;
@@ -242,13 +237,13 @@ export const labelSizeText = (label: Pick<PickLabel, 'size' | 'custom'>) => {
 
 /** Figma "Label Defaults" (84:11914). Figma's table says "Pick Pak"; the label is "Pick/Pack Label Carton" everywhere. */
 export const SAMPLE_LABELS: PickLabel[] = [
-  { id: 'l1', name: 'Pick/Pack Label Carton', printer: 'CJ3000 - Shipping Office', size: '4 × 6 in', copies: 1, orientation: 'Portrait' },
-  { id: 'l2', name: 'Shipping Label', printer: 'CJ3000 - Front Office', size: '4 × 6 in', copies: 1, orientation: 'Portrait' },
+  { id: 'l1', name: 'Pick/Pack Label Carton', printer: 'CJ3000 · Shipping Office', size: '4 × 6 in', copies: 1, orientation: 'Portrait' },
+  { id: 'l2', name: 'Shipping Label', printer: 'CJ3000 · Front Office', size: '4 × 6 in', copies: 1, orientation: 'Portrait' },
 ];
 
 /* ---------- Locations (Figma 80:10030, 562:4260) ---------- */
 
-export const LOCATION_TYPES = ['Pallet', 'Bin', 'Shelves', 'Rack', 'Zone'];
+export const LOCATION_TYPES = ['Zone', 'Aisle', 'Rack', 'Shelf', 'Shelves', 'Bin', 'Pallet'];
 /** Structure depth: Figma's badges go from 1 to 4. */
 export const MAX_LOCATION_DEPTH = 4;
 
@@ -263,6 +258,13 @@ export type WarehouseLocation = {
   active: boolean;
   /** The location this one sits in; null at the top level. Siblings keep the list's order. */
   parentId: string | null;
+  /** Code (barcode), e.g. "A-01-01-02"; without one it comes from the location's place in the tree (locationTree codeOf). */
+  code?: string;
+  /** Capacity (optional), as entered: "1 pallet · 2,500 lb". */
+  capacity?: string;
+  /** Storage slots, and how many are in use (Utilization "152/254 (102)"); defaults by type (locationTree). */
+  slots?: number;
+  used?: number;
 };
 
 const L = (

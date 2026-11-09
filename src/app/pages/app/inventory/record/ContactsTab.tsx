@@ -3,33 +3,43 @@ import { Button } from '../../../../../components/Button/Button';
 import { DataHeader, type DataColumn, type DataSort } from '../../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../../components/DataRow/DataRow';
 import { Icon } from '../../../../../components/Icon/Icon';
+import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { Tag } from '../../../../../components/Tag/Tag';
-import type { Contact } from '../warehouseRecordData';
+import { INTERNAL_COMPANY, type Contact } from '../warehouseRecordData';
 import { setContacts, useContacts } from '../warehouseStore';
-import { ContactFormModal, RemoveContactModal, SearchContactsModal } from './ContactModals';
+import { ContactFormModal, RemoveContactModal, SearchContactsModal, type ContactFields } from './ContactModals';
 import { RowMenu } from './RowMenu';
+import { StatusPill } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 
 const COLUMNS: DataColumn[] = [
   // Figma: just the 20px star, 16px from the checkbox (the button's 4px padding on each side makes 28)
   { key: 'primary', label: 'Primary contact', width: 28, labelHidden: true, sortable: false },
-  { key: 'name', label: 'Name', width: 136 },
-  { key: 'phone', label: 'Phone #', width: 120 },
-  // Email keeps a fixed width (addresses shouldn't wrap); the tags column takes the rest
-  { key: 'email', label: 'Email', width: 170 },
-  { key: 'role', label: 'Role', width: 120 },
-  { key: 'additionalRoles', label: 'Additional Roles', width: 'fill', sortable: false },
-  // Figma: the status pill has no header, and sits right before the ••• button
+  { key: 'name', label: 'Name', width: 140, filterable: true },
+  { key: 'company', label: 'Company', width: 'fill', filterable: true },
+  { key: 'phone', label: 'Phone', width: 130, filterable: true },
+  // Email keeps a fixed width so addresses don't wrap mid-word
+  { key: 'email', label: 'Email', width: 210, filterable: true },
+  { key: 'role', label: 'Primary Role', width: 150, filterable: true },
+  { key: 'additionalRoles', label: 'Additional Roles', width: 'fill', filterable: true, sortable: true },
+  // Figma: the status pill sits right before the ••• button
   { key: 'status', label: 'Status', width: 110, align: 'end', labelHidden: true, sortable: false },
 ];
 
+type Who = 'all' | 'internal' | 'external';
+const isInternal = (c: Pick<Contact, 'company'>) => c.company === INTERNAL_COMPANY;
+/** "Acme Solar (Internal)": the company's own people are marked internal (Figma 848:20960). */
+const companyText = (c: Contact) => (c.company ? (isInternal(c) ? `${c.company} (Internal)` : c.company) : '—');
+
 /**
- * Warehouse record › Contacts (Figma 537:57135; general note 2): the people who work at the warehouse. The ★ marks the
- * primary contact; a name opens Edit Contact, and Add Contact searches the CRM first.
+ * Warehouse record › Contacts (Figma 848:20960): All / Internal / External, search, and the people who work with the
+ * warehouse. The ★ marks the primary contact; a name opens Edit Contact, and Add Contact searches the CRM first.
  */
-export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text: string) => void }) {
+export function ContactsTab({ code, warehouseName, onNotice }: { code: string; warehouseName: string; onNotice: (text: string) => void }) {
   const contacts = useContacts(code);
+  const [who, setWho] = useState<Who>('all');
+  const [query, setQuery] = useState('');
   const [sort, setSort] = useState<DataSort | undefined>();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [menuFor, setMenuFor] = useState<string | null>(null);
@@ -37,18 +47,24 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
   const [editing, setEditing] = useState<Contact | 'new' | null>(null);
   const [removing, setRemoving] = useState<Contact | null>(null);
 
-  const rows = sort
-    ? [...contacts].sort((a, b) => {
-        const k = sort.key as 'name' | 'phone' | 'email' | 'role';
-        return a[k].localeCompare(b[k]) * (sort.direction === 'ascending' ? 1 : -1);
-      })
-    : contacts;
+  const q = query.trim().toLowerCase();
+  const text = (c: Contact, key: string) => (key === 'additionalRoles' ? c.additionalRoles.join(', ') : key === 'company' ? companyText(c) : String(c[key as keyof Contact] ?? ''));
+  let rows = contacts.filter(
+    c => (who === 'all' || (who === 'internal') === isInternal(c)) && (!q || `${c.name} ${c.company} ${c.role} ${c.email} ${c.additionalRoles.join(' ')}`.toLowerCase().includes(q)),
+  );
+  if (sort) rows = [...rows].sort((a, b) => text(a, sort.key).localeCompare(text(b, sort.key)) * (sort.direction === 'ascending' ? 1 : -1));
+  const internal = contacts.filter(isInternal).length;
 
   const update = (next: (list: Contact[]) => Contact[]) => setContacts(code, next);
-  function add(fields: Omit<Contact, 'id' | 'primary'>) {
-    // The first contact added to an empty list becomes the primary one
-    update(list => [...list, { ...fields, id: `p${Date.now()}`, primary: list.length === 0 }]);
-    onNotice(`${fields.name} added to this warehouse’s contacts.`);
+  function add(list: ContactFields[], primary = false) {
+    update(all => {
+      const added = list.map((f, i) => ({ ...f, id: `p${Date.now()}-${i}`, primary: false }));
+      // The first contact on an empty warehouse becomes the primary one; so does a new one marked primary
+      const next = [...all.map(x => (primary ? { ...x, primary: false } : x)), ...added];
+      if (primary || all.length === 0) next[all.length]!.primary = true;
+      return next;
+    });
+    onNotice(list.length === 1 ? `${list[0]!.name} added to ${warehouseName}’s contacts.` : `${list.length} contacts added to ${warehouseName}.`);
   }
   function makePrimary(c: Contact) {
     update(list => list.map(x => ({ ...x, primary: x.id === c.id })));
@@ -58,14 +74,33 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
   return (
     <div className={styles.tab}>
       <section className={styles.card} aria-label="Contacts">
-        {/* Figma: an untitled card with Add Contact on the right */}
-        <div className={styles.cardHead} data-align="end">
-          <Button size="small" variant="brand" icon="plus" onClick={() => setSearching(true)}>
+        <div className={styles.contactToolbar} role="toolbar" aria-label="Contacts">
+          <div className={styles.chipRow} role="group" aria-label="Show">
+            {(
+              [
+                ['all', `All (${contacts.length})`],
+                ['internal', `Internal (${internal})`],
+                ['external', `External (${contacts.length - internal})`],
+              ] as const
+            ).map(([value, label]) => (
+              <Tag key={value} size="small" selected={who === value} onClick={() => setWho(value)}>
+                {label}
+              </Tag>
+            ))}
+          </div>
+          <SearchInput
+            className={styles.toolbarSearch}
+            aria-label="Search contacts"
+            placeholder="Search contacts by name, company, role or email"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+          <Button size="small" variant="brand" onClick={() => setSearching(true)}>
             Add Contact
           </Button>
         </div>
         <div className={table.tableScroll}>
-          <div role="table" aria-label="Warehouse contacts" className={table.table}>
+          <div role="table" aria-label="Warehouse contacts" className={`${table.table} ${table.moreVisible}`}>
             <DataHeader
               className={table.head}
               corners="none"
@@ -78,7 +113,11 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
               allSelected={rows.length > 0 && rows.every(c => selected.has(c.id))}
               onSelectAllChange={on => setSelected(on ? new Set(rows.map(c => c.id)) : new Set())}
             />
-            {rows.length === 0 && <p className={`text-medium-regular ${styles.emptyRow}`}>No contacts yet. Use Add Contact to add the people who work here.</p>}
+            {rows.length === 0 && (
+              <p className={`text-medium-regular ${styles.emptyRow}`}>
+                {contacts.length ? 'No contacts match. Clear the search or choose All.' : 'No contacts yet. Use Add Contact to add the people who work here.'}
+              </p>
+            )}
             {rows.map((c, i) => (
               <div key={c.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!c.active || undefined}>
                 <DataRow
@@ -103,22 +142,23 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
                         {c.name}
                       </button>
                     ),
+                    company: companyText(c),
                     phone: c.phone || '—',
                     email: c.email || '—',
                     role: c.role || '—',
-                    additionalRoles: (
+                    additionalRoles: c.additionalRoles.length ? (
                       <span className={table.tags}>
                         {c.additionalRoles.map(r => (
-                          <Tag key={r} variant="tiny" tabIndex={-1}>
+                          <Tag key={r} size="tiny">
                             {r}
                           </Tag>
                         ))}
                       </span>
+                    ) : (
+                      '—'
                     ),
                     status: (
-                      <span className={table.status} data-active={c.active || undefined}>
-                        {c.active ? 'Active' : 'Inactive'}
-                      </span>
+                      <StatusPill active={c.active} />
                     ),
                   }}
                   selected={selected.has(c.id)}
@@ -140,7 +180,7 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
                     onClose={() => setMenuFor(null)}
                     items={[
                       { label: 'Edit', onSelect: () => setEditing(c) },
-                      ...(c.primary ? [] : [{ label: 'Make Primary', onSelect: () => makePrimary(c) }]),
+                      { label: 'Make Primary', disabled: c.primary, onSelect: () => makePrimary(c) },
                       {
                         label: c.active ? 'Deactivate' : 'Activate',
                         onSelect: () => {
@@ -148,7 +188,7 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
                           onNotice(`${c.name} ${c.active ? 'deactivated' : 'activated'}.`);
                         },
                       },
-                      { label: 'Remove', onSelect: () => setRemoving(c) },
+                      { label: 'Remove from Warehouse', onSelect: () => setRemoving(c) },
                     ]}
                   />
                 )}
@@ -162,8 +202,8 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
         open={searching}
         existingNames={contacts.map(c => c.name)}
         onClose={() => setSearching(false)}
-        onPick={c => {
-          add(c);
+        onAdd={list => {
+          add(list);
           setSearching(false);
         }}
         onAddNew={() => {
@@ -175,10 +215,14 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
         open={editing !== null}
         contact={editing === 'new' ? null : editing}
         onClose={() => setEditing(null)}
-        onSave={fields => {
-          if (editing === 'new') add(fields);
+        onBack={() => {
+          setEditing(null);
+          setSearching(true);
+        }}
+        onSave={(fields, primary) => {
+          if (editing === 'new') add([fields], primary);
           else if (editing) {
-            update(list => list.map(x => (x.id === editing.id ? { ...x, ...fields } : x)));
+            update(list => list.map(x => (x.id === editing.id ? { ...x, ...fields, primary: primary || x.primary } : primary ? { ...x, primary: false } : x)));
             onNotice(`${fields.name} updated.`);
           }
           setEditing(null);
@@ -190,15 +234,13 @@ export function ContactsTab({ code, onNotice }: { code: string; onNotice: (text:
       />
       <RemoveContactModal
         contact={removing}
+        others={contacts.filter(c => c.id !== removing?.id && c.active)}
+        warehouseName={warehouseName}
         onClose={() => setRemoving(null)}
-        onConfirm={() => {
+        onConfirm={newPrimary => {
           if (removing) {
-            update(list => {
-              const rest = list.filter(x => x.id !== removing.id);
-              // Removing the primary contact passes the ★ to the next one
-              return removing.primary && rest.length > 0 ? rest.map((x, i) => ({ ...x, primary: i === 0 })) : rest;
-            });
-            onNotice(`${removing.name} removed from this warehouse’s contacts.`);
+            update(list => list.filter(x => x.id !== removing.id).map(x => (newPrimary ? { ...x, primary: x.id === newPrimary } : x)));
+            onNotice(`${removing.name} removed from ${warehouseName}’s contacts.`);
           }
           setRemoving(null);
         }}

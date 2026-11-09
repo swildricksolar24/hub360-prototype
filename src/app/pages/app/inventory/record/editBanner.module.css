@@ -1,0 +1,25 @@
+/* The record's edit banner (Figma 84:11914, 891:12852): teal, above the record header */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+}
+.banner p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin: 0;
+}
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
