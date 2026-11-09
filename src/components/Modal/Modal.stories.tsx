@@ -1,9 +1,11 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Modal, ModalPanel, type ModalProps } from './Modal';
 import { Overlay } from '../Overlay/Overlay';
 import { Button } from '../Button/Button';
 import { TextInput } from '../TextInput/TextInput';
+import { Toggle } from '../Toggle/Toggle';
+import { Dropdown } from '../Dropdown/Dropdown';
 import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
@@ -17,12 +19,6 @@ const DefaultActions = () => (
     <Button size="small" variant="primary">Label</Button>
   </>
 );
-
-/** Button has no destructive variant; the Figma "Modal - Dynamic" footer uses Semantic Fill/Error Strong on a Primary button. */
-const destructive = {
-  '--bg': 'var(--color-semantic-fill-error-strong)',
-  '--fg': 'var(--color-foundation-solid-white)',
-} as CSSProperties;
 
 /** Opens a real modal <dialog> from a button. */
 function ModalDemo(args: Omit<ModalProps, 'open' | 'onClose'>) {
@@ -90,7 +86,10 @@ export const DialogModal: Story = {
   parameters: { ...figma('429:687', 'Modal* › Dialog / Modal'), controls: { disable: true } },
 };
 
-/** Toggle and Select from Figma's header and form are other components; Buttons and TextInputs stand in. */
+/**
+ * Header (one row, Figma Nov 2026): title and description on the left; the controls (a contained Toggle, a small
+ * Dropdown and a small Button, then the close button, all 44px) on the right. The form's Selects are TextInputs here.
+ */
 export const ModalDynamic: Story = {
   name: 'Modal - Dynamic',
   render: () => (
@@ -100,12 +99,13 @@ export const ModalDynamic: Story = {
       description="Description"
       headerActions={
         <>
+          <Toggle contained label="Label" />
+          <Dropdown variant="small" aria-label="Select" placeholder="Select" options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]} />
           <Button size="small" variant="primary">Label</Button>
-          <Button size="small" variant="primary">Select</Button>
         </>
       }
       onClose={() => {}}
-      footerStart={<Button size="small" style={destructive}>Label</Button>}
+      footerStart={<Button size="small" variant="brand-red">Label</Button>}
       actions={
         <>
           <Button size="small" variant="outline">Label</Button>

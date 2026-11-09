@@ -361,20 +361,17 @@
 }
 
 /*
- * ---------- brand-red: Figma "Brand / Small / Red" (Base 3358:6168), destructive and error actions ----------
- * Default, Press and Selected: Semantic Fill/Error Strong with a Foundation/Solid/White label (no semantic "text on
- * error" token). Hover: Semantic Fill/Error Weak. Focus: Error Strong with a 4px Gray Stroke/Weaker stroke centered on
- * the edge. Disabled: Gray Fill/Disabled with Gray Text/Disabled.
+ * ---------- brand-red: Figma Button Small "Solid / Red / Base" (Base 3358:6168), destructive and error actions ----------
+ * Default: Semantic Fill/Error Weak with a Foundation/Solid/White label (no semantic "text on error" token).
+ * Hover, Press and Selected: Semantic Fill/Error Strongest. Focus: Error Strongest with a 4px Gray Stroke/Weaker
+ * stroke centered on the edge. Disabled: Semantic Fill/Error Weakest with Gray Text/Disabled.
  */
 .button[data-variant='brand-red'] {
-  --bg: var(--color-semantic-fill-error-strong);
+  --bg: var(--color-semantic-fill-error-weak);
   --fg: var(--color-foundation-solid-white);
 }
-.button[data-variant='brand-red']:hover {
-  --bg: var(--color-semantic-fill-error-weak);
-}
-.button[data-variant='brand-red']:is(:active, :focus-visible, [aria-pressed='true']) {
-  --bg: var(--color-semantic-fill-error-strong);
+.button[data-variant='brand-red']:is(:hover, :active, :focus-visible, [aria-pressed='true']) {
+  --bg: var(--color-semantic-fill-error-strongest);
 }
 .button[data-variant='brand-red']:focus-visible {
   --ring: var(--color-gray-stroke-weaker);
@@ -383,9 +380,49 @@
     0 0 0 var(--stroke-width-2) var(--ring);
 }
 .button[data-variant='brand-red']:disabled {
-  --bg: var(--color-gray-fill-disabled);
+  --bg: var(--color-semantic-fill-error-weakest);
   --fg: var(--color-gray-text-disabled);
   box-shadow: none;
+}
+
+/*
+ * ---------- red-outline: Figma Button Small "Clear / Red" (Base 3392:197) ----------
+ * A red outline for destructive actions that aren't the main action, e.g. "Remove from Warehouse".
+ * Default: no fill, a 1px Semantic Fill/Error Strongest stroke and a Semantic Text/Error label.
+ * Hover: Semantic Fill/Error Weakest. Press: Semantic Fill/Error Weaker.
+ * Selected: Error Weakest with a 2px red stroke centered on the edge. Focus: Error Weakest with a 4px
+ * Foundation/Semantic Red/600 stroke centered on the edge. Disabled: a 1px Gray Stroke/Disabled stroke and Gray
+ * Text/Disabled.
+ */
+.button[data-variant='red-outline'] {
+  --fg: var(--color-semantic-text-error);
+  --ring: var(--color-semantic-fill-error-strongest);
+  --ring-w: var(--stroke-width-1);
+}
+.button[data-variant='red-outline']:hover {
+  --bg: var(--color-semantic-fill-error-weakest);
+}
+.button[data-variant='red-outline']:active {
+  --bg: var(--color-semantic-fill-error-weaker);
+}
+.button[data-variant='red-outline']:is([aria-pressed='true'], :focus-visible) {
+  --bg: var(--color-semantic-fill-error-weakest);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-1) var(--ring),
+    0 0 0 var(--stroke-width-1) var(--ring);
+}
+/* Focus: a 4px Foundation/Semantic Red/600 ring centered on the edge (Figma binds the primitive directly) */
+.button[data-variant='red-outline']:focus-visible {
+  --ring: var(--color-foundation-semantic-red-600);
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-variant='red-outline']:disabled {
+  --bg: transparent;
+  --fg: var(--color-gray-text-disabled);
+  --ring: var(--color-gray-stroke-disabled);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--ring);
 }
 
 /*
@@ -487,6 +524,75 @@
   --fg: var(--color-brand-teal-text-weak);
   --ring: var(--color-brand-teal-stroke-weaker);
   --ring-w: var(--stroke-width-2);
+}
+
+/*
+ * ---------- Button Small focus (Figma "- Button Small", Nov 2026) ----------
+ * Every small set's Focus is a 4px ring centered on the edge (2px in, 2px out):
+ * Solid / Gray and Clear: Gray Fill/Hover with Gray Stroke/Weaker · Solid / Teal: Brand Teal Fill/Strong with Gray
+ * Stroke/Weaker · Solid / White (brand-secondary): Foundation/Solid/White with Brand Teal Stroke/Strong.
+ * (Teal Outline, Solid / Red and Clear / Red set their own focus rings above.)
+ */
+.button[data-size='small']:is([data-variant='primary'], [data-variant='outline'], [data-variant='brand'], [data-variant='brand-secondary']):focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-size='small']:is([data-variant='primary'], [data-variant='outline'], [data-variant='brand']):focus-visible {
+  --ring: var(--color-gray-stroke-weaker);
+}
+.button[data-size='small'][data-variant='brand']:focus-visible {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+
+/*
+ * ---------- Button Small, other states (Figma "- Button Small", Nov 2026) ----------
+ * Selected: every small set draws its 2px Selected ring centered on the edge (1px in, 1px out).
+ * Solid / Teal (brand): Default Brand Teal Fill/Weak · Hover and Selected Fill/Strong · Press Fill/Press with a 2px
+ * Gray Stroke/Weaker ring inside · Disabled Fill/Disabled with Gray Text/Disabled.
+ * Solid / White (brand-secondary): Default Foundation/Solid/200 · Hover, Press and Focus Foundation/Solid/White ·
+ * Press a 4px Brand Teal Stroke/Strong ring centered.
+ * Solid / Teal / Outline (brand-outline): Press Brand Teal Fill/Press.
+ */
+.button[data-size='small']:is([data-variant='primary'], [data-variant='outline'], [data-variant='brand'], [data-variant='brand-secondary'])[aria-pressed='true']:not(:focus-visible) {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-1) var(--ring),
+    0 0 0 var(--stroke-width-1) var(--ring);
+}
+.button[data-size='small'][data-variant='brand'] {
+  --bg: var(--color-brand-teal-fill-weak);
+}
+.button[data-size='small'][data-variant='brand']:is(:hover, [aria-pressed='true']) {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-size='small'][data-variant='brand']:active {
+  --bg: var(--color-brand-teal-fill-press);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
+}
+.button[data-size='small'][data-variant='brand']:disabled {
+  --bg: var(--color-brand-teal-fill-disabled);
+  --fg: var(--color-gray-text-disabled);
+}
+.button[data-size='small'][data-variant='brand-secondary'] {
+  --bg: var(--color-foundation-solid-200);
+}
+.button[data-size='small'][data-variant='brand-secondary']:is(:hover, :active, :focus-visible) {
+  --bg: var(--color-foundation-solid-white);
+}
+.button[data-size='small'][data-variant='brand-secondary']:active {
+  box-shadow:
+    inset 0 0 0 var(--stroke-width-2) var(--ring),
+    0 0 0 var(--stroke-width-2) var(--ring);
+}
+.button[data-size='small'][data-variant='brand-secondary'][aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-strong);
+}
+.button[data-size='small'][data-variant='brand-secondary']:disabled {
+  --bg: var(--color-foundation-solid-100);
+}
+.button[data-size='small'][data-variant='brand-outline']:active:not(:disabled) {
+  --bg: var(--color-brand-teal-fill-press);
 }
 
 .button:disabled {

@@ -80,11 +80,11 @@
   --box-bg: var(--color-gray-fill-hover);
 }
 .checkbox[data-error] {
-  --box-bg: var(--color-semantic-fill-error-weak);
-  --check: var(--color-semantic-fill-error-strong);
+  --box-bg: var(--color-semantic-fill-error-weakest);
+  --check: var(--color-semantic-fill-error-strongest);
   --text: var(--color-semantic-text-error);
   /* Figma uses the weak error fill for the info icon in the error state */
-  --info: var(--color-semantic-fill-error-weak);
+  --info: var(--color-semantic-fill-error-weakest);
 }
 .checkbox:has(.input:disabled) {
   --box-bg: var(--color-gray-fill-disabled);

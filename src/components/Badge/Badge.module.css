@@ -36,7 +36,7 @@
   --fg: var(--color-gray-text-inverse-strong);
 }
 .badge[data-color='red'] {
-  --bg: var(--color-semantic-fill-error-strong);
+  --bg: var(--color-semantic-fill-error-strongest);
   --fg: var(--color-gray-text-inverse-strong);
 }
 /* Figma uses Foundation/Solid primitives for the Black badge */

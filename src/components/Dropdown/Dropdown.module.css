@@ -158,9 +158,9 @@
   --ring-w: var(--stroke-width-4);
 }
 .dropdown[data-error] .trigger {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
   --fg: var(--color-semantic-text-error);
-  --icon: var(--color-semantic-fill-error-strong);
+  --icon: var(--color-semantic-fill-error-strongest);
 }
 /* Selected (the `selected` prop): Button Small's Selected look, kept while hovered or open */
 .dropdown[data-selected] .trigger {
@@ -271,7 +271,7 @@
   --chips-ring: var(--color-brand-teal-stroke-weak);
 }
 .chips[data-error] {
-  --chips-bg: var(--color-semantic-fill-error-weak);
+  --chips-bg: var(--color-semantic-fill-error-weakest);
 }
 .chips[data-disabled] {
   --chips-bg: var(--color-gray-fill-disabled);

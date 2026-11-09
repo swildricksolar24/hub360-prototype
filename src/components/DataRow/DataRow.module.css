@@ -105,7 +105,7 @@
   --bg: var(--color-semantic-fill-warning-weak);
 }
 .pill[data-tone='error'] {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-weakest);
 }
 .pill[data-tone='neutral'] {
   --bg: var(--color-gray-fill-weaker);
