@@ -61,6 +61,27 @@ export const EditableCellSet: Story = {
   parameters: { ...figma('2903:32', 'Editable Cell › Editable Cell'), ...pseudoStates, controls: { disable: true } },
 };
 
+const PRINTERS = ['Dock 4 Zebra', 'Receiving', 'Office laser (second floor, by the stairs, next to the break room)'];
+
+/**
+ * `type="select"` fills its column (a long value ellipsizes); here in a 300px column: a short value, a long one, and
+ * one open. The menu is the same ListBox menu as Dropdown,
+ * under the cell and at least as wide, the current value selected; long options show in full. ↓ / ↑ / Enter / Space
+ * open it, the arrows move, Enter picks, Escape closes and refocuses the cell, Tab or a click outside closes it.
+ */
+export const SelectOpen: Story = {
+  name: 'Select › Open',
+  decorators: [Story => <Story />],
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-12)', width: 300, minHeight: 340 }}>
+      <EditableCell type="select" label="Size" options={['Letter', '4 × 6', '4 × 4']} defaultValue="Letter" />
+      <EditableCell type="select" label="Default Printer" options={PRINTERS} defaultValue={PRINTERS[2]} />
+      <EditableCell type="select" label="Default Printer" options={PRINTERS} defaultValue="Receiving" defaultOpen />
+    </div>
+  ),
+  parameters: { controls: { disable: true } },
+};
+
 /** Cells inside a table row, one per column. */
 export const InTable: Story = {
   decorators: [Story => <Story />],

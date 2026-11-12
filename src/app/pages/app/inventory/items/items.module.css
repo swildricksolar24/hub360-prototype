@@ -30,18 +30,6 @@
   flex: 1;
   min-width: 0;
 }
-/* Overview | Stock: the ButtonGroup at toolbar height (the Figma part is 72px tall; the toolbar's controls are 44px) */
-.segment {
-  padding: var(--space-10) var(--space-20);
-  font-size: var(--font-size-medium);
-  line-height: var(--line-height-medium);
-}
-.segment[aria-pressed='true'] {
-  --bg: var(--color-brand-teal-fill-strong);
-  --fg: var(--color-foundation-solid-white); /* white on a brand fill: no semantic token (design-system.md) */
-  font-weight: 600;
-}
-
 /* ---------- Table card ---------- */
 .tableCard {
   display: flex;
@@ -60,21 +48,31 @@
   gap: var(--space-16);
   min-width: 0;
 }
-/* The Totals row under a stock table */
-.totals {
-  font-weight: 700;
+/* Overview: the totals line, then the table (Figma 681:14463: the line has 12px under it) */
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
 }
-.totals [role='cell'] {
+/* "1,412 Items  1,218 Parts …": Large text, the numbers bold, in Gray Text/Weak, 24px apart */
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+.totals strong {
   font-weight: 700;
 }
 
 /* Empty and no-results states */
-.empty {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-48) var(--space-24);
-}
+/* No items (or none match): centered in the Data Table's empty cell (its own 16px + 32px = 48px above and below) */
 .emptyCell {
+  padding-block: var(--space-32);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -228,6 +226,35 @@
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-8);
   background: var(--color-surfaces-sunken);
+}
+/* Create New Item (Figma 681:14400) */
+.fieldLabel {
+  padding-inline: var(--space-4);
+  color: var(--color-gray-text-weak);
+}
+.typeField {
+  display: flex;
+  flex-direction: column;
+  /* Figma draws 6px between the label and the chips, which has no spacing token; 4px, as the other fields' labels */
+  gap: var(--space-4);
+}
+.typeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+/* System Item #: a label over the number, bold and unfilled where a field would be (40px tall, 12px padding) */
+.systemNumber {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.systemNumberValue {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--space-12);
+  color: var(--color-gray-text-strong);
 }
 .readOnlyField {
   display: flex;
@@ -643,4 +670,286 @@ button.actionType:focus-visible {
 /* A table in a half-width card (Replacement Items, ~479px): its fill column may go a little under the shared 140px */
 .halfTable {
   --table-fill-min: 120px; /* layout width, no token */
+}
+
+/* ---------- Details (Figma Part Details 127:6327) ---------- */
+/* Two columns, 1060 : 560 in Figma, 12px apart; one column on a narrow window */
+.detailColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+}
+@media (max-width: 1279px) {
+  .detailColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.detailColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+}
+/* Figma's Details cards: Large/Bold titles over a Gray Stroke/Strong divider */
+.detailCard h2 {
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+.detailCard > :first-child {
+  box-shadow: inset 0 calc(var(--stroke-width-1) * -1) 0 var(--color-gray-stroke-strong);
+}
+/* A row of fields, 16px apart, equal widths (Item Name takes two) */
+.fieldRow {
+  display: flex;
+  gap: var(--space-16);
+  align-items: flex-end;
+  min-width: 0;
+}
+.fieldRow > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.fieldRow > .wideField {
+  flex-grow: 2;
+}
+.specGroup {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  text-transform: uppercase;
+}
+.specGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+/* Category specs: Figma fits a row of up to 5 fields; shorter rows keep the 4-across widths */
+.specFields {
+  display: grid;
+  grid-template-columns: repeat(var(--spec-cols, 4), minmax(0, 1fr));
+  gap: var(--space-16);
+  align-items: end;
+}
+.addSpecRow {
+  display: flex;
+  justify-content: flex-end;
+}
+/* The unit picked inside a field (Weight: lbs / kg / g / oz; Dimensions: in / ft / mm): the Volt small Dropdown,
+   flat and compact so it sits in the field's right end; its hover, focus and menu stay Volt's. The class repeats to
+   outweigh Volt's ".dropdown[data-variant=small] .trigger" padding */
+.inlineUnit.inlineUnit.inlineUnit button {
+  --bg: transparent;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-4);
+  color: var(--color-gray-text-strong);
+  font-weight: 400;
+}
+.inlineUnit.inlineUnit.inlineUnit button:hover,
+.inlineUnit.inlineUnit.inlineUnit button[aria-expanded='true'] {
+  --bg: var(--color-gray-fill-hover);
+}
+.fieldError {
+  margin: 0;
+  color: var(--color-semantic-text-error);
+}
+.cardHint {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Warranty: a sunken row per warranty: pill, who · what, term, its document or pricing, edit, remove */
+.warrantyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-10) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.warrantyTitle {
+  flex: 1;
+  min-width: 0;
+}
+.warrantyNote {
+  max-width: 180px; /* keeps a long file name from crowding the term; layout width, no token */
+  overflow: hidden;
+  color: var(--color-gray-text-weak);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Images: three across, 110px tiles with the star, remove and drag handle in the corners */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.imageTile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px; /* Figma tile height; component dimension */
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-text-weak);
+  cursor: grab;
+}
+.tileStar,
+.tileRemove {
+  position: absolute;
+  top: var(--space-4);
+  display: inline-flex;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+}
+.tileStar {
+  left: var(--space-4);
+}
+.tileStar[aria-pressed='true'] {
+  color: var(--color-brand-teal-fill-strong);
+}
+.tileRemove {
+  right: var(--space-4);
+}
+.tileStar:hover,
+.tileRemove:hover {
+  background: var(--color-gray-fill-hover);
+}
+.tileStar:focus-visible,
+.tileRemove:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+}
+.tileDrag {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  display: inline-flex;
+  padding: var(--space-2);
+  color: var(--color-gray-text-strong);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Tracking: a sunken row per switch, title and hint on the left */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.toggleText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.toggleHint {
+  color: var(--color-gray-text-weak);
+}
+/* Compliance: the standard, then its status menu (190px in Figma) */
+.complianceRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  color: var(--color-gray-text-strong);
+}
+.complianceRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.complianceStatus {
+  flex: none;
+  width: 190px; /* Figma status menu width; component dimension */
+}
+/* Replacement Items: drag handle, "# · name", why it's offered, remove */
+.replacementRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  cursor: grab;
+}
+.replacementRow[data-inactive] {
+  opacity: 0.6;
+}
+.rowDrag {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-text-strong);
+  cursor: grab;
+}
+.rowDrag:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+}
+/* While dragging: the moving row fades, and the row it would land on gets a teal edge */
+.replacementRow[data-dragging],
+.imageTile[data-dragging] {
+  opacity: 0.4;
+}
+.replacementRow[data-drop-target],
+.imageTile[data-drop-target] {
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.replacementName {
+  flex: 0 1 150px;
+  min-width: 0;
+  font-weight: 700;
+}
+.replacementReason {
+  flex: 1;
+  min-width: 0;
+}
+/* The small status / reason menus fill their slot, as in Figma (the Volt small dropdown hugs its text by default) */
+.complianceStatus > div,
+.complianceStatus button,
+.replacementReason > div,
+.replacementReason button {
+  width: 100%;
+}
+.complianceStatus button,
+.replacementReason button {
+  justify-content: space-between;
+}
+/* Images: an uploaded photo fills its tile; the gallery outlines in teal while photos are dragged over it */
+.tileImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-8);
+  object-fit: cover;
+}
+.gallery[data-dropping] {
+  border-radius: var(--radius-8);
+  box-shadow: 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+  background: var(--color-brand-teal-fill-weaker);
 }

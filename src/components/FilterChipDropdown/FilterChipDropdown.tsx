@@ -8,8 +8,11 @@ export type FilterChipDropdownProps = Omit<DropdownProps, 'multiple' | 'value' |
   value?: string[];
   defaultValue?: string[];
   onChange?: (value: string[]) => void;
-  /** brand = teal-tinted chip panel (Figma `State=Press`) · plain = no panel fill (Figma `State=Press - Alt`). */
-  chipsAppearance?: 'brand' | 'plain';
+  /**
+   * brand = teal-tinted chip panel (Figma `State=Press`) · plain = no panel fill (Figma `State=Press - Alt`) ·
+   * none = no panel: the chips sit 8px under the field with no fill, ring or padding (Figma `State=Press - No Panel`).
+   */
+  chipsAppearance?: 'brand' | 'plain' | 'none';
 };
 
 /**

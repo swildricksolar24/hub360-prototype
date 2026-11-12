@@ -85,10 +85,10 @@
   cursor: not-allowed;
 }
 
-/* Dropdown Holder: 2px below the field, 0.5px Gray Stroke/Weak outline */
+/* Menu Options / Default (design-system.md usage rule 10): 4px below the field, the drop shadow and no outline */
 .popup {
   position: absolute;
-  top: calc(100% + var(--space-2));
+  top: calc(100% + var(--space-4));
   left: 0;
   right: 0;
   z-index: 10;
@@ -97,9 +97,7 @@
   overflow-y: auto;
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);
-  box-shadow:
-    0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weak),
-    var(--shadow-drop);
+  box-shadow: var(--shadow-drop);
 }
 
 /* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */

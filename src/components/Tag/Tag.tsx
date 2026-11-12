@@ -8,8 +8,9 @@ export type TagProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'>
   /** Figma `Label` text property. */
   children: ReactNode;
   /**
-   * Figma set — base = "Base / …" (Brand Teal Fill/Weaker, Fill/Weak when selected) ·
-   * outline = "Outline / …" (a 2px Gray Stroke/Disabled border, Gray Stroke/Weak when selected).
+   * Figma set — base = "Base / …" (Brand Teal Fill/Weaker, Fill/Weak when selected; Foundation/Solid/100 label,
+   * Solid/White when selected) · outline = "Outline / …" (a 2px Gray Stroke/Disabled border, Gray Stroke/Weak when
+   * selected; Gray Text/Disabled label, Gray Text/Strong when selected).
    */
   variant?: TagVariant;
   /** large = 76px (Heading 4 Regular) · small = 36px (Medium Regular) · tiny = 24px (Tiny Semi Bold). */

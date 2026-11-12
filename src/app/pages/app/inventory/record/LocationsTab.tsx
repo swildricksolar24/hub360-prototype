@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '../../../../../components/Badge/Badge';
 import { Button } from '../../../../../components/Button/Button';
-import { DataHeader, type DataColumn } from '../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
 import { Icon } from '../../../../../components/Icon/Icon';
 import { IconButton } from '../../../../../components/IconButton/IconButton';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { useHelperFlag } from '../../../../shell/helperFlags';
 import type { WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, setLocations, setStock, useLocations, useStock } from '../warehouseStore';
 import { AddLocationsModal, RemoveLocationModal, type LocationFields } from './LocationModals';
@@ -17,25 +18,27 @@ import styles from '../record.module.css';
 import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
+// On a narrow card the columns shrink to their minWidth, then hide by priority (useFittingColumns): Rules, then Code,
+// then Type
 const TREE_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Location Name', width: 'fill', filterable: true },
-  { key: 'code', label: 'Code', width: 130, filterable: true },
-  { key: 'type', label: 'Type', width: 116, filterable: true },
-  { key: 'items', label: 'Items', width: 116, filterable: true },
-  { key: 'utilization', label: 'Utilization', width: 140, filterable: true },
-  { key: 'rules', label: 'Rules', width: 180, filterable: true },
+  { key: 'name', label: 'Location Name', width: 'fill', minWidth: 160, filterable: true },
+  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2, filterable: true },
+  { key: 'type', label: 'Type', width: 116, minWidth: 90, priority: 1, filterable: true },
+  { key: 'items', label: 'Items', width: 116, minWidth: 90, filterable: true },
+  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 120, filterable: true },
+  { key: 'rules', label: 'Rules', width: 180, minWidth: 120, priority: 3, filterable: true },
   { key: 'status', label: 'Status', width: 110, filterable: true },
   // Figma: a + to add a location inside this one, before the •••
   { key: 'add', label: 'Add location inside', width: 40, labelHidden: true, sortable: false },
 ];
 const FLAT_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Location', width: 130, filterable: true },
-  { key: 'parent', label: 'Parent', width: 'fill', filterable: true },
-  { key: 'code', label: 'Code', width: 130, filterable: true },
-  { key: 'type', label: 'Type', width: 116, filterable: true },
-  { key: 'items', label: 'Items', width: 116, filterable: true },
-  { key: 'utilization', label: 'Utilization', width: 140, filterable: true },
-  { key: 'rules', label: 'Rules', width: 160, filterable: true },
+  { key: 'name', label: 'Location', width: 130, minWidth: 100, filterable: true },
+  { key: 'parent', label: 'Parent', width: 'fill', minWidth: 120, filterable: true },
+  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2, filterable: true },
+  { key: 'type', label: 'Type', width: 116, minWidth: 90, priority: 1, filterable: true },
+  { key: 'items', label: 'Items', width: 116, minWidth: 90, filterable: true },
+  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 120, filterable: true },
+  { key: 'rules', label: 'Rules', width: 160, minWidth: 120, priority: 3, filterable: true },
   { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
@@ -76,7 +79,11 @@ export function removeLocation(code: string, locations: WarehouseLocation[], loc
  */
 export function LocationsTab({ code, warehouseName, onNotice }: { code: string; warehouseName: string; onNotice: (text: string) => void }) {
   const navigate = useNavigate();
-  const locations = useLocations(code);
+  const stored = useLocations(code);
+  // Helper switch: no locations, so the totals read 0 and the table shows "No locations yet" (the view only; the
+  // store keeps its rows)
+  const empty = useHelperFlag('locations.empty');
+  const locations = empty ? [] : stored;
   const stock = useStock(code);
   const [mode, setMode] = useState<'tree' | 'flat'>('tree');
   const [view, setView] = useState('all');
@@ -180,10 +187,48 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
   // The app's table status: a dot and the word (orange Active, gray Inactive)
   const status = (l: WarehouseLocation) => <StatusPill active={l.active} />;
   const canAddInside = (l: WarehouseLocation) => depthOf(locations, l.id) < MAX_LOCATION_DEPTH;
+  // The name: in the tree, indented by depth with a chevron on a location that has sublocations; it opens the location
+  const nameCell = (l: WarehouseLocation) => {
+    const link = (
+      <button type="button" className={styles.cellLink} onClick={() => open(l)}>
+        {l.name}
+      </button>
+    );
+    if (mode !== 'tree') return link;
+    const parent = hasChildren(l);
+    return (
+      <span className={styles.treeName} data-parent={parent || undefined} style={{ ['--depth' as string]: depth.get(l.id) ?? 1 }}>
+        {parent ? (
+          <button
+            type="button"
+            className={styles.chevron}
+            aria-expanded={!collapsed.has(l.id)}
+            aria-label={`${collapsed.has(l.id) ? 'Expand' : 'Collapse'} ${l.name}`}
+            onClick={() =>
+              setCollapsed(c => {
+                const next = new Set(c);
+                if (next.has(l.id)) next.delete(l.id);
+                else next.add(l.id);
+                return next;
+              })
+            }
+          >
+            <Icon name="chevron-down" size={20} color="currentColor" />
+          </button>
+        ) : (
+          <span className={styles.chevronSpacer} aria-hidden />
+        )}
+        {link}
+      </span>
+    );
+  };
 
   return (
     <div className={styles.tab}>
       {info && <Toast type="info" title={info} onClose={() => setInfo(null)} />}
+      <PrototypeHelper title="Locations">
+        <HelperToggle flag="locations.empty" label="No locations" />
+      </PrototypeHelper>
       <section className={styles.card} aria-label="Locations">
         <p className={`text-small-regular ${styles.summary}`}>
           {totals.map(([label, value]) => (
@@ -211,8 +256,8 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
-              { value: 'activate', label: 'Activate selected', disabled: t.selectedRows.length === 0 },
-              { value: 'deactivate', label: 'Deactivate selected', disabled: t.selectedRows.length === 0 },
+              { value: 'activate', label: 'Activate', disabled: t.selectedRows.length === 0 },
+              { value: 'deactivate', label: 'Deactivate', disabled: t.selectedRows.length === 0 },
               { value: 'labels', label: 'Print barcode labels', disabled: t.selectedRows.length === 0 },
               { value: 'export', label: 'Export to CSV' },
             ],
@@ -238,7 +283,7 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
             label: 'Search by name or code (e.g. A-01-02)',
           }}
           trailing={
-            <Button size="small" variant="brand" onClick={() => setAdding({ parentId: null })}>
+            <Button size="small" variant="brand" icon="plus" onClick={() => setAdding({ parentId: null })}>
               Add Location
             </Button>
           }
@@ -250,141 +295,99 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
           </p>
         )}
 
-        <div className={table.tableScroll}>
-          <div role="table" aria-label="Warehouse locations" className={`${table.table} ${table.fillNarrow} ${table.moreVisible}`}>
-            <DataHeader className={table.head} corners="none" columns={cols.columns} leading="checkbox" {...t.headerProps} />
-            {t.pageRows.length === 0 && (
-              <p className={`text-medium-regular ${styles.emptyRow}`}>
-                {locations.length === 0 ? 'No locations yet. Use Add Location to add one.' : 'No locations match your search or view.'}
-              </p>
-            )}
-            {/* Top-level drop zone while dragging: drop here to move a location to the top level */}
-            {dragging && mode === 'tree' && (
-              <div
-                className={`text-small-regular ${styles.emptyRow}`}
-                data-drop={dropOn === 'top' || undefined}
-                onDragOver={e => {
-                  e.preventDefault();
-                  setDropOn('top');
-                }}
-                onDragLeave={() => setDropOn(null)}
-                onDrop={e => {
-                  e.preventDefault();
-                  move(dragging, null);
-                  setDragging(null);
-                  setDropOn(null);
-                }}
-              >
-                Drop here to move to the top level
-              </div>
-            )}
-            {t.pageRows.map((l, i) => {
-              const d = depth.get(l.id) ?? 1;
-              const parent = hasChildren(l);
-              const name =
-                mode === 'tree' ? (
-                  <span className={styles.treeName} data-parent={parent || undefined} style={{ ['--depth' as string]: d }}>
-                    {parent ? (
-                      <button
-                        type="button"
-                        className={styles.chevron}
-                        aria-expanded={!collapsed.has(l.id)}
-                        aria-label={`${collapsed.has(l.id) ? 'Expand' : 'Collapse'} ${l.name}`}
-                        onClick={() =>
-                          setCollapsed(c => {
-                            const next = new Set(c);
-                            if (next.has(l.id)) next.delete(l.id);
-                            else next.add(l.id);
-                            return next;
-                          })
-                        }
-                      >
-                        <Icon name="chevron-down" size={20} color="currentColor" />
-                      </button>
-                    ) : (
-                      <span className={styles.chevronSpacer} aria-hidden />
-                    )}
-                    <button type="button" className={styles.cellLink} onClick={() => open(l)}>
-                      {l.name}
-                    </button>
-                  </span>
-                ) : (
-                  <button type="button" className={styles.cellLink} onClick={() => open(l)}>
-                    {l.name}
-                  </button>
-                );
-              return (
-                <div
-                  key={l.id}
-                  className={table.rowWrap}
-                  data-stripe={i % 2 === 0 || undefined}
-                  data-inactive={!l.active || undefined}
-                  data-drop={dropOn === l.id || undefined}
-                  draggable={mode === 'tree'}
-                  onDragStart={e => {
+        {/* Top-level drop zone while dragging in the tree: drop here to move a location to the top level */}
+        {dragging && mode === 'tree' && (
+          <div
+            className={`text-small-regular ${styles.emptyRow}`}
+            data-drop={dropOn === 'top' || undefined}
+            onDragOver={e => {
+              e.preventDefault();
+              setDropOn('top');
+            }}
+            onDragLeave={() => setDropOn(null)}
+            onDrop={e => {
+              e.preventDefault();
+              move(dragging, null);
+              setDragging(null);
+              setDropOn(null);
+            }}
+          >
+            Drop here to move to the top level
+          </div>
+        )}
+        {/* Volt Data Table (Figma "Data Table" page), as on Contacts and Printers. In the tree, a row drags onto another
+            (rowProps); the ••• shows on every row, as in Figma's Locations screens. */}
+        <DataTable
+          aria-label="Warehouse locations"
+          className={table.fillNarrow}
+          columns={cols.columns}
+          rows={t.pageRows}
+          rowLabel={l => l.name}
+          sort={t.headerProps.sort}
+          onSortChange={t.headerProps.onSortChange}
+          {...t.selectProps}
+          inactive={l => !l.active}
+          actionsVisible
+          empty={locations.length === 0 ? 'No locations yet. Use Add Location to add one.' : 'No locations match your search or view.'}
+          onMore={l => setMenuFor(m => (m === l.id ? null : l.id))}
+          rowProps={l =>
+            mode === 'tree'
+              ? {
+                  draggable: true,
+                  'data-drop': dropOn === l.id || undefined,
+                  onDragStart: e => {
                     e.dataTransfer.setData('text/plain', l.id);
                     e.dataTransfer.effectAllowed = 'move';
                     setDragging(l.id);
-                  }}
-                  onDragEnd={() => {
+                  },
+                  onDragEnd: () => {
                     setDragging(null);
                     setDropOn(null);
-                  }}
-                  onDragOver={e => {
+                  },
+                  onDragOver: e => {
                     if (!dragging || dragging === l.id || !canMoveUnder(locations, dragging, l.id)) return;
                     e.preventDefault();
                     setDropOn(l.id);
-                  }}
-                  onDragLeave={() => setDropOn(d2 => (d2 === l.id ? null : d2))}
-                  onDrop={e => {
+                  },
+                  onDragLeave: () => setDropOn(d2 => (d2 === l.id ? null : d2)),
+                  onDrop: e => {
                     e.preventDefault();
                     if (dragging) move(dragging, l.id);
                     setDragging(null);
                     setDropOn(null);
-                  }}
-                >
-                  <DataRow
-                    className={table.row}
-                    columns={cols.columns}
-                    leading="checkbox"
-                    cells={{
-                      name,
-                      parent: l.parentId ? pathOf(locations, l.parentId) : '—',
-                      code: codeOf(locations, l.id),
-                      type: l.type || '—',
-                      items: items(l).toLocaleString('en-US'),
-                      utilization: utilizationText(l),
-                      rules: rules(l),
-                      status: status(l),
-                      add: canAddInside(l) ? (
-                        <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} />
-                      ) : null,
-                    }}
-                    {...t.rowSelect(l.id)}
-                    selectLabel={`Select ${l.name}`}
-                    moreLabel={`More actions for ${l.name}`}
-                    onMore={() => setMenuFor(m => (m === l.id ? null : l.id))}
-                  />
-                  {menuFor === l.id && (
-                    <RowMenu
-                      label={l.name}
-                      onClose={() => setMenuFor(null)}
-                      items={[
-                        { label: 'View', onSelect: () => open(l) },
-                        ...(canAddInside(l) ? [{ label: 'Add Location Inside', onSelect: () => setAdding({ parentId: l.id }) }] : []),
-                        ...(l.parentId ? [{ label: 'Move to Top Level', onSelect: () => move(l.id, null) }] : []),
-                        { label: l.frozen ? 'Unfreeze' : 'Freeze', onSelect: () => toggleRule(l, 'frozen') },
-                        { label: l.nonPickable ? 'Make Pickable' : 'Make Non-pickable', onSelect: () => toggleRule(l, 'nonPickable') },
-                        { label: l.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([l.id], !l.active) },
-                        { label: 'Remove', onSelect: () => setRemoving(l) },
-                      ]}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  },
+                }
+              : {}
+          }
+          renderAfterRow={l =>
+            menuFor === l.id && (
+              <RowMenu
+                label={l.name}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  { label: 'View', onSelect: () => open(l) },
+                  ...(canAddInside(l) ? [{ label: 'Add Location Inside', onSelect: () => setAdding({ parentId: l.id }) }] : []),
+                  ...(l.parentId ? [{ label: 'Move to Top Level', onSelect: () => move(l.id, null) }] : []),
+                  { label: l.frozen ? 'Unfreeze' : 'Freeze', onSelect: () => toggleRule(l, 'frozen') },
+                  { label: l.nonPickable ? 'Make Pickable' : 'Make Non-pickable', onSelect: () => toggleRule(l, 'nonPickable') },
+                  { label: l.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([l.id], !l.active) },
+                  { label: 'Remove', onSelect: () => setRemoving(l) },
+                ]}
+              />
+            )
+          }
+          cells={l => ({
+            name: nameCell(l),
+            parent: l.parentId ? pathOf(locations, l.parentId) : '—',
+            code: codeOf(locations, l.id),
+            type: l.type || '—',
+            items: items(l).toLocaleString('en-US'),
+            utilization: utilizationText(l),
+            rules: rules(l),
+            status: status(l),
+            add: canAddInside(l) ? <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} /> : null,
+          })}
+        />
         <Pager table={t} label="Location pages" />
       </section>
 
@@ -392,7 +395,7 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
       <AddLocationsModal
         open={adding !== null}
         parentId={adding?.parentId}
-        locations={locations}
+        locations={stored}
         warehouseName={warehouseName}
         onClose={() => setAdding(null)}
         onCreate={(list, printLabels) => {

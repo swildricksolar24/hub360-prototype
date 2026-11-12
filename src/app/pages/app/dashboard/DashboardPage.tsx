@@ -7,6 +7,8 @@ import { useAuth } from '../../../auth/AuthContext';
 import { INBOX_TITLES, type InboxKind } from '../../../shell/inbox';
 import { useShellInbox } from '../../../shell/InboxModal';
 import { findSection, sectionPath } from '../../../shell/navigation';
+import { useHelperFlag } from '../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../shell/PrototypeHelper';
 import styles from './DashboardPage.module.css';
 
 /**
@@ -71,6 +73,8 @@ function greeting(hour: number) {
  */
 export function DashboardPage() {
   const { user } = useAuth();
+  // Helper switch (set on the Account page): "No profile photo" shows initials here too
+  const noPhoto = useHelperFlag('account.noPhoto');
   const inventory = findSection('inventory');
   const now = new Date();
   const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -81,9 +85,14 @@ export function DashboardPage() {
 
   return (
     <div className={styles.page}>
+      {/* Applied in useInbox (InboxModal.tsx), so they reach the header badges and lists too */}
+      <PrototypeHelper title="Inbox">
+        <HelperToggle flag="inbox.empty" label="Empty inbox" />
+        <HelperToggle flag="inbox.allRead" label="All read" />
+      </PrototypeHelper>
       <section className={styles.welcome} aria-labelledby="welcome-title">
         <span className={styles.photo}>
-          <Avatar size="large" src={user?.photo || undefined} initials={user?.initials} label={user?.name} />
+          <Avatar size="large" src={(!noPhoto && user?.photo) || undefined} initials={user?.initials} label={user?.name} />
         </span>
         <div className={styles.welcomeText}>
           <p className={`text-medium-semi-bold ${styles.date}`}>{today}</p>

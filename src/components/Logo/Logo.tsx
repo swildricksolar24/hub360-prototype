@@ -8,6 +8,8 @@ import sideIcon from './parts/logo-side-icon.svg?raw';
  * (File:RecaptchaLogo.svg, public domain, Google trademark) with its viewBox cropped to the artwork.
  * Fills Figma binds to a variable were rewritten to `currentColor` so the variable can be applied in CSS:
  *  - parts/logo-side-icon.svg (Logo Side's icon): the four segments use "Logo Color"
+ *  - logo-hub360.svg (Logo Full, State=HUB360): the four teal sun segments, raw #00637C in Figma, follow "Logo Color"
+ *    like Logo Side's same mark, so they turn white in dark mode (the orange wordmark and sun stay as exported)
  *  - equal-housing-lender.svg, face-id.svg: "Gray Fill/Strong"
  */
 const svgs = import.meta.glob('./svg/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
@@ -16,6 +18,7 @@ const byName = Object.fromEntries(Object.entries(svgs).map(([path, svg]) => [pat
 export type LogoName =
   | 'logo-icon'
   | 'logo-full'
+  | 'logo-hub360'
   | 'logo-texala'
   | 'logo-side'
   | 'recaptcha'
@@ -28,6 +31,7 @@ export type LogoName =
 export const logoNames: LogoName[] = [
   'logo-icon',
   'logo-full',
+  'logo-hub360',
   'logo-side',
   'logo-texala',
   'recaptcha',
@@ -46,6 +50,7 @@ const SIDE_TEXT: Record<LogoSideBrand, string> = { 'HUB 360': 'HUB 360', 'SS 360
 const NATIVE_HEIGHT: Record<LogoName, number> = {
   'logo-icon': 80,
   'logo-full': 118,
+  'logo-hub360': 92,
   'logo-texala': 36,
   'logo-side': 60,
   recaptcha: 116,
@@ -58,6 +63,7 @@ const NATIVE_HEIGHT: Record<LogoName, number> = {
 const DEFAULT_LABEL: Record<LogoName, string> = {
   'logo-icon': 'Solar Suite 360',
   'logo-full': 'Solar Suite 360',
+  'logo-hub360': 'HUB360',
   'logo-texala': 'Texala Technologies',
   'logo-side': '',
   recaptcha: 'reCAPTCHA',
@@ -72,8 +78,19 @@ export type LogoProps = {
   name: LogoName;
   /** Logo Side `Brand` variant. Only used when `name` is `logo-side`. */
   brand?: LogoSideBrand;
-  /** Replaces Logo Side's brand text (e.g. "HUB360"). Only used when `name` is `logo-side`. */
+  /** Replaces Logo Side's brand text (e.g. "HUB360"). Only used when `name` is `logo-side`. `""` is the same as `iconOnly`. */
   text?: string;
+  /**
+   * Logo Side without its text: just the ring icon (segments follow `--color-logo-color`), with no gap or side padding.
+   * `height` is the icon's square box (default 44, Figma's icon size). Its accessible name is still the brand (`text`,
+   * else the `Brand` name) unless `label` says otherwise. Only used when `name` is `logo-side`.
+   */
+  iconOnly?: boolean;
+  /**
+   * `'light'` keeps the light-mode "Logo Color" in dark mode too ("Logo Color Static", teal #00637C), for Logo Side (icon and text) and
+   * logo-hub360's sun segments. Default `'auto'`: teal in light, white in dark.
+   */
+  colorMode?: 'auto' | 'light';
   /** Rendered height in px; width follows the artwork's aspect ratio. Defaults to the Figma size. */
   height?: number;
   /**
@@ -89,10 +106,30 @@ function scopeIds(svg: string, scope: string) {
   return svg.replace(/id="([^"]+)"/g, `id="${scope}$1"`).replace(/url\(#([^)]+)\)/g, `url(#${scope}$1)`);
 }
 
-export function Logo({ name, brand = 'HUB 360', text: textOverride, height, label, className }: LogoProps) {
+/** Logo Side's icon box in Figma (44px), the default height of an icon-only Logo Side. */
+const SIDE_ICON_SIZE = 44;
+
+export function Logo({ name, brand = 'HUB 360', text: textOverride, iconOnly, colorMode = 'auto', height, label, className }: LogoProps) {
   const scope = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const h = height ?? NATIVE_HEIGHT[name];
-  const classes = [styles.logo, className].filter(Boolean).join(' ');
+  const classes = [styles.logo, colorMode === 'light' && styles.lightColors, className].filter(Boolean).join(' ');
+
+  if (name === 'logo-side' && (iconOnly || textOverride === '')) {
+    const accessibleName = label ?? (textOverride || SIDE_TEXT[brand]);
+    const size = height ?? SIDE_ICON_SIZE;
+    return (
+      <span
+        className={[classes, styles.sideIconOnly].join(' ')}
+        style={{ width: size, height: size }}
+        data-name={name}
+        data-icon-only
+        role={accessibleName ? 'img' : undefined}
+        aria-label={accessibleName || undefined}
+        aria-hidden={accessibleName ? undefined : true}
+        dangerouslySetInnerHTML={{ __html: scopeIds(sideIcon, scope) }}
+      />
+    );
+  }
 
   if (name === 'logo-side') {
     const text = textOverride ?? SIDE_TEXT[brand];

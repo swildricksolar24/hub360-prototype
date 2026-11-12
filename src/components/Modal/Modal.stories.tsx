@@ -87,8 +87,9 @@ export const DialogModal: Story = {
 };
 
 /**
- * Header (one row, Figma Nov 2026): title and description on the left; the controls (a contained Toggle, a small
- * Dropdown and a small Button, then the close button, all 44px) on the right. The form's Selects are TextInputs here.
+ * Header (Figma Nov 2026): the title on the left and the controls (a contained Toggle, a small Dropdown and a small
+ * Button, then the close button, all 44px) on the right; the description runs the full width below them. The form's
+ * Selects are TextInputs here.
  */
 export const ModalDynamic: Story = {
   name: 'Modal - Dynamic',
@@ -119,6 +120,38 @@ export const ModalDynamic: Story = {
       <TextInput label="Label" placeholder="Placeholder" />
       <TextInput label="Label" placeholder="Select" />
       <TextInput label="Label" placeholder="Select" />
+    </ModalPanel>
+  ),
+  parameters: { ...figma('2684:8355', 'Modal* › Modal - Dynamic'), controls: { disable: true } },
+};
+
+/**
+ * A long description with header controls, at the app's 800px: the description takes the whole header width under
+ * the title row instead of wrapping beside the controls.
+ */
+export const LongDescription: Story = {
+  name: 'Modal - Dynamic › Long description',
+  render: () => (
+    <ModalPanel
+      variant="sectioned"
+      width={800}
+      title="Edit Contact"
+      description="Turning off Active deactivates this contact everywhere, including the CRM and all warehouses. To stop using it here only, use Remove from Warehouse."
+      headerActions={
+        <>
+          <Toggle contained label="Active" defaultChecked />
+          <Button size="small" variant="outline">View in CRM</Button>
+        </>
+      }
+      onClose={() => {}}
+      actions={
+        <>
+          <Button size="small" variant="outline">Cancel</Button>
+          <Button size="small" variant="brand">Save</Button>
+        </>
+      }
+    >
+      <TextInput label="Name" placeholder="Placeholder" />
     </ModalPanel>
   ),
   parameters: { ...figma('2684:8355', 'Modal* › Modal - Dynamic'), controls: { disable: true } },

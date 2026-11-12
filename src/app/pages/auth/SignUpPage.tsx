@@ -37,11 +37,11 @@ const REQUIRED = (Object.keys(FIELDS) as FieldKey[]).filter(k => FIELDS[k].requi
 
 /** Fictional details for the "Fill sample info" prototype button (example.com email, 555 phone number). */
 const SAMPLE: Record<FieldKey, string> = {
-  fullName: 'Oswald Cobblepot',
-  email: 'oswald@example.com',
+  fullName: 'Jordan Reyes',
+  email: 'jordan.reyes@example.com',
   phone: '(555) 010-2468',
-  company: 'Iceberg Solar LLC',
-  dba: 'Iceberg Solar',
+  company: 'Summit Solar LLC',
+  dba: 'Summit Solar',
   address1: '100 Harbor Way',
   address2: 'Suite 200',
   city: 'Austin',

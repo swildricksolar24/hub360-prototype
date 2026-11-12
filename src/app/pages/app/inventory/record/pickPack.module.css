@@ -41,18 +41,33 @@
 }
 
 /* "Start allocating [3] days before the order's [Due date]": one sentence with fields in it */
+/* One line: the words keep their width and the date drop down takes the rest */
 .sentence {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-8) var(--space-12);
+  gap: var(--space-12);
   padding: var(--space-16);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-sunken);
   color: var(--color-gray-text-strong);
 }
+.sentence > span {
+  flex: none;
+  white-space: nowrap;
+}
 .days {
   width: 96px; /* room for three digits and the stepper; a component dimension with no token */
+}
+.dateField {
+  flex: 1 1 0;
+  min-width: 140px; /* room for "Install date" and the chevron; a layout width with no token */
+}
+/*
+ * The cards stack into one column when a column would be under 610px, so the "Start allocating …" sentence (about
+ * 416px of words and days field + the 140px date drop down + the card's padding) always fits on one line.
+ */
+.columns.columns {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 610px), 1fr)); /* layout width, no token */
 }
 
 /* A setting with its on / off at the right */

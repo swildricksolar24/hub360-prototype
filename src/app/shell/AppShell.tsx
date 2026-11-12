@@ -3,14 +3,24 @@ import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { Footer } from '../../components/Footer/Footer';
 import { Header } from '../../components/Header/Header';
 import { Logo } from '../../components/Logo/Logo';
-import { NavTabBar } from '../../components/NavTabBar/NavTabBar';
+import { NavTabBar, NavTabSmall } from '../../components/NavTabBar/NavTabBar';
 import { NavTier1 } from '../../components/NavTier1/NavTier1';
 import { NavTier2 } from '../../components/NavTier2/NavTier2';
 import { AccountMenu } from './AccountMenu';
 import { AllTabsModal } from './AllTabsModal';
 import { capturePreview, whenIdle } from './tabPreviews';
 import { InboxModal, useInbox, type ShellContext } from './InboxModal';
-import { APP_VERSION, DEFAULT_SECTION, LEGAL_LINKS, SECTIONS, findSection, locationLabel, sectionPath } from './navigation';
+import { PrototypeHelperPanel, PrototypeHelperProvider, usePrototypeHelper } from './PrototypeHelper';
+import {
+  APP_VERSION,
+  DEFAULT_SECTION,
+  LEGAL_LINKS,
+  NEW_TAB_STATE,
+  SECTIONS,
+  findSection,
+  locationLabel,
+  sectionPath,
+} from './navigation';
 import { useMediaQuery } from './useMediaQuery';
 import styles from './AppShell.module.css';
 
@@ -56,9 +66,9 @@ export function AppShell() {
   const pageLabel = utility?.label ?? locationLabel(sectionId, pageId);
   const label = recordName ? `${pageLabel} · ${recordName}` : pageLabel;
 
-  // Figma's compact variants: Tier 1 compact on narrower screens, Tier 2 collapsed on the narrowest.
-  const tier1Compact = useMediaQuery('(max-width: 1439px)');
-  const tier2Collapsed = useMediaQuery('(max-width: 1199px)');
+  // Figma's compact variants: Tier 2 collapsed from 1280px down (so tables get about 140px more room at laptop
+  // widths). Tier 1's compact mode depends on Tier 2, not the width (see tier1Compact below).
+  const tier2Collapsed = useMediaQuery('(max-width: 1280px)');
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   // Tier 2 animation (not in Figma): when a section with Tier 2 pages opens, the menu's slot grows out of the
@@ -67,6 +77,9 @@ export function AppShell() {
   const tier2Slot = useRef<HTMLDivElement>(null);
   const hadTier2 = useRef(false);
   const hasTier2 = !!section?.pages;
+  // Tier 1 is compact while a selected section shows its Tier 2 menu beside it, and in its default (labelled) state
+  // when it's the only menu showing
+  const tier1Compact = hasTier2;
   useLayoutEffect(() => {
     const slot = tier2Slot.current;
     const opening = hasTier2 && !hadTier2.current;
@@ -113,9 +126,14 @@ export function AppShell() {
     }
   }, [pathname, navigate]);
 
+  // Only Tier 1 and Tier 2 (plus the header's Help, Account Settings and search, and the tab bar's +) open a new tab:
+  // they navigate with `state: { newTab: true }`. Everything else, e.g. opening a record (Tier 3) from a list, a link
+  // inside a page, a breadcrumb or Back, stays in the current tab and replaces its page. If the page is already open
+  // in another tab, that tab is shown instead and the current one is left as it was.
   // Like a browser's new tab, going somewhere from a blank tab fills that tab instead of opening another one.
-  // Navigating with `state: { replaceTab: true }` (a record's previous / next arrows, or leaving a deleted record)
-  // also reuses the current tab instead of opening another.
+  // `state: { replaceTab: true }` (a record's previous / next arrows, or leaving a deleted record) also closes the
+  // current tab when the page it goes to is already open in another.
+  const newTab = (state as { newTab?: boolean } | null)?.newTab === true;
   const replaceTab = (state as { replaceTab?: boolean } | null)?.replaceTab === true;
   const previousPath = useRef(pathname);
   useEffect(() => {
@@ -123,18 +141,18 @@ export function AppShell() {
     previousPath.current = pathname;
     if (pathname === '/app' || redirecting.current) return;
     setTabs(open => {
-      if (replaceTab && from !== pathname && open.some(t => t.id === from)) {
+      const fromOpen = from !== pathname && open.some(t => t.id === from);
+      if (replaceTab && fromOpen) {
         const others = open.filter(t => t.id !== from);
         if (others.some(t => t.id === pathname)) return others;
       } else if (open.some(t => t.id === pathname)) return open;
       const tab = { id: pathname, label: shortLabel, icon: tabIcon, title: label, blank: pathname.startsWith(NEW_TAB) };
-      if (replaceTab && open.some(t => t.id === from)) return open.map(t => (t.id === from ? tab : t));
       // (another + keeps the blank tab and opens a second one)
-      const fills = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
-      const blank = fills ? open.findIndex(t => t.id === from) : -1;
-      return blank >= 0 ? open.map((t, i) => (i === blank ? tab : t)) : [...open, tab];
+      const fillsBlank = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
+      const opensTab = (newTab || pathname.startsWith(NEW_TAB)) && !fillsBlank && !replaceTab;
+      return fromOpen && !opensTab ? open.map(t => (t.id === from ? tab : t)) : [...open, tab];
     });
-  }, [pathname, label, shortLabel, tabIcon, replaceTab]);
+  }, [pathname, label, shortLabel, tabIcon, newTab, replaceTab]);
 
   // The tab bar's +: a new blank tab after the others
   const newTabCount = useRef(0);
@@ -152,6 +170,11 @@ export function AppShell() {
 
   // The tab bar's "All tabs" button: every open tab as cards in a modal (Figma Shell file, "All Tabs Overview")
   const [allTabsOpen, setAllTabsOpen] = useState(false);
+
+  // The tab bar's Helper icon (beside All tabs) and its panel
+  const helper = usePrototypeHelper();
+  const setHelperOpen = helper.setOpen;
+  const closeHelper = useCallback(() => setHelperOpen(false), [setHelperOpen]);
 
   // Previews for those cards: a small picture of each tab's page content (<main>), taken while the tab is on screen,
   // since only the current tab's page is rendered. Taken about a second after a page loads (when the browser is
@@ -190,9 +213,9 @@ export function AppShell() {
     const q = e.currentTarget.value.trim().toLowerCase();
     if (!q) return;
     for (const s of SECTIONS) {
-      if (s.label.toLowerCase().includes(q)) return navigate(sectionPath(s));
+      if (s.label.toLowerCase().includes(q)) return navigate(sectionPath(s), NEW_TAB_STATE);
       const page = s.pages?.find(p => p.label.toLowerCase().includes(q));
-      if (page) return navigate(sectionPath(s, page.id));
+      if (page) return navigate(sectionPath(s, page.id), NEW_TAB_STATE);
     }
   }
 
@@ -217,13 +240,26 @@ export function AppShell() {
         }
         onHome={() => navigate('/app')}
         onAdd={openNewTab}
+        // The Helper icon, always beside All tabs (its panel holds the current page's helper, if it has one)
+        actions={
+          <NavTabSmall
+            icon="life-preserver"
+            label="Helper"
+            aria-haspopup="dialog"
+            aria-expanded={helper.open}
+            aria-controls="prototype-helper"
+            data-prototype-helper-toggle=""
+            onClick={() => setHelperOpen(o => !o)}
+          />
+        }
       />
       <Header
         className={styles.header}
         // The app name, then the current Tier 1 section (e.g. "HUB360 | Inventory"); utility pages show the name only
         logo={
           <span className={styles.brand}>
-            <Logo name="logo-side" text="HUB360" />
+            {/* colorMode="light": the icon and "HUB360" stay teal in dark mode too, like the sign-in icon */}
+            <Logo name="logo-side" text="HUB360" colorMode="light" />
             {section && <span className={styles.brandSection}>{section.label}</span>}
           </span>
         }
@@ -232,7 +268,7 @@ export function AppShell() {
           { id: 'notifications', icon: 'notification', label: 'Notifications', count: inbox.unread('notifications'), onClick: () => inbox.open('notifications') },
           { id: 'messages', icon: 'chat', label: 'Messages', count: inbox.unread('messages'), onClick: () => inbox.open('messages') },
           { id: 'email', icon: 'email', label: 'Email', count: inbox.unread('email'), onClick: () => inbox.open('email') },
-          { id: 'help', icon: 'question-mark-help', label: 'Help', onClick: () => navigate('/app/help') },
+          { id: 'help', icon: 'question-mark-help', label: 'Help', onClick: () => navigate('/app/help', NEW_TAB_STATE) },
         ]}
         avatar={<AccountMenu />}
       />
@@ -243,7 +279,7 @@ export function AppShell() {
           value={section?.id}
           onChange={id => {
             const next = findSection(id);
-            if (next) navigate(sectionPath(next));
+            if (next) navigate(sectionPath(next), NEW_TAB_STATE);
           }}
           compact={tier1Compact}
           // Bigger than Figma's 24 / 16px: the design system's next icon size up
@@ -256,7 +292,7 @@ export function AppShell() {
               aria-label={section.label}
               items={section.pages}
               value={pageId}
-              onChange={id => navigate(sectionPath(section, id))}
+              onChange={id => navigate(sectionPath(section, id), NEW_TAB_STATE)}
               variant={tier2Collapsed ? 'collapsed' : 'default'}
               // The design system's 20px icon size (Figma draws 24px), in the same 38px box
               iconSize={20}
@@ -264,7 +300,9 @@ export function AppShell() {
           </div>
         )}
         <main className={styles.content} id="main">
-          <Outlet context={{ inbox } satisfies ShellContext} />
+          <PrototypeHelperProvider slot={helper.slot}>
+            <Outlet context={{ inbox } satisfies ShellContext} />
+          </PrototypeHelperProvider>
         </main>
       </div>
       <Footer
@@ -273,6 +311,7 @@ export function AppShell() {
         version={`Version: ${APP_VERSION}`}
         links={LEGAL_LINKS}
       />
+      <PrototypeHelperPanel open={helper.open} available={helper.available} onClose={closeHelper} setTarget={helper.setTarget} />
       <AllTabsModal
         open={allTabsOpen}
         tabs={tabs}

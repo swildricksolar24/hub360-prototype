@@ -63,6 +63,40 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
+/*
+ * An element value (a control, link, pill…) takes the cell's full width: a block control (EditableCell, an input)
+ * stretches to the column; inline ones (a pill, a Toggle) keep their size and follow the cell's alignment. It is never
+ * clamped or clipped, so a 44px control and its focus ring show in full.
+ */
+.value[data-fill] {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.item:is([data-wrap], [data-clamp]) .value[data-fill] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* The extra padding of wrapping cells is for wrapped text; a control already brings its own height */
+.item[data-wrap]:has(> .value[data-fill]) {
+  padding-block: 0;
+}
+/*
+ * Flexible columns (a `width` with a `minWidth`): at their preferred width a text value stays on one line; when the
+ * column shrinks it wraps onto up to 2 lines, and the second line ends with an ellipsis if it is still too long.
+ */
+.item[data-clamp] {
+  min-width: 0;
+}
+.item[data-clamp] .value[data-text] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 /* ---------- Slot* ---------- */
 

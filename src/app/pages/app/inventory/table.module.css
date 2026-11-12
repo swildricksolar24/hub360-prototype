@@ -35,25 +35,28 @@
   min-width: var(--table-fill-min, 100px); /* layout width, no token */
 }
 /* No frame or fill of its own: the table sits straight on its card */
+/* As wide as the shown columns' minimums (useFittingColumns sets --table-min-width on the scroll box), so 'fill'
+   columns shrink to their minWidth instead of all growing to the widest header label; min-content without the hook */
 .table {
-  min-width: min-content;
+  min-width: var(--table-min-width, min-content);
 }
 /*
- * Header and rows: 24px side insets and 16px between cells. In a table with a checkbox column, Figma's first column
- * is just the 20px box: the leading cell is narrowed to its 8px inset + the box (the checkbox's 44px hit area spills
- * into the gap after it), and the rows start 16px in, so the box sits 24px from the edge and the first value 16px
- * after it.
+ * Header and rows: Volt's --table-inset and --table-gap (defined with DataHeader: 24 / 16, then 16 / 12 at 1024px and
+ * 12 / 8 at 767px, shrinking with the page padding), the same as DataTable. In a table with a checkbox column, Figma's
+ * first column is just the 20px box: the leading cell is narrowed to its 8px inset + the box (the checkbox's 44px hit
+ * area spills into the gap after it), and the rows start 8px further in than the inset (16px), so the box sits at the
+ * inset from the edge and the first value one gap after it.
  */
 .head,
 .row {
-  gap: var(--space-16);
-  padding-inline: var(--space-24);
+  gap: var(--table-gap);
+  padding-inline: var(--table-inset);
 }
 .table:has(.row > [role='cell']:first-child input[type='checkbox']) {
   --data-leading-width: 28px; /* 8px inset + Figma's 20px checkbox; component dimension, no token */
 }
 .table:has(.row > [role='cell']:first-child input[type='checkbox']) :is(.head, .row) {
-  padding-left: var(--space-16);
+  padding-left: calc(var(--table-inset) - var(--space-8));
 }
 /* Lets the leading cell be narrower than the checkbox's hit area (which overflows into the gap) */
 .table:has(.row > [role='cell']:first-child input[type='checkbox']) :is(.head, .row) > :first-child {
@@ -73,14 +76,21 @@
   line-height: var(--line-height-small);
 }
 /* Sort and filter icons fade in while the pointer is over the header (or one has focus), and stay on the column that's
-   sorted or filtered. The select-all checkbox (the leading cell's first child) is never hidden. */
+   sorted or filtered. While hidden they take no width, so the label uses the whole column (as Volt's DataTable). The
+   select-all checkbox (the leading cell's first child) is never hidden. */
 .head [role='columnheader'] > :not(:first-child) {
+  flex-shrink: 0;
+  max-width: 0;
+  overflow: hidden;
   opacity: 0;
-  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity 240ms cubic-bezier(0.2, 0, 0, 1),
+    max-width 240ms cubic-bezier(0.2, 0, 0, 1);
 }
 .head:is(:hover, :focus-within) [role='columnheader'] > :not(:first-child),
 .head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) > :not(:first-child),
 .head [role='columnheader'] > [aria-pressed='true'] {
+  max-width: 24px; /* the icons' own 24px (component dimension, no token) */
   opacity: 1;
 }
 .head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) {
@@ -137,9 +147,6 @@
   .row button[aria-label^='More actions'] {
     transition: none;
   }
-}
-.skeletonRow {
-  padding: var(--space-16) var(--space-24);
 }
 
 /* Status: a 10px dot and the text. Active is a Brand Orange Fill/Strong dot with strong text; anything else is a

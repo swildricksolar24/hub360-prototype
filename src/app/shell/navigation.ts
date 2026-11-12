@@ -40,6 +40,13 @@ export const SECTIONS: NavSection[] = [
 
 export const DEFAULT_SECTION = 'dashboard';
 
+/**
+ * Navigate options that open the page in a new app tab: Tier 1, Tier 2 and the header (Help, Account Settings,
+ * search) pass it. Any other navigation (a record opened from a list, a link inside a page, a breadcrumb, Back)
+ * stays in the current tab. See AppShell's tabs effect.
+ */
+export const NEW_TAB_STATE = { state: { newTab: true } };
+
 export function findSection(id: string | undefined) {
   return SECTIONS.find(s => s.id === id);
 }

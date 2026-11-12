@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, KeyboardEvent } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './NavTabBar.module.css';
@@ -150,6 +150,11 @@ export type NavTabBarProps = {
    * overview of every open tab.
    */
   onShowAll?: () => void;
+  /**
+   * Extra buttons at the right end of the bar, just left of All tabs (e.g. a NavTabSmall that opens a panel). Not in
+   * Figma. They stay at the far right whether or not All tabs shows.
+   */
+  actions?: ReactNode;
   /** Shows the leading Home button. */
   onHome?: () => void;
   /** Shows the trailing "+" button. */
@@ -171,6 +176,7 @@ export function NavTabBar({
   onClose,
   onReorder,
   onShowAll,
+  actions,
   onHome,
   onAdd,
   showAllLabel,
@@ -556,14 +562,18 @@ export function NavTabBar({
         )}
       </div>
       {onAdd && <NavTabSmall icon="plus" label={addLabel} onClick={onAdd} />}
-      {onShowAll && (
-        <NavTabSmall
-          icon="dashboard"
-          label={showAllLabel ?? `All tabs (${tabs.length})`}
-          aria-haspopup="dialog"
-          className={styles.showAll}
-          onClick={onShowAll}
-        />
+      {(actions || onShowAll) && (
+        <div className={styles.end}>
+          {actions}
+          {onShowAll && (
+            <NavTabSmall
+              icon="dashboard"
+              label={showAllLabel ?? `All tabs (${tabs.length})`}
+              aria-haspopup="dialog"
+              onClick={onShowAll}
+            />
+          )}
+        </div>
       )}
     </div>
   );

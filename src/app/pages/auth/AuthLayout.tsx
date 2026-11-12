@@ -13,13 +13,17 @@ type AuthLayoutProps = {
   children: ReactNode;
   /** Links under the card ("Don’t have an account? Sign Up", "Forgot Password"). */
   below?: ReactNode;
-  /** Sign Up uses a wider card (Figma: 640px, 48px padding). */
+  /** Sign Up: more room between the form's sections (every auth card is the same 640px width). */
   wide?: boolean;
   /** Extra prototype controls shown under the theme toggle (e.g. "Use demo account"). */
   tools?: ReactNode;
 };
 
-/** Figma "Sign In (Desktop Only)": Surfaces/Base page, Logo Full, a 520px Surfaces/Overlay card, links below. */
+/**
+ * Figma "Sign In (Desktop Only)": Surfaces/Base page, the HUB360 ring icon (Figma shows Logo Full, Solar Suite 360), a
+ * Surfaces/Overlay card, links below. Every auth
+ * screen top-aligns (so the logo never moves) and uses the same 640px card.
+ */
 export function AuthLayout({ pageTitle, title, subtitle, alert, children, below, wide = false, tools }: AuthLayoutProps) {
   useEffect(() => {
     document.title = `HUB360 · ${pageTitle}`;
@@ -32,8 +36,9 @@ export function AuthLayout({ pageTitle, title, subtitle, alert, children, below,
         <ThemeToggle contained />
         {tools}
       </div>
-      {/* Figma Logo Full instance: 318×118 */}
-      <Logo name="logo-full" height={118} />
+      {/* The HUB360 ring icon alone (Logo Icon: its segments stay teal in light and dark), at the old Logo Full's 118px
+          height so the card below keeps its place */}
+      <Logo name="logo-icon" label="HUB360" height={118} />
       <section className={styles.card} data-wide={wide || undefined} aria-labelledby="auth-title">
         {alert}
         <header className={styles.heading}>

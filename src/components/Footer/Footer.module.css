@@ -1,7 +1,7 @@
 /*
  * Figma "Footer" (Components / Navigation › - Footer, 1544:2832): Surfaces/Base with a 1px Gray Stroke/Disabled line
- * on top, 12/24 padding, 42px tall. Version and links are Small/Regular, the copyright Tiny/Regular, all Gray
- * Text/Strong; the "|" separators are Gray Text/Disabled.
+ * on top, 12/24 padding, 42px tall. Copyright, version and links are all Small/Regular Gray Text/Strong (Figma,
+ * Nov 2026); the "|" separators are Gray Text/Disabled.
  */
 .footer {
   display: flex;
@@ -22,23 +22,27 @@
 .version {
   margin: 0;
 }
-/* Figma: Tiny/Regular */
-.copyright {
-  font-size: var(--font-size-tiny);
-  line-height: var(--line-height-tiny);
-}
-/* Copyright and links share the remaining width equally, which centers the version text (as in Figma) */
+/*
+ * The version is centered between the copyright and the links (not on the footer): the copyright and the links keep
+ * their own one-line width, and the version takes all the space between them with its text centered, 24px from each.
+ * Figma only approximates this with a fixed-width copyright box. The app shell's 1024px minimum leaves ample room
+ * (about 812px used).
+ */
 .copyright,
 .nav {
-  flex: 1 1 0;
+  flex: none;
+  white-space: nowrap;
 }
 .version {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
   white-space: nowrap;
 }
 
 .links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   margin: 0;
   padding: 0;

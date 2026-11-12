@@ -35,6 +35,16 @@
   outline: none;
 }
 
+/*
+ * small (Figma `Size=Small`, added 2026-11-12): the toolbar size, beside Button Small and Dropdown small. 12px above
+ * and below, 20px at the sides, Medium/Regular text = 44px.
+ */
+.group[data-size='small'] > .item {
+  padding: var(--space-12) var(--space-20);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
 /* ---------- Horizontal: Left / Center / Right ---------- */
 
 .group[data-orientation='horizontal'] > .item:first-child {
@@ -78,10 +88,7 @@
 .item:hover {
   --bg: var(--color-gray-fill-hover);
 }
-/* Press, Focus and Disabled are not in Figma; they follow Button › Primary */
-.item:active {
-  --bg: var(--color-gray-fill-press);
-}
+/* Focus and Disabled are not in Figma; they follow Button › Primary. Press (below) follows Button › Brand. */
 .item:focus-visible {
   --bg: var(--color-gray-fill-hover);
   --ring: var(--color-gray-stroke-weaker);
@@ -91,6 +98,33 @@
   --bg: var(--color-gray-fill-disabled);
   --fg: var(--color-gray-text-disabled);
   cursor: not-allowed;
+}
+
+/*
+ * Selected (aria-pressed="true", a switch's chosen part; Figma Part - Horizontal `State=Left / Center / Right
+ * Selected`): Brand Teal Fill/Strong with white text, Heading 4/Bold (Default) or Medium/Semi-Bold (Small). Figma uses
+ * Foundation/Solid/White directly; there is no semantic "text on brand" token. Hover and press are code-only.
+ */
+.item[aria-pressed='true'] {
+  --bg: var(--color-brand-teal-fill-strong);
+  --fg: var(--color-foundation-solid-white);
+  font-weight: 700;
+}
+.group[data-size='small'] > .item[aria-pressed='true'] {
+  font-weight: 600;
+}
+.item[aria-pressed='true']:is(:hover, :focus-visible) {
+  --bg: var(--color-brand-teal-fill-hover);
+}
+/*
+ * Press (not in Figma): every part, selected or not, presses like the teal Button › Brand: Brand Teal Fill/Press,
+ * white text and a 2px Gray Stroke/Weaker ring (inset, beside the divider, so nothing shifts). Disabled parts don't press.
+ */
+.item:active:not(:disabled) {
+  --bg: var(--color-brand-teal-fill-press);
+  --fg: var(--color-foundation-solid-white);
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
 }
 
 /* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */

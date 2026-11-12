@@ -5,12 +5,16 @@ import { ContextMenu } from '../../components/ContextMenu/ContextMenu';
 import { useAuth } from '../auth/AuthContext';
 import { AppModal } from '../components/AppModal';
 import { useTheme } from '../theme';
+import { useHelperFlag } from './helperFlags';
+import { NEW_TAB_STATE } from './navigation';
 import styles from './AccountMenu.module.css';
 import { useMediaQuery } from './useMediaQuery';
 
 /** The header avatar (Figma: "Account Settings") with Account Settings, theme and Sign Out (confirmed in an AppModal). */
 export function AccountMenu() {
   const { user, signOut } = useAuth();
+  // Helper switch (set on the Account page): "No profile photo" shows initials here too
+  const noPhoto = useHelperFlag('account.noPhoto');
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
   // Theme switches between Light and Dark only; until it's used, it shows the system theme (like ThemeToggle)
@@ -46,8 +50,8 @@ export function AccountMenu() {
         aria-label={`Account: ${user?.name ?? ''}`}
         onClick={() => setOpen(o => !o)}
       >
-        {/* Photo when the account has one, otherwise initials */}
-        <Avatar size="medium" src={user?.photo || undefined} initials={user?.initials ?? '?'} label="" />
+        {/* Photo when the account has one, otherwise initials (and while the Helper's "No profile photo" switch is on) */}
+        <Avatar size="medium" src={(!noPhoto && user?.photo) || undefined} initials={user?.initials ?? '?'} label="" />
       </button>
       {open && (
         <ContextMenu
@@ -56,7 +60,7 @@ export function AccountMenu() {
           autoFocus
           onClose={close}
           items={[
-            { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account') },
+            { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account', NEW_TAB_STATE) },
             // A command: the label ("Light Mode" / "Dark Mode") and Volt's Mode Light (sun) / Mode Dark (moon) icon name the theme it switches to
             { label: dark ? 'Light Mode' : 'Dark Mode', icon: dark ? 'mode-light' : 'mode-dark', onSelect: () => setTheme(dark ? 'light' : 'dark') },
             { label: 'Sign Out', icon: 'sign-out', onSelect: () => setConfirmSignOut(true) },

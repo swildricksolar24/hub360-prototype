@@ -5,6 +5,8 @@ import { LEADING_WIDTH, columnStyle, type DataColumn, type DataLeading, type Dat
 import styles from './DataHeader.module.css';
 
 export type { DataColumn, DataLeading, DataSort, SortDirection } from './columns';
+export { FILL_MIN_WIDTH } from './columns';
+export { useFittingColumns, type FittingColumnsOptions } from './useFittingColumns';
 
 /* ---------- Header Item ---------- */
 
@@ -26,6 +28,8 @@ export type HeaderItemProps = {
   onFilter?: () => void;
   /** Shows the "Filter - Active" icon. */
   filterActive?: boolean;
+  /** The column's key, set as `data-column` (useFittingColumns tells column cells from the checkbox and ••• cells). */
+  columnKey?: string;
   style?: CSSProperties;
   className?: string;
 };
@@ -41,6 +45,7 @@ export function HeaderItem({
   onSort,
   onFilter,
   filterActive = false,
+  columnKey,
   style,
   className,
 }: HeaderItemProps) {
@@ -51,6 +56,7 @@ export function HeaderItem({
       aria-sort={sortable ? sortDirection ?? 'none' : undefined}
       className={[styles.item, className].filter(Boolean).join(' ')}
       data-align={align}
+      data-column={columnKey}
       style={style}
     >
       <span className={labelHidden ? styles.srOnly : styles.label}>{label}</span>
@@ -138,6 +144,7 @@ export function DataHeader({
           onSort={onSortChange && (() => onSortChange(column.key))}
           onFilter={onFilter && (() => onFilter(column.key))}
           filterActive={activeFilters.includes(column.key)}
+          columnKey={column.key}
           style={columnStyle(column)}
         />
       ))}

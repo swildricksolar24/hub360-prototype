@@ -11,6 +11,7 @@ import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { Tooltip } from '../../../../../components/Tooltip/Tooltip';
 import { Status } from '../../../../../components/Status/Status';
 import { AppModal } from '../../../../components/AppModal';
+import { itemPath, itemRecordFor } from '../items/itemStore';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 
@@ -38,11 +39,14 @@ export function useTableControls<T extends { id: string }>(
     search,
     sortValue,
     filter,
+    pinFirst,
     paged = true,
   }: {
     search: (row: T) => string;
     sortValue: (row: T, key: string) => string | number;
     filter?: (row: T) => boolean;
+    /** Rows that always come first, whatever the sort (e.g. the primary contact); the rest keep their order. */
+    pinFirst?: (row: T) => boolean;
     paged?: boolean;
   },
 ) {
@@ -62,6 +66,7 @@ export function useTableControls<T extends { id: string }>(
       return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'en', { numeric: true })) * dir;
     });
   }
+  if (pinFirst) rows = [...rows.filter(pinFirst), ...rows.filter(r => !pinFirst(r))];
   const pageCount = paged ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
   const current = Math.min(page, pageCount);
   const pageRows = paged ? rows.slice((current - 1) * pageSize, current * pageSize) : rows;
@@ -104,6 +109,8 @@ export function useTableControls<T extends { id: string }>(
     },
     /** Props for one DataRow's checkbox. */
     rowSelect: (id: string) => ({ selected: selected.has(id), onSelectedChange: (on: boolean) => toggle(id, on) }),
+    /** Volt DataTable's selection props (`selected` ids and `onSelectedChange`), for tables built on DataTable. */
+    selectProps: { selected: [...selected], onSelectedChange: (ids: string[]) => setSelected(new Set(ids)) },
   };
 }
 export type TableControls<T extends { id: string }> = ReturnType<typeof useTableControls<T>>;
@@ -122,6 +129,15 @@ export function Pager<T extends { id: string }>({ table: t, label }: { table: Ta
       label={label}
     />
   );
+}
+
+/**
+ * A row menu's "View in Items": opens the item's record in Items (matched by name, itemRecordFor). An item Items
+ * doesn't have gets no option, so the menu never leads to a list or a missing record.
+ */
+export function viewInItems(name: string | undefined, navigate: (path: string) => void) {
+  const record = itemRecordFor(name);
+  return record ? [{ label: 'View in Items', onSelect: () => navigate(itemPath(record.id)) }] : [];
 }
 
 /** A row's Active / Inactive status: Volt's Status (a dot and the word). `data-status` lets table.module.css start it at the left of its cell. */
@@ -282,7 +298,7 @@ export function TableToolbar({
   );
 }
 
-/** Figma's segmented switch (ButtonGroup), at the toolbar's 44px height; the chosen part is pressed. */
+/** Figma's segmented switch (ButtonGroup Size=Small), at the toolbar's 44px height; the chosen part is pressed. */
 export function Segmented<V extends string>({
   label,
   options,
@@ -295,9 +311,9 @@ export function Segmented<V extends string>({
   onChange: (value: V) => void;
 }) {
   return (
-    <ButtonGroup aria-label={label} className={styles.segmented}>
+    <ButtonGroup size="small" aria-label={label} className={styles.segmented}>
       {options.map(o => (
-        <ButtonGroupItem key={o.value} className={styles.segment} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
+        <ButtonGroupItem key={o.value} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
           {o.label}
         </ButtonGroupItem>
       ))}
@@ -306,7 +322,16 @@ export function Segmented<V extends string>({
 }
 
 /** A brand button with a ▾ that opens a menu (Figma "Add New ▾", "Add Item ▾"). Escape returns focus to the button. */
-export function MenuButton({ label, items }: { label: string; items: { label: string; icon?: string; onSelect: () => void }[] }) {
+export function MenuButton({
+  label,
+  icon,
+  items,
+}: {
+  label: string;
+  /** An icon before the label (e.g. "plus" on Add Item), in place of the ▾ chevron after it; Volt's Button holds one icon */
+  icon?: string;
+  items: { label: string; icon?: string; onSelect: () => void }[];
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -319,7 +344,15 @@ export function MenuButton({ label, items }: { label: string; items: { label: st
   }, [open]);
   return (
     <div ref={ref} className={styles.menuButton}>
-      <Button size="small" variant="brand" icon="chevron-down" iconPosition="right" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(o => !o)}>
+      <Button
+        size="small"
+        variant="brand"
+        icon={icon ?? 'chevron-down'}
+        iconPosition={icon ? 'left' : 'right'}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen(o => !o)}
+      >
         {label}
       </Button>
       {open && (

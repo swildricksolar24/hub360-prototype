@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Button } from '../Button/Button';
+import { Dropdown } from '../Dropdown/Dropdown';
 import { ButtonGroup, ButtonGroupItem } from './ButtonGroup';
 import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
@@ -6,9 +9,10 @@ import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 const meta = {
   title: 'Components/Forms/ButtonGroup',
   component: ButtonGroup,
-  args: { orientation: 'horizontal', 'aria-label': 'Options', children: null },
+  args: { orientation: 'horizontal', size: 'default', 'aria-label': 'Options', children: null },
   argTypes: {
     orientation: { control: 'inline-radio', options: ['horizontal', 'vertical'] },
+    size: { control: 'inline-radio', options: ['default', 'small'] },
     children: { control: false },
   },
 } satisfies Meta<typeof ButtonGroup>;
@@ -28,18 +32,21 @@ export const Playground: Story = {
 
 /**
  * The parts on their own: the group is spread apart so each part's corners and hairline divider show,
- * like the Figma part sets. Default and Hover rows.
+ * like the Figma part sets. Default, Hover and Selected rows (Figma), plus Press (code only: like the teal
+ * Button › Brand, for selected and unselected parts alike).
  */
 export const PartHorizontal: Story = {
   render: () => (
     <StateGrid
       direction="column"
-      states={['Default', 'Hover']}
-      render={() => (
+      states={['Default', 'Hover', 'Selected', 'Press']}
+      render={state => (
         <ButtonGroup aria-label="Parts" style={{ gap: 'var(--space-24)' }}>
-          <ButtonGroupItem>Label</ButtonGroupItem>
-          <ButtonGroupItem>Label</ButtonGroupItem>
-          <ButtonGroupItem>Label</ButtonGroupItem>
+          {[1, 2, 3].map(i => (
+            <ButtonGroupItem key={i} aria-pressed={state === 'Selected' || undefined}>
+              Label
+            </ButtonGroupItem>
+          ))}
         </ButtonGroup>
       )}
     />
@@ -50,7 +57,7 @@ export const PartHorizontal: Story = {
 export const PartVertical: Story = {
   render: () => (
     <StateGrid
-      states={['Default', 'Hover']}
+      states={['Default', 'Hover', 'Press']}
       render={() => (
         <ButtonGroup aria-label="Parts" orientation="vertical" style={{ gap: 'var(--space-24)', width: 132 }}>
           <ButtonGroupItem>Label</ButtonGroupItem>
@@ -92,4 +99,38 @@ export const Horizontal: Story = {
 export const Vertical: Story = {
   render: () => positionsGrid('vertical', ['Default', 'Top', 'Center', 'Bottom']),
   parameters: { ...figma('523:821', 'Button Group › Button Group / Vertical*'), pseudo: { hover: ['.sb-hover'] }, controls: { disable: true } },
+};
+
+/**
+ * Figma Part - Horizontal `Size=Small` and the Selected states: the toolbar switch (Overview | Stock) at 44px, beside a
+ * small Button and Dropdown so the heights can be compared. The chosen part has `aria-pressed="true"`.
+ */
+export const SmallSwitch: Story = {
+  render: function Render() {
+    const [mode, setMode] = useState('overview');
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)', alignItems: 'flex-start' }}>
+        {(['default', 'small'] as const).map(size => (
+          <div key={size} style={{ display: 'flex', gap: 'var(--space-12)', alignItems: 'center' }}>
+            <ButtonGroup aria-label={`Show (${size})`} size={size}>
+              {['overview', 'stock', 'structure'].map(v => (
+                <ButtonGroupItem key={v} aria-pressed={mode === v} onClick={() => setMode(v)}>
+                  {v[0].toUpperCase() + v.slice(1)}
+                </ButtonGroupItem>
+              ))}
+            </ButtonGroup>
+            {size === 'small' && (
+              <>
+                <Dropdown variant="small" label="View" hideLabel placeholder="View All" options={[{ value: 'all', label: 'View All' }]} />
+                <Button variant="primary" size="small" icon="upload">
+                  Upload
+                </Button>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  },
+  parameters: { ...figma('28:751', 'Button Group › Part - Horizontal'), controls: { disable: true } },
 };

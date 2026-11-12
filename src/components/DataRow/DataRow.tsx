@@ -1,7 +1,7 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { isValidElement, type CSSProperties, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import { DataCheckbox } from '../DataHeader/DataCheckbox';
-import { LEADING_WIDTH, columnStyle, type DataColumn, type DataLeading } from '../DataHeader/columns';
+import { LEADING_WIDTH, columnStyle, isFlexibleColumn, type DataColumn, type DataLeading } from '../DataHeader/columns';
 import styles from './DataRow.module.css';
 
 export type { DataColumn, DataLeading } from '../DataHeader/columns';
@@ -14,26 +14,41 @@ export type RowItemProps = {
   /** Figma `Show Slot`: extra content after the value, e.g. a RowSlot. */
   slot?: ReactNode;
   align?: DataColumn['align'];
-  /** Lets long values wrap (fill columns, e.g. the Notes text). Otherwise the value stays on one line. */
-  wrap?: boolean;
+  /**
+   * Lets long values wrap: `true` (fill columns, e.g. the Notes text) wraps freely; `2` (flexible columns below their
+   * preferred width) wraps onto at most 2 lines and ends the second with an ellipsis. Otherwise the value stays on one line.
+   */
+  wrap?: boolean | 2;
   /** No side padding: the value (e.g. a button) reaches the cell's edges. */
   flush?: boolean;
+  /** The column's key, set as `data-column` (useFittingColumns tells column cells from the checkbox and ••• cells). */
+  columnKey?: string;
   style?: CSSProperties;
   className?: string;
 };
 
 /** Figma "Row Item" (Data Rows*): one cell, 8px padding, Medium/Regular text. */
-export function RowItem({ value, slot, align = 'start', wrap = false, flush = false, style, className }: RowItemProps) {
+export function RowItem({ value, slot, align = 'start', wrap = false, flush = false, columnKey, style, className }: RowItemProps) {
+  // Text (a string or number) clamps and wraps; an element (a control, link, pill…) gets the cell's full width instead,
+  // so a block control like EditableCell stretches to the column, and is never clamped or clipped.
+  const isText = typeof value === 'string' || typeof value === 'number';
+  const fill = !isText && isValidElement(value) && !slot;
   return (
     <div
       role="cell"
       className={[styles.item, className].filter(Boolean).join(' ')}
       data-align={align}
-      data-wrap={wrap || undefined}
+      data-wrap={wrap === true || undefined}
+      data-clamp={wrap === 2 || undefined}
       data-flush={flush || undefined}
+      data-column={columnKey}
       style={style}
     >
-      {value !== undefined && value !== null && value !== false && <span className={styles.value}>{value}</span>}
+      {value !== undefined && value !== null && value !== false && (
+        <span className={styles.value} data-text={isText || undefined} data-fill={fill || undefined}>
+          {value}
+        </span>
+      )}
       {slot}
     </div>
   );
@@ -107,6 +122,8 @@ export type DataRowProps = {
   onMore?: () => void;
   /** Accessible name of the "More" button. Default "More actions". */
   moreLabel?: string;
+  /** Accessible name of the row, e.g. "Totals" for a summary row. */
+  'aria-label'?: string;
   className?: string;
 };
 
@@ -122,11 +139,12 @@ export function DataRow({
   actions = true,
   onMore,
   moreLabel = 'More actions',
+  'aria-label': ariaLabel,
   className,
 }: DataRowProps) {
   const width = leadingWidth ?? LEADING_WIDTH[leading];
   return (
-    <div role="row" aria-selected={selected} className={[styles.row, className].filter(Boolean).join(' ')}>
+    <div role="row" aria-selected={selected} aria-label={ariaLabel} className={[styles.row, className].filter(Boolean).join(' ')}>
       {leading !== 'none' && (
         <div role="cell" className={styles.leading} style={{ flex: `0 0 var(--data-leading-width, ${width}px)` }}>
           <DataCheckbox label={selectLabel} checked={selected} onChange={onSelectedChange && (checked => onSelectedChange(checked))} />
@@ -134,7 +152,15 @@ export function DataRow({
         </div>
       )}
       {columns.map(column => (
-        <RowItem key={column.key} value={cells[column.key]} align={column.align} wrap={column.width === 'fill'} flush={column.flush} style={columnStyle(column)} />
+        <RowItem
+          key={column.key}
+          value={cells[column.key]}
+          align={column.align}
+          wrap={isFlexibleColumn(column) ? 2 : column.width === 'fill'}
+          flush={column.flush}
+          columnKey={column.key}
+          style={columnStyle(column)}
+        />
       ))}
       {actions && (
         <div role="cell" className={styles.actions}>

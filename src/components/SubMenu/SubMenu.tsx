@@ -18,6 +18,8 @@ export type SubMenuProps = {
   variant?: SubMenuVariant;
   /** Accessible name of the `<nav>` landmark. */
   'aria-label'?: string;
+  /** Extra item at the end of the row, e.g. a "More" menu for the buttons that don't fit (NavTier3). */
+  trailing?: ReactNode;
   className?: string;
 };
 
@@ -28,7 +30,7 @@ const BUTTON = {
 } as const;
 
 /** Figma Interior Nav "Sub Menu": a row of buttons that switch between the sections of a page. */
-export function SubMenu({ items, value, onChange, variant = 'default', 'aria-label': ariaLabel = 'Sub menu', className }: SubMenuProps) {
+export function SubMenu({ items, value, onChange, variant = 'default', 'aria-label': ariaLabel = 'Sub menu', trailing, className }: SubMenuProps) {
   return (
     <nav aria-label={ariaLabel} className={[styles.subMenu, className].filter(Boolean).join(' ')} data-variant={variant}>
       <ul className={styles.list}>
@@ -44,6 +46,7 @@ export function SubMenu({ items, value, onChange, variant = 'default', 'aria-lab
             </Button>
           </li>
         ))}
+        {trailing && <li>{trailing}</li>}
       </ul>
     </nav>
   );

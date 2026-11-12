@@ -7,6 +7,8 @@ import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Tag } from '../../../../../components/Tag/Tag';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { Tile } from '../../../../../components/Tile/Tile';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { useHelperFlag } from '../../../../shell/helperFlags';
 import { AddressFields, addressFromDraft, withCountry, type AddressDraft, type AddressErrors } from '../AddressFields';
 import { todayIso } from '../orders/orderData';
 import { useOrders } from '../orders/orderStore';
@@ -35,12 +37,13 @@ const required = (text: string): ReactNode => (
 );
 
 // Volt "Data Table" (Base 3299:1399): headers with the sort icon, then the status pill (no header) before the •••
+// Narrow cards: the columns shrink to these minimums (text wraps to 2 lines); nothing hides
 const CARRIER_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Name', width: 'fill' },
-  { key: 'account', label: 'Account #', width: 'fill' },
-  { key: 'nickname', label: 'Account Nickname', width: 'fill' },
-  { key: 'billing', label: 'Billing Type', width: 'fill' },
-  { key: 'services', label: 'Service Type', width: 'fill' },
+  { key: 'name', label: 'Name', width: 'fill', minWidth: 80 },
+  { key: 'account', label: 'Account #', width: 'fill', minWidth: 90 },
+  { key: 'nickname', label: 'Account Nickname', width: 'fill', minWidth: 110 },
+  { key: 'billing', label: 'Billing Type', width: 'fill', minWidth: 90 },
+  { key: 'services', label: 'Service Type', width: 'fill', minWidth: 110 },
   { key: 'status', label: 'Status', width: 120, align: 'end', labelHidden: true, sortable: false },
 ];
 
@@ -174,7 +177,10 @@ function WarehouseKpis({ warehouse: w, onOpenTab }: { warehouse: Warehouse; onOp
 /* ---------- Carrier Accounts ---------- */
 
 function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; warehouseName: string; onNotice: (text: string) => void }) {
-  const carriers = useCarriers(code);
+  const stored = useCarriers(code);
+  // Helper switch: no carrier accounts, so the table's empty message shows (the view only; the store keeps its rows)
+  const noCarriers = useHelperFlag('details.noCarriers');
+  const carriers = noCarriers ? [] : stored;
   const [sort, setSort] = useState<DataSort | undefined>();
   const [selected, setSelected] = useState<string[]>([]);
   const [menuFor, setMenuFor] = useState<string | null>(null);
@@ -195,6 +201,9 @@ function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; ware
 
   return (
     <section className={styles.card} aria-labelledby="wh-carriers-title">
+      <PrototypeHelper title="Details">
+        <HelperToggle flag="details.noCarriers" label="No carrier accounts" />
+      </PrototypeHelper>
       <div className={styles.cardHead}>
         <h2 id="wh-carriers-title" className={styles.cardTitle}>
           Carrier Accounts
@@ -274,7 +283,7 @@ function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; ware
             services: (
               <span className={table.tags}>
                 {c.services.map(sv => (
-                  <Tag key={sv} size="tiny">
+                  <Tag key={sv} size="tiny" selected>
                     {sv}
                   </Tag>
                 ))}
@@ -289,7 +298,7 @@ function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; ware
       <SearchCarrierModal
         open={searching}
         onClose={() => setSearching(false)}
-        existing={carriers}
+        existing={stored}
         onAdd={list => {
           update(all => [...all, ...list.map((c, i) => ({ ...c, id: `c${Date.now()}-${i}` }))]);
           onNotice(list.length === 1 ? `${list[0]!.name} account ${list[0]!.account} added.` : `${list.length} carrier accounts added.`);

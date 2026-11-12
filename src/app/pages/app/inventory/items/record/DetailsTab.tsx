@@ -1,49 +1,63 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type DragEvent, type ReactNode } from 'react';
+import { Avatar } from '../../../../../../components/Avatar/Avatar';
+import { Badge } from '../../../../../../components/Badge/Badge';
 import { Button } from '../../../../../../components/Button/Button';
-import { Checkbox } from '../../../../../../components/Checkbox/Checkbox';
 import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
 import { DataRow } from '../../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn as TableColumn } from '../../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
-import { Avatar } from '../../../../../../components/Avatar/Avatar';
+import { EditableCell } from '../../../../../../components/EditableCell/EditableCell';
 import { Icon } from '../../../../../../components/Icon/Icon';
+import { IconButton } from '../../../../../../components/IconButton/IconButton';
 import { NumericInput } from '../../../../../../components/NumericInput/NumericInput';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
 import { TextArea } from '../../../../../../components/TextArea/TextArea';
 import { TextInput } from '../../../../../../components/TextInput/TextInput';
 import { UploadFile } from '../../../../../../components/UploadFile/UploadFile';
+import { Toggle } from '../../../../../../components/Toggle/Toggle';
 import { useAuth } from '../../../../../auth/AuthContext';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
 import { RowMenu } from '../../record/RowMenu';
 import {
+  allCompliance,
   CATEGORIES,
   COMPLIANCE,
-  COMPLIANCE_INFO,
+  COMPLIANCE_STATUSES,
+  COUNTRIES,
+  DIMENSION_LABEL,
   DIMENSION_UNITS,
   initialsOf,
   MANUFACTURERS,
   money,
-  PACKAGE_UNITS,
+  newBarcode,
   PACKAGES,
+  replacementReasons,
   SPEC_TEMPLATES,
   SUPPLIERS,
   today,
+  UNIT_NAMES,
   UNIT_TYPES,
+  WEIGHT_LABEL,
   WEIGHT_UNITS,
+  type ComplianceStatus,
   type Item,
   type ItemSupplier,
+  type ItemUnit,
   type Note,
+  type SpecField,
   type Warranty,
   type WarrantyKind,
 } from '../itemData';
 import { itemPath, updateItem, useItems } from '../itemStore';
-import { Card, InfoCheckbox, InfoTip, nextSort, options, required, Segment, sortRows } from '../shared';
+import { Card, InfoCheckbox, MenuButton, nextSort, options, required, sortRows } from '../shared';
 import { DeleteNoteModal, NoteModal, RemoveSupplierModal, ReplacementModal, SupplierModal, WarrantyModal } from './DetailsModals';
 import record from '../../record.module.css';
 import table from '../../table.module.css';
 import styles from '../items.module.css';
 
-/** The Details cards' fields; the record page keeps them so the header's Save can save them. */
+/** The Details cards' fields; the record page keeps them so Save (the header's, or the editing banner's) saves them. */
 export type DetailsDraft = Pick<
   Item,
   | 'customNumber'
@@ -54,10 +68,17 @@ export type DetailsDraft = Pick<
   | 'manufacturer'
   | 'model'
   | 'lotControl'
+  | 'trackExpiry'
   | 'serialized'
   | 'nonInventory'
   | 'discontinued'
   | 'compliance'
+  | 'countryOfOrigin'
+  | 'generalSpecs'
+  | 'units'
+  | 'buyUnit'
+  | 'sellUnit'
+  | 'countUnit'
   | 'images'
   | 'specSheet'
   | 'unitType'
@@ -76,39 +97,54 @@ export type DetailsDraft = Pick<
   | 'autoCalculate'
   | 'lastPurchase'
 >;
-export type DetailsErrors = { name?: string };
+export type DetailsErrors = { name?: string; category?: string; powerOutput?: string };
 
-export const toDraft = (i: Item): DetailsDraft => ({
-  customNumber: i.customNumber,
-  name: i.name,
-  category: i.category,
-  subcategory: i.subcategory,
-  description: i.description,
-  manufacturer: i.manufacturer,
-  model: i.model,
-  lotControl: i.lotControl,
-  serialized: i.serialized,
-  nonInventory: i.nonInventory,
-  discontinued: i.discontinued,
-  compliance: i.compliance,
-  images: i.images,
-  specSheet: i.specSheet,
-  unitType: i.unitType,
-  weight: i.weight,
-  weightUnit: i.weightUnit,
-  length: i.length,
-  width: i.width,
-  height: i.height,
-  dimensionUnit: i.dimensionUnit,
-  categorySpecs: i.categorySpecs,
-  packages: i.packages,
-  minQuantity: i.minQuantity,
-  safetyStock: i.safetyStock,
-  reorderPoint: i.reorderPoint,
-  leadTime: i.leadTime,
-  autoCalculate: i.autoCalculate,
-  lastPurchase: i.lastPurchase,
-});
+const DRAFT_KEYS: (keyof DetailsDraft)[] = [
+  'customNumber',
+  'name',
+  'category',
+  'subcategory',
+  'description',
+  'manufacturer',
+  'model',
+  'lotControl',
+  'trackExpiry',
+  'serialized',
+  'nonInventory',
+  'discontinued',
+  'compliance',
+  'countryOfOrigin',
+  'generalSpecs',
+  'units',
+  'buyUnit',
+  'sellUnit',
+  'countUnit',
+  'images',
+  'specSheet',
+  'unitType',
+  'weight',
+  'weightUnit',
+  'length',
+  'width',
+  'height',
+  'dimensionUnit',
+  'categorySpecs',
+  'packages',
+  'minQuantity',
+  'safetyStock',
+  'reorderPoint',
+  'leadTime',
+  'autoCalculate',
+  'lastPurchase',
+];
+
+export const toDraft = (i: Item): DetailsDraft => Object.fromEntries(DRAFT_KEYS.map(k => [k, i[k]])) as DetailsDraft;
+
+/** How many fields differ from the saved item (the editing banner's "2 unsaved changes"). */
+export const unsavedChanges = (draft: DetailsDraft, item: Item) => DRAFT_KEYS.filter(k => JSON.stringify(draft[k]) !== JSON.stringify(item[k])).length;
+
+/** On save, a unit with no barcode gets one (Units & Packaging: "Leave a barcode blank to generate one"). */
+export const withBarcodes = (draft: DetailsDraft): DetailsDraft => ({ ...draft, units: draft.units.map(u => (u.barcode.trim() ? u : { ...u, barcode: newBarcode() })) });
 
 type Props = {
   item: Item;
@@ -119,85 +155,105 @@ type Props = {
 };
 
 /**
- * Item record › Details (ITEMS.md §2; Figma Part 127:6327, Assembly 411:62773, Kit 411:65254). The same cards serve
- * all three types, with the labels following the type. The form cards are saved by the header's Save; the tables
- * (warranty, replacements, suppliers, notes) save as they change. A category without a spec template leaves out
- * Category Specs.
+ * Item record › Details (ITEMS.md §2; Figma Part Details 127:6327). Two columns: Identification, Specifications,
+ * Units & Packaging and Warranty on the left; Images, Tracking, Compliance and Replacement Items on the right; Notes
+ * under both. The form fields are saved by Save (the header's, or the editing banner's); the lists (warranties,
+ * replacements, suppliers, notes) save as they change. Reorder Details, Last Purchase and Supplier aren't on Figma's
+ * Details; they stay under it until their own tabs exist.
  */
 export function DetailsTab({ item, draft, errors, onDraftChange, onNotice }: Props) {
   const set = <K extends keyof DetailsDraft>(key: K, value: DetailsDraft[K]) => onDraftChange({ ...draft, [key]: value });
-  const template = SPEC_TEMPLATES[draft.category];
-
-  // The short form cards and the 3-column Replacement table pair up two per row. The spec cards, and the tables with
-  // more columns (Warranty with its switch, Supplier, Notes), run full width so their columns fit (table.module.css).
-  const pairs: ReactNode[][] = [
-    [<PackageCard key="packages" draft={draft} set={set} />, <ReorderCard key="reorder" draft={draft} set={set} />],
-    [<LastPurchaseCard key="last-purchase" draft={draft} set={set} />, <ReplacementCard key="replacement" item={item} onNotice={onNotice} />],
-  ];
 
   return (
     <div className={record.tab}>
-      <GeneralInformation item={item} draft={draft} errors={errors} set={set} onDraftChange={onDraftChange} />
-      <GeneralSpecs draft={draft} set={set} />
-      {template && <CategorySpecs draft={draft} set={set} template={template} />}
-      {pairs.map((pair, i) => (
-        <div key={i} className={styles.pair}>
-          {pair}
+      <div className={styles.detailColumns}>
+        <div className={styles.detailColumn}>
+          <IdentificationCard item={item} draft={draft} errors={errors} onDraftChange={onDraftChange} set={set} />
+          <SpecificationsCard draft={draft} errors={errors} set={set} patch={p => onDraftChange({ ...draft, ...p })} onNotice={onNotice} />
+          <UnitsCard item={item} draft={draft} set={set} onNotice={onNotice} />
+          <WarrantyCard item={item} onNotice={onNotice} />
         </div>
-      ))}
-      <WarrantyCard item={item} onNotice={onNotice} />
-      <SupplierCard item={item} onNotice={onNotice} />
+        <div className={styles.detailColumn}>
+          <ImagesCard draft={draft} set={set} onNotice={onNotice} />
+          <TrackingCard draft={draft} onDraftChange={onDraftChange} set={set} />
+          <ComplianceCard draft={draft} set={set} />
+          <ReplacementCard item={item} onNotice={onNotice} />
+        </div>
+      </div>
       <NotesCard item={item} onNotice={onNotice} />
+      <div className={styles.pair}>
+        <ReorderCard draft={draft} set={set} />
+        <LastPurchaseCard draft={draft} set={set} />
+      </div>
+      <SupplierCard item={item} onNotice={onNotice} />
     </div>
   );
 }
 
 type SetField = <K extends keyof DetailsDraft>(key: K, value: DetailsDraft[K]) => void;
 
-/* ---------- General Information ---------- */
+/** A Details card: Figma's Large/Bold title over a strong divider. */
+function DetailCard(props: { title: string; id: string; action?: ReactNode; children: ReactNode }) {
+  return <Card {...props} className={styles.detailCard} />;
+}
 
-const FLAGS: { key: 'lotControl' | 'serialized' | 'nonInventory' | 'discontinued'; label: string; info: string }[] = [
-  { key: 'lotControl', label: 'Lot Control', info: 'Track this item by lot, so a recall can find every unit from one batch.' },
-  { key: 'serialized', label: 'Serialized', info: 'Every unit has its own serial #, recorded when it is received and shipped.' },
-  { key: 'nonInventory', label: 'Non-Inventory Item', info: 'Bought or sold, but not counted as stock (for example a service or a fee).' },
-  { key: 'discontinued', label: 'Discontinued', info: 'No longer ordered. Stock on hand can still be used.' },
-];
+/* ---------- Identification ---------- */
 
-function GeneralInformation({ item, draft, errors, set, onDraftChange }: { item: Item; draft: DetailsDraft; errors: DetailsErrors; set: SetField; onDraftChange: (d: DetailsDraft) => void }) {
+function IdentificationCard({
+  item,
+  draft,
+  errors,
+  onDraftChange,
+  set,
+}: {
+  item: Item;
+  draft: DetailsDraft;
+  errors: DetailsErrors;
+  onDraftChange: (d: DetailsDraft) => void;
+  set: SetField;
+}) {
   const word = item.type;
+  // Figma note: changing the category swaps the category specs below, so it asks first when there are some
+  const [pendingCategory, setPendingCategory] = useState<string | null>(null);
+  const applyCategory = (category: string, clearSpecs: boolean) =>
+    onDraftChange({
+      ...draft,
+      category,
+      subcategory: CATEGORIES[category]?.includes(draft.subcategory) ? draft.subcategory : '',
+      categorySpecs: clearSpecs ? {} : draft.categorySpecs,
+    });
+  const hasSpecs = Object.values(draft.categorySpecs).some(v => v.trim());
+
   return (
-    <Card
-      id="item-general"
-      title="General Information"
-      action={
-        <div className={styles.titleChecks}>
-          {FLAGS.map(f => (
-            <InfoCheckbox key={f.key} label={f.label} info={f.info} checked={draft[f.key]} onChange={on => set(f.key, on)} />
-          ))}
-        </div>
-      }
-    >
+    <DetailCard id="item-identification" title="Identification">
       <div className={record.form}>
-        <div className={styles.fields4}>
-          <div className={styles.readOnlyField}>
-            <span className={styles.readOnlyLabel} id="item-system-number">
-              System {word} #
-            </span>
-            <span className={styles.readOnlyValue} aria-labelledby="item-system-number">
-              <Icon name="lock" size={20} color="currentColor" />
-              {item.id}
-            </span>
-          </div>
+        <div className={styles.fieldRow}>
+          <TextInput
+            className={styles.wideField}
+            label={required('Item Name')}
+            value={draft.name}
+            onChange={e => set('name', e.target.value)}
+            error={errors.name}
+            required
+          />
+          {/* Figma note: the system # is set by the system and can't be changed */}
+          <TextInput label={`System ${word} #`} value={item.id} disabled readOnly />
           <TextInput label={`Custom ${word} #`} value={draft.customNumber} onChange={e => set('customNumber', e.target.value)} />
+        </div>
+        <div className={styles.fieldRow}>
           <Dropdown
-            label="Category"
+            label="Category *"
             placeholder="Select"
+            required
+            error={errors.category}
             options={options(Object.keys(CATEGORIES))}
             value={draft.category || null}
             onChange={v => {
-              // A new category clears a subcategory that isn't in it
               const category = v as string;
-              onDraftChange({ ...draft, category, subcategory: CATEGORIES[category]?.includes(draft.subcategory) ? draft.subcategory : '' });
+              if (category === draft.category) return;
+              const swaps = SPEC_TEMPLATES[category] !== SPEC_TEMPLATES[draft.category];
+              if (swaps && hasSpecs) setPendingCategory(category);
+              else applyCategory(category, swaps);
             }}
           />
           <Dropdown
@@ -208,64 +264,102 @@ function GeneralInformation({ item, draft, errors, set, onDraftChange }: { item:
             value={CATEGORIES[draft.category]?.includes(draft.subcategory) ? draft.subcategory : null}
             onChange={v => set('subcategory', v as string)}
           />
+          <Dropdown label="Manufacturer" placeholder="Select" options={options(MANUFACTURERS)} value={draft.manufacturer || null} onChange={v => set('manufacturer', v as string)} />
+          <TextInput label="Model #" value={draft.model} onChange={e => set('model', e.target.value)} />
         </div>
-        <div className={styles.fields3}>
-          <div className={styles.column}>
-            <TextInput label={required(`${word} Name`)} value={draft.name} onChange={e => set('name', e.target.value)} error={errors.name} required />
-            <Dropdown label="Manufacturer" placeholder="Select" options={options(MANUFACTURERS)} value={draft.manufacturer || null} onChange={v => set('manufacturer', v as string)} />
-            <TextInput label="Model #" value={draft.model} onChange={e => set('model', e.target.value)} />
-          </div>
-          <TextArea label={`${word} Description`} rows={9} value={draft.description} onChange={e => set('description', e.target.value)} />
-          <div className={styles.column}>
-            <span className={styles.readOnlyLabel}>Image(s)</span>
-            <UploadFile multiple accept="image/*" hint="Supports JPG, PNG" onFiles={files => set('images', [...draft.images, ...files.map(f => f.name)])} />
-            {draft.images.length > 0 && (
-              <ul className={styles.fileChips} aria-label="Images">
-                {draft.images.map(name => (
-                  <li key={name} className={styles.fileChip}>
-                    <Icon name="photo" size={20} color="currentColor" />
-                    {name}
-                    <button type="button" className={styles.trash} aria-label={`Remove ${name}`} onClick={() => set('images', draft.images.filter(n => n !== name))}>
-                      <Icon name="close-small" size={20} color="currentColor" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-        <h3 className={styles.subheading}>Compliance</h3>
-        <div className={styles.tiles}>
-          {COMPLIANCE.map(c => (
-            <div key={c} className={styles.tile}>
-              <Checkbox
-                size="small"
-                label={c}
-                checked={draft.compliance.includes(c)}
-                onChange={e => set('compliance', e.target.checked ? [...draft.compliance, c] : draft.compliance.filter(x => x !== c))}
-              />
-              <InfoTip label={c} text={COMPLIANCE_INFO[c]} />
-            </div>
-          ))}
-        </div>
+        <TextArea label="Description" rows={4} value={draft.description} onChange={e => set('description', e.target.value)} />
       </div>
-    </Card>
+      <AppModal
+        open={pendingCategory !== null}
+        onClose={() => setPendingCategory(null)}
+        title="Change Category"
+        description={
+          pendingCategory &&
+          `Changing ${draft.category} to ${pendingCategory} swaps the category specs: this ${word.toLowerCase()}’s ${draft.category} specs will be cleared. Do you want to continue?`
+        }
+        primaryAction={{
+          label: 'Change Category',
+          onClick: () => {
+            if (pendingCategory) applyCategory(pendingCategory, true);
+            setPendingCategory(null);
+          },
+        }}
+      />
+    </DetailCard>
   );
 }
 
-/* ---------- General Specs, Category Specs ---------- */
+/* ---------- Specifications ---------- */
 
-function GeneralSpecs({ draft, set }: { draft: DetailsDraft; set: SetField }) {
-  const file = useRef<HTMLInputElement>(null);
+const num = (text: string) => {
+  const n = Number(text.replace(/,/g, '').trim());
+  return text.trim() === '' || Number.isNaN(n) ? null : n;
+};
+const short = (n: number | null) => (n == null ? '' : n.toLocaleString('en-US', { maximumFractionDigits: 2 }));
+
+/**
+ * The unit picked at the right of a field (Figma "Right Icon" input; the weight can be lbs, kg or grams): the Volt
+ * Dropdown, with the same menu as the app's other dropdowns, made flat so it sits inside the field.
+ */
+function UnitSelect({ label, value, units, labels, onChange }: { label: string; value: string; units: string[]; labels: Record<string, string>; onChange: (u: string) => void }) {
   return (
-    <Card id="item-general-specs" title="General Specs">
-      <div className={record.form}>
-        <div className={styles.segmentRow}>
-          <div className={styles.search}>
-            <TextInput label="Spec Sheet" value={draft.specSheet} placeholder="No file chosen" readOnly leftIcon="document" />
-          </div>
-          <Button size="small" variant="outline" icon="upload" onClick={() => file.current?.click()}>
-            Choose File
+    <Dropdown
+      className={styles.inlineUnit}
+      variant="small"
+      label={label}
+      hideLabel
+      options={units.map(u => ({ value: u, label: labels[u] ?? u }))}
+      value={value}
+      onChange={v => onChange(v as string)}
+    />
+  );
+}
+
+function SpecificationsCard({
+  draft,
+  errors,
+  set,
+  patch,
+  onNotice,
+}: {
+  draft: DetailsDraft;
+  errors: DetailsErrors;
+  set: SetField;
+  patch: (p: Partial<DetailsDraft>) => void;
+  onNotice: (t: string) => void;
+}) {
+  const file = useRef<HTMLInputElement>(null);
+  const template = SPEC_TEMPLATES[draft.category];
+  const [dims, setDims] = useState<string | null>(null);
+  const saved = [draft.length, draft.width, draft.height];
+  const dimsText = dims ?? (saved.every(v => v == null) ? '' : saved.map(short).join(' × '));
+  const [adding, setAdding] = useState(false);
+  const [spec, setSpec] = useState({ label: '', value: '' });
+  const [tried, setTried] = useState(false);
+
+  // Dimensions are typed as one "L × W × H" (an x works too); they're stored once all three are numbers
+  const setDimensions = (text: string) => {
+    setDims(text);
+    const parts = text.split(/[×x*]/i);
+    const [length, width, height] = parts.map(num);
+    if (parts.length === 3 && length != null && width != null && height != null) patch({ length, width, height });
+    else if (!text.trim()) patch({ length: null, width: null, height: null });
+  };
+
+  return (
+    <DetailCard
+      id="item-specifications"
+      title="Specifications"
+      action={
+        <>
+          {/* Figma note: before there's a spec sheet the button reads "+ Add Spec Sheet" */}
+          {draft.specSheet && (
+            <Button size="small" variant="primary" icon="document" onClick={() => onNotice(`${draft.specSheet} would open here; this prototype doesn’t store files.`)}>
+              {draft.specSheet}
+            </Button>
+          )}
+          <Button size="small" variant="brand" icon={draft.specSheet ? 'edit' : 'plus'} onClick={() => file.current?.click()}>
+            {draft.specSheet ? 'Edit' : 'Add Spec Sheet'}
           </Button>
           <input
             ref={file}
@@ -278,148 +372,289 @@ function GeneralSpecs({ draft, set }: { draft: DetailsDraft; set: SetField }) {
               e.target.value = '';
             }}
           />
-        </div>
-        <div className={styles.fields3}>
-          <Dropdown label="Unit Type" options={options(UNIT_TYPES)} value={draft.unitType} onChange={v => set('unitType', v as string)} />
-          <NumericInput label="Weight" min={0} step={0.01} value={draft.weight} onValueChange={v => set('weight', v)} />
-          <Dropdown label="Unit of Measure" options={options(WEIGHT_UNITS)} value={draft.weightUnit} onChange={v => set('weightUnit', v as string)} />
-        </div>
-        <div className={styles.fields4}>
-          <NumericInput label="Length" min={0} step={0.1} value={draft.length} onValueChange={v => set('length', v)} />
-          <NumericInput label="Width" min={0} step={0.1} value={draft.width} onValueChange={v => set('width', v)} />
-          <NumericInput label="Height" min={0} step={0.1} value={draft.height} onValueChange={v => set('height', v)} />
-          <Dropdown label="Unit of Measure" options={options(DIMENSION_UNITS)} value={draft.dimensionUnit} onChange={v => set('dimensionUnit', v as string)} />
-        </div>
+        </>
+      }
+    >
+      <p className={`text-tiny-semi-bold ${styles.specGroup}`}>General</p>
+      <div className={styles.fieldRow}>
+        <TextInput
+          label="Weight"
+          inputMode="decimal"
+          value={draft.weight == null ? '' : String(draft.weight)}
+          onChange={e => set('weight', num(e.target.value))}
+          trailingAction={<UnitSelect label="Weight unit" value={draft.weightUnit} units={WEIGHT_UNITS} labels={WEIGHT_LABEL} onChange={u => set('weightUnit', u)} />}
+        />
+        <TextInput
+          label="Dimensions (L × W × H)"
+          placeholder="0 × 0 × 0"
+          value={dimsText}
+          onChange={e => setDimensions(e.target.value)}
+          onBlur={() => setDims(null)}
+          trailingAction={<UnitSelect label="Dimension unit" value={draft.dimensionUnit} units={DIMENSION_UNITS} labels={DIMENSION_LABEL} onChange={u => set('dimensionUnit', u)} />}
+        />
+        <Dropdown label="Country of Origin" placeholder="Select" options={options(COUNTRIES)} value={draft.countryOfOrigin || null} onChange={v => set('countryOfOrigin', v as string)} />
       </div>
-    </Card>
+      {draft.generalSpecs.length > 0 && (
+        <div className={styles.specGrid}>
+          {draft.generalSpecs.map(s => (
+            <TextInput
+              key={s.id}
+              label={s.label}
+              value={s.value}
+              onChange={e => set('generalSpecs', draft.generalSpecs.map(x => (x.id === s.id ? { ...x, value: e.target.value } : x)))}
+              trailingAction={<IconButton size="compact" icon="close-small" label={`Remove ${s.label}`} onClick={() => set('generalSpecs', draft.generalSpecs.filter(x => x.id !== s.id))} />}
+            />
+          ))}
+        </div>
+      )}
+      {/* Figma note: Add Spec adds a general spec to this item only */}
+      <div className={styles.addSpecRow}>
+        <Button
+          size="small"
+          variant="primary"
+          icon="plus"
+          onClick={() => {
+            setSpec({ label: '', value: '' });
+            setTried(false);
+            setAdding(true);
+          }}
+        >
+          Add Spec
+        </Button>
+      </div>
+      {template && (
+        <>
+          {/* Figma note: category specs and their units come from Inventory Settings › Categories */}
+          <p className={`text-tiny-semi-bold ${styles.specGroup}`}>{draft.category} specs (from category)</p>
+          {template.map((row, i) => (
+            <div key={i} className={styles.specFields} style={{ ['--spec-cols' as string]: Math.max(row.length, 4) }}>
+              {row.map(f => (
+                <SpecInput key={f.key} field={f} value={draft.categorySpecs[f.key] ?? ''} error={f.key === 'powerOutput' ? errors.powerOutput : undefined} onChange={v => set('categorySpecs', { ...draft.categorySpecs, [f.key]: v })} />
+              ))}
+            </div>
+          ))}
+        </>
+      )}
+      <AppModal
+        open={adding}
+        onClose={() => setAdding(false)}
+        title="Add Spec"
+        description="Adds a spec to this item only. Category specs are set in Inventory Settings › Categories."
+        primaryAction={{
+          label: 'Add Spec',
+          onClick: () => {
+            setTried(true);
+            if (!spec.label.trim()) return;
+            set('generalSpecs', [...draft.generalSpecs, { id: `gs${Date.now()}`, label: spec.label.trim(), value: spec.value.trim() }]);
+            setAdding(false);
+          },
+        }}
+      >
+        <div className={record.halves}>
+          <TextInput label={required('Spec Name')} value={spec.label} onChange={e => setSpec(s => ({ ...s, label: e.target.value }))} error={tried && !spec.label.trim() ? 'Enter the spec name' : undefined} autoFocus />
+          <TextInput label="Value" value={spec.value} onChange={e => setSpec(s => ({ ...s, value: e.target.value }))} />
+        </div>
+      </AppModal>
+    </DetailCard>
   );
 }
 
-function CategorySpecs({ draft, set, template }: { draft: DetailsDraft; set: SetField; template: { key: string; label: string }[][] }) {
+function SpecInput({ field, value, error, onChange }: { field: SpecField; value: string; error?: string; onChange: (v: string) => void }) {
+  const label = field.required ? `${field.label} *` : field.label;
+  return field.options ? (
+    <Dropdown label={label} placeholder="Select" options={options(field.options)} value={value || null} onChange={v => onChange(v as string)} required={field.required} />
+  ) : (
+    <TextInput label={field.required ? required(field.label) : field.label} value={value} onChange={e => onChange(e.target.value)} error={error} required={field.required} />
+  );
+}
+
+/* ---------- Units & Packaging ---------- */
+
+const UNIT_COLUMNS: TableColumn[] = [
+  { key: 'unit', label: 'Unit', width: 190, sortable: false },
+  { key: 'contains', label: 'Contains', width: 110, sortable: false },
+  { key: 'uom', label: 'UoM', width: 150, sortable: false },
+  { key: 'barcode', label: 'Barcode / UPC', width: 'fill', minWidth: 150, sortable: false },
+  { key: 'weight', label: 'Weight', width: 130, sortable: false },
+  { key: 'print', label: 'Print label', width: 40, labelHidden: true, sortable: false },
+  { key: 'remove', label: 'Remove', width: 40, labelHidden: true, sortable: false },
+];
+
+/**
+ * Figma notes: the base unit can't change once stock has been received. Pack, Case, Pallet … are conversions of it,
+ * each with its own barcode and a print-label action. A blank barcode is generated on save; barcodes must be unique
+ * across items.
+ */
+function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsDraft; set: SetField; onNotice: (t: string) => void }) {
+  const all = useItems();
+  const units = draft.units;
+  const baseLocked = item.stock.length > 0;
+  const update = (id: string, patch: Partial<ItemUnit>) => set('units', units.map(u => (u.id === id ? { ...u, ...patch } : u)));
+  const taken = new Set(all.filter(i => i.id !== item.id).flatMap(i => i.units.map(u => u.barcode)).filter(Boolean));
+  const duplicate = (u: ItemUnit) => !!u.barcode.trim() && (taken.has(u.barcode.trim()) || units.some(o => o.id !== u.id && o.barcode.trim() === u.barcode.trim()));
+  const names = units.map(u => u.unit).filter(Boolean);
+
   return (
-    <Card id="item-category-specs" title="Category Specs">
-      <div className={record.form}>
-        {template.map((row, i) => (
-          <div key={i} className={styles.specRow}>
-            {row.map(f => (
-              <TextInput
-                key={f.key}
-                label={f.label}
-                value={draft.categorySpecs[f.key] ?? ''}
-                onChange={e => set('categorySpecs', { ...draft.categorySpecs, [f.key]: e.target.value })}
-              />
-            ))}
-          </div>
-        ))}
+    <DetailCard
+      id="item-units"
+      title="Units & Packaging"
+      action={
+        <Button
+          size="small"
+          variant="brand"
+          icon="plus"
+          // A new row starts on the top choice of each menu: the first unit not yet in the table, counted in the base unit
+          onClick={() =>
+            set('units', [...units, { id: `u${Date.now()}`, unit: UNIT_NAMES.find(n => !names.includes(n)) ?? '', contains: null, uom: names[0] ?? '', barcode: '', weight: '' }])
+          }
+        >
+          Add Unit
+        </Button>
+      }
+    >
+      <div className={styles.fieldRow}>
+        {/* Buying, selling and counting are by the package: Pack, Case, Carton, Bulk or Pallet */}
+        <Dropdown label="Buy Unit (Default)" placeholder="Select" options={options(PACKAGES.map(p => p.label))} value={draft.buyUnit || null} onChange={v => set('buyUnit', v as string)} />
+        <Dropdown label="Sell Unit (Default)" placeholder="Select" options={options(PACKAGES.map(p => p.label))} value={draft.sellUnit || null} onChange={v => set('sellUnit', v as string)} />
+        <Dropdown label="Count Unit (Default)" placeholder="Select" options={options(PACKAGES.map(p => p.label))} value={draft.countUnit || null} onChange={v => set('countUnit', v as string)} />
       </div>
-    </Card>
+      <DataTable
+        aria-label="Units"
+        columns={UNIT_COLUMNS}
+        rows={units}
+        rowLabel={u => u.unit || 'New unit'}
+        actions={false}
+        cells={u => {
+          const i = units.indexOf(u);
+          const base = i === 0;
+          return {
+            unit:
+              base && baseLocked ? (
+                <EditableCell type="read-only" label="Base unit" value={u.unit} />
+              ) : (
+                <EditableCell
+                  type="select"
+                  label={base ? 'Base unit' : 'Unit'}
+                  value={u.unit}
+                  placeholder="Select"
+                  options={UNIT_NAMES.filter(n => n === u.unit || !names.includes(n))}
+                  onValueChange={v => {
+                    // Renaming a unit carries along the units built from it and the defaults that use it
+                    const next = units.map(x => (x.id === u.id ? { ...x, unit: v, ...(base ? { uom: v } : {}) } : x.uom === u.unit ? { ...x, uom: v } : x));
+                    set('units', next);
+                  }}
+                />
+              ),
+            contains: base ? (
+              <EditableCell type="read-only" label="Contains" value="1" />
+            ) : (
+              <EditableCell label={`${u.unit || 'Unit'} contains`} inputType="number" value={u.contains == null ? '' : String(u.contains)} onValueChange={v => update(u.id, { contains: num(v) })} />
+            ),
+            uom: base ? (
+              <EditableCell type="read-only" label="Unit of measure" value={u.uom} />
+            ) : (
+              <EditableCell type="select" label={`${u.unit || 'Unit'} unit of measure`} value={u.uom} options={names.slice(0, i).length ? names.slice(0, i) : names} onValueChange={v => update(u.id, { uom: v })} />
+            ),
+            barcode: (
+              <EditableCell
+                label={`${u.unit || 'Unit'} barcode`}
+                value={u.barcode}
+                placeholder="Generated on save"
+                error={duplicate(u)}
+                onValueChange={v => update(u.id, { barcode: v.replace(/\s/g, '') })}
+              />
+            ),
+            weight: <EditableCell label={`${u.unit || 'Unit'} weight`} value={u.weight} placeholder="0 lbs" onValueChange={v => update(u.id, { weight: v })} />,
+            print: <IconButton size="compact" icon="export-download" label={`Print the ${u.unit || 'unit'} label`} onClick={() => onNotice(`${u.unit || 'Unit'} label sent to the printer.`)} />,
+            remove: base ? (
+              // The base unit stays: a lock in the same button as the rows' remove, which says why when pressed
+              <IconButton
+                size="compact"
+                icon="lock"
+                label={`${u.unit || 'The base unit'} is the base unit and can’t be removed`}
+                title="The base unit can’t be removed"
+                onClick={() => onNotice(`${u.unit || 'The base unit'} is the base unit, so it can’t be removed. The other units are counted in it.`)}
+              />
+            ) : (
+              <IconButton
+                size="compact"
+                icon="delete"
+                label={`Remove ${u.unit || 'this unit'}`}
+                onClick={() =>
+                  set(
+                    'units',
+                    units.filter(x => x.id !== u.id),
+                  )
+                }
+              />
+            ),
+          };
+        }}
+      />
+      {units.some(duplicate) && <p className={`text-small-regular ${styles.fieldError}`}>Barcodes must be unique across items. Change the highlighted barcode.</p>}
+    </DetailCard>
   );
 }
 
 /* ---------- Warranty ---------- */
 
-const WARRANTY_COLUMNS: DataColumn[] = [
-  { key: 'category', label: 'Category', width: 'fill' },
-  { key: 'term', label: 'Term (Months)', width: 150 },
-  { key: 'document', label: 'Warranty Document', width: 200, sortable: false },
-];
+const termText = (w: Warranty) => {
+  const years = w.termUnit === 'Years' ? w.term : w.term % 12 === 0 ? w.term / 12 : null;
+  return years != null ? `${years} year${years === 1 ? '' : 's'}` : `${w.term} months`;
+};
+/** "Manufacturer · Product", "Installer · Workmanship": who stands behind it, then what it covers. */
+const warrantyTitle = (w: Warranty) => `${w.offeredByInstaller ? 'Installer' : 'Manufacturer'} · ${w.category === 'Manufacturer' ? 'Product' : w.category}`;
+const warrantyNote = (w: Warranty) =>
+  w.prices?.length ? `Priced by ${w.prices[0].type === 'kW' ? 'system size' : w.prices[0].type.toLowerCase()} · ${w.prices.length} tier${w.prices.length === 1 ? '' : 's'}` : w.documentKind === 'link' ? 'Link' : w.document;
 
 function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) => void }) {
-  const [kind, setKind] = useState<WarrantyKind>('standard');
-  const [editing, setEditing] = useState<'add' | 'edit' | null>(null);
-  const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ kind: WarrantyKind; add: boolean } | null>(null);
   const [removing, setRemoving] = useState<Warranty | null>(null);
-  const [sort, setSort] = useState<DataSort | undefined>();
-  const months = (w: Warranty) => (w.termUnit === 'Years' ? w.term * 12 : w.term);
-  const rows = sortRows(
-    item.warranties.filter(w => w.kind === kind),
-    sort,
-    (w, k) => (k === 'term' ? months(w) : w.category),
-  );
-  const save = (list: Warranty[]) => updateItem(item.id, i => ({ ...i, warranties: [...i.warranties.filter(w => w.kind !== kind), ...list] }));
+  const list = [...item.warranties.filter(w => w.kind === 'standard'), ...item.warranties.filter(w => w.kind === 'extended')];
 
   return (
-    <Card
+    <DetailCard
       id="item-warranty"
       title="Warranty"
       action={
-        <>
-          <Segment
-            label="Warranty type"
-            value={kind}
-            options={[
-              { value: 'standard', label: 'Standard Warranties' },
-              { value: 'extended', label: 'Extended Warranties' },
-            ]}
-            onChange={setKind}
-          />
-          <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('add')}>
-            Add Warranty Information
-          </Button>
-        </>
+        <MenuButton
+          label="Add Warranty"
+          icon="plus"
+          items={[
+            { label: 'Standard Warranty', onSelect: () => setEditing({ kind: 'standard', add: true }) },
+            { label: 'Extended Warranty', onSelect: () => setEditing({ kind: 'extended', add: true }) },
+          ]}
+        />
       }
     >
-      <div className={table.tableScroll}>
-        <div role="table" aria-label={`${kind === 'standard' ? 'Standard' : 'Extended'} warranties`} className={table.table}>
-          <DataHeader className={table.head} corners="none" columns={WARRANTY_COLUMNS} leading="none" sort={sort} onSortChange={k => setSort(nextSort(k))} />
-          {rows.length === 0 && (
-            <p className={`text-medium-regular ${record.emptyRow}`}>No {kind} warranties yet. Use Add Warranty Information to add one.</p>
-          )}
-          {rows.map((w, i) => (
-            <div key={w.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-              <DataRow
-                className={table.row}
-                columns={WARRANTY_COLUMNS}
-                leading="none"
-                cells={{
-                  category: w.offeredByInstaller ? `${w.category} (offered by installer)` : w.category,
-                  term: String(months(w)),
-                  document: w.document ? (
-                    <Button
-                      size="tiny"
-                      variant="text"
-                      icon={w.documentKind === 'link' ? 'link-add' : 'document'}
-                      onClick={() =>
-                        w.documentKind === 'link' && /^https?:\/\//.test(w.document)
-                          ? window.open(w.document, '_blank', 'noopener')
-                          : onNotice(`${w.document} would open here; this prototype doesn’t store files.`)
-                      }
-                    >
-                      {w.documentKind === 'link' ? 'Link' : 'View'}
-                    </Button>
-                  ) : (
-                    '—'
-                  ),
-                }}
-                moreLabel={`More actions for ${w.category} warranty`}
-                onMore={() => setMenuFor(m => (m === w.id ? null : w.id))}
-              />
-              {menuFor === w.id && (
-                <RowMenu
-                  label={`${w.category} warranty`}
-                  onClose={() => setMenuFor(null)}
-                  items={[
-                    { label: 'Edit', onSelect: () => setEditing('edit') },
-                    { label: 'Remove', onSelect: () => setRemoving(w) },
-                  ]}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      {list.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No warranties yet. Use Add Warranty to add one.</p>}
+      <ul className={styles.detailList} aria-label="Warranties">
+        {list.map(w => (
+          <li key={w.id} className={styles.warrantyRow}>
+            <Badge shape="pill" color={w.kind === 'extended' ? 'green' : 'black'}>
+              {w.kind === 'extended' ? 'Extended' : 'Standard'}
+            </Badge>
+            <span className={`text-medium-bold ${styles.warrantyTitle}`}>{warrantyTitle(w)}</span>
+            <span className="text-medium-regular">{termText(w)}</span>
+            <span className={`text-tiny-regular ${styles.warrantyNote}`}>{warrantyNote(w)}</span>
+            {/* Figma note: Edit opens the warranty pop-up (the same as Add Warranty) */}
+            <IconButton size="compact" icon="edit" label={`Edit the ${warrantyTitle(w)} warranty`} onClick={() => setEditing({ kind: w.kind, add: false })} />
+            <IconButton size="compact" icon="delete" label={`Remove the ${warrantyTitle(w)} warranty`} onClick={() => setRemoving(w)} />
+          </li>
+        ))}
+      </ul>
       <AppModal
         open={removing !== null}
         onClose={() => setRemoving(null)}
         title="Remove Warranty"
-        description={removing && `The ${removing.category} warranty (${months(removing)} months) will be removed from ${item.name}.`}
+        description={removing && `The ${warrantyTitle(removing)} warranty (${termText(removing)}) will be removed from ${item.name}. Warranties already registered on sold serials don’t change.`}
         primaryAction={{
           label: 'Remove Warranty',
           danger: true,
           onClick: () => {
             if (removing) {
               updateItem(item.id, x => ({ ...x, warranties: x.warranties.filter(y => y.id !== removing.id) }));
-              onNotice(`${removing.category} warranty removed.`);
+              onNotice(`${warrantyTitle(removing)} warranty removed.`);
             }
             setRemoving(null);
           },
@@ -427,40 +662,271 @@ function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
       />
       <WarrantyModal
         open={editing !== null}
-        kind={kind}
+        kind={editing?.kind ?? 'standard'}
         warranties={item.warranties}
-        startNew={editing === 'add'}
+        startNew={!!editing?.add}
         onClose={() => setEditing(null)}
-        onSave={list => {
-          save(list);
+        onSave={saved => {
+          const kind = editing?.kind ?? 'standard';
+          updateItem(item.id, i => ({ ...i, warranties: [...i.warranties.filter(w => w.kind !== kind), ...saved] }));
           setEditing(null);
           onNotice(`${kind === 'standard' ? 'Standard' : 'Extended'} warranties saved.`);
         }}
       />
-    </Card>
+    </DetailCard>
+  );
+}
+
+/* ---------- Images ---------- */
+
+/**
+ * Drag and drop reordering for a short list (Images, Replacement Items). `item(i)` goes on each row: the row being
+ * dragged gets `data-dragging`, the row it would land on `data-drop-target`. `move(a, b)` is for keyboard moves.
+ */
+function useReorder<T>(list: T[], onReorder: (next: T[]) => void) {
+  const from = useRef<number | null>(null);
+  const [dragging, setDragging] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  const move = (a: number, b: number) => {
+    if (a === b || b < 0 || b >= list.length) return;
+    const next = [...list];
+    const [moved] = next.splice(a, 1);
+    next.splice(b, 0, moved);
+    onReorder(next);
+  };
+  const end = () => {
+    from.current = null;
+    setDragging(null);
+    setOver(null);
+  };
+  const item = (index: number) => ({
+    draggable: true,
+    'data-dragging': dragging === index || undefined,
+    'data-drop-target': (dragging != null && over === index && dragging !== index) || undefined,
+    onDragStart: (e: DragEvent) => {
+      from.current = index;
+      setDragging(index);
+      e.dataTransfer.effectAllowed = 'move';
+      // Firefox only starts a drag that carries data
+      e.dataTransfer.setData('text/plain', String(index));
+    },
+    onDragOver: (e: DragEvent) => {
+      if (from.current == null) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (over !== index) setOver(index);
+    },
+    onDrop: (e: DragEvent) => {
+      if (from.current == null) return;
+      e.preventDefault();
+      move(from.current, index);
+      end();
+    },
+    onDragEnd: end,
+  });
+  return { item, move };
+}
+
+/** Pictures of photos added this session, by file name (the prototype keeps only names; a reload drops these). */
+const imagePreviews = new Map<string, string>();
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMAGE = 25 * 1024 * 1024;
+
+function ImagesCard({ draft, set, onNotice }: { draft: DetailsDraft; set: SetField; onNotice: (t: string) => void }) {
+  const file = useRef<HTMLInputElement>(null);
+  const images = draft.images;
+  const drag = useReorder(images, next => set('images', next));
+  const [dropping, setDropping] = useState(false);
+  const depth = useRef(0);
+
+  // Photos from Upload or dropped on the card: JPG, PNG or WebP up to 25 MB; others are turned away with a notice
+  function addFiles(list: File[]) {
+    const ok = list.filter(f => IMAGE_TYPES.includes(f.type) && f.size <= MAX_IMAGE);
+    const turnedAway = list.length - ok.length;
+    const fresh = ok.filter(f => !images.includes(f.name));
+    for (const f of fresh) imagePreviews.set(f.name, URL.createObjectURL(f));
+    if (fresh.length) set('images', [...images, ...fresh.map(f => f.name)]);
+    if (turnedAway) onNotice(`${turnedAway} file${turnedAway === 1 ? ' wasn’t' : 's weren’t'} added: images must be JPG, PNG or WebP up to 25 MB.`);
+  }
+  // A drag from outside the page carries files; a tile being reordered doesn't, so it's left to the tiles
+  const carriesFiles = (e: DragEvent) => [...e.dataTransfer.types].includes('Files');
+  const dropProps = {
+    onDragEnter: (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      depth.current += 1;
+      setDropping(true);
+    },
+    onDragOver: (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    },
+    onDragLeave: (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      depth.current = Math.max(0, depth.current - 1);
+      if (depth.current === 0) setDropping(false);
+    },
+    onDrop: (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      e.preventDefault();
+      depth.current = 0;
+      setDropping(false);
+      addFiles([...e.dataTransfer.files]);
+    },
+  };
+
+  return (
+    <DetailCard
+      id="item-images"
+      title="Images"
+      action={
+        <>
+          <Button size="small" variant="brand" icon="upload" onClick={() => file.current?.click()}>
+            Upload
+          </Button>
+          <input
+            ref={file}
+            type="file"
+            hidden
+            multiple
+            accept="image/jpeg,image/png,image/webp"
+            onChange={e => {
+              addFiles([...(e.target.files ?? [])]);
+              e.target.value = '';
+            }}
+          />
+        </>
+      }
+    >
+      {images.length === 0 ? (
+        // No photos yet: the Volt upload drop zone (drag photos onto it, or browse)
+        <UploadFile multiple accept="image/jpeg,image/png,image/webp" hint="JPG, PNG or WebP up to 25 MB" onFiles={addFiles} />
+      ) : (
+        // With photos: drop more anywhere on the gallery; it outlines in teal while files are over it
+        <ul className={styles.gallery} aria-label="Images" data-dropping={dropping || undefined} {...dropProps}>
+          {images.map((name, i) => (
+            <li key={name} className={styles.imageTile} title={name} {...drag.item(i)}>
+              {imagePreviews.has(name) ? (
+                <img className={styles.tileImage} src={imagePreviews.get(name)} alt="" draggable={false} />
+              ) : (
+                <Icon name="photo" size={32} color="currentColor" />
+              )}
+              <span className={styles.srOnly}>{name}</span>
+              {/* The starred (first) image is the main one; starring another moves it first */}
+              <button
+                type="button"
+                className={styles.tileStar}
+                aria-pressed={i === 0}
+                aria-label={i === 0 ? `${name} is the main image` : `Make ${name} the main image`}
+                onClick={() => i !== 0 && set('images', [name, ...images.filter(n => n !== name)])}
+              >
+                <Icon name={i === 0 ? 'rating' : 'rating-hollow'} size={24} color="currentColor" />
+              </button>
+              <button type="button" className={styles.tileRemove} aria-label={`Remove ${name}`} onClick={() => set('images', images.filter(n => n !== name))}>
+                <Icon name="close" size={24} color="currentColor" />
+              </button>
+              <span className={styles.tileDrag} aria-hidden>
+                <Icon name="drag-indicator" size={24} color="currentColor" />
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className={`text-small-regular ${styles.cardHint}`}>
+        Drag to reorder. The starred image is the main image on lists, quotes and the catalog. JPG, PNG or WebP up to 25 MB.
+      </p>
+    </DetailCard>
+  );
+}
+
+/* ---------- Tracking ---------- */
+
+const TRACKING: { key: 'lotControl' | 'trackExpiry' | 'serialized' | 'nonInventory' | 'discontinued'; title: string; hint: string }[] = [
+  { key: 'lotControl', title: 'Lot control', hint: 'Receipts record a lot; picks and moves ask for it.' },
+  { key: 'trackExpiry', title: 'Track expiry dates (FEFO)', hint: 'Lots record an expiry date; picks use the earliest expiry first. Needs lot control.' },
+  { key: 'serialized', title: 'Serial numbers', hint: 'Each unit gets its own serial number.' },
+  { key: 'nonInventory', title: 'Non-inventory item', hint: 'Bought or sold but not stocked (e.g. a service).' },
+  {
+    key: 'discontinued',
+    title: 'Discontinued',
+    hint: 'Won’t be purchased again. When sold out, it’s replaced by its replacement item or simply stays inactive.',
+  },
+];
+
+/** Figma note: a part can be both lot controlled and serialized (rare). Expiry tracking needs lot control. */
+function TrackingCard({ draft, onDraftChange, set }: { draft: DetailsDraft; onDraftChange: (d: DetailsDraft) => void; set: SetField }) {
+  return (
+    <DetailCard id="item-tracking" title="Tracking">
+      {TRACKING.map(t => {
+        const needsLots = t.key === 'trackExpiry' && !draft.lotControl;
+        return (
+          <div key={t.key} className={styles.toggleRow}>
+            <span className={styles.toggleText}>
+              <span className="text-medium-bold" id={`track-${t.key}`}>
+                {t.title}
+              </span>
+              <span className={`text-tiny-regular ${styles.toggleHint}`}>{t.hint}</span>
+            </span>
+            <Toggle
+              aria-labelledby={`track-${t.key}`}
+              checked={draft[t.key] && !needsLots}
+              disabled={needsLots}
+              onChange={e => {
+                // Turning lot control off also stops expiry tracking
+                if (t.key === 'lotControl' && !e.target.checked) onDraftChange({ ...draft, lotControl: false, trackExpiry: false });
+                else set(t.key, e.target.checked);
+              }}
+            />
+          </div>
+        );
+      })}
+    </DetailCard>
+  );
+}
+
+/* ---------- Compliance ---------- */
+
+function ComplianceCard({ draft, set }: { draft: DetailsDraft; set: SetField }) {
+  return (
+    <DetailCard
+      id="item-compliance"
+      title="Compliance"
+      action={<MenuButton label="Mark All" items={COMPLIANCE_STATUSES.map(s => ({ label: s, onSelect: () => set('compliance', allCompliance(s)) }))} />}
+    >
+      {COMPLIANCE.map(c => (
+        <div key={c} className={styles.complianceRow}>
+          <span className="text-medium-regular">{c}</span>
+          <Dropdown
+            className={styles.complianceStatus}
+            variant="small"
+            label={`${c} status`}
+            hideLabel
+            options={options(COMPLIANCE_STATUSES)}
+            value={draft.compliance[c] ?? 'Not reviewed'}
+            onChange={v => set('compliance', { ...draft.compliance, [c]: v as ComplianceStatus })}
+          />
+        </div>
+      ))}
+    </DetailCard>
   );
 }
 
 /* ---------- Replacement Items ---------- */
 
-const REPLACEMENT_COLUMNS: DataColumn[] = [
-  { key: 'type', label: 'Type', width: 70 },
-  { key: 'number', label: 'Item', width: 144 },
-  { key: 'name', label: 'Name', width: 'fill' },
-];
-
+/** Figma note: drag to set the order they're offered in; the reason shows to the person picking a substitute. */
 function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string) => void }) {
   const all = useItems();
   const [open, setOpen] = useState(false);
-  const [menuFor, setMenuFor] = useState<string | null>(null);
-  const [sort, setSort] = useState<DataSort | undefined>();
-  const rows = sortRows(
-    item.replacements.map(id => all.find(i => i.id === id)).filter((i): i is Item => !!i),
-    sort,
-    (r, k) => (k === 'number' ? r.id : String(r[k as 'type' | 'name'])),
-  );
+  const inactiveReplacement = useHelperFlag('item.inactiveReplacement');
+  const linked = item.replacements.map(id => all.find(i => i.id === id)).filter((i): i is Item => !!i);
+  // Helper switch: "Inactive replacement" shows the first replacement as inactive, or adds an inactive item when there are none
+  const fallback = all.find(i => !i.active && i.id !== item.id);
+  const shown: Item[] = !inactiveReplacement ? linked : linked.length ? [{ ...linked[0], active: false }, ...linked.slice(1)] : fallback ? [fallback] : [];
+  const reasons = replacementReasons(item);
+  const drag = useReorder(shown, next => updateItem(item.id, x => ({ ...x, replacements: next.map(r => r.id) })));
+
   return (
-    <Card
+    <DetailCard
       id="item-replacements"
       title="Replacement Items"
       action={
@@ -469,98 +935,73 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
         </Button>
       }
     >
-      <div className={table.tableScroll}>
-        <div role="table" aria-label="Replacement items" className={`${table.table} ${styles.halfTable}`}>
-          <DataHeader className={table.head} corners="none" columns={REPLACEMENT_COLUMNS} leading="none" sort={sort} onSortChange={k => setSort(nextSort(k))} />
-          {rows.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No replacement items. Use Add Replacement to add one.</p>}
-          {rows.map((r, i) => (
-            <div key={r.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!r.active || undefined}>
-              <DataRow
-                className={table.row}
-                columns={REPLACEMENT_COLUMNS}
-                leading="none"
-                cells={{
-                  type: r.type,
-                  number: (
-                    <AppLink to={itemPath(r.id)} size="small">
-                      {r.id}
-                    </AppLink>
-                  ),
-                  name: r.name,
-                }}
-                moreLabel={`More actions for ${r.name}`}
-                onMore={() => setMenuFor(m => (m === r.id ? null : r.id))}
-              />
-              {menuFor === r.id && (
-                <RowMenu
-                  label={r.name}
-                  onClose={() => setMenuFor(null)}
-                  items={[
-                    {
-                      label: 'Remove',
-                      onSelect: () => {
-                        updateItem(item.id, x => ({ ...x, replacements: x.replacements.filter(id => id !== r.id) }));
-                        onNotice(`${r.name} is no longer a replacement.`);
-                      },
-                    },
-                  ]}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      {shown.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No replacement items. Use Add Replacement to add one.</p>}
+      <ul className={styles.detailList} aria-label="Replacement items">
+        {shown.map((r, i) => (
+          <li key={r.id} className={styles.replacementRow} data-inactive={!r.active || undefined} {...drag.item(i)}>
+            {/* Drag the row to reorder; with the keyboard, focus the handle and press ↑ / ↓ */}
+            <button
+              type="button"
+              className={styles.rowDrag}
+              aria-label={`Move ${r.name} (${i + 1} of ${shown.length}). Use the up and down arrow keys.`}
+              title="Drag to reorder"
+              onKeyDown={e => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  drag.move(i, e.key === 'ArrowUp' ? i - 1 : i + 1);
+                }
+              }}
+            >
+              <Icon name="drag-indicator" size={24} color="currentColor" />
+            </button>
+            {/* draggable={false}: a link drags itself as a URL, which would stop the row from moving */}
+            <AppLink to={itemPath(r.id)} size="small" className={styles.replacementName} draggable={false}>
+              {r.id} · {r.name}
+              {!r.active && ' (inactive)'}
+            </AppLink>
+            <Dropdown
+              className={styles.replacementReason}
+              variant="small"
+              label={`Why ${r.name} is offered`}
+              hideLabel
+              options={options(reasons)}
+              value={item.replacementReasons[r.id] ?? reasons[0]}
+              onChange={v => updateItem(item.id, x => ({ ...x, replacementReasons: { ...x.replacementReasons, [r.id]: v as string } }))}
+            />
+            <IconButton
+              size="compact"
+              icon="delete"
+              label={`Remove ${r.name}`}
+              onClick={() => {
+                updateItem(item.id, x => ({ ...x, replacements: x.replacements.filter(id => id !== r.id) }));
+                onNotice(`${r.name} is no longer a replacement.`);
+              }}
+            />
+          </li>
+        ))}
+      </ul>
       <ReplacementModal
         open={open}
         item={item}
         all={all}
         onClose={() => setOpen(false)}
         onSave={ids => {
-          updateItem(item.id, x => ({ ...x, replacements: ids }));
+          updateItem(item.id, x => ({ ...x, replacements: ids, replacementReasons: Object.fromEntries(ids.map(id => [id, x.replacementReasons[id] ?? reasons[0]])) }));
           setOpen(false);
           onNotice('Replacement items saved.');
         }}
       />
-    </Card>
+    </DetailCard>
   );
 }
 
-/* ---------- Package Quantities, Reorder Details, Last Purchase ---------- */
-
-function PackageCard({ draft, set }: { draft: DetailsDraft; set: SetField }) {
-  return (
-    <Card id="item-packages" title="Package Quantities">
-      <div className={styles.packageGrid} data-cols="2">
-        {PACKAGES.map(p => (
-          <PackageQuantity key={p.key} label={p.label} value={draft.packages[p.key]} onChange={v => set('packages', { ...draft.packages, [p.key]: v })} />
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-function PackageQuantity({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: { quantity: number | null; unit: string };
-  onChange: (v: { quantity: number | null; unit: string }) => void;
-}) {
-  return (
-    <>
-      <span className={styles.packageLabel}>{label}</span>
-      <NumericInput label={`${label} Quantity`} min={0} value={value.quantity} onValueChange={q => onChange({ ...value, quantity: q })} />
-      <Dropdown label="Unit of Measure" options={options(PACKAGE_UNITS)} value={value.unit} onChange={u => onChange({ ...value, unit: u as string })} />
-    </>
-  );
-}
+/* ---------- Reorder Details, Last Purchase (not on Figma's Details; kept until their tab exists) ---------- */
 
 function ReorderCard({ draft, set }: { draft: DetailsDraft; set: SetField }) {
   return (
     <Card
       id="item-reorder"
+      className={styles.detailCard}
       title="Reorder Details"
       action={
         <InfoCheckbox
@@ -591,7 +1032,7 @@ function LastPurchaseCard({ draft, set }: { draft: DetailsDraft; set: SetField }
   const lp = draft.lastPurchase;
   const change = (patch: Partial<DetailsDraft['lastPurchase']>) => set('lastPurchase', { ...lp, ...patch });
   return (
-    <Card id="item-last-purchase" title="Last Purchase">
+    <Card id="item-last-purchase" title="Last Purchase" className={styles.detailCard}>
       <div className={record.form}>
         <Dropdown label="Supplier" placeholder="Select" options={options(SUPPLIERS)} value={lp.supplier || null} onChange={v => change({ supplier: v as string })} />
         <div className={styles.fields2}>
@@ -635,6 +1076,7 @@ function SupplierCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
   return (
     <Card
       id="item-suppliers"
+      className={styles.detailCard}
       title="Supplier"
       action={
         <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
@@ -742,7 +1184,7 @@ const NOTE_COLUMNS: DataColumn[] = [
 
 function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => void }) {
   const { user } = useAuth();
-  const me = user?.name ?? 'Oswald Cobblepot';
+  const me = user?.name ?? 'TK-421';
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<Note | 'new' | null>(null);
   const [deleting, setDeleting] = useState<Note | null>(null);
@@ -750,7 +1192,10 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
   const [sort, setSort] = useState<DataSort | undefined>();
   const q = query.trim().toLowerCase();
   const pinned = (n: Note) => n.pinAll || (n.pinMe && n.author === me);
-  const found = item.notes.filter(n => !q || `${n.author} ${n.text} ${n.types.join(' ')}`.toLowerCase().includes(q));
+  // Helper switch: "No notes" lists none (the store keeps them)
+  const noNotes = useHelperFlag('item.noNotes');
+  const notes: Note[] = noNotes ? [] : item.notes;
+  const found = notes.filter(n => !q || `${n.author} ${n.text} ${n.types.join(' ')}`.toLowerCase().includes(q));
   const sorted = sortRows(found, sort, (n, k) => (k === 'updated' ? Date.parse(n.updated) || 0 : n.author));
   // Pinned notes stay on top
   const rows = [...sorted.filter(pinned), ...sorted.filter(n => !pinned(n))];
@@ -760,15 +1205,15 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
     <Card
       id="item-notes"
       title="Notes"
+      className={styles.detailCard}
       action={
-        <>
-          <SearchInput aria-label="Search notes" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
-          <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
-            Add Note
-          </Button>
-        </>
+        <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
+          Add Note
+        </Button>
       }
     >
+      {/* Figma Notes: the search runs full width under the title */}
+      <SearchInput aria-label="Search notes" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
       <div className={table.tableScroll}>
         <div role="table" aria-label="Notes" className={table.table}>
           <DataHeader className={table.head} corners="none" columns={NOTE_COLUMNS} leading="none" sort={sort} onSortChange={k => setSort(nextSort(k))} />
@@ -851,4 +1296,3 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
     </Card>
   );
 }
-

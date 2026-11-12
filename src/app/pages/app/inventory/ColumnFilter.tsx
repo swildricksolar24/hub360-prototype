@@ -4,8 +4,8 @@ import { TextInput } from '../../../../components/TextInput/TextInput';
 import styles from './warehouses.module.css';
 
 /**
- * The pop-over a table header's filter icon opens (DataHeader `onFilter`): a "Contains…" field with Clear and Apply.
- * It sits under the header cell it was opened from; put it inside the table's `tableScroll` box.
+ * The pop-over a table header's filter icon opens (DataHeader / DataTable `onFilter`): a "Contains…" field with Clear
+ * and Apply. It sits 4px under the header cell it was opened from; put it in a positioned box that holds the table.
  */
 export function ColumnFilter({
   anchor,
@@ -24,7 +24,9 @@ export function ColumnFilter({
 }) {
   const [text, setText] = useState(value);
   const ref = useRef<HTMLDivElement>(null);
+  // Under the header cell: its place in the table (the table starts at the top left of the box the filter sits in)
   const left = anchor ? anchor.offsetLeft : 0;
+  const top = anchor ? anchor.offsetTop + anchor.offsetHeight + 4 : undefined; // 4px gap, as menus open (space-4)
   useEffect(() => {
     ref.current?.querySelector('input')?.focus();
     const away = (e: PointerEvent) => {
@@ -37,7 +39,7 @@ export function ColumnFilter({
     <div
       ref={ref}
       className={styles.filter}
-      style={{ left }}
+      style={{ left, top }}
       role="dialog"
       aria-label={`Filter ${label}`}
       onKeyDown={e => {

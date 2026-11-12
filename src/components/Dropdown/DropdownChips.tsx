@@ -6,8 +6,11 @@ export type DropdownChipsProps = {
   items: { value: string; label: string }[];
   /** Called with the chip's value when its close icon (the whole chip) is pressed. */
   onRemove?: (value: string) => void;
-  /** brand = teal-tinted panel (Figma "chips", Filter Chip `Press`) · plain = no fill (Filter Chip `Press - Alt`). */
-  appearance?: 'brand' | 'plain';
+  /**
+   * brand = teal-tinted panel (Figma "chips", Filter Chip `Press`) · plain = no fill (Filter Chip `Press - Alt`) ·
+   * none = no panel at all: no fill, ring or padding, just the chips (Filter Chip `Press - No Panel`).
+   */
+  appearance?: 'brand' | 'plain' | 'none';
   error?: boolean;
   required?: boolean;
   disabled?: boolean;

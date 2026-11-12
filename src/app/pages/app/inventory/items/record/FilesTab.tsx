@@ -7,11 +7,13 @@ import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
 import { TextInput } from '../../../../../../components/TextInput/TextInput';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../../shell/PrototypeHelper';
 import { RowMenu } from '../../record/RowMenu';
 import { FILE_ICON, isImage, today, type FileType, type Item, type ItemFile } from '../itemData';
 import { updateItem } from '../itemStore';
 import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection } from '../shared';
-import { DeleteFilesModal, EditFileModal, FileTypeLabel, NewFolderModal, newFile, UploadFilesModal, UrlFileModal, useMe, ViewFileModal } from './FileModals';
+import { DeleteFilesModal, EditFileModal, FileTypeLabel, NewFolderModal, newFile, UploadFilesModal, UrlFileModal, useMe, useShownProfileImage, ViewFileModal } from './FileModals';
 import record from '../../record.module.css';
 import table from '../../table.module.css';
 import styles from '../items.module.css';
@@ -48,7 +50,11 @@ const cellValue = (f: ItemFile, key: string): string | number =>
  */
 export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: string) => void }) {
   const me = useMe();
-  const files = item.files;
+  // Helper switch: "No files" lists none (the store keeps them)
+  const noFiles = useHelperFlag('item.noFiles');
+  const files: ItemFile[] = noFiles ? [] : item.files;
+  // Helper switch: "Has profile image" shows one when the item has none
+  const profileImage = useShownProfileImage(item);
   const [folder, setFolder] = useState<string | null>(null);
   const [view, setView] = useState('all');
   const [query, setQuery] = useState('');
@@ -130,6 +136,11 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
 
   return (
     <div className={record.tab}>
+      <PrototypeHelper title="Files">
+        <HelperToggle flag="item.noFiles" label="No files" />
+        <HelperToggle flag="item.profileImage" label="Has profile image" />
+      </PrototypeHelper>
+
       <section className={record.card} aria-label="Files">
         <div className={styles.trail}>
           <Breadcrumb
@@ -350,7 +361,7 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
       <ViewFileModal
         files={viewable}
         fileId={viewing}
-        profileImage={item.profileImage}
+        profileImage={profileImage}
         onFileChange={setViewing}
         onClose={() => setViewing(null)}
         onEdit={f => setEditing(f)}

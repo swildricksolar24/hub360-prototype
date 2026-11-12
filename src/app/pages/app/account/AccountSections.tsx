@@ -60,7 +60,7 @@ export function PersonalInformation({ user }: { user: User | null }) {
             <TextInput label="Zip Code" defaultValue="85206" />
           </FieldRow>
           <FieldRow>
-            <TextInput label="Emergency Contact" defaultValue="Tim Drake" />
+            <TextInput label="Emergency Contact" defaultValue="Iden Versio" />
             <TextInput label="Emergency Contact Phone Number" type="tel" defaultValue="(123) 456-7891" />
           </FieldRow>
         </Fields>
@@ -264,7 +264,7 @@ export function WorkProfile({ user }: { user: User | null }) {
           <Managed label="Job Title" value="Operations Manager" />
           <Managed label="Department" value="Operations" />
           <Managed label="Employee ID" value="HUB-000417" />
-          <Managed label="Manager" value="Jonathan Crane" />
+          <Managed label="Manager" value="Firmus Piett" />
           <Managed label="Office / Location" value="Phoenix, Arizona" />
           <Managed label="Work Email" value={user?.email ?? ''} />
           <Managed label="Work Phone Number" value="602-555-0100" />

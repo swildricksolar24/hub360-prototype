@@ -63,7 +63,8 @@ export function SearchItemsModal({
           onChange={e => setQuery(e.target.value)}
           autoFocus
         />
-        {onAddNew && <MenuButton label="Add New" items={ITEM_TYPES.map(type => ({ label: type, icon: ITEM_ICONS[type], onSelect: () => onAddNew(type) }))} />}
+        {/* Add New ▾: just the type names, no icons */}
+        {onAddNew && <MenuButton label="Add New" items={ITEM_TYPES.map(type => ({ label: type, onSelect: () => onAddNew(type) }))} />}
       </div>
       {!q && <p className={`text-medium-regular ${styles.noResults}`}>Type a name, item # or type to find items.</p>}
       {q && results.length === 0 && (

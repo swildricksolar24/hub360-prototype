@@ -10,6 +10,7 @@ import { Progress } from '../../../../components/Progress/Progress';
 import { Timeline } from '../../../../components/Timeline/Timeline';
 import { UploadFile } from '../../../../components/UploadFile/UploadFile';
 import { AppModal } from '../../../components/AppModal';
+import { useHelperFlag } from '../../../shell/helperFlags';
 import { CANADA, MEXICO, TEMPLATE_HEADERS, USA, stateCodesFor, type Warehouse } from './warehouseData';
 import styles from './uploadFlow.module.css';
 import table from './table.module.css';
@@ -96,6 +97,16 @@ function autoMatch(headers: string[]) {
     used.add(field.key);
     return field.key;
   });
+}
+
+/**
+ * Helper switch "Upload has bad rows": two invalid rows after the file's own, copied from its first row, for the real
+ * validation to flag: one with a new Warehouse ID and no name, and an exact copy (its ID appears twice).
+ */
+function withBadRows(sheet: Sheet, mapping: string[]): Sheet {
+  const first = sheet.rows[0] ?? [];
+  const copy = (edit: Record<string, string>) => sheet.headers.map((_, i) => edit[mapping[i] ?? ''] ?? first[i] ?? '');
+  return { ...sheet, rows: [...sheet.rows, copy({ code: 'YUM-170', name: '' }), copy({})] };
 }
 
 const fileSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`);
@@ -210,6 +221,10 @@ export function UploadFlow({
   const [sort, setSort] = useState<DataSort | null>(null);
   const [order, setOrder] = useState<number[] | null>(null);
   const run = useRef(0);
+  // Helper switches (set on the Warehouses page)
+  const uploadFails = useHelperFlag('warehouses.uploadFails');
+  const badRows = useHelperFlag('warehouses.uploadBadRows');
+  const unmatched = useHelperFlag('warehouses.uploadUnmatched');
 
   useEffect(() => {
     if (!open) return;
@@ -217,6 +232,21 @@ export function UploadFlow({
     setStep('upload');
     setUpload(null);
   }, [open]);
+
+  /** The file's starting matches: by column name, or none while the Helper's "Unmatched columns" is on. */
+  function matchColumns(headers: string[]) {
+    // Helper switch "Unmatched columns": every column starts on "Needs a match"
+    const matched = unmatched ? headers.map(() => '') : autoMatch(headers);
+    setMapping(matched);
+    setAutoMatched(matched.filter(Boolean).length);
+  }
+
+  // Flipping "Unmatched columns" with a file already uploaded restarts its matching
+  const uploadedHeaders = upload?.sheet?.headers;
+  useEffect(() => {
+    if (uploadedHeaders) matchColumns(uploadedHeaders);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the switch flips
+  }, [unmatched]);
 
   /** Uploads the file: progress runs to 100% while the file is read, then Next unlocks (or the error shows). */
   async function start(file: File) {
@@ -231,14 +261,13 @@ export function UploadFlow({
     const [sheet] = await Promise.all([readSheet(file), new Promise(r => window.setTimeout(r, UPLOAD_MS))]);
     window.clearInterval(timer);
     if (run.current !== id) return;
-    if (!sheet) {
+    // Helper switch "Upload fails": every file goes to the upload error
+    if (!sheet || uploadFails) {
       setUpload(null);
       return setStep('error');
     }
     setUpload({ file, progress: 100, sheet });
-    const matched = autoMatch(sheet.headers);
-    setMapping(matched);
-    setAutoMatched(matched.filter(Boolean).length);
+    matchColumns(sheet.headers);
     setSort(null);
     setOrder(null);
   }
@@ -248,7 +277,9 @@ export function UploadFlow({
     setUpload(null);
   }
 
-  const sheet = upload?.progress === 100 ? upload.sheet : null;
+  const read = upload?.progress === 100 ? upload.sheet : null;
+  // Helper switch "Upload has bad rows": two invalid rows join what was read (the upload itself is unchanged)
+  const sheet = read && badRows ? withBadRows(read, mapping) : read;
   const statusOf = (key: string) => (key === SKIP ? 'skipped' : key ? 'matched' : 'needs');
   const counts = { matched: 0, needs: 0, skipped: 0 };
   mapping.forEach(m => counts[statusOf(m)]++);

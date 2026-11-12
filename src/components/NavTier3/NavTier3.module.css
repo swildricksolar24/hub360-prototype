@@ -13,11 +13,29 @@
   color: var(--color-gray-text-strong);
   font-family: var(--font-family-inter);
 }
+/*
+ * Collapsed (not in Figma beyond its one wide example): three columns, title block · section buttons · actions, and
+ * every part stays inside the card's content box at every width (nothing overflows the card or is clipped).
+ * NavTier3.tsx measures and sets data-fit:
+ *   h2 / h3 / h4 = Button Small sections with the title in that heading size;
+ *   compact = Button Tiny sections (the actions keep their look), a Heading 4 title that takes what is left
+ *     (--title-room, at least 48px), and a "More" menu for the sections that still don't fit;
+ *   icon = the same with the title text visually hidden;
+ *   picker = one "Current section ▾" menu instead of the section row;
+ *   wrap = the actions (which never change size) move to a second line, right-aligned. The only step off one row.
+ * From compact on, the free space is split evenly on both sides of the section row.
+ * Everything is centered on the line of the actions; "Last Modified" sits under the actions, right-aligned.
+ */
 .tier3[data-collapsed] {
-  flex-direction: row;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-12);
+}
+.tier3[data-collapsed]:is([data-fit='compact'], [data-fit='icon'], [data-fit='picker'], [data-fit='wrap']) {
+  grid-template-columns: max-content minmax(min-content, max-content) auto;
+  justify-content: space-between;
 }
 
 /* ---------- Expanded: top row ---------- */
@@ -87,30 +105,149 @@
   font-weight: 700;
 }
 /*
- * Collapsed: the whole title stays readable on one line (Figma truncates it to a 172px "WAREHO..."). The icon and
- * title keep their width; the sub menu takes the space left and wraps its buttons.
+ * Collapsed title: one line, Bold, stepping down from Heading 2 to Heading 3 and Heading 4 as the card narrows
+ * (data-fit). In compact it stays Heading 4 and is cut with an ellipsis when the Tiny row and the actions leave it
+ * less than its width, down to a 48px minimum.
  */
 .titleCollapsed {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tier3[data-collapsed] > .identity {
-  flex: none;
+.tier3[data-fit='h3'] .titleCollapsed,
+.measureTitle[data-heading='h3'] {
+  font-size: var(--font-size-heading-3);
+  line-height: var(--line-height-heading-3);
 }
-.tier3[data-collapsed] > .subMenu {
-  flex: 1;
-  min-width: 0;
+.tier3:is([data-fit='h4'], [data-fit='compact'], [data-fit='icon'], [data-fit='picker'], [data-fit='wrap']) .titleCollapsed,
+.measureTitle[data-heading='h4'] {
+  font-size: var(--font-size-heading-4);
+  line-height: var(--line-height-heading-4);
+}
+.tier3[data-fit='compact'] .titleCollapsed {
+  max-width: max(var(--space-48), var(--title-room));
+}
+/* icon / picker / wrap: the title is hidden from view but still read by screen readers (the icon block's tooltip shows it) */
+.tier3:is([data-fit='icon'], [data-fit='picker'], [data-fit='wrap']) .titleCollapsed {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/*
+ * The 62px icon is centered on the 44px line of the actions (the Small buttons' height): the negative margins let it
+ * reach 9px into the card's padding instead of making the row taller, so the actions stay at the top right.
+ */
+.tier3[data-collapsed] > .identity {
+  grid-column: 1;
+  grid-row: 1;
+  margin-block: calc((44px - 62px) / 2);
 }
 /*
  * Not in Figma: Collapsed keeps the actions and "Last Modified" in the same top-right spot as Expanded, so they
- * don't move when the header switches states.
+ * don't move when the header switches states. The end block's two parts take their own grid rows.
  */
 .tier3[data-collapsed] > .end {
-  flex: none;
-  align-self: flex-start;
+  display: contents;
 }
-/* The section buttons sit centered between the title and the actions (SubMenu's own list) */
+.tier3[data-collapsed] > .end > .actions {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+}
+.tier3[data-collapsed] > .end > .meta {
+  grid-column: 3;
+  grid-row: 2;
+  justify-self: end;
+}
+/*
+ * wrap: the actions move to their own line under the icon and section picker, right-aligned, and "Last Modified" under
+ * them. On a card narrower than the actions themselves, the actions wrap onto more lines, still right-aligned.
+ */
+.tier3[data-collapsed][data-fit='wrap'] {
+  /* Two columns (icon · picker); the actions and meta lines span both, so they are exactly the content width */
+  grid-template-columns: max-content minmax(0, 1fr);
+  justify-content: normal;
+}
+.tier3[data-collapsed][data-fit='wrap'] > .end > .actions {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.tier3[data-collapsed][data-fit='wrap'] > .end > .meta {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  min-width: 0;
+  text-align: right;
+}
+.tier3[data-collapsed][data-fit='wrap'] > .subMenu > ul {
+  justify-content: flex-start;
+}
+
+/*
+ * Section buttons: one line centered between the title and the actions, never wrapped or scrolled. Sub Menu Default
+ * (Button Small) while it fits; Sub Menu Tiny (Button Tiny) in compact; and when even that doesn't fit beside a 48px
+ * title, the buttons that don't fit move into "More".
+ */
+.tier3[data-collapsed] > .subMenu {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
 .tier3[data-collapsed] > .subMenu > ul {
+  flex-wrap: nowrap;
   justify-content: center;
+}
+.tier3[data-collapsed] > .subMenu li {
+  flex: none;
+}
+
+/*
+ * "More ▾" / the section picker and their ContextMenu, opening under the button, aligned to its left edge (the button
+ * sits left of the actions, so the menu has room to the right and never runs off the card's left side)
+ */
+.more {
+  position: relative;
+  display: inline-flex;
+}
+.morePopup {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--space-4));
+  left: 0;
+  min-width: max-content;
+}
+
+/* Hidden one-line copies that NavTier3.tsx measures; 0 x 0 and clipped, so they take no space */
+.measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+/* Each copy at its natural one-line width; the button copies keep their own display, so they measure like the real ones */
+.measure > * {
+  width: max-content;
+}
+.measureTitle {
+  display: block;
+  font-size: var(--font-size-heading-2);
+  line-height: var(--line-height-heading-2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.measure ul {
+  flex-wrap: nowrap;
 }
 
 /* ---------- Tier 3 Labels ---------- */

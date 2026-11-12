@@ -276,6 +276,16 @@
 .chips[data-disabled] {
   --chips-bg: var(--color-gray-fill-disabled);
 }
+/*
+ * none (Filter Chip `Press - No Panel`): just the chips, wrapping with their 8px gap; no panel fill, ring or padding. Required, error and
+ * disabled add no box either: the field shows those states, and disabled chips use their own disabled fill.
+ */
+.chips[data-appearance='none'] {
+  --chips-bg: transparent;
+  --chips-ring: transparent;
+  --chips-ring-w: 0px;
+  padding: 0;
+}
 
 /* Chip Tiny / Icon Right (teal pill), drawn here because the Chip component lives elsewhere */
 .chip {

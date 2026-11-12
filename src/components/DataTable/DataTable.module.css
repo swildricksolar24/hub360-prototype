@@ -5,7 +5,10 @@
  * Doubled classes outrank DataHeader's and DataRow's own fill, height, padding and line, whatever the CSS order.
  */
 
-/* Wide column sets scroll sideways inside their card */
+/*
+ * Fitting (DataTable.tsx, useFittingColumns): flexible columns shrink toward their minWidth, then columns with a
+ * priority hide; only a table that still doesn't fit scrolls sideways inside its card.
+ */
 .scroll {
   position: relative;
   min-width: 0;
@@ -14,7 +17,8 @@
 }
 .table {
   position: relative;
-  min-width: min-content;
+  /* useFittingColumns' narrowest width for the shown columns (min-content until it has measured) */
+  min-width: var(--table-min-width, min-content);
   /* Every row is the card color (Surfaces/Overlay) with 35% of Surfaces/Sunken mixed in */
   --row-bg: color-mix(in srgb, var(--color-surfaces-sunken) 35%, var(--color-surfaces-overlay));
 }
@@ -33,22 +37,26 @@
   min-width: var(--table-fill-min, 100px); /* layout width, no token */
 }
 
-/* Header and rows: 24px side insets and 16px between cells */
+/*
+ * Header and rows: the table density from DataHeader.module.css, --table-inset at the sides and --table-gap between
+ * cells (24 / 16 by default, 16 / 12 up to 1024px, 12 / 8 up to 767px)
+ */
 .head.head,
 .row.row {
-  gap: var(--space-16);
-  padding-inline: var(--space-24);
+  gap: var(--table-gap, var(--space-16));
+  padding-inline: var(--table-inset, var(--space-24));
 }
 /*
  * With the checkbox column, the leading cell is narrowed to its 8px inset + Figma's 20px box (the checkbox's 44px hit
- * area spills into the gap after it), and the rows start 16px in, so the box sits 24px from the edge.
+ * area spills into the gap after it), and the rows start 8px less in, so the box sits exactly --table-inset from the
+ * edge at every density.
  */
 .table[data-selectable] {
   --data-leading-width: 28px; /* 8px inset + 20px checkbox; component dimension, no token */
 }
 .table[data-selectable] .head.head,
 .table[data-selectable] .row.row {
-  padding-left: var(--space-16);
+  padding-left: calc(var(--table-inset, var(--space-24)) - var(--space-8));
 }
 .table[data-selectable] :is(.head, .row) > :first-child {
   min-width: 0;
@@ -68,15 +76,26 @@
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
 }
-/* Sort and filter icons fade in while the pointer is over the header (or one has focus), and stay on the sorted or
-   filtered column. The select-all checkbox (the leading cell's first child) is never hidden. */
+/*
+ * Sort and filter icons fade in while the pointer is over the header (or one has focus), and stay on the sorted or
+ * filtered column. While hidden they take no width, so the label can use the whole column; when they appear, the label
+ * keeps its place and ellipsizes if it must, to make room. They stay focusable (focus shows them). The select-all
+ * checkbox (the leading cell's first child) is never hidden.
+ */
 .head [role='columnheader'] > :not(:first-child) {
+  flex-shrink: 0;
+  max-width: 0;
+  overflow: hidden;
   opacity: 0;
-  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity 240ms cubic-bezier(0.2, 0, 0, 1),
+    max-width 240ms cubic-bezier(0.2, 0, 0, 1);
 }
 .head:is(:hover, :focus-within) [role='columnheader'] > :not(:first-child),
 .head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) > :not(:first-child),
 .head [role='columnheader'] > [aria-pressed='true'] {
+  /* The icons' own 24px (component dimension, no token) */
+  max-width: 24px;
   opacity: 1;
 }
 .head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) {
@@ -104,6 +123,24 @@
 .rowWrap:has(> .row[aria-selected='true']) {
   background: color-mix(in srgb, var(--color-brand-teal-fill-strong) 8%, var(--row-bg));
 }
+/*
+ * Summary row (`summary`, e.g. Stock's Totals, Figma 76:11638): the header's Brand Teal Fill/Weaker and bold values.
+ * It sits outside the row wrappers, so it gets no stripe or hover.
+ */
+.summary.summary {
+  background: var(--color-brand-teal-fill-weaker);
+}
+.summary [role='cell'] {
+  font-weight: 700;
+}
+
+/* Loading (`loading`): skeleton rows on the row background, the table's side inset and the row divider */
+.skeletonRow {
+  padding: var(--space-16) var(--table-inset, var(--space-24));
+  background: var(--row-bg);
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-disabled);
+}
+
 /* Inactive rows: the values switch to the weak text color */
 .rowWrap[data-inactive] .row [role='cell'] {
   color: var(--color-gray-text-weak);
@@ -121,7 +158,7 @@
 }
 
 .empty {
-  padding: var(--space-16) var(--space-24);
+  padding: var(--space-16) var(--table-inset, var(--space-24));
   color: var(--color-gray-text-weak);
   font-family: var(--font-family-inter);
   font-size: var(--font-size-medium);

@@ -2,10 +2,29 @@
 .shell {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  /* One column as wide as the window: wide page content (e.g. a table) scrolls inside the page instead of widening the shell */
-  grid-template-columns: minmax(0, 1fr);
+  /*
+   * One column as wide as the window, but never narrower than 1024px: below that the shell stops shrinking and scrolls
+   * sideways, with its scrollbar along the bottom (inside the shell, so the footer stays in view). Wide page content
+   * (e.g. a table) still scrolls inside the page instead of widening the shell.
+   */
+  grid-template-columns: minmax(1024px, 1fr); /* the smallest supported layout width; no token */
   height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Contains absolutely positioned bits (e.g. the footer's screen-reader-only text), so they scroll with the shell
+     instead of widening the whole document */
+  position: relative;
   background: var(--color-surfaces-raised);
+}
+/*
+ * The shell never gets narrower than 1024px, so Volt's 767px table density step (--table-inset 12 / --table-gap 8)
+ * would only squeeze tables that already have their 1024px room: keep the 1024px values (16 / 12) instead.
+ */
+@media (max-width: 767px) {
+  .shell {
+    --table-inset: var(--space-16);
+    --table-gap: var(--space-12);
+  }
 }
 
 /* Header brand: the HUB360 logo, then the current Tier 1 section after a thin divider, at the logo's text size */
@@ -33,6 +52,22 @@
   flex: none;
   overflow-y: auto;
   background: var(--color-surfaces-base);
+}
+/*
+ * Shell only: under 1280px Tier 1 gets narrower side padding, Volt space-8 instead of NavTier1's space-16 (space-4
+ * instead of space-8 when compact), so the page has more room. The doubled class outranks NavTier1's own padding rules.
+ */
+@media (max-width: 1279px) {
+  /* The header's sides too: Volt space-24 instead of Header's space-48 */
+  .header.header {
+    padding-inline: var(--space-24);
+  }
+  .tier1.tier1:not([data-compact]) {
+    padding-inline: var(--space-8);
+  }
+  .tier1.tier1[data-compact] {
+    padding-inline: var(--space-4);
+  }
 }
 
 /* Holds Tier 2 so its width can animate open (AppShell.tsx); clips the menu while it grows */
@@ -103,5 +138,106 @@
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  /* The vertical scrollbar's room is always kept, so page widths (and the tables that fit their columns to them)
+     don't jump when a page grows tall enough to scroll */
+  scrollbar-gutter: stable;
   padding: var(--space-24);
+}
+/*
+ * Smaller screens get less room around the page: 16px from 1024px down (a step the app adds; Volt has no tablet
+ * breakpoint). The shell stops shrinking at 1024px (it scrolls sideways below that), so there's no smaller step.
+ */
+@media (max-width: 1024px) {
+  .content {
+    padding: var(--space-16);
+  }
+}
+
+/*
+ * Helper panel (PrototypeHelper.tsx; a prototype tool, not in Figma): opened from the tab bar's life preserver icon, it hangs 4px under
+ * the tab bar at the top right, below the icon. A raised card with the drop shadow; the dashed Brand Orange Stroke/Strong
+ * outline marks it as a prototype tool rather than product UI. Over the page and header; dialogs (the top layer) and toasts stay above it.
+ */
+.helper {
+  position: fixed;
+  top: calc(var(--space-40) + var(--space-4)); /* the 40px tab bar + 4px */
+  right: var(--space-8);
+  z-index: 20; /* over the header and page menus; under toasts (1000) */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 280px; /* panel width; layout width, no token */
+  /* Never past the footer: the 40px tab bar + 4px above, the 42px footer + 16px below; the switches scroll inside */
+  max-height: calc(100vh - var(--space-40) - var(--space-4) - 42px - var(--space-16));
+  box-sizing: border-box;
+  padding: var(--space-8) var(--space-8) var(--space-16) var(--space-16);
+  border: var(--stroke-width-1) dashed var(--color-brand-orange-stroke-strong);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-raised);
+  box-shadow: var(--shadow-drop);
+  color: var(--color-gray-text-strong);
+  font-family: var(--font-family-inter);
+}
+.helper[hidden] {
+  display: none;
+}
+.helperHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+.helperHead h2,
+.helperNote {
+  margin: 0;
+}
+.helperNote {
+  margin-top: calc(-1 * var(--space-8)); /* tucks the note under the title, past the close button's height */
+  padding-right: var(--space-8);
+  /* 20% text: Gray Text/Disabled */
+  color: var(--color-gray-text-disabled);
+}
+/* A page without a helper: one line saying so */
+.helperEmpty {
+  margin: 0;
+  padding-right: var(--space-8);
+  color: var(--color-gray-text-strong);
+}
+.helperBody[hidden] {
+  display: none;
+}
+/* The page's controls: groups 16px apart, scrolling when there are more than fit */
+.helperBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: var(--space-8);
+}
+.helperBody p {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+/* One page's (or tab's) group: an optional small title, then its switches and buttons, stacked 8px apart */
+.helperGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-8);
+}
+.helperGroup > label {
+  align-self: flex-start;
+}
+.helperGroupTitle {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+  text-transform: uppercase;
+  letter-spacing: 0.04em; /* small caps label; no letter-spacing token */
+}
+/* "Turn All Off": under a line, once any switch is on */
+.helperFoot {
+  display: flex;
+  padding: var(--space-12) var(--space-8) 0 0;
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-disabled);
 }

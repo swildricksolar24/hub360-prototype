@@ -68,7 +68,9 @@ It uses the coded design system in this repo as the source of truth.
     place on deeper paths.
   - The app tab's label is the warehouse name, e.g. "Phoenix WH", from `recordLabel` on the Warehouses entry in
     `navigation.ts`. Its title is "Inventory · Warehouses · Phoenix WH".
-  - ‹ / › and leaving a deleted record navigate with `state: { replaceTab: true }`, which reuses the current app tab.
+  - Opening a record from the list stays in the current app tab (only Tier 1 / Tier 2 open new tabs). ‹ / › and
+    leaving a deleted record navigate with `state: { replaceTab: true }`, which also closes the current tab when
+    the page it goes to is already open in another.
 - **Opening a record:** in the Warehouses list, the code and name cells link to the record, and ••• › View opens it.
   DataRow has no row-click, so links keep it keyboard-accessible.
 - **Shared data:** today the warehouse list is local state in `WarehousesPage`. Move it into a small in-memory store,
@@ -220,17 +222,17 @@ One untitled card, with `⊕ Add Contact` on the right above the table.
 |---|---|
 | ☐ | |
 | ★ | Filled for the warehouse's primary contact. Clicking a star makes that contact primary; only one star is filled at a time. |
-| Name | Waylon Jones |
+| Name | Orson Krennic |
 | Phone # | 602-358-9652 |
-| Email | wjones@hb360.com |
+| Email | okrennic@hb360.com |
 | Role | Manager |
 | Additional Roles | Tags: Shipping, Receiving |
 | (status pill) | Active |
 | ••• | Edit, View Profile, Activate / Deactivate, Remove |
 
 The other sample rows:
-- Obi Wan · 526-365-5569 · owan@hb360.com · Accounting · Inactive
-- Pamela Isley · 480-320-2253 · pisely@hb360.com · Associate · Inventory Control · Active
+- Obi Wan · 526-365-5569 · skarn@hb360.com · Accounting · Inactive
+- Kendal Ozzel · 480-320-2253 · pisely@hb360.com · Associate · Inventory Control · Active
 
 Fix Figma's "Recieving" typo. Clicking a row opens 2c.
 
@@ -344,6 +346,12 @@ first setup. The list view, the open printer and its view are in the URL: `?tab=
   Maintenance), Default Use (the warehouse's document defaults, "If this printer is offline", "Who can print here") and
   Print Jobs (the failed-job notice with Send to Another Printer / Retry Job, filters, the job table with Reprint /
   Retry / Cancel). The header's Edit edits Settings and Default Use together, with the edit banner above the header.
+- **Helper switches (a prototype tool, not in Figma):** each tab adds on / off switches to the shell's Helper panel
+  (`shell/PrototypeHelper.tsx`, `shell/helperFlags.ts`; the life preserver icon beside All tabs) for states the sample
+  data doesn't show: empty lists (carriers, contacts, label defaults, locations, items, stock, history), no primary
+  contact, and on Printers: no printers, agent offline, the open printer offline / paused / inactive, no document
+  defaults, a default with no printer, and on Print Jobs a failed job (with the next one held) and a queued job. They
+  change the view only. Print Jobs' failed-job alert is Volt's ActionBanner, with a fix for each error.
 - **Default Use and Pick / Pack:** Default Use edits the warehouse's document defaults (`printerData` defaults). Figma
   says these are the same as Pick / Pack › Label Defaults; in the prototype the two lists are still separate.
 
@@ -490,7 +498,7 @@ There is a pager. Use real-looking sample items in place of Figma's placeholders
 |---|---|
 | Action Type | Teal badge: Stock Order / Pick Order / Build Order / Move Order |
 | Action Performed | Wraps to two lines, with links to the order or item |
-| Created By | Roman Sionis |
+| Created By | Maximilian Veers |
 | Date Created | Two lines: Jun 16, 2026, then 12:37:45 PM |
 
 - Rows are 80px tall, with no checkboxes and no •••.

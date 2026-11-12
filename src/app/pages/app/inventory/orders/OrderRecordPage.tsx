@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Icon } from '../../../../../components/Icon/Icon';
 import { Message, type MessageType } from '../../../../../components/Message/Message';
@@ -9,11 +9,23 @@ import { useWarehouses } from '../warehouseStore';
 import { AdjustmentTable, netCost } from './AdjustmentTable';
 import { MoveItemsTable } from './MoveItemsTable';
 import { OrderTag } from './OrderStatus';
-import { DESIGNED_TYPES, adjustLineError, count, formatDate, money, moveLineErrors, type Order } from './orderData';
+import {
+  DESIGNED_TYPES,
+  adjustLineError,
+  count,
+  formatDate,
+  money,
+  moveLineErrors,
+  type AdjustLine,
+  type MoveLine,
+  type Order,
+} from './orderData';
 import { orderPath, updateOrder, useOrders } from './orderStore';
 import record from '../record.module.css';
 import styles from './orders.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
+import { useHelperFlag } from '../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 
 const LIST_PATH = '/app/inventory/orders';
 
@@ -57,6 +69,19 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
 
   const designed = DESIGNED_TYPES.includes(order.type);
   const isMove = order.type === 'Move';
+
+  // Helper switch: "Empty order" shows the order with no lines. Edits made while it's on go to a scratch list that's
+  // dropped when it goes off; the order's own lines (and Save, which writes them) are untouched.
+  const emptyOrder = useHelperFlag('order.empty') && designed;
+  const [scratchMove, setScratchMove] = useState<MoveLine[]>([]);
+  const [scratchAdjust, setScratchAdjust] = useState<AdjustLine[]>([]);
+  useEffect(() => {
+    if (!emptyOrder) return;
+    setScratchMove([]);
+    setScratchAdjust([]);
+  }, [emptyOrder]);
+  const shownMove = emptyOrder ? scratchMove : moveLines;
+  const shownAdjust = emptyOrder ? scratchAdjust : adjustLines;
   const open = order.status === 'In Process';
   const say = (text: string, type: MessageType = 'success') => setNotice({ text, type });
 
@@ -67,11 +92,11 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
 
   // Process Move / Post Adjustment check every line first; unfinished lines open with their errors
   function finish() {
-    const lineCount = isMove ? moveLines.length : adjustLines.length;
+    const lineCount = isMove ? shownMove.length : shownAdjust.length;
     if (lineCount === 0) return say(`Add at least one item before you ${isMove ? 'process this move' : 'post this adjustment'}.`, 'error');
     const unfinished = isMove
-      ? moveLines.filter(l => Object.keys(moveLineErrors(l)).length > 0).length
-      : adjustLines.filter(l => adjustLineError(l)).length;
+      ? shownMove.filter(l => Object.keys(moveLineErrors(l)).length > 0).length
+      : shownAdjust.filter(l => adjustLineError(l)).length;
     if (unfinished > 0) {
       setValidateSignal(n => n + 1);
       return say(
@@ -101,8 +126,8 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
   const go = (to: Order | undefined) => (to ? () => navigate(orderPath(to), { state: { replaceTab: true } }) : undefined);
 
   const warehouseName = warehouses.find(w => w.code === order.warehouse)?.name ?? '—';
-  const units = moveLines.reduce((sum, l) => sum + (l.moveQty ?? 0), 0);
-  const total = adjustLines.reduce((sum, l) => sum + netCost(l), 0);
+  const units = shownMove.reduce((sum, l) => sum + (l.moveQty ?? 0), 0);
+  const total = shownAdjust.reduce((sum, l) => sum + netCost(l), 0);
 
   const options =
     open && designed
@@ -130,8 +155,8 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
   } else if (isMove) {
     body = (
       <MoveItemsTable
-        lines={moveLines}
-        onLinesChange={setMoveLines}
+        lines={shownMove}
+        onLinesChange={emptyOrder ? setScratchMove : setMoveLines}
         status={order.status}
         validateSignal={validateSignal}
         onNotice={(text, type) => say(text, type)}
@@ -140,8 +165,8 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
   } else {
     body = (
       <AdjustmentTable
-        lines={adjustLines}
-        onLinesChange={setAdjustLines}
+        lines={shownAdjust}
+        onLinesChange={emptyOrder ? setScratchAdjust : setAdjustLines}
         status={order.status}
         validateSignal={validateSignal}
         onNotice={(text, type) => say(text, type)}
@@ -151,6 +176,12 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
 
   return (
     <>
+      {/* Only the designed types (Move, Adjustment) have lines to empty */}
+      {designed && (
+        <PrototypeHelper title="Order">
+          <HelperToggle flag="order.empty" label="Empty order" />
+        </PrototypeHelper>
+      )}
       <RecordPage
         title={order.number}
         icon="in-process"
@@ -203,14 +234,14 @@ function OrderRecord({ order, previous, next }: { order: Order; previous?: Order
         description={
           confirming === 'post' ? (
             <>
-              You are about to <strong className={styles.verb}>POST</strong> this adjustment: {count(adjustLines.length)}{' '}
-              {adjustLines.length === 1 ? 'line' : 'lines'}, net cost {money(total)}. On-hand quantities change immediately. Do you
+              You are about to <strong className={styles.verb}>POST</strong> this adjustment: {count(shownAdjust.length)}{' '}
+              {shownAdjust.length === 1 ? 'line' : 'lines'}, net cost {money(total)}. On-hand quantities change immediately. Do you
               want to continue?
             </>
           ) : (
             <>
-              You are about to <strong className={styles.verb}>PROCESS</strong> this move: {count(moveLines.length)}{' '}
-              {moveLines.length === 1 ? 'line' : 'lines'}, {count(units)} units. The stock moves to its new locations immediately.
+              You are about to <strong className={styles.verb}>PROCESS</strong> this move: {count(shownMove.length)}{' '}
+              {shownMove.length === 1 ? 'line' : 'lines'}, {count(units)} units. The stock moves to its new locations immediately.
               Do you want to continue?
             </>
           )

@@ -102,7 +102,7 @@ export const SPEEDS = ['2 in/s', '4 in/s', '6 in/s', '8 in/s'];
 export const DARKNESS = ['10', '12', '15', '18 (default 15)', '20', 'Default (15)'];
 export const DOCUMENT_SIZES = ['2 × 1', '3 × 2', '4 × 6', '4 × 8', 'Letter'];
 export const TRIGGERS = ['Sale is shipped', 'Packing is finished', 'Order is approved', 'Purchase is received', 'Only when printed by hand'];
-export const NOTIFY = ['Warehouse manager', 'Warehouse manager · K. Ito', 'Shipping lead', 'Nobody'];
+export const NOTIFY = ['Warehouse manager', 'Warehouse manager · O. Krennic', 'Shipping lead', 'Nobody'];
 export const PRINT_ROLES = ['Shipping', 'Warehouse Staff', 'Receiving', 'Warehouse Manager'];
 export const LABEL_LANGUAGES = ['ZPL (Zebra)', 'EPL', 'PDF'];
 export const RETRIES = ['Don’t retry', '3 times, 1 minute apart', '5 times, 1 minute apart'];
@@ -129,10 +129,10 @@ const base = {
   paused: false,
   labelsPrinted: 48210,
   rollPrinted: 412,
-  lastCalibrated: 'Oct 28, 2026 · K. Ito',
+  lastCalibrated: 'Oct 28, 2026 · O. Krennic',
   firmware: 'V92.21.39Z',
   lastChecked: '2 min ago · responded in 38 ms',
-  offlineNotify: 'Warehouse manager · K. Ito',
+  offlineNotify: 'Warehouse manager · O. Krennic',
   offlineHold: false,
   roles: ['Shipping', 'Warehouse Staff', 'Warehouse Manager'],
 };
@@ -162,13 +162,13 @@ export const SAMPLE_DEFAULTS: PrintDefault[] = [
 ];
 
 export const SAMPLE_JOBS: PrintJob[] = [
-  { id: 'j1', printerId: 'pr3', time: '2:16 PM', document: 'Shipping label', record: 'SO-10480', sentBy: 'K. Ito', copies: 2, size: '4 × 6', status: 'Held' },
-  { id: 'j2', printerId: 'pr3', time: '2:14 PM', document: 'Packing labels', record: 'SO-10480', sentBy: 'K. Ito', copies: 3, size: '4 × 6', status: 'Failed', error: 'out of labels' },
-  { id: 'j3', printerId: 'pr3', time: '1:52 PM', document: 'Carton labels', record: 'TR-10482', sentBy: 'D. Chen', copies: 4, size: '4 × 6', status: 'Printed' },
-  { id: 'j4', printerId: 'pr3', time: '11:30 AM', document: 'Location labels', record: 'Aisle 02 · 12 bins', sentBy: 'A. Rivera', copies: 12, size: '2 × 1', status: 'Printed' },
-  { id: 'j5', printerId: 'pr3', time: '9:05 AM', document: 'Test page', record: '—', sentBy: 'L. Nguyen', copies: 1, size: '4 × 6', status: 'Printed' },
-  { id: 'j6', printerId: 'pr1', time: '1:10 PM', document: 'Pick ticket', record: 'SO-10477', sentBy: 'D. Chen', copies: 1, size: 'Letter', status: 'Printed' },
-  { id: 'j7', printerId: 'pr2', time: '12:41 PM', document: 'Packing slip', record: 'SO-10476', sentBy: 'K. Ito', copies: 1, size: 'Letter', status: 'Printed' },
+  { id: 'j1', printerId: 'pr3', time: '2:16 PM', document: 'Shipping label', record: 'SO-10480', sentBy: 'O. Krennic', copies: 2, size: '4 × 6', status: 'Held' },
+  { id: 'j2', printerId: 'pr3', time: '2:14 PM', document: 'Packing labels', record: 'SO-10480', sentBy: 'O. Krennic', copies: 3, size: '4 × 6', status: 'Failed', error: 'out of labels' },
+  { id: 'j3', printerId: 'pr3', time: '1:52 PM', document: 'Carton labels', record: 'TR-10482', sentBy: 'D. Meero', copies: 4, size: '4 × 6', status: 'Printed' },
+  { id: 'j4', printerId: 'pr3', time: '11:30 AM', document: 'Location labels', record: 'Aisle 02 · 12 bins', sentBy: 'A. Kallus', copies: 12, size: '2 × 1', status: 'Printed' },
+  { id: 'j5', printerId: 'pr3', time: '9:05 AM', document: 'Test page', record: '—', sentBy: 'L. Needa', copies: 1, size: '4 × 6', status: 'Printed' },
+  { id: 'j6', printerId: 'pr1', time: '1:10 PM', document: 'Pick ticket', record: 'SO-10477', sentBy: 'D. Meero', copies: 1, size: 'Letter', status: 'Printed' },
+  { id: 'j7', printerId: 'pr2', time: '12:41 PM', document: 'Packing slip', record: 'SO-10476', sentBy: 'O. Krennic', copies: 1, size: 'Letter', status: 'Printed' },
 ];
 
 export const SAMPLE_PRINT_SETTINGS: PrintSettings = {

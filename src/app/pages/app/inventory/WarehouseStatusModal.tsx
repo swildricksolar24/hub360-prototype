@@ -3,10 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { TextInput } from '../../../../components/TextInput/TextInput';
 import { Toggle } from '../../../../components/Toggle/Toggle';
 import { AppModal } from '../../../components/AppModal';
+import { useHelperFlag } from '../../../shell/helperFlags';
 import { formatDate } from './orders/orderData';
 import { useOrders } from './orders/orderStore';
 import type { Warehouse } from './warehouseData';
-import { addStatusEvent, getCarriers, getLocations, getStatusLog, recordPath, setLocations, setWarehouses } from './warehouseStore';
+import {
+  addStatusEvent,
+  getCarriers,
+  getLocations,
+  getStatusLog,
+  recordPath,
+  setLocations,
+  setWarehouses,
+  type StatusEvent,
+} from './warehouseStore';
 import styles from './warehouseStatus.module.css';
 
 /** The choices on the Activate confirmation (Figma "Activation" options). */
@@ -16,6 +26,9 @@ const money = (n: number) => n.toLocaleString('en-US', { style: 'currency', curr
 const count = (n: number) => n.toLocaleString('en-US');
 const plural = (n: number, one: string, many = `${one}s`) => `${count(n)} ${n === 1 ? one : many}`;
 const sum = (list: Warehouse[], value: (w: Warehouse) => number) => list.reduce((total, w) => total + value(w), 0);
+
+/** Helper switch "Show deactivation history": the past deactivation shown when the status log has none. */
+const SAMPLE_LAST_OFF: StatusEvent = { active: false, by: 'O. Krennic', date: '2026-10-12T09:30:00' };
 
 /**
  * Applies a confirmed Activate / Deactivate: flips the status, logs who did it, when and the note, and unfreezes the
@@ -63,6 +76,9 @@ export function WarehouseStatusModal({
 }) {
   const navigate = useNavigate();
   const orders = useOrders();
+  // Helper switches (set on the Warehouses page)
+  const nothingHeld = useHelperFlag('warehouses.nothingHeld');
+  const showHistory = useHelperFlag('warehouses.deactivationHistory');
   const [note, setNote] = useState('');
   const [options, setOptions] = useState<ActivateOptions>({ notifyContacts: true, unfreezeLocations: false, suggestedOrders: true });
 
@@ -85,7 +101,9 @@ export function WarehouseStatusModal({
   const frozen = sum(warehouses, w => getLocations(w.code).filter(l => l.frozen).length);
   const carriers = warehouses.flatMap(w => getCarriers(w.code));
   const inactiveCarriers = carriers.filter(c => !c.active).length;
-  const lastOff = one ? [...getStatusLog(one.code)].reverse().find(e => !e.active) : undefined;
+  const loggedOff = one ? [...getStatusLog(one.code)].reverse().find(e => !e.active) : undefined;
+  // Helper switch "Show deactivation history": an inactive warehouse with no logged deactivation shows a sample one
+  const lastOff = loggedOff ?? (showHistory && one && !one.active ? SAMPLE_LAST_OFF : undefined);
 
   const close = (then?: () => void) => {
     onClose();
@@ -93,7 +111,10 @@ export function WarehouseStatusModal({
   };
 
   if (!active) {
-    const holds = value > 0 || openOrders.length > 0;
+    // Helper switch "Nothing still held": no stock and no open orders, so the plain deactivate shows
+    const heldValue = nothingHeld ? 0 : value;
+    const heldOrders = nothingHeld ? [] : openOrders;
+    const holds = heldValue > 0 || heldOrders.length > 0;
     return (
       <AppModal
         open={open}
@@ -105,7 +126,7 @@ export function WarehouseStatusModal({
             : 'Deactivated warehouses can’t receive new orders or stock. You can reactivate them at any time.'
         }
         startAction={
-          one && openOrders.length > 0
+          one && heldOrders.length > 0
             ? { label: 'View Open Orders', icon: 'orders', onClick: () => close(() => navigate(`/app/inventory/orders?q=${encodeURIComponent(one.code)}`)) }
             : undefined
         }
@@ -115,14 +136,14 @@ export function WarehouseStatusModal({
           {holds && (
             <div className={styles.impact} data-tone="warning">
               <p className="text-medium-bold">{one ? 'This warehouse still has:' : 'These warehouses still have:'}</p>
-              {value > 0 && (
+              {heldValue > 0 && (
                 <p className="text-medium-regular">
-                  • {money(value)} of stock across {plural(sum(warehouses, w => w.filled), 'filled location')}
+                  • {money(heldValue)} of stock across {plural(sum(warehouses, w => w.filled), 'filled location')}
                 </p>
               )}
-              {openOrders.length > 0 && (
+              {heldOrders.length > 0 && (
                 <p className="text-medium-regular">
-                  • {plural(openOrders.length, 'open order')} ({byType.join(', ')})
+                  • {plural(heldOrders.length, 'open order')} ({byType.join(', ')})
                 </p>
               )}
               <p className={`text-tiny-regular ${styles.footnote}`}>

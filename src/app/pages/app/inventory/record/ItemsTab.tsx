@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DataHeader, type DataColumn } from '../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { useHelperFlag } from '../../../../shell/helperFlags';
 import type { Warehouse } from '../warehouseData';
 import type { CatalogItem, ItemType, WarehouseItem } from '../warehouseRecordData';
 import {
@@ -17,18 +18,19 @@ import {
 } from '../warehouseStore';
 import { CloneWarehouseModal, ConfirmCloneModal, ItemFormModal, RemoveItemsModal, SearchItemsModal } from './ItemModals';
 import { RowMenu } from './RowMenu';
-import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
 import styles from '../record.module.css';
-import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
 // 578 fixed + checkbox 28 + ••• 44 + 7 gaps × 16 + 40 padding = 802, leaving Name (the fill column) about 270px at 1440px
+// On a narrow card the columns shrink to their minWidth (text wraps to 2 lines); nothing hides
 const COLUMNS: DataColumn[] = [
-  { key: 'number', label: 'Item #', width: 130 },
-  { key: 'name', label: 'Name', width: 'fill' },
+  // Wide enough for the longest item number on one line ("0004-5896-4521": 115px + the cell's 16px padding)
+  { key: 'number', label: 'Item #', width: 136, minWidth: 132 },
+  { key: 'name', label: 'Name', width: 'fill', minWidth: 120 },
   { key: 'type', label: 'Type', width: 84 },
-  { key: 'category', label: 'Category', width: 116 },
-  { key: 'subCategory', label: 'Sub Category', width: 140 },
+  { key: 'category', label: 'Category', width: 116, minWidth: 100 },
+  { key: 'subCategory', label: 'Sub Category', width: 140, minWidth: 110 },
   // Figma: the status pill has no header, and sits right before the ••• button
   { key: 'status', label: 'Status', width: 108, align: 'end', labelHidden: true, sortable: false },
 ];
@@ -48,7 +50,11 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
  */
 export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: string) => void }) {
   const navigate = useNavigate();
-  const items = useWarehouseItems(code);
+  const stored = useWarehouseItems(code);
+  // Helper switch: no items, so the table's "No items yet" shows (the view only; the store keeps its rows, and the
+  // duplicate checks in Add Item and Clone Warehouse still read it)
+  const empty = useHelperFlag('warehouseItems.empty');
+  const items = empty ? [] : stored;
   const catalog = useCatalog();
   const stock = useStock(code);
   const warehouses = useWarehouses();
@@ -71,13 +77,13 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
 
   const update = (next: (list: WarehouseItem[]) => WarehouseItem[]) => setWarehouseItems(code, next);
   function add(list: CatalogItem[]) {
-    const ids = new Set(items.map(i => i.id));
+    const ids = new Set(stored.map(i => i.id));
     const fresh = list.filter(i => !ids.has(i.id));
     update(current => [...current, ...fresh.map(i => ({ ...i, active: true }))]);
     return fresh.length;
   }
   const missingFrom = (w: Warehouse) => {
-    const ids = new Set(items.map(i => i.id));
+    const ids = new Set(stored.map(i => i.id));
     return getWarehouseItems(w.code).filter(i => !ids.has(i.id));
   };
   const setActive = (ids: string[], active: boolean) => {
@@ -89,6 +95,9 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
   return (
     <div className={styles.tab}>
       {info && <Toast type="info" title={info} onClose={() => setInfo(null)} />}
+      <PrototypeHelper title="Items">
+        <HelperToggle flag="warehouseItems.empty" label="No items" />
+      </PrototypeHelper>
       <section className={styles.card} aria-label="Items">
         <TableToolbar
           label="Items"
@@ -98,9 +107,9 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
-              { value: 'activate', label: 'Activate selected', disabled: t.selectedRows.length === 0 },
-              { value: 'deactivate', label: 'Deactivate selected', disabled: t.selectedRows.length === 0 },
-              { value: 'remove', label: 'Remove selected', disabled: t.selectedRows.length === 0 },
+              { value: 'activate', label: 'Activate', disabled: t.selectedRows.length === 0 },
+              { value: 'deactivate', label: 'Deactivate', disabled: t.selectedRows.length === 0 },
+              { value: 'remove', label: 'Remove', disabled: t.selectedRows.length === 0 },
               { value: 'export', label: 'Export to CSV' },
             ],
             onAction: v => {
@@ -117,65 +126,57 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
           trailing={
             <MenuButton
               label="Add Item"
+              icon="plus"
               items={[
-                { label: 'Add Item', icon: 'plus', onSelect: () => setSearching(true) },
-                { label: 'Clone Warehouse', icon: 'warehouse', onSelect: () => setCloning(true) },
+                { label: 'Add Item', onSelect: () => setSearching(true) },
+                { label: 'Clone Warehouse', onSelect: () => setCloning(true) },
               ]}
             />
           }
         />
-        <div className={table.tableScroll}>
-          <div role="table" aria-label="Warehouse items" className={table.table}>
-            <DataHeader className={table.head} corners="none" columns={cols.columns} leading="checkbox" {...t.headerProps} />
-            {t.pageRows.length === 0 && (
-              <p className={`text-medium-regular ${styles.emptyRow}`}>
-                {items.length === 0 ? 'No items yet. Use Add Item to add some, or clone another warehouse.' : 'No items match your search or view.'}
-              </p>
-            )}
-            {t.pageRows.map((i, n) => (
-              <div key={i.id} className={table.rowWrap} data-stripe={n % 2 === 0 || undefined} data-inactive={!i.active || undefined}>
-                <DataRow
-                  className={table.row}
-                  columns={cols.columns}
-                  leading="checkbox"
-                  cells={{
-                    number: i.number,
-                    name: i.name,
-                    type: i.type,
-                    category: i.category || '—',
-                    subCategory: i.subCategory || '—',
-                    status: <StatusPill active={i.active} />,
-                  }}
-                  {...t.rowSelect(i.id)}
-                  selectLabel={`Select ${i.name}`}
-                  moreLabel={`More actions for ${i.name}`}
-                  onMore={() => setMenuFor(m => (m === i.id ? null : i.id))}
-                />
-                {menuFor === i.id && (
-                  <RowMenu
-                    label={i.name}
-                    onClose={() => setMenuFor(null)}
-                    items={[
-                      { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
-                      {
-                        label: i.active ? 'Deactivate' : 'Activate',
-                        onSelect: () => setActive([i.id], !i.active),
-                      },
-                      { label: 'Remove', onSelect: () => setRemoving([i]) },
-                    ]}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Volt Data Table (Figma "Data Table" page), as on Locations, Stock and Contacts */}
+        <DataTable
+          aria-label="Warehouse items"
+          className={styles.statusStart}
+          columns={cols.columns}
+          rows={t.pageRows}
+          rowLabel={i => i.name}
+          sort={t.headerProps.sort}
+          onSortChange={t.headerProps.onSortChange}
+          {...t.selectProps}
+          inactive={i => !i.active}
+          empty={items.length === 0 ? 'No items yet. Use Add Item to add some, or clone another warehouse.' : 'No items match your search or view.'}
+          onMore={i => setMenuFor(m => (m === i.id ? null : i.id))}
+          renderAfterRow={i =>
+            menuFor === i.id && (
+              <RowMenu
+                label={i.name}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  // The item's record in Items, when it has one
+                  ...viewInItems(i.name, navigate),
+                  { label: i.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([i.id], !i.active) },
+                  { label: 'Remove', onSelect: () => setRemoving([i]) },
+                ]}
+              />
+            )
+          }
+          cells={i => ({
+            number: i.number,
+            name: i.name,
+            type: i.type,
+            category: i.category || '—',
+            subCategory: i.subCategory || '—',
+            status: <StatusPill active={i.active} />,
+          })}
+        />
         <Pager table={t} label="Item pages" />
       </section>
 
       {cols.modal}
       <SearchItemsModal
         open={searching}
-        items={catalog.filter(c => !items.some(i => i.id === c.id))}
+        items={catalog.filter(c => !stored.some(i => i.id === c.id))}
         onClose={() => setSearching(false)}
         onPick={item => {
           add([item]);
