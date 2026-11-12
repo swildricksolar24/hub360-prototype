@@ -5,6 +5,8 @@ import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper
 import { useHelperFlag } from '../../../../shell/helperFlags';
 import { historyDate, type CatalogItem, type HistoryEntry, type HistoryPart, type WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, useCatalog, useHistory, useLocations } from '../warehouseStore';
+import { itemPath, itemRecordFor, useItems } from '../items/itemStore';
+import { orderPath, useOrders } from '../orders/orderStore';
 import { Pager, TableToolbar, useColumns, useTableControls } from './tableKit';
 import styles from '../record.module.css';
 
@@ -14,15 +16,12 @@ const COLUMNS: DataColumn[] = [
   // The widest badge ("Stock Order", 94px) + 16
   { key: 'type', label: 'Action Type', width: 114, fixed: true },
   { key: 'action', label: 'Action Performed', width: 'fill', minWidth: 260, sortable: false },
-  // The longest name ("Roman Sionis", 93px) + 16
+  // The longest name ("Maximilian Veers", 93px) + 16
   { key: 'by', label: 'Created By', width: 110, fixed: true },
   // The header: "Date Created" (77px) + 2px gap + the sort icon (24px) + 16
   { key: 'date', label: 'Date Created', width: 120, fixed: true },
 ];
 
-// Orders and the item records aren't built yet; their links go to the Orders and Items sections for now
-const ORDERS_PATH = '/app/inventory/orders';
-const ITEMS_PATH = '/app/inventory/items';
 
 /** The words of a sentence part (for search). */
 function partText(part: HistoryPart, catalog: CatalogItem[], locations: WarehouseLocation[]) {
@@ -46,6 +45,8 @@ export function HistoryTab({ code }: { code: string }) {
   const history = empty ? [] : stored;
   const catalog = useCatalog();
   const locations = useLocations(code);
+  const orders = useOrders();
+  const itemRecords = useItems();
   const cols = useColumns(COLUMNS);
   const sentence = (h: HistoryEntry) => h.parts.map(p => partText(p, catalog, locations)).join('');
   const t = useTableControls(history, {
@@ -53,20 +54,30 @@ export function HistoryTab({ code }: { code: string }) {
     sortValue: (h, key) => (key === 'date' ? h.date : key === 'by' ? h.by : h.type),
   });
 
+  // An order or item links to its own record when the prototype has one; otherwise it's plain text (the sample
+  // history names orders and items the Orders and Items sample data don't all have)
   function render(part: HistoryPart, i: number): ReactNode {
     if (typeof part === 'string') return <Fragment key={i}>{part}</Fragment>;
-    if ('order' in part)
-      return (
-        <AppLink key={i} to={ORDERS_PATH} size="small">
+    if ('order' in part) {
+      const order = orders.find(o => o.id === part.order);
+      return order ? (
+        <AppLink key={i} to={orderPath(order)} size="small">
           {part.order}
         </AppLink>
+      ) : (
+        <Fragment key={i}>{part.order}</Fragment>
       );
-    if ('item' in part)
-      return (
-        <AppLink key={i} to={ITEMS_PATH} size="small">
+    }
+    if ('item' in part) {
+      const record = itemRecordFor(catalog.find(c => c.id === part.item)?.name, itemRecords);
+      return record ? (
+        <AppLink key={i} to={itemPath(record.id)} size="small">
           {partText(part, catalog, locations)}
         </AppLink>
+      ) : (
+        <Fragment key={i}>{partText(part, catalog, locations)}</Fragment>
       );
+    }
     const location = locations.find(l => l.id === part.location);
     return location ? (
       <AppLink key={i} to={locationPath(code, location.id)} size="small">

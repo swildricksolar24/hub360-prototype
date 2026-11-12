@@ -6,7 +6,7 @@ import { Message } from '../../../components/Message/Message';
 import { TextInput } from '../../../components/TextInput/TextInput';
 import { AppLink } from '../../components/AppLink';
 import { useAuth } from '../../auth/AuthContext';
-import { AuthError, demoCredentials, rememberedIdentifier } from '../../auth/authService';
+import { AuthError, demoCredentials } from '../../auth/authService';
 import { DEFAULT_SECTION } from '../../shell/navigation';
 import { AuthLayout } from './AuthLayout';
 import { PasswordField } from './PasswordField';
@@ -25,9 +25,10 @@ export function SignInPage() {
   const [params] = useSearchParams();
   const notice = (location.state as { notice?: string } | null)?.notice;
 
-  const [identifier, setIdentifier] = useState(rememberedIdentifier.get);
+  // The screen always opens with the email blank (and Remember me off), even after a remembered sign-in
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(() => rememberedIdentifier.get() !== '');
+  const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [locked, setLocked] = useState(false);
@@ -100,7 +101,7 @@ export function SignInPage() {
           onChange={e => setIdentifier(e.target.value)}
           error={errors.identifier}
           disabled={locked}
-          autoFocus={!identifier}
+          // Opens blank and unfocused: nothing is selected until the person clicks or tabs in
         />
         <PasswordField
           label="Password"
@@ -110,7 +111,6 @@ export function SignInPage() {
           onChange={e => setPassword(e.target.value)}
           error={errors.password}
           disabled={locked}
-          autoFocus={identifier !== '' && !locked}
         />
         {!locked && (
           <div className={styles.row}>

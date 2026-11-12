@@ -7,7 +7,7 @@ import { useHelperFlag } from '../../../../shell/helperFlags';
 import { availableOf, belowReorder, type CatalogItem, type StockRow, type WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, setStock, useCatalog, useLocations, useStock } from '../warehouseStore';
 import { RowMenu } from './RowMenu';
-import { Pager, StatusPill, TableToolbar, count, useColumns, useTableControls, type TableControls } from './tableKit';
+import { Pager, StatusPill, TableToolbar, count, useColumns, useTableControls, viewInItems, type TableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
@@ -143,7 +143,8 @@ export function StockTable({
               onClose={() => setMenuFor(null)}
               items={[
                 ...(s.location ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, s.location!.id)) }] : []),
-                { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
+                // The item's record in Items, when it has one
+                ...viewInItems(s.item?.name, navigate),
                 {
                   label: s.active ? 'Deactivate' : 'Activate',
                   onSelect: () => {

@@ -105,6 +105,7 @@
   --color-gray-fill-inverse-strong: var(--color-foundation-solid-white);
   --color-gray-fill-inverse-weak: var(--color-foundation-solid-600);
   --color-logo-color: var(--color-foundation-brand-teal-1000);
+  --color-logo-color-static: var(--color-foundation-brand-teal-1000);
   --color-gray-stroke-strong: var(--color-foundation-transparent-900);
   --color-gray-stroke-weak: var(--color-foundation-transparent-700);
   --color-gray-stroke-weaker: var(--color-foundation-transparent-400);
@@ -237,6 +238,7 @@
   --color-foundation-brand-teal-100: #17819b1a;
   --color-gray-fill-inverse-strong: var(--color-foundation-solid-black);
   --color-logo-color: var(--color-foundation-solid-white);
+  --color-logo-color-static: #00637c;
   --color-gray-stroke-inverse-strong: var(--color-foundation-solid-black);
   --color-gray-stroke-inverse-weak: var(--color-foundation-solid-950);
   --color-gray-stroke-inverse-disabled: var(--color-foundation-solid-600);
@@ -285,6 +287,7 @@
     --color-foundation-brand-teal-100: #17819b1a;
     --color-gray-fill-inverse-strong: var(--color-foundation-solid-black);
     --color-logo-color: var(--color-foundation-solid-white);
+    --color-logo-color-static: #00637c;
     --color-gray-stroke-inverse-strong: var(--color-foundation-solid-black);
     --color-gray-stroke-inverse-weak: var(--color-foundation-solid-950);
     --color-gray-stroke-inverse-disabled: var(--color-foundation-solid-600);

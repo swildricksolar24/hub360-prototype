@@ -11,6 +11,7 @@ import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { Tooltip } from '../../../../../components/Tooltip/Tooltip';
 import { Status } from '../../../../../components/Status/Status';
 import { AppModal } from '../../../../components/AppModal';
+import { itemPath, itemRecordFor } from '../items/itemStore';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 
@@ -128,6 +129,15 @@ export function Pager<T extends { id: string }>({ table: t, label }: { table: Ta
       label={label}
     />
   );
+}
+
+/**
+ * A row menu's "View in Items": opens the item's record in Items (matched by name, itemRecordFor). An item Items
+ * doesn't have gets no option, so the menu never leads to a list or a missing record.
+ */
+export function viewInItems(name: string | undefined, navigate: (path: string) => void) {
+  const record = itemRecordFor(name);
+  return record ? [{ label: 'View in Items', onSelect: () => navigate(itemPath(record.id)) }] : [];
 }
 
 /** A row's Active / Inactive status: Volt's Status (a dot and the word). `data-status` lets table.module.css start it at the left of its cell. */
@@ -288,7 +298,7 @@ export function TableToolbar({
   );
 }
 
-/** Figma's segmented switch (ButtonGroup), at the toolbar's 44px height; the chosen part is pressed. */
+/** Figma's segmented switch (ButtonGroup Size=Small), at the toolbar's 44px height; the chosen part is pressed. */
 export function Segmented<V extends string>({
   label,
   options,
@@ -301,9 +311,9 @@ export function Segmented<V extends string>({
   onChange: (value: V) => void;
 }) {
   return (
-    <ButtonGroup aria-label={label} className={styles.segmented}>
+    <ButtonGroup size="small" aria-label={label} className={styles.segmented}>
       {options.map(o => (
-        <ButtonGroupItem key={o.value} className={styles.segment} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
+        <ButtonGroupItem key={o.value} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
           {o.label}
         </ButtonGroupItem>
       ))}

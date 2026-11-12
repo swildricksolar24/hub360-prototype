@@ -4,7 +4,7 @@
  * the screens only depend on the functions and error codes exported here.
  */
 
-import oswaldPhoto from '../assets/oswald-cobblepot.svg';
+import demoPhoto from '../assets/tk-421.jpg';
 
 /** `photo` is an image URL for the header avatar; without it the avatar shows `initials`. */
 export type User = { id: string; name: string; email: string; initials: string; photo?: string };
@@ -31,9 +31,10 @@ export const DEMO_VERIFICATION_CODE = '123456';
 
 type Account = User & { phone: string; password: string; failedAttempts: number; locked: boolean };
 
-// Demo account taken from the Figma screens (oswaldc@gmail.com / bat8992).
+// Demo account: TK-421 (tk-421@example.com / short0000), with the photo the user supplied, cropped to a 256px square
+// around the helmet (assets/tk-421.jpg)
 const accounts: Account[] = [
-  { id: 'u1', name: 'Oswald Cobblepot', email: 'oswaldc@gmail.com', phone: '1234567891', initials: 'OC', photo: oswaldPhoto, password: 'bat8992', failedAttempts: 0, locked: false },
+  { id: 'u1', name: 'TK-421', email: 'tk-421@example.com', phone: '1234567891', initials: 'TK', photo: demoPhoto, password: 'short0000', failedAttempts: 0, locked: false },
 ];
 
 /** The demo account's current sign-in details, for the sign-in screen's "Use demo account" button. */
@@ -41,7 +42,8 @@ export const demoCredentials = () => ({ identifier: accounts[0].email, password:
 
 const delay = (ms = 700) => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = (identifier: string) => identifier.trim().toLowerCase().replace(/[\s()-]/g, '');
-const find = (identifier: string) => accounts.find(a => a.email === normalize(identifier) || a.phone === normalize(identifier));
+// Both sides normalized the same way, so an email with a dash (tk-421@…) still matches what was typed
+const find = (identifier: string) => accounts.find(a => normalize(a.email) === normalize(identifier) || a.phone === normalize(identifier));
 const toUser = ({ id, name, email, initials, photo }: Account): User => ({ id, name, email, initials, photo });
 
 /** Current details for a signed-in user, so a restored session picks up changes (e.g. a new photo). */

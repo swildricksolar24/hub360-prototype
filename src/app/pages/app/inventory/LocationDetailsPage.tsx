@@ -16,7 +16,7 @@ import { createLocation, removeLocation } from './record/LocationsTab';
 import { canMoveUnder, codeOf, depthOf, descendantIds, flattenTree, moveUnder, pathOf } from './record/locationTree';
 import { RowMenu } from './record/RowMenu';
 import { STOCK_COLUMNS, STOCK_VIEWS, STOCK_VIEW_TESTS, StockTable, useStockTable, useStockView, type StockView } from './record/StockTab';
-import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './record/tableKit';
+import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './record/tableKit';
 import type { Warehouse } from './warehouseData';
 import { LOCATION_TYPES, MAX_LOCATION_DEPTH, type CatalogItem, type WarehouseLocation } from './warehouseRecordData';
 import {
@@ -538,7 +538,8 @@ function LocationContents({
                   onClose={() => setMenuFor(null)}
                   items={[
                     ...(r.location && r.location.id !== location.id ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }] : []),
-                    { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
+                    // The item's record in Items, when it has one
+                    ...viewInItems(r.item?.name, navigate),
                     { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
                   ]}
                 />

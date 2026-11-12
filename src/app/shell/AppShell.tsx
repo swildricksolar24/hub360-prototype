@@ -11,7 +11,16 @@ import { AllTabsModal } from './AllTabsModal';
 import { capturePreview, whenIdle } from './tabPreviews';
 import { InboxModal, useInbox, type ShellContext } from './InboxModal';
 import { PrototypeHelperPanel, PrototypeHelperProvider, usePrototypeHelper } from './PrototypeHelper';
-import { APP_VERSION, DEFAULT_SECTION, LEGAL_LINKS, SECTIONS, findSection, locationLabel, sectionPath } from './navigation';
+import {
+  APP_VERSION,
+  DEFAULT_SECTION,
+  LEGAL_LINKS,
+  NEW_TAB_STATE,
+  SECTIONS,
+  findSection,
+  locationLabel,
+  sectionPath,
+} from './navigation';
 import { useMediaQuery } from './useMediaQuery';
 import styles from './AppShell.module.css';
 
@@ -117,9 +126,14 @@ export function AppShell() {
     }
   }, [pathname, navigate]);
 
+  // Only Tier 1 and Tier 2 (plus the header's Help, Account Settings and search, and the tab bar's +) open a new tab:
+  // they navigate with `state: { newTab: true }`. Everything else, e.g. opening a record (Tier 3) from a list, a link
+  // inside a page, a breadcrumb or Back, stays in the current tab and replaces its page. If the page is already open
+  // in another tab, that tab is shown instead and the current one is left as it was.
   // Like a browser's new tab, going somewhere from a blank tab fills that tab instead of opening another one.
-  // Navigating with `state: { replaceTab: true }` (a record's previous / next arrows, or leaving a deleted record)
-  // also reuses the current tab instead of opening another.
+  // `state: { replaceTab: true }` (a record's previous / next arrows, or leaving a deleted record) also closes the
+  // current tab when the page it goes to is already open in another.
+  const newTab = (state as { newTab?: boolean } | null)?.newTab === true;
   const replaceTab = (state as { replaceTab?: boolean } | null)?.replaceTab === true;
   const previousPath = useRef(pathname);
   useEffect(() => {
@@ -127,18 +141,18 @@ export function AppShell() {
     previousPath.current = pathname;
     if (pathname === '/app' || redirecting.current) return;
     setTabs(open => {
-      if (replaceTab && from !== pathname && open.some(t => t.id === from)) {
+      const fromOpen = from !== pathname && open.some(t => t.id === from);
+      if (replaceTab && fromOpen) {
         const others = open.filter(t => t.id !== from);
         if (others.some(t => t.id === pathname)) return others;
       } else if (open.some(t => t.id === pathname)) return open;
       const tab = { id: pathname, label: shortLabel, icon: tabIcon, title: label, blank: pathname.startsWith(NEW_TAB) };
-      if (replaceTab && open.some(t => t.id === from)) return open.map(t => (t.id === from ? tab : t));
       // (another + keeps the blank tab and opens a second one)
-      const fills = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
-      const blank = fills ? open.findIndex(t => t.id === from) : -1;
-      return blank >= 0 ? open.map((t, i) => (i === blank ? tab : t)) : [...open, tab];
+      const fillsBlank = from.startsWith(NEW_TAB) && !pathname.startsWith(NEW_TAB);
+      const opensTab = (newTab || pathname.startsWith(NEW_TAB)) && !fillsBlank && !replaceTab;
+      return fromOpen && !opensTab ? open.map(t => (t.id === from ? tab : t)) : [...open, tab];
     });
-  }, [pathname, label, shortLabel, tabIcon, replaceTab]);
+  }, [pathname, label, shortLabel, tabIcon, newTab, replaceTab]);
 
   // The tab bar's +: a new blank tab after the others
   const newTabCount = useRef(0);
@@ -199,9 +213,9 @@ export function AppShell() {
     const q = e.currentTarget.value.trim().toLowerCase();
     if (!q) return;
     for (const s of SECTIONS) {
-      if (s.label.toLowerCase().includes(q)) return navigate(sectionPath(s));
+      if (s.label.toLowerCase().includes(q)) return navigate(sectionPath(s), NEW_TAB_STATE);
       const page = s.pages?.find(p => p.label.toLowerCase().includes(q));
-      if (page) return navigate(sectionPath(s, page.id));
+      if (page) return navigate(sectionPath(s, page.id), NEW_TAB_STATE);
     }
   }
 
@@ -244,7 +258,8 @@ export function AppShell() {
         // The app name, then the current Tier 1 section (e.g. "HUB360 | Inventory"); utility pages show the name only
         logo={
           <span className={styles.brand}>
-            <Logo name="logo-side" text="HUB360" />
+            {/* colorMode="light": the icon and "HUB360" stay teal in dark mode too, like the sign-in icon */}
+            <Logo name="logo-side" text="HUB360" colorMode="light" />
             {section && <span className={styles.brandSection}>{section.label}</span>}
           </span>
         }
@@ -253,7 +268,7 @@ export function AppShell() {
           { id: 'notifications', icon: 'notification', label: 'Notifications', count: inbox.unread('notifications'), onClick: () => inbox.open('notifications') },
           { id: 'messages', icon: 'chat', label: 'Messages', count: inbox.unread('messages'), onClick: () => inbox.open('messages') },
           { id: 'email', icon: 'email', label: 'Email', count: inbox.unread('email'), onClick: () => inbox.open('email') },
-          { id: 'help', icon: 'question-mark-help', label: 'Help', onClick: () => navigate('/app/help') },
+          { id: 'help', icon: 'question-mark-help', label: 'Help', onClick: () => navigate('/app/help', NEW_TAB_STATE) },
         ]}
         avatar={<AccountMenu />}
       />
@@ -264,7 +279,7 @@ export function AppShell() {
           value={section?.id}
           onChange={id => {
             const next = findSection(id);
-            if (next) navigate(sectionPath(next));
+            if (next) navigate(sectionPath(next), NEW_TAB_STATE);
           }}
           compact={tier1Compact}
           // Bigger than Figma's 24 / 16px: the design system's next icon size up
@@ -277,7 +292,7 @@ export function AppShell() {
               aria-label={section.label}
               items={section.pages}
               value={pageId}
-              onChange={id => navigate(sectionPath(section, id))}
+              onChange={id => navigate(sectionPath(section, id), NEW_TAB_STATE)}
               variant={tier2Collapsed ? 'collapsed' : 'default'}
               // The design system's 20px icon size (Figma draws 24px), in the same 38px box
               iconSize={20}

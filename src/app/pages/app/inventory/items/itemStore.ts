@@ -22,6 +22,14 @@ export function setItems(next: Item[] | ((current: Item[]) => Item[])) {
 /** One item by its system # (the route id). */
 export const findItem = (id: string) => items.find(i => i.id === id);
 
+/**
+ * The Items record for a warehouse's item (warehouse record › History, Stock, Items; Location Details), if there is one.
+ * The warehouse sample data and the Items sample data number their items differently, so they're matched by name; an
+ * item with no record in Items has none (its links show as text).
+ */
+export const itemRecordFor = (name: string | undefined, list: Item[] = items) =>
+  name ? list.find(i => i.name.trim().toLowerCase() === name.trim().toLowerCase()) : undefined;
+
 /** Changes one item. */
 export const updateItem = (id: string, change: (item: Item) => Item) => setItems(list => list.map(i => (i.id === id ? change(i) : i)));
 

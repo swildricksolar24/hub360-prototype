@@ -1,10 +1,17 @@
 /* Values come from the Figma "Sign In (Desktop Only)" frames (e.g. Login: Default 332:1663, Sign Up 332:1936). */
 
+/* The window always keeps room for its scrollbar on these screens, so a tall screen (Sign Up) and a short one (Forgot
+   Password) center the logo and card at the same x */
+:global(html):has(.page) {
+  scrollbar-gutter: stable;
+}
+
+/* Top-aligned (not centered), so the logo sits at the same place on every auth screen whatever the card's height */
 .page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-32);
   min-height: 100vh;
   padding: var(--space-80) var(--space-16);
@@ -24,23 +31,23 @@
   gap: var(--space-12);
 }
 
+/* One card size on every auth screen (sign in, sign up, password reset): Figma's 640px Sign Up card with its 48px
+   padding, wide enough for Sign Up's two-column form; no size token */
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--space-20);
   width: 100%;
-  /* Figma card width; no size token */
-  max-width: 520px;
-  padding: var(--space-56);
+  max-width: 640px;
+  padding: var(--space-48);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);
   box-shadow: var(--shadow-drop);
   box-sizing: border-box;
 }
 
+/* Sign Up: the same card, with more room between its form sections */
 .card[data-wide] {
-  max-width: 640px;
-  padding: var(--space-48);
   gap: var(--space-48);
 }
 

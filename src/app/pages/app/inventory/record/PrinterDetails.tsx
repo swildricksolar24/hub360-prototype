@@ -669,14 +669,17 @@ function helperJobs(printer: Printer, failed: boolean, queued: boolean, time: st
   ];
 }
 const flagFor = (j: PrintJob) => (j.id === `${HELPER_JOB}queued` ? 'printJobs.queued' : 'printJobs.failed');
+// A trooper code ("TK-421") shows its letters ("TK"); a name its first two initials
 const initials = (name: string) =>
-  name
-    .split(/[\s.]+/)
-    .filter(Boolean)
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  /^[A-Z]{2,}-\d+$/.test(name.trim())
+    ? name.trim().slice(0, 2)
+    : name
+        .split(/[\s.]+/)
+        .filter(Boolean)
+        .map(w => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
 
 function PrintJobsView({
   warehouse,

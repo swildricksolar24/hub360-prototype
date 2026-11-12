@@ -37,90 +37,117 @@ the Figma flow. It's built in `items/`: the list (`ItemsPage`) and one record pa
 **Toolbar:**
 - `ButtonGroup` Overview | Stock;
 - View ▾, Columns, Upload;
-- Actions ▾ with Merge and Delete, for the checked rows;
+- Actions ▾ with Activate, Deactivate, Merge and Delete, for the checked rows (Deactivate on several confirms the
+  ones no other active build uses together, then asks about each one still used, one at a time);
 - Search;
 - brand `Add New ▾` with the options Part, Assembly and Kit.
 
-**Overview table:** ☐ · Item # · Name · Type · Category · Sub Category · status · •••. A pager sits below.
+**Overview (Figma 681:14463):** a totals line ("1,412 Items  1,218 Parts  112 Kits  82 Assemblies", counting the
+rows that match the view, search and filters), then the table: ☐ · Item (the number, a link, with the name under it)
+· Type · Category · Unit · On Hand · Available · Warehouses · Status · •••. Every column sorts and has a "Contains…"
+filter. On Hand and Available add up the item's stock rows; Warehouses counts the warehouses holding it. Unit is the
+item's Unit Type without its abbreviation (Each, Pair, Foot, Kit). A pager sits below.
 
-**Stock table:** ☐ · WH · Item # · Description · On Hand · Allocated · Committed · Frozen · Available · Location
-(link). A Totals row follows the rows.
+**Stock (Figma 681:14475):** ☐ · Item (TwoLineCell: the number, a link, with the name under it) · Category ·
+Warehouse · On Hand · Allocated · Committed · Frozen · Available · Status · •••, one row per item and warehouse
+location; an item with no stock gets one row with "—" and zeros. Every column sorts and has a "Contains…" filter.
+Status is a Badge pill: black **Inactive (catalog)** for an inactive item, amber **Below reorder pt** when Available is
+0 or under the item's reorder point, otherwise green **Stocked**. ••• has View Item and View Warehouse Stock. Location
+(a link to the warehouse's Locations tab) is off by default and can be added under Columns. No Totals row on the list;
+an item's own Stock tab keeps Warehouse … Status plus Location, and a Totals row.
 
-**Add Part / Add Assembly / Add Kit**
-- Fields: Custom Part # (optional) and Part Name *. The other types are the same with their own words.
-- Subtitles:
-  - Part: "An individual item that can be used on its own or as a component of an assembly or kit."
-  - Assembly: "A combination of two or more parts that are put together to create a single item."
-  - Kit: Figma copies the Assembly text; write a kit one, e.g. "A group of parts and assemblies sold or shipped
-    together as one item."
-- Buttons: Cancel and Create Part / Create Assembly / Create Kit.
-- Creating an item opens its new record.
+**Create New Item** (Figma "Modal - Add New Item" 681:14400; opened from Add New ▾ › Part / Assembly / Kit)
+- Subtitle: "* Required. Adds the item to the catalog. Open it afterwards to add specs, suppliers and files."
+- Item type *: Part · Kit · Assembly as small Tags; Add New ▾ picks the starting one, and it can be changed here.
+- System Item # (read-only, bold): the # the item will get, with the type's prefix (PA, KT, AS).
+- Custom Item # (optional). Figma note: the system # is enough; a custom # is for tenants who want their own.
+- Item Name *.
+- Category, Subcategory (its options follow the category) and Unit * (Each, Pair, Foot, Box, Kit; kits start on Kit).
+- Buttons: Cancel and Create. Figma note: Create opens the new item in a new app tab, so the list's tab stays.
 
-**Merging Items**
-- The body explains that every selected item is combined into the item chosen below: its data, assemblies, kits and
-  orders move to that item, and the merged items are deactivated.
-- Warning: "This process cannot be undone once the merge is complete."
-- Field: a search to pick the target item.
+**Merging Items** (only from Actions › Merge with two or more rows checked; rows and records have no Merge)
+- Body (Figma copy): "This Merge option allows you to combine all selected Items with the Item chosen below. …"
+- Warning: "Warning: This process cannot be undone once the merge is complete."
+- A table of the checked items (Keep · Item · Type · Category · Status). The Keep radio picks the item the others
+  merge into; the first is picked to start with, so Merge Items is active at once. No search. Over 6 items, the table
+  scrolls inside the Volt Scrollbar, 6 rows tall (less on a short window, so the buttons stay on screen).
 - Buttons: Cancel and Merge Items.
 
-**Deleting Items - Confirmation Required**
-- The body explains that deleting removes the items from every kit, assembly and order that uses them, and that an
-  active replacement is substituted where one exists.
-- Then: "This action cannot be undone. Please confirm that you want to proceed with the deletion."
+**Deleting Items - Confirmation Required** (Figma 681:14500)
+- Body, Large/Regular: "You are about to delete the selected Item(s). Deleting these Items will remove them from
+  any Kits, Assemblies, or Orders where they are currently used. If an active replacement Item is available, it will
+  be substituted automatically where applicable."
+- Then a red warning, like Merging Items': "Warning: This action cannot be undone. Please confirm that you want to
+  proceed with the deletion." (Figma has it in plain text without "Warning:"; changed to match the Merge modal.)
 - Buttons: Cancel and a red Delete Items.
 
 ## 2. Details (Part 127:6327; Assembly 411:62773; Kit 411:65254)
 
-The same card set serves all three types; the labels follow the type. When a category has no spec template, the
-Category Specs card is left out and the remaining cards pair up two per row.
+Built to Figma's Part Details (127:6327). The same cards serve all three types; the labels follow the type. Two
+columns (1060 : 560 in Figma, one column under 1280px): Identification, Specifications, Units & Packaging and
+Warranty on the left; Images, Tracking, Compliance and Replacement Items on the right; Notes under both.
 
-**General Information**
-- Title-row checkboxes, each with an ⓘ: Lot Control, Serialized, Non-Inventory Item, Discontinued.
-- Row 1:
-  - System Part # (read-only, with a lock icon): PA-0002-AJ89-98HB
-  - Custom Part #: 000-134
-  - Category (Dropdown)
-  - Subcategory (Dropdown)
-- Row 2:
-  - Left: Part Name (REC 325 Solar Panel), Manufacturer (Dropdown) and Model # (TextInput)
-  - Middle: Part Description (TextArea)
-  - Right: Image(s) (`UploadFile`)
-- A **Compliance** sub-heading with checkbox tiles, each with an ⓘ: RoHS, Conflict Mineral Free, REACH, DFARS,
-  Prop 65, Mercury Free, VPAR.
+**Editing banner** (Figma 918:39755): while Details has unsaved changes, the shared `EditBanner` sits above the
+header: "You’re editing REC 325 Solar Panel. 2 unsaved changes." with Discard Changes and Save Changes. Save
+(here or the header's) checks the name, the category and any required category spec (Solar Panels: Power output),
+and gives a blank unit barcode a generated one.
 
-**General Specs**
-- Spec Sheet: a file picker.
-- Unit Type (Each EA), Weight and Unit of Measure (LB).
-- Length, Width, Height and Unit of Measure (Inches).
+**Identification** (Figma note: the system # can't be changed; changing the category swaps the category specs, and
+asks first)
+- Row 1: Item Name * (twice the width), System Part # (disabled), Custom Part #.
+- Row 2: Category *, Subcategory, Manufacturer, Model #.
+- Description (TextArea).
+- Changing to a category with other specs, when there are some, opens **Change Category** ("…specs will be cleared").
 
-**Category Specs** (the solar panel template)
-- Row 1: Power Output, Panel Efficiency (%), Cell Type, Power in Year 1 (%), Annual Degradation (%), Last Year (25)
-  and Last Year Power (%).
-- Row 2: Backsheet, Frame, Production Factor.
-- Row 3: Maximum System Voltage, Maximum Reverse Current, Country of Origin.
+**Specifications** (Figma notes: category specs and their units come from Inventory Settings › Categories; Add Spec
+adds a general spec to this item only; the spec sheet button reads "+ Add Spec Sheet" until there is one)
+- Title row: the spec sheet (gray button with its file name) and a brand Edit, or a brand + Add Spec Sheet.
+- GENERAL: Weight (with a lbs / kg / g / oz picker), Dimensions (L × W × H, typed as "68.1 × 40.9 × 1.2", with an
+  in / ft / mm picker) and Country of Origin. Added specs show under them (each removable); + Add Spec opens a small
+  modal (Spec Name *, Value).
+- "SOLAR PANEL SPECS (from category)": Power output *, Panel efficiency, Cell type ▾, Frame, Backsheet ▾; Power after
+  year 1, Annual degradation, Power after year 25, Production factor; Max system voltage, Max reverse current.
 
-**Warranty**
-- A switch between Standard Warranties and Extended Warranties, and a brand Add Warranty Information button.
-- Table: Category · Term (Months) · Warranty Document (a Link button). Sample: Manufacturer · 120.
+**Units & Packaging** (Figma notes: conversions of the base unit, each with its own barcode and a print-label
+action; the base unit can't change once stock has been received; a blank barcode is generated; barcodes must be
+unique across items)
+- Buy Unit (Default), Sell Unit (Default), Count Unit (Default), from the units below.
+- Table (DataTable + EditableCell): Unit · Contains · UoM · Barcode / UPC · Weight · print label · remove. The base row
+  (Each, contains 1) is read-only with a lock; the others are editable with a trash button. A duplicate barcode is
+  marked and explained under the table. + Add Unit adds a row.
 
-**Replacement Items**
-- A brand Add Replacement button.
-- Table: Type · Item · Name. Samples: Part · 0004-5896-4521 · Hex Bolt; Part · 7012-6589-2568 · Flat Bolt.
+**Warranty** (Figma note: Edit opens the warranty pop-up, the same as Add Warranty; removing one doesn't change
+warranties already registered on sold serials)
+- A sunken row per warranty: Standard (black) or Extended (green) pill, who · what ("Manufacturer · Product",
+  "Installer · Workmanship"), the term ("25 years"), its document or pricing ("Priced by system size · 2 tiers"),
+  edit and remove.
+- + Add Warranty offers Standard or Extended (Figma's button has no menu; the pop-up needs one of the two).
 
-**Package Quantities:** Pack and Unit of Measure (Box); Case; Carton; Bulk; Pallet.
+**Images:** three across, 110px tiles with a star (the main image; starring another moves it first), a remove ✕ and a
+drag handle; drag to reorder. Photos can also be dragged onto the gallery from the computer (it outlines in teal while
+they're over it); with no photos the card shows the Volt upload drop zone. JPG, PNG or WebP up to 25 MB; other files are
+turned away with a notice. A photo added this session shows in its tile. + Upload takes the same files. Hint: "Drag to reorder. The starred image is the main
+image on lists, quotes and the catalog. JPG, PNG or WebP up to 25 MB."
 
-**Reorder Details:** Global Min Quantity, Global Safety Stock, Global Reorder Point, Average Lead Time (Days), and
-☑ Auto-Calculate (ⓘ).
+**Tracking** (Figma note: a part can be both lot controlled and serialized): a sunken row per toggle with its hint:
+Lot control, Track expiry dates (FEFO; needs lot control, so it's off and disabled without it), Serial numbers,
+Non-inventory item, Discontinued.
 
-**Last Purchase:** Supplier; Purchase Date and Purchase Quantity; Unit Type (Each) and Cost ($).
+**Compliance:** RoHS, REACH, Conflict Mineral Free, Mercury Free, Prop 65, DFARS, VPAR, each with a status menu
+(Compliant, Warning required, Not applicable, Not reviewed). Mark All ▾ sets them all.
 
-**Supplier**
-- A brand Add Supplier button.
-- Table: ★ (primary) · Supplier · Item # · Cost · Date · Lead Time (Days).
+**Replacement Items** (Figma note: drag to set the order they're offered in; the reason shows to the person picking a
+substitute): a sunken row each: drag handle, "# · name" (a link), the reason ▾ (Preferred substitute, When REC is out
+of stock, Customer approval needed, Last resort) and remove. + Add Replacement opens the Add Replacement modal.
 
-**Notes**
-- A brand ⊕ Add Note button, and a Search.
-- Table: avatar · Created By · Last Updated · Note · pin. Samples: Pamela Isley (pinned) and Waylon Jones.
+**Notes:** + Add Note in the title row, the search under it, then the table: avatar · Created By · Last Updated · Note
+· pin.
+
+**Not on Figma's Details** (kept under Notes until their tabs exist; Figma's tab bar adds Suppliers and Cost):
+- **Reorder Details:** Global Min Quantity, Global Safety Stock, Global Reorder Point, Average Lead Time (Days), and
+  ☑ Auto-Calculate (ⓘ).
+- **Last Purchase:** Supplier; Purchase Date and Purchase Quantity; Unit Type (Each) and Cost ($).
+- **Supplier:** + Add Supplier; table: ★ (primary) · Supplier · Item # · Cost · Date · Lead Time (Days).
 
 **Modals**
 - **Add Warranty**
@@ -150,11 +177,12 @@ Category Specs card is left out and the remaining cards pair up two per row.
     2. Deactivate the assemblies and kits that include this part.
     3. Remove this part from those assemblies and kits.
   - Buttons: Cancel and Deactivate Part.
-- **Merging Parts:** pick the part to merge into, warned that it cannot be undone. Buttons: Cancel and Merge Parts.
+- **Merging Parts:** not in the prototype. Merging happens from the Items list (two or more checked), so a record has
+  no Merge.
 - **Deleting Part - Confirmation Required:** the same wording as Deleting Items. Buttons: Cancel and a red Delete
   Part.
 
-**Header Actions ▾:** Deactivate, Merge, Delete.
+**Header Actions ▾:** Deactivate, Delete.
 
 ## 3. Files (612:14668)
 

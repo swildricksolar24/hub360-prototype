@@ -11,9 +11,22 @@
   height: 100%;
 }
 
+/*
+ * colorMode="light": swaps "Logo Color" for "Logo Color Static" (teal #00637C in light and dark), so the logo looks
+ * the same in dark mode as in light
+ */
+.lightColors {
+  --color-logo-color: var(--color-logo-color-static);
+}
+
 /* Fills Figma binds to "Gray Fill/Strong" (exported as currentColor): dark in light mode, white in dark mode */
 .logo:is([data-name='equal-housing-lender'], [data-name='face-id']) {
   color: var(--color-gray-fill-strong);
+}
+
+/* Logo Full, State=HUB360: the teal sun segments (exported as currentColor) use "Logo Color", as on Logo Side */
+.logo[data-name='logo-hub360'] {
+  color: var(--color-logo-color);
 }
 
 /* ---------- Logo Side: icon + live text, all bound to "Logo Color" ---------- */
@@ -38,6 +51,15 @@
 .sideIcon > svg {
   width: 100%;
   height: 100%;
+}
+
+/* Icon only (`iconOnly`, or `text=""`): the ring icon alone in a square box, no gap or padding */
+.sideIconOnly {
+  color: var(--color-logo-color);
+}
+
+.sideIconOnly > svg {
+  width: 100%;
 }
 
 .sideText {

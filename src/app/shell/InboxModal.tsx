@@ -73,13 +73,16 @@ export function useShellInbox() {
   return useOutletContext<ShellContext>().inbox;
 }
 
+// A trooper code ("TK-421") shows its letters ("TK"); a name its first two initials
 const initialsOf = (name: string) =>
-  name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase();
+  /^[A-Z]{2,}-\d+$/.test(name.trim())
+    ? name.trim().slice(0, 2)
+    : name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(w => w[0])
+        .join('')
+        .toUpperCase();
 
 export type InboxModalProps = {
   kind: InboxKind | null;

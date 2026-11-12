@@ -263,12 +263,15 @@ export function Card({ title, id, action, children, className }: { title?: strin
   );
 }
 
-/** A switch between a few options (Figma Button Group): Overview | Stock, Standard | Extended, Package | Case | … */
+/**
+ * A switch between a few options (Figma Button Group, Size=Small: 44px, like the toolbar's buttons and dropdowns):
+ * Standard | Extended, Package | Case | …; the chosen part is pressed (Volt draws it brand teal).
+ */
 export function Segment<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
   return (
-    <ButtonGroup aria-label={label}>
+    <ButtonGroup size="small" aria-label={label}>
       {options.map(o => (
-        <ButtonGroupItem key={o.value} className={styles.segment} aria-pressed={value === o.value} onClick={() => onChange(o.value)}>
+        <ButtonGroupItem key={o.value} aria-pressed={value === o.value} onClick={() => onChange(o.value)}>
           {o.label}
         </ButtonGroupItem>
       ))}

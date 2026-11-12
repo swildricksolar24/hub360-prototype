@@ -84,6 +84,12 @@ export type Note = {
   types: NoteType[];
 };
 
+export type ComplianceStatus = 'Compliant' | 'Warning required' | 'Not applicable' | 'Not reviewed';
+export const COMPLIANCE_STATUSES: ComplianceStatus[] = ['Compliant', 'Warning required', 'Not applicable', 'Not reviewed'];
+export type GeneralSpec = { id: string; label: string; value: string };
+/** One unit of measure: e.g. Pallet contains 30 Each. Weight keeps its unit as typed ("1,480 lbs"). */
+export type ItemUnit = { id: string; unit: string; contains: number | null; uom: string; barcode: string; weight: string };
+
 export type FileType = 'Folder' | 'pdf' | 'png' | 'mov' | 'jpg' | 'doc' | 'xls' | 'ppt' | 'url';
 export const FILE_ICON: Record<FileType, string> = {
   Folder: 'folder',
@@ -148,10 +154,21 @@ export type Item = {
   manufacturer: string;
   model: string;
   lotControl: boolean;
+  /** Lots record an expiry date and picks take the earliest first (FEFO); needs lot control. */
+  trackExpiry: boolean;
   serialized: boolean;
   nonInventory: boolean;
   discontinued: boolean;
-  compliance: string[];
+  /** Each standard in COMPLIANCE and its status (Details › Compliance). */
+  compliance: Record<string, ComplianceStatus>;
+  countryOfOrigin: string;
+  /** Specs added to this item only (Details › Specifications › Add Spec). */
+  generalSpecs: GeneralSpec[];
+  /** The base unit first (contains 1 of itself), then its conversions (Details › Units & Packaging). */
+  units: ItemUnit[];
+  buyUnit: string;
+  sellUnit: string;
+  countUnit: string;
   images: string[];
   profileImage?: string;
   specSheet: string;
@@ -175,6 +192,8 @@ export type Item = {
   build: BuildLine[];
   warranties: Warranty[];
   replacements: string[];
+  /** Why each replacement is offered (shown to the person picking a substitute), by replacement item id. */
+  replacementReasons: Record<string, string>;
   suppliers: ItemSupplier[];
   notes: Note[];
   files: ItemFile[];
@@ -196,34 +215,54 @@ export const CATEGORIES: Record<string, string[]> = {
   'Service Kits': ['Maintenance', 'Suspension'],
 };
 
-/** Category Specs templates (ITEMS.md §2). A category without one leaves the Category Specs card out. */
-export const SPEC_TEMPLATES: Record<string, { key: string; label: string }[][]> = {
+/** A category spec: a text field, or a choice when it has options. */
+export type SpecField = { key: string; label: string; options?: string[]; required?: boolean };
+/**
+ * Category specs (ITEMS.md §2; Figma Part Details 918:40291, "SOLAR PANEL SPECS (from category)"), row by row. In the
+ * product they come from Inventory Settings › Categories. A category without one shows only the general specs.
+ */
+export const SPEC_TEMPLATES: Record<string, SpecField[][]> = {
   'Solar Panels': [
     [
-      { key: 'powerOutput', label: 'Power Output' },
-      { key: 'efficiency', label: 'Panel Efficiency (%)' },
-      { key: 'cellType', label: 'Cell Type' },
-      { key: 'yearOne', label: 'Power in Year 1 (%)' },
-      { key: 'degradation', label: 'Annual Degradation (%)' },
-      { key: 'lastYear', label: 'Last Year' },
-      { key: 'lastYearPower', label: 'Last Year Power (%)' },
-    ],
-    [
-      { key: 'backsheet', label: 'Backsheet' },
+      { key: 'powerOutput', label: 'Power output', required: true },
+      { key: 'efficiency', label: 'Panel efficiency' },
+      { key: 'cellType', label: 'Cell type', options: ['HJT N-type mono', 'TOPCon N-type mono', 'Mono PERC', 'Polycrystalline'] },
       { key: 'frame', label: 'Frame' },
-      { key: 'productionFactor', label: 'Production Factor' },
+      { key: 'backsheet', label: 'Backsheet', options: ['Black', 'White', 'Transparent'] },
     ],
     [
-      { key: 'maxVoltage', label: 'Maximum System Voltage' },
-      { key: 'maxReverse', label: 'Maximum Reverse Current' },
-      { key: 'origin', label: 'Country of Origin' },
+      { key: 'yearOne', label: 'Power after year 1' },
+      { key: 'degradation', label: 'Annual degradation' },
+      { key: 'lastYearPower', label: 'Power after year 25' },
+      { key: 'productionFactor', label: 'Production factor' },
+    ],
+    [
+      { key: 'maxVoltage', label: 'Max system voltage' },
+      { key: 'maxReverse', label: 'Max reverse current' },
     ],
   ],
 };
+export const COUNTRIES = ['United States', 'Canada', 'Mexico', 'China', 'Germany', 'Japan', 'Malaysia', 'Singapore', 'South Korea', 'Vietnam'];
+/** Units a row of Units & Packaging can be. */
+export const UNIT_NAMES = ['Each', 'Pair', 'Foot', 'Kit', 'Pack', 'Box', 'Bag', 'Case', 'Carton', 'Crate', 'Bulk', 'Pallet', 'Container (40 ft)'];
+/** Weight and dimension units, stored as before and shown short (Figma "47.4 lbs", "… in"). */
+export const WEIGHT_LABEL: Record<string, string> = { LB: 'lbs', KG: 'kg', G: 'g', OZ: 'oz' };
+export const DIMENSION_LABEL: Record<string, string> = { Inches: 'in', Feet: 'ft', Millimeters: 'mm' };
+/** Why a replacement item is offered; the second names this item's maker (Figma "When REC is out of stock"). */
+export const replacementReasons = (item: Pick<Item, 'manufacturer'>) => [
+  'Preferred substitute',
+  `When ${item.manufacturer || 'this item'} is out of stock`,
+  'Customer approval needed',
+  'Last resort',
+];
+/** A 12-digit UPC-style barcode for a unit left blank (Units & Packaging: "Leave a barcode blank to generate one"). */
+export const newBarcode = () => `6915${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
 
 export const MANUFACTURERS = ['REC', 'Enphase', 'SolarEdge', 'Tesla', 'IronRidge', 'Unirac', 'Fastenal', 'Southwire', 'Stäubli', 'Bilstein', 'Hub 360'];
 export const SUPPLIERS = ['CED Greentech', 'Soligent', 'Wesco', 'Fastenal', 'Graybar', 'BayWa r.e.', 'Krannich Solar'];
-export const COMPLIANCE = ['RoHS', 'Conflict Mineral Free', 'REACH', 'DFARS', 'Prop 65', 'Mercury Free', 'VPAR'];
+/** The compliance standards, in Figma's order (Details › Compliance). */
+export const COMPLIANCE = ['RoHS', 'REACH', 'Conflict Mineral Free', 'Mercury Free', 'Prop 65', 'DFARS', 'VPAR'];
+export const allCompliance = (status: ComplianceStatus): Record<string, ComplianceStatus> => Object.fromEntries(COMPLIANCE.map(c => [c, status]));
 export const COMPLIANCE_INFO: Record<string, string> = {
   RoHS: 'Restriction of Hazardous Substances: free of lead, mercury, cadmium and other restricted materials.',
   'Conflict Mineral Free': 'Contains no tin, tantalum, tungsten or gold from conflict regions.',
@@ -233,23 +272,28 @@ export const COMPLIANCE_INFO: Record<string, string> = {
   'Mercury Free': 'Contains no mercury.',
   VPAR: 'Listed on the Vendor Product Approval Register.',
 };
-export const UNIT_TYPES = ['Each (EA)', 'Pair (PR)', 'Foot (FT)', 'Box (BX)'];
-export const WEIGHT_UNITS = ['LB', 'KG', 'OZ'];
+export const UNIT_TYPES = ['Each (EA)', 'Pair (PR)', 'Foot (FT)', 'Box (BX)', 'Kit (KT)'];
+/** The unit without its abbreviation, as the Items list shows it: "Each (EA)" → "Each". */
+export const unitLabel = (unitType: string) => unitType.replace(/\s*\(.*\)$/, '');
+export const WEIGHT_UNITS = ['LB', 'KG', 'G', 'OZ'];
 export const DIMENSION_UNITS = ['Inches', 'Feet', 'Millimeters'];
 export const PACKAGE_UNITS = ['Box', 'Bag', 'Case', 'Carton', 'Crate', 'Pallet'];
 export const WARRANTY_CATEGORIES = ['Manufacturer', 'Product', 'Performance', 'Workmanship', 'Labor'];
 export const TERM_UNITS = ['Months', 'Years'];
 export const WARRANTY_PRICE_TYPES = ['kW', 'Panel', 'System'];
-export const PEOPLE = ['Pamela Isley', 'Waylon Jones', 'Oswald Cobblepot', 'Harleen Quinzel', 'Edward Nygma', 'Selina Kyle'];
+export const PEOPLE = ['Kendal Ozzel', 'Orson Krennic', 'TK-421', 'Arihnda Pryce', 'Lorth Needa', 'Rae Sloane'];
 export const WAREHOUSE_CODES = ['PHX-124', 'PHX-126', 'MES-201', 'TEM-301', 'GIL-401', 'CHD-501', 'TUC-901'];
 
+// A trooper code ("TK-421") shows its letters ("TK"); a name its first two initials
 export const initialsOf = (name: string) =>
-  name
-    .split(/\s+/)
-    .map(w => w[0] ?? '')
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  /^[A-Z]{2,}-\d+$/.test(name.trim())
+    ? name.trim().slice(0, 2)
+    : name
+        .split(/\s+/)
+        .map(w => w[0] ?? '')
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
 
 export const money = (n: number | null | undefined) =>
   n == null ? '—' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -311,7 +355,7 @@ function sampleNotes(id: string, name: string): Note[] {
   return [
     {
       id: `${id}-n1`,
-      author: 'Pamela Isley',
+      author: 'Kendal Ozzel',
       updated: 'Oct 12, 2026',
       text: `Check the date code on every ${name} before it ships; the spring lot had a recall on a few batches.`,
       pinMe: true,
@@ -321,7 +365,7 @@ function sampleNotes(id: string, name: string): Note[] {
     },
     {
       id: `${id}-n2`,
-      author: 'Waylon Jones',
+      author: 'Orson Krennic',
       updated: 'Sep 22, 2026',
       text: 'Primary supplier raised its case price by 4% from October. Review the reorder point before the next order.',
       pinMe: false,
@@ -411,11 +455,11 @@ function sampleHistory(item: { id: string; type: ItemType; stock: StockRow[]; bu
       warehouse: s.warehouse,
       action: 'Build Order',
       performed: `Built ${required} units at ${s.location} on`,
-      createdBy: 'Edward Nygma',
+      createdBy: 'Lorth Needa',
       date: 'Oct 29, 2026',
       order: {
         number: `BO-${int(30000, 39999)}`,
-        createdBy: 'Edward Nygma',
+        createdBy: 'Lorth Needa',
         createdOn: 'Oct 20, 2026',
         dueOn: 'Oct 29, 2026',
         warehouse: s.warehouse,
@@ -432,7 +476,7 @@ function sampleHistory(item: { id: string; type: ItemType; stock: StockRow[]; bu
       warehouse: item.stock[1].warehouse,
       action: 'Adjustment',
       performed: `Counted and adjusted on hand by −2 at ${item.stock[1].location}`,
-      createdBy: 'Harleen Quinzel',
+      createdBy: 'Arihnda Pryce',
       date: 'Sep 22, 2026',
     });
   }
@@ -487,19 +531,28 @@ const SEEDS: Seed[] = [
 
 const SOLAR_SPECS: Record<string, string> = {
   powerOutput: '325 W',
-  efficiency: '19.4',
-  cellType: 'Monocrystalline PERC',
-  yearOne: '98',
-  degradation: '0.5',
-  lastYear: '25',
-  lastYearPower: '86',
-  backsheet: 'White',
-  frame: 'Anodized aluminum',
+  efficiency: '19.4 %',
+  cellType: 'Mono PERC',
+  frame: 'Black anodized aluminum',
+  backsheet: 'Black',
+  yearOne: '98.0 %',
+  degradation: '0.5 %',
+  lastYearPower: '86.0 %',
   productionFactor: '1.35',
-  maxVoltage: '1000 V',
+  maxVoltage: '1,000 V',
   maxReverse: '20 A',
-  origin: 'Singapore',
 };
+
+/** The base unit and two packs of it, each with its own barcode (Units & Packaging sample). */
+function sampleUnits(base: string, weight: number | null, unit: string, perCase: number, casesPerPallet: number): ItemUnit[] {
+  const w = (n: number) => (weight == null ? '' : `${(weight * n).toLocaleString('en-US', { maximumFractionDigits: 1 })} ${unit}`);
+  const code = () => `6915${String(int(10000000, 99999999))}`;
+  return [
+    { id: 'u-base', unit: base, contains: 1, uom: base, barcode: code(), weight: w(1) },
+    { id: 'u-case', unit: 'Case', contains: perCase, uom: base, barcode: code(), weight: w(perCase) },
+    { id: 'u-pallet', unit: 'Pallet', contains: casesPerPallet, uom: 'Case', barcode: code(), weight: w(perCase * casesPerPallet) },
+  ];
+}
 
 /** A new, empty item of a type (Add Part / Assembly / Kit). */
 export function blankItem(type: ItemType, name: string, customNumber = '', extra: Partial<Item> = {}): Item {
@@ -517,10 +570,17 @@ export function blankItem(type: ItemType, name: string, customNumber = '', extra
     manufacturer: '',
     model: '',
     lotControl: false,
+    trackExpiry: false,
     serialized: false,
     nonInventory: false,
     discontinued: false,
-    compliance: [],
+    compliance: allCompliance('Not reviewed'),
+    countryOfOrigin: '',
+    generalSpecs: [],
+    units: [{ id: 'u-base', unit: 'Each', contains: 1, uom: 'Each', barcode: '', weight: '' }],
+    buyUnit: '',
+    sellUnit: '',
+    countUnit: '',
     images: [],
     specSheet: '',
     unitType: 'Each (EA)',
@@ -549,6 +609,7 @@ export function blankItem(type: ItemType, name: string, customNumber = '', extra
     build: [],
     warranties: [],
     replacements: [],
+    replacementReasons: {},
     suppliers: [],
     notes: [],
     files: [],
@@ -563,8 +624,16 @@ function fromSeed(s: Seed, i: number): Item {
   const stock = sampleStock(s.id);
   const base = blankItem(s.type, s.name, s.customNumber ?? `${String(100 + i * 7).padStart(3, '0')}-${String(int(100, 999))}`);
   const solar = s.category === 'Solar Panels';
+  // Kits are counted as kits, connectors in pairs, wire and cable by the foot (Figma's Items list: Each, Kit, Pair)
+  const unitType =
+    s.type === 'Kit' ? 'Kit (KT)' : /connector|pair/i.test(s.name) ? 'Pair (PR)' : /\b(wire|cable)\b/i.test(s.name) ? 'Foot (FT)' : 'Each (EA)';
+  const weight = +(s.cost > 100 ? 40 + rnd() * 20 : rnd() * 2).toFixed(2);
+  const baseUnit = unitLabel(unitType);
+  // Panels ship 30 to a pallet; small parts go 50 to a case
+  const units = solar ? sampleUnits(baseUnit, weight, 'lbs', 30, 1).filter(u => u.id !== 'u-case').map(u => (u.id === 'u-pallet' ? { ...u, contains: 30, uom: baseUnit } : u)) : sampleUnits(baseUnit, weight, 'lbs', 50, 40);
   return {
     ...base,
+    unitType,
     id: s.id,
     category: s.category,
     subcategory: s.subcategory,
@@ -574,11 +643,21 @@ function fromSeed(s: Seed, i: number): Item {
     manufacturer: s.manufacturer,
     model: s.model ?? '',
     lotControl: solar || s.category === 'Batteries',
+    trackExpiry: s.category === 'Batteries',
     serialized: solar || s.category === 'Inverters' || s.category === 'Batteries',
-    compliance: solar ? ['RoHS', 'Conflict Mineral Free', 'REACH', 'Mercury Free'] : ['RoHS'],
-    images: solar ? ['Front View.png'] : [],
+    // Figma's sample statuses: compliant on the four material standards, Prop 65 needs a warning
+    compliance: solar
+      ? { ...allCompliance('Compliant'), 'Prop 65': 'Warning required', DFARS: 'Not applicable', VPAR: 'Not reviewed' }
+      : { ...allCompliance('Not reviewed'), RoHS: 'Compliant' },
+    countryOfOrigin: solar ? 'Singapore' : 'United States',
+    generalSpecs: [],
+    units,
+    buyUnit: units.length > 2 ? 'Case' : units[units.length - 1].unit,
+    sellUnit: 'Pack',
+    countUnit: 'Pack',
+    images: solar ? ['Front View.png', 'Back View.png', 'Junction Box.png', 'Label.png', 'Frame Corner.png', 'Installed.png'] : [],
     specSheet: s.model ? `${s.model} Spec Sheet.pdf` : '',
-    weight: +(s.cost > 100 ? 40 + rnd() * 20 : rnd() * 2).toFixed(2),
+    weight,
     length: solar ? 65.6 : +(1 + rnd() * 10).toFixed(1),
     width: solar ? 39.4 : +(1 + rnd() * 4).toFixed(1),
     height: solar ? 1.4 : +(0.5 + rnd() * 2).toFixed(1),
@@ -595,7 +674,7 @@ function fromSeed(s: Seed, i: number): Item {
     reorderPoint: int(40, 120),
     leadTime: int(3, 21),
     autoCalculate: rnd() < 0.5,
-    lastPurchase: { supplier: pick(SUPPLIERS), date: pick(DATES), quantity: int(50, 500), unitType: 'Each (EA)', cost: s.cost || null },
+    lastPurchase: { supplier: pick(SUPPLIERS), date: pick(DATES), quantity: int(50, 500), unitType, cost: s.cost || null },
     unitCost: s.cost,
     stock,
     build,
@@ -636,3 +715,8 @@ function fromSeed(s: Seed, i: number): Item {
 export const SAMPLE_ITEMS: Item[] = SEEDS.map(fromSeed);
 // Figma's Replacement Items samples on the REC 325: Hex Bolt and Flat Bolt
 SAMPLE_ITEMS[0].replacements = ['PA-0004-5896-4521', 'PA-7012-6589-2568'];
+// Figma's reasons: the first is the preferred substitute, the second is offered when the maker is out of stock
+for (const item of SAMPLE_ITEMS) {
+  const reasons = replacementReasons(item);
+  item.replacementReasons = Object.fromEntries(item.replacements.map((id, n) => [id, reasons[Math.min(n, 1)]]));
+}

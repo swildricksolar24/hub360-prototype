@@ -19,7 +19,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
 | Logos* | Logo Icon | 1:141 | 1 | State | — |
-| Logos* | Logo Full | 12:820 | 1 | State | — |
+| Logos* | Logo Full | 12:820 | 2 | State (Default 12:819, HUB360 3513:3714; HUB360 added Nov 12, 2026, coded as `logo-hub360`) | — |
 | Logos* | Logo Texala | 79:1443 | 1 | State | — |
 | Logos* | Logo Side | 678:371 | 2 | Brand (HUB 360, SS 360) | — |
 | Logos* | Recaptcha | 543:1693 | 1 | State | — |
@@ -70,7 +70,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Small* | Primary / Default | 401:417 | 6 | State¹ | Label |
 | Button Small* | Brand / Default | 1751:3632 | 6 | State¹ | Label |
 | Button Small* | Brand / Small / Outline (Button `variant="brand-outline" size="small"`) | 3290:6405 | 6 | State¹ | Label |
-| Button Small* | Solid / Red / Base (Button `variant="brand-red"`) | 3358:6168 | 6 | State¹ | Label |
+| Button Small* | Solid / Red / Base (Button `variant="brand-red"`; Nov 12, 2026: rests on Error Strongest, Hover Error Stronger, Press / Selected add a 2px Gray Stroke/Weaker ring) | 3358:6168 | 6 | State¹ | Label |
 | Button Small* | Clear / Red (added Nov 9, 2026; Button `variant="red-outline"`) | 3392:197 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary* | 2548:3743 | 6 | State¹ | Label |
 | Button Small* | Brand / Secondary / Icon - Left* | 2734:1004 | 6 | State¹ | Label |
@@ -120,34 +120,34 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
 | Button Group* | Part - Vertical | 79:1642 | 6 | Position (Top, Bottom, Center) × State (Default, Hover) | — |
-| Button Group* | Part - Horizontal | 28:751 | 6 | State (Left, Center, Right, + Hover of each) | — |
-| Button Group* | Button Group / Horizontal* | 523:795 | 4 | Position × State | — |
+| Button Group* | Part - Horizontal | 28:751 | 18 | Size (Default, Small) × State (Left, Center, Right, + Hover and Selected of each); Size=Small (44px) and the Selected states added Nov 12, 2026 | — |
+| Button Group* | Button Group / Horizontal* | 523:795 | 8 | Size (Default, Small) × Position × State; Size=Small added Nov 12, 2026 | — |
 | Button Group* | Button Group / Vertical* | 523:821 | 4 | Position × State | — |
-| Drop Down Label | Default | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
+| Drop Down Label | Default ("Open (example)" frame 3459:486 on the Drop Down Menu page, Nov 10–11, 2026) | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
 | Drop Down Label | chips | 2676:6014 | 1 | State | — |
 | Drop Down Label | Drop Down Menu (component, added Nov 2, 2026; 16px inset and 8px between rows like Context Menu since Nov 6) | 3078:320 | 1 | — | — |
 | Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
 | Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
-| Drop Down Button* | Default | 56:936 | 6 | State³ | Select |
+| Drop Down Button* | Default ("Open (example)" frame 3459:614 on the page, Nov 10–11, 2026: every Drop Down Button opens Menu Options) | 56:936 | 6 | State³ | Select |
 | Drop Down Button* | Small | 478:1190 | 6 | State³ | Select |
-| Editable Cell | Editable Cell | 2903:32 | 7 | Type (Input, Select, Read Only) × State (Default, Error, Hover) | Value |
+| Editable Cell | Editable Cell ("Open (example)" frame 3459:176 on the page, Nov 10–11, 2026: the select with Menu Options under it) | 2903:32 | 7 | Type (Input, Select, Read Only) × State (Default, Error, Hover) | Value |
 | ListBox* | List Item / Icon | 432:998 | 6 | State² | Label |
 | ListBox* | List Item / Avatar | 432:1109 | 6 | State² | Label |
 | ListBox* | List Item / Tree | 500:2049 | 6 | State² | Label |
 | ListBox* | List Item / Checkbox | 432:1053 | 6 | State² | — |
 | ListBox* | List Item / Category | 433:1484 | 1 | State | — |
 | ListBox* | List Item / Default | 433:1149 | 6 | State² | Label |
-| ListBox* | ListViews* | 433:1231 | 5 | Type (Default, Avatar, Category, Checkbox, Chevron) | — |
+| ListBox* | ListViews* (Appearance added Nov 10–11, 2026: List = the existing five; Menu = the Menu Options look, 3457:809, 3457:828, 3457:847, 3457:890, 3457:939) | 433:1231 | 10 | Type (Default, Avatar, Category, Checkbox, Chevron) × Appearance (List, Menu) | — |
 | ListBox* | Tree List* | 501:2238 | 1 | State | — |
 | OTP Input* | OTP Input* | 414:1616 | 6 | State² | Label |
 | Text Input - Autocomplete* | Text Input - Autocomplete* | 449:2189 | 4 | State (Default, Activated Search, Active Input, Selected) | — |
 | Text Input - Numeric* | Text Input - Numeric* | 397:691 | 6 | State² | Label, Placeholder, Error |
-| Drop Down - Filter Chip | Default | 2678:7113 | 10 | State (…, Default - Light, Press - Alt, Press - No Panel, Required) | Label, Select |
+| Drop Down - Filter Chip | Default ("Open (example)" frame 3459:384 on the page, Nov 10–11, 2026) | 2678:7113 | 10 | State (…, Default - Light, Press - Alt, Press - No Panel, Required) | Label, Select |
 | Drop Down - Selector | Autocomplete / Dropdown | 451:779 | 6 | State (Default, Hover, Active, Active Input, Selected, Disabled) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Chips | 2747:6026 | 6 | State (same) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Photo Library | 2781:1158 | 5 | State | Label |
-| Drop Down - Selector | Dropdown Selector | 455:455 | 4 | State (Default, Hover, Indent, Indent Hover) | Label, Show Icon |
-| Drop Down - Selector | Dropdown Holder | 455:472 | 3 | State (Scrollbar, Default, Gallery) | — |
+| Drop Down - Selector | Dropdown Selector (Nov 10–11, 2026: restyled to the Menu Options rows: 8 × 12px, 8px corners, no divider stroke, hover Gray Fill/Hover; Medium/Regular kept for dense lists) | 455:455 | 4 | State (Default, Hover, Indent, Indent Hover) | Label, Show Icon |
+| Drop Down - Selector | Dropdown Holder (Nov 10–11, 2026: the Menu Options panel: Surfaces/Overlay, 12px corners, Drop Shadow, 16px inset, 8px gaps, no Info Strong outline) | 455:472 | 3 | State (Scrollbar, Default, Gallery) | — |
 | Drop Down - Selector | Chip | 455:696 | 1 | State | Label |
 | Captcha | Captcha | 544:60 | 2 | State (Unchecked, Checked) | — |
 | Dropdown Tree* | Dropdown Tree* | 462:1445 | 5 | State (Default, Active, Active Hover, Active Open, Selected) | — |
@@ -182,7 +182,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Context Menu* | Menu Item | 485:1008 | 6 | State (…, Selected added Nov 2, 2026) | Show Icon, Show Submenu, Label |
 | Context Menu* | Context Menu* | 486:92 | 1 | State | — |
 | Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
-| Modal* | Modal - Dynamic | 2684:8355 | 1 | State | — |
+| Modal* | Modal - Dynamic (Nov 10, 2026: the header is a column: "Title Row" 3438:235 holds the title and the controls, the Description 2684:8298 is its own full-width row below) | 2684:8355 | 1 | State | — |
 | Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
 
 ## Components › Data display
@@ -207,6 +207,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Data Table | Data Table Row | 3131:246 | 4 | State (Default, Striped, Hover, Selected) | Checkbox, Actions; Cell 1–5 exposed |
 | Data Table | Status (added Nov 2026; `<Status active>`) | 3412:428 | 2 | State (Active, Inactive) | — |
 | Data Table | Row Status (dot status + •••; uses Status since Nov 2026) | 3321:239 | 2 | Status (Active, Inactive) | Actions |
+| Data Table | Two Line Cell (added Nov 12, 2026; `<TwoLineCell>`) | 3520:431 | 2 | Type (Text, Link) | Title, Description, Show Description; Link exposes its Hyperlink Small |
 | Page Tracker | Tracker | 708:1452 | 1 | State | — |
 | Cards | Card / Large | 3085:7392 | 1 | Property 1 (Default) | — (content is a slot) |
 | Cards | Card / Row / Small | 3085:7384 | 2 | Property 1 (Default, Variant2 = teal) | — |
@@ -247,7 +248,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Main Nav › Tier 3 | Tier 3 Icon | 2648:4086 | 4 | Size × State | — |
 | Interior Nav › Sub Menu | Sub Menu | 708:1502 | 3 | State (Default, Tiny, Text) | — |
 | Interior Nav › Tier 4 | Tier 4 | 3091:12939 | 3 | Property 1 (Warehouse) × Property 2 (Overview, Table View, Table View - 2) | — |
-| Interior Nav › Footer | Footer | 1544:2832 | 1 | State | — |
+| Interior Nav › Footer | Footer (Nov 10, 2026: the copyright text hugs, the version text fills the space between it and the links with its text centered, 24px gap) | 1544:2832 | 1 | State | — |
 
 ## Templates
 

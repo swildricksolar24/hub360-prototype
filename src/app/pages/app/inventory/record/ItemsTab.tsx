@@ -18,7 +18,7 @@ import {
 } from '../warehouseStore';
 import { CloneWarehouseModal, ConfirmCloneModal, ItemFormModal, RemoveItemsModal, SearchItemsModal } from './ItemModals';
 import { RowMenu } from './RowMenu';
-import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
 import styles from '../record.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
@@ -153,7 +153,8 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
                 label={i.name}
                 onClose={() => setMenuFor(null)}
                 items={[
-                  { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
+                  // The item's record in Items, when it has one
+                  ...viewInItems(i.name, navigate),
                   { label: i.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([i.id], !i.active) },
                   { label: 'Remove', onSelect: () => setRemoving([i]) },
                 ]}

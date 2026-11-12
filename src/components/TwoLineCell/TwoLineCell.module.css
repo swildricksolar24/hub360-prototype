@@ -1,0 +1,50 @@
+/*
+ * Figma Items Overview "item" cell (Inventory file 914:24642): a column with a 2px gap, the title in Medium/Bold
+ * Gray Text/Strong and the description in Tiny/Regular Gray Text/Weak on one line. Figma's 4px left padding is left
+ * to the table cell (DataRow's Row Item already pads its cells).
+ */
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-family-inter);
+}
+
+.title,
+.description {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  color: var(--color-gray-text-strong);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 700;
+}
+
+/*
+ * A link title (Hyperlink / AppLink) keeps its own look, but not its 8px top and bottom padding, which would push the
+ * description 10px away. Its 2px side padding stays, so the focus ring isn't clipped at the sides.
+ */
+.title > a {
+  max-width: 100%;
+  padding-block: 0;
+}
+/* ...and the description moves in by the same 2px, so both lines start at the link text */
+.cell:has(> .title > a) > .description {
+  max-width: calc(100% - var(--space-2));
+  padding-left: var(--space-2);
+}
+
+.description {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 400;
+}

@@ -76,7 +76,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
   messages: [
     {
       id: 'm1',
-      from: 'Selina Kyle',
+      from: 'Rae Sloane',
       org: 'Project Management',
       title: 'New Project Next Week',
       message: "Can we walk the Scottsdale site on Monday? I'd like to confirm the panel count before we order racking. The customer added a detached garage to the scope, so the roof plan went from 28 to 36 panels. If you can bring the warehouse pick list, we can check it against the new layout on site and get the racking order in by Wednesday.",
@@ -85,7 +85,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'm2',
-      from: 'Harvey Dent',
+      from: 'Ciena Ree',
       org: 'Receiving',
       title: 'Receiving Dock Schedule',
       message: "Two trucks are booked for Thursday morning. Can someone from receiving be at dock 3 by 7:30? The first truck is the SunVolt order (PO-7731, 6 pallets) and the second is conduit and wire from Desert Freight. We'll need the forklift charged and the overflow area in aisle F cleared before they arrive.",
@@ -94,7 +94,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'm3',
-      from: 'Edward Nygma',
+      from: 'Lorth Needa',
       org: 'Inventory Control',
       title: 'Count Variance on Inverters',
       message: "The Tempe count shows 3 fewer inverters than the system. Did anything ship without a pick ticket? The missing units are the 7.6 kW model, serials ending 4471 through 4473. They were last scanned into bin B-14 on Oct 20. If they went out on a job, I can post the adjustment today; otherwise I'll open a loss report.",
@@ -103,7 +103,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'm4',
-      from: 'Pamela Isley',
+      from: 'Kendal Ozzel',
       org: 'Purchasing',
       title: 'Supplier Samples Arrived',
       message: "The new mounting brackets from GreenRail are in. I left them on the shelf next to receiving. They're about 15% cheaper than our current brackets and rated for the same wind load. Can install crews try a set on next week's Tempe job and send me feedback? If they hold up, I'll switch the standing order in December.",
@@ -112,7 +112,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'm5',
-      from: 'Jervis Tetch',
+      from: 'Eli Vanto',
       org: 'Reporting & Analytics',
       title: 'Monthly Report',
       message: "Do you want the monthly inventory report split by warehouse, or combined like last time? Splitting it adds a page per warehouse but makes the Mesa shortages easier to spot. I can also add a chart of stock value by month if that would help the budget review. I'm planning to send it out Monday morning.",
@@ -132,7 +132,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'e2',
-      from: 'Dana Whitfield',
+      from: 'Dedra Meero',
       org: 'Accounts Payable',
       title: 'Invoice INV-20418 Reminder',
       message: 'This is a reminder that invoice INV-20418 is past due. Reply to this email if you need a copy of the invoice. The vendor has offered to waive the late fee if payment is approved by Friday. Please confirm the receiving records match the invoice, then approve it in Purchasing so we can release the payment.',
@@ -141,7 +141,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'e3',
-      from: 'Lucius Fox',
+      from: 'Gilad Pellaeon',
       org: 'Finance',
       title: 'Q4 Purchasing Budget',
       message: "I've attached the Q4 purchasing budget by warehouse. Please flag anything that looks off before Friday. The total is $412,000, up 8% on Q3, mostly because of the Chandler expansion. Mesa's line is tight if the panel price increase goes through, so let me know if we should move money from Tempe's tools budget.",
@@ -168,7 +168,7 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
     },
     {
       id: 'e6',
-      from: 'Leslie Thompkins',
+      from: 'Kassius Konstantine',
       org: 'Safety & Compliance',
       title: 'Safety Training on Nov 6',
       message: "Forklift and ladder safety training is on Thursday, Nov 6 at 9 AM in the Mesa break room. Please confirm your team. The session runs about two hours and counts toward this year's OSHA certification. Everyone who drives a forklift must attend or book the Nov 13 make-up session. Send me your list of names by Monday so I can print certificates.",
@@ -180,13 +180,13 @@ export const SAMPLE_INBOX: Record<InboxKind, InboxItem[]> = {
       from: 'Luis Ortega',
       org: 'Desert Freight',
       title: 'Proof of Delivery: Shipment 55120',
-      message: 'Shipment 55120 was delivered to Phoenix Warehouse at 2:14 PM and signed for by H. Bullock. All 9 pallets arrived intact, and the signed delivery receipt is attached. If you find any damage while unpacking, report it within 5 business days so we can file a claim with the carrier.',
+      message: 'Shipment 55120 was delivered to Phoenix Warehouse at 2:14 PM and signed for by T. Jerjerrod. All 9 pallets arrived intact, and the signed delivery receipt is attached. If you find any damage while unpacking, report it within 5 business days so we can file a claim with the carrier.',
       time: 'Yesterday',
       unread: true,
     },
     {
       id: 'e8',
-      from: 'Barbara Gordon',
+      from: 'Gideon Hask',
       org: 'Facilities',
       title: 'Warehouse Access Badges',
       message: 'New access badges for the Tempe warehouse are ready. Pick yours up at the front desk this week. Old badges stop working on Nov 10. The new badges also open the loading dock gate after hours, so you no longer need to call security for late deliveries. Bring a photo ID when you collect yours.',

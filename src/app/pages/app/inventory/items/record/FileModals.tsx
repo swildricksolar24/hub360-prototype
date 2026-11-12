@@ -52,7 +52,7 @@ export function useShownProfileImage(item: Item): string | undefined {
 /** The person signed in, for Modified By. */
 export function useMe() {
   const { user } = useAuth();
-  return user?.name ?? 'Oswald Cobblepot';
+  return user?.name ?? 'TK-421';
 }
 
 let fileSeq = 0;

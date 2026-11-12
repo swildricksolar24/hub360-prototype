@@ -1,66 +1,110 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../../../../components/Button/Button';
-import { Message } from '../../../../../components/Message/Message';
+import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
+import { TwoLineCell } from '../../../../../components/TwoLineCell/TwoLineCell';
 import { RadioButton } from '../../../../../components/RadioButton/RadioButton';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { AppModal } from '../../../../components/AppModal';
-import { blankItem, TYPE_DESCRIPTION, type Item, type ItemType } from './itemData';
+import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
+import { Scrollbar } from '../../../../../components/Scrollbar/Scrollbar';
+import { Tag } from '../../../../../components/Tag/Tag';
+import { blankItem, CATEGORIES, TYPE_PREFIX, UNIT_TYPES, unitLabel, type Item, type ItemType } from './itemData';
 import { usedIn } from './itemStore';
-import { ItemPicker, required, requiredNote } from './shared';
+import { ItemPicker, StatusPill } from './shared';
+
+/**
+ * Over 6 items, the merge table scrolls in a box 6 rows tall: DataTable's 54px header and 70px rows (TwoLineCell's two
+ * lines in the 68px row, plus its 2px divider). Component dimensions, not spacing tokens.
+ */
+const MERGE_VISIBLE_ROWS = 6;
+// On a short window it gives way so Cancel / Merge Items stay on screen: the rest of the modal and its margins take
+// about 500px
+const MERGE_SCROLL_HEIGHT = `min(${54 + MERGE_VISIBLE_ROWS * 70}px, 100vh - 500px)`;
+/** The merge table: the checked items, with a Keep radio first that picks the one the others merge into. */
+const MERGE_COLUMNS: DataColumn[] = [
+  { key: 'keep', label: 'Keep', width: 72, sortable: false },
+  { key: 'item', label: 'Item', width: 'fill', minWidth: 172, sortable: false },
+  { key: 'type', label: 'Type', width: 104, sortable: false },
+  { key: 'category', label: 'Category', width: 132, sortable: false },
+  { key: 'status', label: 'Status', width: 112, sortable: false },
+];
 import record from '../record.module.css';
 import styles from './items.module.css';
 
+/** The order Figma lists the types in on Create New Item. */
+const CREATE_TYPES: ItemType[] = ['Part', 'Kit', 'Assembly'];
+const defaultUnit = (type: ItemType) => (type === 'Kit' ? 'Kit (KT)' : 'Each (EA)');
+
 /**
- * Add Part / Add Assembly / Add Kit (ITEMS.md §1; Figma Modal Screen 571:53644, 571:53661, 571:53678): a custom #
- * and a name. Creating the item opens its new record.
+ * Create New Item (ITEMS.md §1; Figma "Modal - Add New Item" 681:14400): the item type (Part, Kit or Assembly; Add New ▾
+ * picks the starting one), the System Item # it will get, an optional Custom Item #, the Item Name, then Category,
+ * Subcategory and Unit. Create adds it to the catalog and opens its record in a new tab, so the list's tab stays.
  */
 export function AddItemModal({
-  type,
+  type: startType,
   existing,
   onClose,
   onCreate,
 }: {
-  /** The type being added; null closes the modal. */
+  /** The type to start with (from Add New ▾); null closes the modal. */
   type: ItemType | null;
   existing: Item[];
   onClose: () => void;
   onCreate: (item: Item) => void;
 }) {
+  const [type, setType] = useState<ItemType>('Part');
   const [number, setNumber] = useState('');
   const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState('');
+  const [unit, setUnit] = useState('Each (EA)');
+  const [suffix, setSuffix] = useState('');
   const [tried, setTried] = useState(false);
   useEffect(() => {
-    if (!type) return;
+    if (!startType) return;
+    setType(startType);
     setNumber('');
     setName('');
+    setCategory('');
+    setSubcategory('');
+    setUnit(defaultUnit(startType));
+    // The system # the new item gets: its type's prefix (PA, KT, AS) and this part, made once per opening
+    setSuffix(blankItem(startType, '').id.split('-').slice(1).join('-'));
     setTried(false);
-  }, [type]);
-  const word = type ?? 'Part';
+  }, [startType]);
+  const systemNumber = `${TYPE_PREFIX[type]}-${suffix}`;
   const errors = {
-    name: !name.trim() ? `Enter the ${word.toLowerCase()} name` : undefined,
+    name: !name.trim() ? 'Enter the item name' : undefined,
     number:
       number.trim() && existing.some(i => i.customNumber.toLowerCase() === number.trim().toLowerCase())
         ? `Another item already uses custom # ${number.trim()}`
         : undefined,
   };
+  function chooseType(t: ItemType) {
+    // Kits are counted as kits: switching to or from Kit moves the unit along unless it was changed by hand
+    if (unit === defaultUnit(type)) setUnit(defaultUnit(t));
+    setType(t);
+  }
   function create() {
     setTried(true);
-    if (!type || errors.name || errors.number) return;
-    onCreate(blankItem(type, name.trim(), number.trim()));
+    if (!startType || errors.name || errors.number) return;
+    onCreate(
+      blankItem(type, name.trim(), number.trim(), {
+        id: systemNumber,
+        category,
+        subcategory,
+        unitType: unit,
+        lastPurchase: { supplier: '', date: '', quantity: null, unitType: unit, cost: null },
+      }),
+    );
   }
   return (
     <AppModal
-      open={type !== null}
+      open={startType !== null}
       onClose={onClose}
-      title={`Add ${word}`}
-      description={
-        <>
-          {TYPE_DESCRIPTION[word]}
-          <br />
-          {requiredNote}
-        </>
-      }
-      primaryAction={{ label: `Create ${word}`, onClick: create }}
+      title="Create New Item"
+      description="* Required. Adds the item to the catalog. Open it afterwards to add specs, suppliers and files."
+      primaryAction={{ label: 'Create', onClick: create }}
     >
       <form
         className={record.form}
@@ -70,16 +114,71 @@ export function AddItemModal({
           create();
         }}
       >
+        {/* Item type *: Volt Tag (small), the chosen one selected */}
+        <div className={styles.typeField} role="group" aria-labelledby="create-item-type">
+          <span id="create-item-type" className={`text-medium-regular ${styles.fieldLabel}`}>
+            Item type <span className={record.requiredMark}>*</span>
+          </span>
+          <div className={styles.typeChips}>
+            {CREATE_TYPES.map(t => (
+              <Tag key={t} size="small" selected={type === t} onClick={() => chooseType(t)}>
+                {t}
+              </Tag>
+            ))}
+          </div>
+        </div>
         <div className={record.halves}>
-          <TextInput label={`Custom ${word} #`} value={number} onChange={e => setNumber(e.target.value)} error={tried ? errors.number : undefined} autoComplete="off" />
+          {/* The system # isn't editable: shown as text, bold, where the field would be */}
+          <div className={styles.systemNumber}>
+            <span className={`text-medium-regular ${styles.fieldLabel}`} id="create-system-number">
+              System Item #
+            </span>
+            <span className={`text-medium-bold ${styles.systemNumberValue}`} aria-labelledby="create-system-number">
+              {systemNumber}
+            </span>
+          </div>
           <TextInput
-            label={required(`${word} Name`)}
-            value={name}
-            onChange={e => setName(e.target.value)}
-            error={tried ? errors.name : undefined}
+            label="Custom Item # (optional)"
+            value={number}
+            onChange={e => setNumber(e.target.value)}
+            error={tried ? errors.number : undefined}
             autoComplete="off"
+          />
+        </div>
+        <TextInput
+          label="Item Name *"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          error={tried ? errors.name : undefined}
+          autoComplete="off"
+          required
+          autoFocus
+        />
+        <div className={record.thirds}>
+          <Dropdown
+            label="Category"
+            placeholder="Select"
+            options={Object.keys(CATEGORIES).map(c => ({ value: c, label: c }))}
+            value={category || null}
+            onChange={v => {
+              setCategory(v as string);
+              setSubcategory('');
+            }}
+          />
+          <Dropdown
+            label="Subcategory"
+            placeholder="Select"
+            options={(CATEGORIES[category] ?? []).map(s => ({ value: s, label: s }))}
+            value={subcategory || null}
+            onChange={v => setSubcategory(v as string)}
+            disabled={!category}
+          />
+          <Dropdown
+            label="Unit *"
+            options={UNIT_TYPES.map(u => ({ value: u, label: unitLabel(u) }))}
+            value={unit}
+            onChange={v => setUnit(v as string)}
             required
-            autoFocus
           />
         </div>
         <button type="submit" hidden />
@@ -89,55 +188,75 @@ export function AddItemModal({
 }
 
 /**
- * Merging Items (ITEMS.md §1) and Merging Parts (§2): every selected item is combined into the one picked here. The
- * picker offers active items of the same type (when the selection shares one), leaving out the selection itself.
+ * Merging Items (ITEMS.md §1), from the Items list's Actions › Merge with two or more items checked. The checked items
+ * are listed in a table; the Keep radio on each row picks the item the others merge into. The first is picked to start
+ * with, so Merge Items is ready at once. `onMerge` gets the item kept and the items merged into it.
  */
 export function MergeItemsModal({
   open,
   sources,
-  all,
-  noun = 'Items',
   onClose,
   onMerge,
 }: {
   open: boolean;
   sources: Item[];
-  all: Item[];
-  /** "Items" from the list; "Parts", "Assemblies" or "Kits" from a record. */
-  noun?: string;
   onClose: () => void;
-  onMerge: (target: Item) => void;
+  onMerge: (target: Item, merged: Item[]) => void;
 }) {
   const [target, setTarget] = useState<Item | null>(null);
   useEffect(() => {
-    if (open) setTarget(null);
+    if (open) setTarget(sources[0] ?? null);
+    // Only when the modal opens: a new selection reopens it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-  const types = new Set(sources.map(s => s.type));
-  const candidates = all.filter(i => i.active && !sources.some(s => s.id === i.id) && (types.size !== 1 || types.has(i.type)));
-  const count = sources.length === 1 ? `“${sources[0]?.name}”` : `the ${sources.length} selected items`;
+
+  const table = (
+    <DataTable
+      aria-label="Items to merge"
+      columns={MERGE_COLUMNS}
+      rows={sources}
+      rowLabel={i => i.name}
+      actions={false}
+      inactive={i => !i.active}
+      cells={i => ({
+        keep: (
+          <RadioButton name="merge-keep" label="" aria-label={`Keep ${i.name}`} checked={target?.id === i.id} onChange={() => setTarget(i)} />
+        ),
+        item: <TwoLineCell title={i.id} description={i.name} />,
+        type: i.type,
+        category: i.category || '—',
+        status: <StatusPill active={i.active} />,
+      })}
+    />
+  );
 
   return (
     <AppModal
       open={open}
       onClose={onClose}
-      title={`Merging ${noun}`}
-      primaryAction={{ label: `Merge ${noun}`, disabled: !target, onClick: () => target && onMerge(target) }}
+      title="Merging Items"
+      primaryAction={{
+        label: 'Merge Items',
+        disabled: !target,
+        onClick: () => target && onMerge(target, sources.filter(s => s.id !== target.id)),
+      }}
     >
       <div className={styles.modalBody}>
-        <p className="text-medium-regular">
-          You are merging {count} into the item you choose below. Their details, stock, suppliers, notes, files, and their
-          place in assemblies, kits and orders move to that item, and the merged items are deactivated.
+        {/* Copy from Figma "Merging Items"; Large/Regular, the same size as the Delete Items modal */}
+        <p className="text-large-regular">
+          This Merge option allows you to combine all selected Items with the Item chosen below. All data will be
+          synchronized with the selected Item, including Assemblies, Kits, and Orders. Once the merge is complete, the
+          selected Item will replace the merged Items, and the merged Items will be deactivated.
         </p>
-        <p className={`text-medium-regular ${styles.warning}`}>This process cannot be undone once the merge is complete.</p>
-        {target ? (
-          <Message
-            type="info"
-            title={`Merge into ${target.name}`}
-            body={`${target.type} · ${target.id}`}
-            onClose={() => setTarget(null)}
-          />
+        {/* The warning one size down from the body: Volt Medium/Semi-Bold, in the error red */}
+        <p className={`text-medium-semi-bold ${styles.warning}`}>Warning: This process cannot be undone once the merge is complete.</p>
+        {sources.length > MERGE_VISIBLE_ROWS ? (
+          // More than 6 items: they scroll inside the Volt Scrollbar, which shows 6 rows at a time
+          <Scrollbar label="Items to merge" height={MERGE_SCROLL_HEIGHT}>
+            {table}
+          </Scrollbar>
         ) : (
-          <ItemPicker items={candidates} onPick={setTarget} label="Item to merge into" placeholder="Search by # or name for the item to keep" autoFocus />
+          table
         )}
       </div>
     </AppModal>
@@ -159,7 +278,6 @@ export function DeleteItemsModal({
   onClose: () => void;
   onConfirm: () => void;
 }) {
-  const names = items.length === 1 ? `“${items[0]?.name}”` : `${items.length} items`;
   return (
     <AppModal
       open={open}
@@ -168,12 +286,15 @@ export function DeleteItemsModal({
       primaryAction={{ label: `Delete ${noun}`, danger: true, onClick: onConfirm }}
     >
       <div className={styles.modalBody}>
-        <p className="text-medium-regular">
-          Deleting {names} removes {items.length === 1 ? 'it' : 'them'} from every kit, assembly and order that uses{' '}
-          {items.length === 1 ? 'it' : 'them'}. Where an active replacement item exists, the replacement is substituted.
+        {/* Copy from Figma "Modal - Delete Items" (681:14500), Large/Regular; the last line is a red "Warning:" like
+            Merging Items' */}
+        <p className="text-large-regular">
+          You are about to delete the selected Item(s). Deleting these Items will remove them from any Kits, Assemblies,
+          or Orders where they are currently used. If an active replacement Item is available, it will be substituted
+          automatically where applicable.
         </p>
-        <p className={`text-medium-regular ${styles.warning}`}>
-          This action cannot be undone. Please confirm that you want to proceed with the deletion.
+        <p className={`text-medium-semi-bold ${styles.warning}`}>
+          Warning: This action cannot be undone. Please confirm that you want to proceed with the deletion.
         </p>
       </div>
     </AppModal>

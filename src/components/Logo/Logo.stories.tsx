@@ -26,6 +26,7 @@ const figmaSet = (nodeId: string, figmaName: string, name: LogoName, extra?: Par
 
 export const LogoIcon = figmaSet('1:141', 'Logo Icon', 'logo-icon');
 export const LogoFull = figmaSet('12:820', 'Logo Full', 'logo-full');
+export const LogoHub360 = figmaSet('3513:3714', 'Logo Full / State=HUB360', 'logo-hub360');
 export const LogoTexala = figmaSet('79:1443', 'Logo Texala', 'logo-texala');
 export const Recaptcha = figmaSet('543:1693', 'Recaptcha', 'recaptcha');
 export const EqualHousingLender = figmaSet('588:622', 'Equal Housing Lender*', 'equal-housing-lender');
@@ -44,6 +45,53 @@ export const LogoSide: Story = {
             Brand={brand}
           </figcaption>
           <Logo name="logo-side" brand={brand} />
+        </figure>
+      ))}
+    </div>
+  ),
+  parameters: { ...figma('678:371', 'Logos* › Logo Side'), controls: { disable: true } },
+};
+
+/**
+ * `colorMode="light"`: keeps the light-mode Logo Color (teal) in dark mode too. Switch the theme toolbar to dark to see
+ * the difference from the default (`'auto'`, white in dark).
+ */
+export const LightColorsInDark: Story = {
+  args: { name: 'logo-side' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)', alignItems: 'flex-start' }}>
+      {(['auto', 'light'] as const).map(mode => (
+        <figure key={mode} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+          <figcaption className="text-small-regular" style={{ color: 'var(--color-gray-text-weak)' }}>
+            colorMode={mode}
+          </figcaption>
+          <div style={{ display: 'flex', gap: 'var(--space-24)', alignItems: 'center' }}>
+            <Logo name="logo-side" text="HUB360" colorMode={mode} />
+            <Logo name="logo-side" iconOnly label="HUB360" colorMode={mode} />
+            <Logo name="logo-hub360" height={44} colorMode={mode} />
+          </div>
+        </figure>
+      ))}
+    </div>
+  ),
+  parameters: { ...figma('678:371', 'Logos* › Logo Side'), controls: { disable: true } },
+};
+
+/**
+ * Logo Side, icon only (`iconOnly`, or `text=""`): the ring icon without its text, gap or padding; `height` sizes the
+ * square icon box (default 44). Segments follow `--color-logo-color`, so it works in light and dark. Accessible name
+ * stays the brand.
+ */
+export const LogoSideIconOnly: Story = {
+  args: { name: 'logo-side' },
+  render: () => (
+    <div style={{ display: 'flex', gap: 'var(--space-24)', alignItems: 'flex-end' }}>
+      {[44, 80, 118].map(size => (
+        <figure key={size} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+          <figcaption className="text-small-regular" style={{ color: 'var(--color-gray-text-weak)' }}>
+            height={size}
+          </figcaption>
+          <Logo name="logo-side" iconOnly height={size} />
         </figure>
       ))}
     </div>

@@ -387,25 +387,9 @@
   flex: 1;
   min-width: 0;
 }
-/* The segmented switch (ButtonGroup) at the toolbar's 44px height; the Figma part is 72px tall */
+/* The segmented switch (ButtonGroup size="small", 44px like the toolbar's other controls) keeps its width */
 .segmented {
   flex: none;
-}
-.segment {
-  padding: var(--space-10) var(--space-20);
-  font-size: var(--font-size-medium);
-  line-height: var(--line-height-medium);
-}
-.segment[aria-pressed='true'] {
-  --bg: var(--color-brand-teal-fill-strong);
-  --fg: var(--color-foundation-solid-white); /* white on a brand fill: no semantic token (design-system.md) */
-  font-weight: 600;
-}
-.segment[aria-pressed='true']:hover {
-  --bg: var(--color-brand-teal-fill-hover);
-}
-.segment[aria-pressed='true']:active {
-  --bg: var(--color-brand-teal-fill-press);
 }
 /* A brand button with a ▾ menu (Add New ▾, Add Item ▾); the menu opens under it, right-aligned */
 .menuButton {

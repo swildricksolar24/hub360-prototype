@@ -362,16 +362,25 @@
 
 /*
  * ---------- brand-red: Figma Button Small "Solid / Red / Base" (Base 3358:6168), destructive and error actions ----------
- * Default: Semantic Fill/Error Weak with a Foundation/Solid/White label (no semantic "text on error" token).
- * Hover, Press and Selected: Semantic Fill/Error Strongest. Focus: Error Strongest with a 4px Gray Stroke/Weaker
+ * Default (since Nov 12, 2026): Semantic Fill/Error Strongest with a Foundation/Solid/White label (no semantic "text
+ * on error" token), so the label passes contrast (about 5:1; the old Error Weak rest was about 2.6:1).
+ * Hover: Semantic Fill/Error Stronger. Press: Error Strongest with a 2px Gray Stroke/Weaker ring, like the teal
+ * Button › Brand. Selected: Error Stronger with the 2px ring. Focus: Error Strongest with a 4px Gray Stroke/Weaker
  * stroke centered on the edge. Disabled: Semantic Fill/Error Weakest with Gray Text/Disabled.
  */
 .button[data-variant='brand-red'] {
-  --bg: var(--color-semantic-fill-error-weak);
+  --bg: var(--color-semantic-fill-error-strongest);
   --fg: var(--color-foundation-solid-white);
 }
-.button[data-variant='brand-red']:is(:hover, :active, :focus-visible, [aria-pressed='true']) {
+.button[data-variant='brand-red']:is(:hover, [aria-pressed='true']) {
+  --bg: var(--color-semantic-fill-error-stronger);
+}
+.button[data-variant='brand-red']:is(:active, :focus-visible) {
   --bg: var(--color-semantic-fill-error-strongest);
+}
+.button[data-variant='brand-red']:is(:active, [aria-pressed='true']) {
+  --ring: var(--color-gray-stroke-weaker);
+  --ring-w: var(--stroke-width-2);
 }
 .button[data-variant='brand-red']:focus-visible {
   --ring: var(--color-gray-stroke-weaker);

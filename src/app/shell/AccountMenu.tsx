@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { AppModal } from '../components/AppModal';
 import { useTheme } from '../theme';
 import { useHelperFlag } from './helperFlags';
+import { NEW_TAB_STATE } from './navigation';
 import styles from './AccountMenu.module.css';
 import { useMediaQuery } from './useMediaQuery';
 
@@ -59,7 +60,7 @@ export function AccountMenu() {
           autoFocus
           onClose={close}
           items={[
-            { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account') },
+            { label: 'Account Settings', icon: 'account', onSelect: () => navigate('/app/account', NEW_TAB_STATE) },
             // A command: the label ("Light Mode" / "Dark Mode") and Volt's Mode Light (sun) / Mode Dark (moon) icon name the theme it switches to
             { label: dark ? 'Light Mode' : 'Dark Mode', icon: dark ? 'mode-light' : 'mode-dark', onSelect: () => setTheme(dark ? 'light' : 'dark') },
             { label: 'Sign Out', icon: 'sign-out', onSelect: () => setConfirmSignOut(true) },

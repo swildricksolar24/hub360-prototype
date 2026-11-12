@@ -187,7 +187,7 @@ export function WarehousesPage() {
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
-        <Button size="small" variant="brand" onClick={() => setEditing('new')}>
+        <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
           Add Warehouse
         </Button>
       </div>
@@ -394,7 +394,7 @@ function EmptyState({ filtered, onAdd, onClear }: { filtered: boolean; onAdd: ()
           Clear search and filters
         </Button>
       ) : (
-        <Button size="small" variant="brand" onClick={onAdd}>
+        <Button size="small" variant="brand" icon="plus" onClick={onAdd}>
           Add Warehouse
         </Button>
       )}

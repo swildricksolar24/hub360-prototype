@@ -170,7 +170,7 @@ export const useHistory = history.use;
 
 /**
  * Each warehouse's activations and deactivations, newest last: who, when (local ISO date and time) and the optional
- * note. The Activate confirmation shows the last deactivation ("Deactivated Oct 12, 2026 by L. Nguyen · “Seasonal
+ * note. The Activate confirmation shows the last deactivation ("Deactivated Oct 12, 2026 by L. Needa · “Seasonal
  * closure”").
  */
 export type StatusEvent = { active: boolean; by: string; date: string; note?: string };

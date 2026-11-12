@@ -28,7 +28,7 @@ const plural = (n: number, one: string, many = `${one}s`) => `${count(n)} ${n ==
 const sum = (list: Warehouse[], value: (w: Warehouse) => number) => list.reduce((total, w) => total + value(w), 0);
 
 /** Helper switch "Show deactivation history": the past deactivation shown when the status log has none. */
-const SAMPLE_LAST_OFF: StatusEvent = { active: false, by: 'K. Ito', date: '2026-10-12T09:30:00' };
+const SAMPLE_LAST_OFF: StatusEvent = { active: false, by: 'O. Krennic', date: '2026-10-12T09:30:00' };
 
 /**
  * Applies a confirmed Activate / Deactivate: flips the status, logs who did it, when and the note, and unfreezes the

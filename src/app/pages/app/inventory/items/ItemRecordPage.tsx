@@ -8,11 +8,12 @@ import { AppModal } from '../../../../components/AppModal';
 import { RecordActions, RecordPage } from '../../../../components/RecordPage';
 import { useHelperFlag } from '../../../../shell/helperFlags';
 import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
-import { TYPE_ICON, today, type Item, type ItemType, type Note } from './itemData';
-import { deactivateItem, deleteItems, itemPath, LIST_PATH, mergeItems, numberLabel, setItems, updateItem, useItems } from './itemStore';
-import { DeactivateItemModal, DeleteItemsModal, MergeItemsModal } from './ItemModals';
+import { SPEC_TEMPLATES, TYPE_ICON, today, type Item, type ItemType, type Note } from './itemData';
+import { deactivateItem, deleteItems, itemPath, LIST_PATH, numberLabel, setItems, updateItem, useItems } from './itemStore';
+import { DeactivateItemModal, DeleteItemsModal } from './ItemModals';
 import { BuildTab } from './record/BuildTab';
-import { DetailsTab, toDraft, type DetailsDraft, type DetailsErrors } from './record/DetailsTab';
+import { DetailsTab, toDraft, unsavedChanges, withBarcodes, type DetailsDraft, type DetailsErrors } from './record/DetailsTab';
+import { EditBanner } from '../record/EditBanner';
 import { FilesTab } from './record/FilesTab';
 import { ProfileImageFlow } from './record/FileModals';
 import { HistoryTab } from './record/HistoryTab';
@@ -50,8 +51,8 @@ const TABS: Record<ItemType, { id: string; label: string }[]> = {
   ],
 };
 
-/** The record's Stock tab leaves out Item # and Description: every row is this item, named in the header. */
-const RECORD_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k !== 'number' && k !== 'description');
+/** The record's Stock tab leaves out Item and Category: every row is this item, named in the header. */
+const RECORD_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k !== 'item' && k !== 'category');
 
 const PLURAL: Record<ItemType, string> = { Part: 'Parts', Assembly: 'Assemblies', Kit: 'Kits' };
 
@@ -59,7 +60,7 @@ const PLURAL: Record<ItemType, string> = { Part: 'Parts', Assembly: 'Assemblies'
 const helperPopupNote = (item: Item): Note => ({
   ...(item.notes[0] ?? {
     id: `${item.id}-helper-note`,
-    author: 'Waylon Jones',
+    author: 'Orson Krennic',
     updated: today(),
     text: `Count the ${item.name} on hand before the next pick: the last cycle count was 6 units short.`,
     pinMe: false,
@@ -90,7 +91,6 @@ export function ItemRecordPage() {
   const [popups, setPopups] = useState<string[]>([]);
   const [activating, setActivating] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
-  const [merging, setMerging] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const popupNote = useHelperFlag('item.popupNote');
@@ -124,15 +124,25 @@ export function ItemRecordPage() {
 
   function save() {
     if (!draft) return;
-    if (!draft.name.trim()) {
-      setErrors({ name: `Enter the ${word.toLowerCase()} name` });
+    // Required on Details: the name, the category and any required category spec (Solar Panels: Power output)
+    const missing: DetailsErrors = {
+      name: draft.name.trim() ? undefined : `Enter the ${word.toLowerCase()} name`,
+      category: draft.category ? undefined : 'Choose a category',
+      powerOutput: SPEC_TEMPLATES[draft.category]?.flat().some(f => f.key === 'powerOutput') && !draft.categorySpecs.powerOutput?.trim() ? 'Enter the power output' : undefined,
+    };
+    if (missing.name || missing.category || missing.powerOutput) {
+      setErrors(missing);
       setParams({}, { replace: true });
       return;
     }
     setErrors({});
-    updateItem(it.id, i => ({ ...i, ...draft, name: draft.name.trim(), customNumber: draft.customNumber.trim(), modified: today() }));
+    const ready = withBarcodes(draft);
+    updateItem(it.id, i => ({ ...i, ...ready, name: draft.name.trim(), customNumber: draft.customNumber.trim(), modified: today() }));
+    setDraft({ ...ready, name: draft.name.trim(), customNumber: draft.customNumber.trim() });
     setNotice(`${draft.name.trim()} was saved.`);
   }
+  // Figma "Editing Banner": shown while Details has unsaved changes
+  const changes = unsavedChanges(draft, it);
 
   // Previous / next item in the list's order, on the same tab when the type has it, reusing this app tab
   const go = (to: Item | undefined) =>
@@ -162,7 +172,7 @@ export function ItemRecordPage() {
     kits: <UsedInTab item={it} kind="Kit" onNotice={setNotice} />,
     stock: (
       <Card id={`Stock for ${it.name}`}>
-        <StockTable lines={it.stock.map(stock => ({ item: it, stock }))} columns={RECORD_STOCK_COLUMNS} label={`Stock for ${it.name}`} />
+        <StockTable lines={it.stock.map(stock => ({ item: it, stock }))} columns={RECORD_STOCK_COLUMNS} label={`Stock for ${it.name}`} totals />
       </Card>
     ),
     history: <HistoryTab item={it} />,
@@ -198,13 +208,12 @@ export function ItemRecordPage() {
             onActiveChange={on => (on ? setActivating(true) : setDeactivating(true))}
             options={[
               it.active ? { value: 'deactivate', label: 'Deactivate' } : { value: 'activate', label: 'Activate' },
-              { value: 'merge', label: 'Merge' },
+              // No Merge here: items are merged from the Items list (Actions › Merge, two or more checked)
               { value: 'delete', label: 'Delete' },
             ]}
             onAction={value => {
               if (value === 'activate') setActivating(true);
               else if (value === 'deactivate') setDeactivating(true);
-              else if (value === 'merge') setMerging(true);
               else if (value === 'delete') setDeleting(true);
             }}
             onSave={save}
@@ -221,6 +230,19 @@ export function ItemRecordPage() {
             </>
           ),
         }))}
+        banner={
+          changes > 0 ? (
+            <EditBanner
+              what={it.name}
+              changes={changes}
+              onDiscard={() => {
+                setDraft(toDraft(it));
+                setErrors({});
+              }}
+              onSave={save}
+            />
+          ) : undefined
+        }
         section={tab}
         onSectionChange={id => setParams(id === 'details' ? {} : { tab: id }, { replace: true })}
       />
@@ -255,19 +277,6 @@ export function ItemRecordPage() {
             how === 'replace' ? ' and replaced in its assemblies and kits' : how === 'deactivate' ? ' with the assemblies and kits that use it' : how === 'remove' ? ' and removed from its assemblies and kits' : '';
           setNotice(`${it.name} deactivated${what}.`);
           setDeactivating(false);
-        }}
-      />
-
-      <MergeItemsModal
-        open={merging}
-        sources={[it]}
-        all={items}
-        noun={PLURAL[word]}
-        onClose={() => setMerging(false)}
-        onMerge={target => {
-          mergeItems([it.id], target.id);
-          setMerging(false);
-          navigate(itemPath(target.id), { state: { replaceTab: true, notice: `${it.name} was merged into ${target.name}.` } });
         }}
       />
 

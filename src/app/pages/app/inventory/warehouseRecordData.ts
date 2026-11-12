@@ -89,43 +89,46 @@ export const COMPANIES = [INTERNAL_COMPANY, 'Solar Topps', 'Wesco Solar Supply',
 
 /** Figma "Contacts" (848:20960) */
 export const SAMPLE_CONTACTS: Contact[] = [
-  { id: 'p1', name: 'Waylon Jones', company: 'HUB360', phone: '(602) 358-9652', email: 'wjones@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'], primary: true, active: true },
-  { id: 'p3', name: 'Pamela Isley', company: 'HUB360', phone: '(480) 320-2253', email: 'pisley@hb360.com', role: 'Associate', additionalRoles: ['Inventory Control'], primary: false, active: true },
+  { id: 'p1', name: 'Orson Krennic', company: 'HUB360', phone: '(602) 358-9652', email: 'okrennic@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'], primary: true, active: true },
+  { id: 'p3', name: 'Kendal Ozzel', company: 'HUB360', phone: '(480) 320-2253', email: 'kozzel@hb360.com', role: 'Associate', additionalRoles: ['Inventory Control'], primary: false, active: true },
   { id: 'p4', name: 'Dana Ruiz', company: 'Wesco Solar Supply', phone: '(602) 555-0142', email: 'dana.ruiz@example.com', role: 'Supplier Rep', additionalRoles: [], primary: false, active: true },
-  { id: 'p2', name: 'Oliver Wan', company: 'HUB360', phone: '(526) 365-5569', email: 'owan@hb360.com', role: 'Accounting', additionalRoles: [], primary: false, active: false },
+  { id: 'p2', name: 'Syril Karn', company: 'HUB360', phone: '(526) 365-5569', email: 'skarn@hb360.com', role: 'Accounting', additionalRoles: [], primary: false, active: false },
 ];
 
 /** Phoenix WH's further contacts (not in Figma): enough people for a second page of the Contacts table. */
 export const PHX_EXTRA_CONTACTS: Contact[] = [
-  { id: 'p5', name: 'Marcus Lee', company: 'HUB360', phone: '(602) 555-0114', email: 'mlee@hb360.com', role: 'Assistant Manager', additionalRoles: ['Safety Officer'], primary: false, active: true },
-  { id: 'p6', name: 'Rosa Delgado', company: 'HUB360', phone: '(602) 555-0131', email: 'rdelgado@hb360.com', role: 'Receiving', additionalRoles: [], primary: false, active: true },
+  { id: 'p5', name: 'Wilhuff Tarkin', company: 'HUB360', phone: '(602) 555-0114', email: 'wtarkin@hb360.com', role: 'Assistant Manager', additionalRoles: ['Safety Officer'], primary: false, active: true },
+  { id: 'p6', name: 'Alexsandr Kallus', company: 'HUB360', phone: '(602) 555-0131', email: 'akallus@hb360.com', role: 'Receiving', additionalRoles: [], primary: false, active: true },
   { id: 'p7', name: 'Tom Becker', company: 'Solar Topps', phone: '(480) 555-0163', email: 'tbecker@solartopps.com', role: 'Lead Installer', additionalRoles: ['Electrician'], primary: false, active: true },
-  { id: 'p8', name: 'Aisha Grant', company: 'HUB360', phone: '(623) 555-0185', email: 'agrant@hb360.com', role: 'Shipping', additionalRoles: ['Dock Coordinator'], primary: false, active: true },
+  { id: 'p8', name: 'Brom Titus', company: 'HUB360', phone: '(623) 555-0185', email: 'btitus@hb360.com', role: 'Shipping', additionalRoles: ['Dock Coordinator'], primary: false, active: true },
   { id: 'p9', name: 'Kevin Ortiz', company: 'Beacon Depot', phone: '(602) 555-0107', email: 'kortiz@beacondepot.com', role: 'Carrier Contact', additionalRoles: [], primary: false, active: true },
-  { id: 'p10', name: 'Linda Park', company: 'HUB360', phone: '(480) 555-0150', email: 'lpark@hb360.com', role: 'Billing', additionalRoles: ['Accounts Payable'], primary: false, active: true },
+  { id: 'p10', name: 'Wullf Yularen', company: 'HUB360', phone: '(480) 555-0150', email: 'wyularen@hb360.com', role: 'Billing', additionalRoles: ['Accounts Payable'], primary: false, active: true },
   { id: 'p11', name: 'Sam Whitfield', company: 'ABC Holding Company', phone: '(602) 555-0176', email: 'swhitfield@abcholding.com', role: 'Purchasing', additionalRoles: [], primary: false, active: false },
-  { id: 'p12', name: 'Grace Novak', company: 'HUB360', phone: '(623) 555-0122', email: 'gnovak@hb360.com', role: 'Facility Maintenance', additionalRoles: [], primary: false, active: true },
+  { id: 'p12', name: 'Yogar Lyste', company: 'HUB360', phone: '(623) 555-0122', email: 'ylyste@hb360.com', role: 'Facility Maintenance', additionalRoles: [], primary: false, active: true },
   { id: 'p13', name: 'Diego Ramos', company: 'Wesco Solar Supply', phone: '(480) 555-0139', email: 'dramos@example.com', role: 'Supplier Rep', additionalRoles: ['RMA / Disputes'], primary: false, active: true },
 ];
 
 /** People in the CRM that Search Contacts finds (Figma 537:57757: a photo, the name, the company and the primary role). */
 export const CRM_PEOPLE: Omit<Contact, 'id' | 'primary' | 'active'>[] = [
   { name: 'Wayne Nelson', company: 'Solar Topps', phone: '(602) 555-0199', email: 'wnelson@solartopps.com', role: 'Installer Lead', additionalRoles: [] },
-  { name: 'Waylon Jones', company: 'HUB360', phone: '(602) 358-9652', email: 'wjones@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'] },
+  { name: 'Orson Krennic', company: 'HUB360', phone: '(602) 358-9652', email: 'okrennic@hb360.com', role: 'Warehouse Manager', additionalRoles: ['Shipping', 'Receiving'] },
   { name: 'Jeremy Wonder', company: 'ABC Holding Company', phone: '480-555-0178', email: 'jwonder@abcholding.com', role: 'Purchasing', additionalRoles: ['Billing'] },
-  { name: 'Selina Kyle', company: 'Beacon Depot', phone: '623-555-0110', email: 'skyle@beacondepot.com', role: 'Dock Coordinator', additionalRoles: ['Receiving'] },
-  { name: 'Harvey Dent', company: 'Solar Topps', phone: '602-555-0192', email: 'hdent@solartopps.com', role: 'Safety Officer', additionalRoles: [] },
-  { name: 'Leslie Thompkins', company: 'HUB360', phone: '480-555-0127', email: 'lthompkins@hb360.com', role: 'Inventory Control', additionalRoles: ['Shipping'] },
+  { name: 'Nina Calloway', company: 'Beacon Depot', phone: '623-555-0110', email: 'ncalloway@beacondepot.com', role: 'Dock Coordinator', additionalRoles: ['Receiving'] },
+  { name: 'Hank Dorsey', company: 'Solar Topps', phone: '602-555-0192', email: 'hdorsey@solartopps.com', role: 'Safety Officer', additionalRoles: [] },
+  { name: 'Kassius Konstantine', company: 'HUB360', phone: '480-555-0127', email: 'kkonstantine@hb360.com', role: 'Inventory Control', additionalRoles: ['Shipping'] },
 ];
 
-/** Initials for an avatar, e.g. "Waylon Jones" → "WJ". */
+/** Initials for an avatar, e.g. "Orson Krennic" → "WJ". */
+// A trooper code ("TK-421") shows its letters ("TK"); a name its first two initials
 export const initialsOf = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(part => part[0]!.toUpperCase())
-    .slice(0, 2)
-    .join('');
+  /^[A-Z]{2,}-\d+$/.test(name.trim())
+    ? name.trim().slice(0, 2)
+    : name
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(part => part[0]!.toUpperCase())
+        .slice(0, 2)
+        .join('');
 
 /* ---------- Pick / Pack (Figma 899:3331 view, 84:11914 edit) ---------- */
 
@@ -470,18 +473,18 @@ export type HistoryEntry = {
 
 /** Real sentences in place of Figma's lorem ipsum; the items and locations are the samples above. */
 export const SAMPLE_HISTORY: HistoryEntry[] = [
-  { id: 'h1', type: 'Move Order', parts: ['Moved 24 × ', { item: 'it-lug-nut' }, ' from ', { location: 'loc-bin-1' }, ' to ', { location: 'loc-bin-2' }, ' on move order ', { order: 'MO-12456' }, '.'], by: 'Roman Sionis', date: '2026-06-16T12:37:45' },
-  { id: 'h2', type: 'Pick Order', parts: ['Picked 12 × ', { item: 'it-iq8' }, ' and 12 × ', { item: 'it-mc4' }, ' from ', { location: 'loc-zone-c' }, ' for pick order ', { order: 'PO-10480' }, '.'], by: 'Pamela Isley', date: '2026-06-16T10:12:03' },
-  { id: 'h3', type: 'Stock Order', parts: ['Received 320 × ', { item: 'it-rec-325' }, ' into ', { location: 'loc-zone-b' }, ' on stock order ', { order: 'SO-20931' }, '.'], by: 'Waylon Jones', date: '2026-06-15T16:44:19' },
-  { id: 'h4', type: 'Build Order', parts: ['Built 4 × ', { item: 'it-combiner' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3307' }, ', using 16 × ', { item: 'it-mc4' }, '.'], by: 'Roman Sionis', date: '2026-06-15T13:05:52' },
-  { id: 'h5', type: 'Pick Order', parts: ['Picked 2 × ', { item: 'it-install-kit' }, ' from ', { location: 'loc-tool-room-1' }, ' for pick order ', { order: 'PO-10477' }, '.'], by: 'Pamela Isley', date: '2026-06-15T09:31:40' },
-  { id: 'h6', type: 'Move Order', parts: ['Moved 64 × ', { item: 'it-rec-325' }, ' from ', { location: 'loc-zone-b' }, ' to ', { location: 'loc-ra-01-01' }, ' on move order ', { order: 'MO-12451' }, '.'], by: 'Waylon Jones', date: '2026-06-14T15:22:08' },
-  { id: 'h7', type: 'Stock Order', parts: ['Received 1,200 × ', { item: 'it-hex-bolt' }, ' into ', { location: 'loc-bin-1-left' }, ' on stock order ', { order: 'SO-20927' }, '.'], by: 'Roman Sionis', date: '2026-06-14T11:47:30' },
-  { id: 'h8', type: 'Build Order', parts: ['Built 10 × ', { item: 'it-shock' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3302' }, '.'], by: 'Roman Sionis', date: '2026-06-13T14:18:55' },
-  { id: 'h9', type: 'Move Order', parts: ['Moved 50 × ', { item: 'it-flat-bolt' }, ' from ', { location: 'loc-bin-1-right' }, ' to ', { location: 'loc-zone-d' }, ' for a cycle count on move order ', { order: 'MO-12447' }, '.'], by: 'Pamela Isley', date: '2026-06-13T08:02:16' },
-  { id: 'h10', type: 'Pick Order', parts: ['Picked 30 × ', { item: 'it-mid-clamp' }, ' and 10 × ', { item: 'it-end-clamp' }, ' from ', { location: 'loc-ra-01-02' }, ' for pick order ', { order: 'PO-10469' }, '.'], by: 'Waylon Jones', date: '2026-06-12T16:39:44' },
-  { id: 'h11', type: 'Stock Order', parts: ['Received 260 × ', { item: 'it-rail' }, ' into ', { location: 'loc-zone-e' }, ' on stock order ', { order: 'SO-20918' }, '.'], by: 'Waylon Jones', date: '2026-06-12T10:25:11' },
-  { id: 'h12', type: 'Build Order', parts: ['Built 6 × ', { item: 'it-install-kit' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3298' }, '.'], by: 'Pamela Isley', date: '2026-06-11T13:56:37' },
+  { id: 'h1', type: 'Move Order', parts: ['Moved 24 × ', { item: 'it-lug-nut' }, ' from ', { location: 'loc-bin-1' }, ' to ', { location: 'loc-bin-2' }, ' on move order ', { order: 'MO-12456' }, '.'], by: 'Maximilian Veers', date: '2026-06-16T12:37:45' },
+  { id: 'h2', type: 'Pick Order', parts: ['Picked 12 × ', { item: 'it-iq8' }, ' and 12 × ', { item: 'it-mc4' }, ' from ', { location: 'loc-zone-c' }, ' for pick order ', { order: 'PO-10480' }, '.'], by: 'Kendal Ozzel', date: '2026-06-16T10:12:03' },
+  { id: 'h3', type: 'Stock Order', parts: ['Received 320 × ', { item: 'it-rec-325' }, ' into ', { location: 'loc-zone-b' }, ' on stock order ', { order: 'SO-20931' }, '.'], by: 'Orson Krennic', date: '2026-06-15T16:44:19' },
+  { id: 'h4', type: 'Build Order', parts: ['Built 4 × ', { item: 'it-combiner' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3307' }, ', using 16 × ', { item: 'it-mc4' }, '.'], by: 'Maximilian Veers', date: '2026-06-15T13:05:52' },
+  { id: 'h5', type: 'Pick Order', parts: ['Picked 2 × ', { item: 'it-install-kit' }, ' from ', { location: 'loc-tool-room-1' }, ' for pick order ', { order: 'PO-10477' }, '.'], by: 'Kendal Ozzel', date: '2026-06-15T09:31:40' },
+  { id: 'h6', type: 'Move Order', parts: ['Moved 64 × ', { item: 'it-rec-325' }, ' from ', { location: 'loc-zone-b' }, ' to ', { location: 'loc-ra-01-01' }, ' on move order ', { order: 'MO-12451' }, '.'], by: 'Orson Krennic', date: '2026-06-14T15:22:08' },
+  { id: 'h7', type: 'Stock Order', parts: ['Received 1,200 × ', { item: 'it-hex-bolt' }, ' into ', { location: 'loc-bin-1-left' }, ' on stock order ', { order: 'SO-20927' }, '.'], by: 'Maximilian Veers', date: '2026-06-14T11:47:30' },
+  { id: 'h8', type: 'Build Order', parts: ['Built 10 × ', { item: 'it-shock' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3302' }, '.'], by: 'Maximilian Veers', date: '2026-06-13T14:18:55' },
+  { id: 'h9', type: 'Move Order', parts: ['Moved 50 × ', { item: 'it-flat-bolt' }, ' from ', { location: 'loc-bin-1-right' }, ' to ', { location: 'loc-zone-d' }, ' for a cycle count on move order ', { order: 'MO-12447' }, '.'], by: 'Kendal Ozzel', date: '2026-06-13T08:02:16' },
+  { id: 'h10', type: 'Pick Order', parts: ['Picked 30 × ', { item: 'it-mid-clamp' }, ' and 10 × ', { item: 'it-end-clamp' }, ' from ', { location: 'loc-ra-01-02' }, ' for pick order ', { order: 'PO-10469' }, '.'], by: 'Orson Krennic', date: '2026-06-12T16:39:44' },
+  { id: 'h11', type: 'Stock Order', parts: ['Received 260 × ', { item: 'it-rail' }, ' into ', { location: 'loc-zone-e' }, ' on stock order ', { order: 'SO-20918' }, '.'], by: 'Orson Krennic', date: '2026-06-12T10:25:11' },
+  { id: 'h12', type: 'Build Order', parts: ['Built 6 × ', { item: 'it-install-kit' }, ' in ', { location: 'loc-tool-room-1' }, ' on build order ', { order: 'BO-3298' }, '.'], by: 'Kendal Ozzel', date: '2026-06-11T13:56:37' },
 ];
 
 /** "Jun 16, 2026" and "12:37:45 PM", the two lines of Date Created. */

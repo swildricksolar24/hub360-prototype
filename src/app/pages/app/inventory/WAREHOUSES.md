@@ -46,7 +46,7 @@ about the Tier 3 header.
 | "Upload" (icon) | `Button size="small" variant="primary" icon="upload"` → opens 8 |
 | "Actions" drop-down | `Dropdown variant="small"`; options for the selected rows: Activate, Deactivate, Export |
 | "Search" | `SearchInput` (fills the remaining width); filters by code, name and address |
-| "Add Warehouse" | `Button size="small" variant="brand"` → opens 15 |
+| "Add Warehouse" | `Button size="small" variant="brand" icon="plus"` → opens 15 |
 
 **Table** — `DataHeader` + `DataRow`, `leading="checkbox"` (no avatar), `actions` on (the ••• button).
 
