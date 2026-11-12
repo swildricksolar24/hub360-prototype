@@ -344,6 +344,12 @@ first setup. The list view, the open printer and its view are in the URL: `?tab=
   Maintenance), Default Use (the warehouse's document defaults, "If this printer is offline", "Who can print here") and
   Print Jobs (the failed-job notice with Send to Another Printer / Retry Job, filters, the job table with Reprint /
   Retry / Cancel). The header's Edit edits Settings and Default Use together, with the edit banner above the header.
+- **Helper switches (a prototype tool, not in Figma):** each tab adds on / off switches to the shell's Helper panel
+  (`shell/PrototypeHelper.tsx`, `shell/helperFlags.ts`; the life preserver icon beside All tabs) for states the sample
+  data doesn't show: empty lists (carriers, contacts, label defaults, locations, items, stock, history), no primary
+  contact, and on Printers: no printers, agent offline, the open printer offline / paused / inactive, no document
+  defaults, a default with no printer, and on Print Jobs a failed job (with the next one held) and a queued job. They
+  change the view only. Print Jobs' failed-job alert is Volt's ActionBanner, with a fix for each error.
 - **Default Use and Pick / Pack:** Default Use edits the warehouse's document defaults (`printerData` defaults). Figma
   says these are the same as Pick / Pack › Label Defaults; in the prototype the two lists are still separate.
 

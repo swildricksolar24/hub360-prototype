@@ -95,6 +95,19 @@ export const SAMPLE_CONTACTS: Contact[] = [
   { id: 'p2', name: 'Oliver Wan', company: 'HUB360', phone: '(526) 365-5569', email: 'owan@hb360.com', role: 'Accounting', additionalRoles: [], primary: false, active: false },
 ];
 
+/** Phoenix WH's further contacts (not in Figma): enough people for a second page of the Contacts table. */
+export const PHX_EXTRA_CONTACTS: Contact[] = [
+  { id: 'p5', name: 'Marcus Lee', company: 'HUB360', phone: '(602) 555-0114', email: 'mlee@hb360.com', role: 'Assistant Manager', additionalRoles: ['Safety Officer'], primary: false, active: true },
+  { id: 'p6', name: 'Rosa Delgado', company: 'HUB360', phone: '(602) 555-0131', email: 'rdelgado@hb360.com', role: 'Receiving', additionalRoles: [], primary: false, active: true },
+  { id: 'p7', name: 'Tom Becker', company: 'Solar Topps', phone: '(480) 555-0163', email: 'tbecker@solartopps.com', role: 'Lead Installer', additionalRoles: ['Electrician'], primary: false, active: true },
+  { id: 'p8', name: 'Aisha Grant', company: 'HUB360', phone: '(623) 555-0185', email: 'agrant@hb360.com', role: 'Shipping', additionalRoles: ['Dock Coordinator'], primary: false, active: true },
+  { id: 'p9', name: 'Kevin Ortiz', company: 'Beacon Depot', phone: '(602) 555-0107', email: 'kortiz@beacondepot.com', role: 'Carrier Contact', additionalRoles: [], primary: false, active: true },
+  { id: 'p10', name: 'Linda Park', company: 'HUB360', phone: '(480) 555-0150', email: 'lpark@hb360.com', role: 'Billing', additionalRoles: ['Accounts Payable'], primary: false, active: true },
+  { id: 'p11', name: 'Sam Whitfield', company: 'ABC Holding Company', phone: '(602) 555-0176', email: 'swhitfield@abcholding.com', role: 'Purchasing', additionalRoles: [], primary: false, active: false },
+  { id: 'p12', name: 'Grace Novak', company: 'HUB360', phone: '(623) 555-0122', email: 'gnovak@hb360.com', role: 'Facility Maintenance', additionalRoles: [], primary: false, active: true },
+  { id: 'p13', name: 'Diego Ramos', company: 'Wesco Solar Supply', phone: '(480) 555-0139', email: 'dramos@example.com', role: 'Supplier Rep', additionalRoles: ['RMA / Disputes'], primary: false, active: true },
+];
+
 /** People in the CRM that Search Contacts finds (Figma 537:57757: a photo, the name, the company and the primary role). */
 export const CRM_PEOPLE: Omit<Contact, 'id' | 'primary' | 'active'>[] = [
   { name: 'Wayne Nelson', company: 'Solar Topps', phone: '(602) 555-0199', email: 'wnelson@solartopps.com', role: 'Installer Lead', additionalRoles: [] },
@@ -368,12 +381,27 @@ export type StockRow = {
   allocated: number;
   committed: number;
   frozen: number;
+  /** Stock › Actions › Deactivate sets false; a record without it is active. */
+  active?: boolean;
+  /** Below this much available stock, the record is "Below Reorder" (Stock › View); without one it never is. */
+  reorderPoint?: number;
 };
 
 /** Available = On Hand − Allocated − Frozen (never below 0). */
 export const availableOf = (s: StockRow) => Math.max(0, s.onHand - s.allocated - s.frozen);
+/** Stock › View: Below Reorder when available stock is under the record's reorder point; otherwise Stocked. */
+export const belowReorder = (s: StockRow) => s.reorderPoint !== undefined && availableOf(s) < s.reorderPoint;
 
-const S = (id: string, itemId: string, locationId: string, onHand: number, allocated: number, committed: number, frozen: number): StockRow => ({
+const S = (
+  id: string,
+  itemId: string,
+  locationId: string,
+  onHand: number,
+  allocated: number,
+  committed: number,
+  frozen: number,
+  reorderPoint?: number,
+): StockRow => ({
   id,
   itemId,
   locationId,
@@ -381,25 +409,30 @@ const S = (id: string, itemId: string, locationId: string, onHand: number, alloc
   allocated,
   committed,
   frozen,
+  reorderPoint,
 });
 
-/** Figma's first row is AS4-597-3248 · 10 / 10 / 10 / 0 / 0 · Tool Room 1; the rest keep the same arithmetic. */
+/**
+ * Figma's first row is AS4-597-3248 · 10 / 10 / 10 / 0 / 0 · Tool Room 1; the rest keep the same arithmetic. The last
+ * number is the reorder point: four records (the shock build, install kit, combiner box and roof mount kit) sit below
+ * theirs, so Stock › View › Below Reorder has something to show.
+ */
 export const SAMPLE_STOCK: StockRow[] = [
-  S('st1', 'it-shock', 'loc-tool-room-1', 10, 10, 10, 0),
-  S('st2', 'it-hex-bolt', 'loc-bin-1-left', 1200, 240, 120, 0),
-  S('st3', 'it-flat-bolt', 'loc-bin-1-right', 850, 0, 0, 50),
-  S('st4', 'it-lug-nut', 'loc-bin-2', 640, 96, 96, 0),
-  S('st5', 'it-install-kit', 'loc-tool-room-1', 18, 6, 4, 0),
-  S('st6', 'it-rec-325', 'loc-zone-b', 320, 120, 80, 0),
-  S('st7', 'it-rec-325', 'loc-ra-01-01', 64, 0, 0, 0),
-  S('st8', 'it-iq8', 'loc-zone-c', 410, 150, 150, 10),
-  S('st9', 'it-rail', 'loc-zone-e', 260, 60, 20, 0),
-  S('st10', 'it-mid-clamp', 'loc-ra-01-02', 900, 300, 200, 0),
-  S('st11', 'it-end-clamp', 'loc-ra-01-02', 450, 0, 0, 0),
-  S('st12', 'it-combiner', 'loc-tool-room-1', 12, 4, 4, 2),
-  S('st13', 'it-roof-kit', 'loc-zone-a', 40, 12, 8, 0),
-  S('st14', 'it-mc4', 'loc-zone-c', 1500, 400, 250, 0),
-  S('st15', 'it-ground-lug', 'loc-zone-h', 300, 25, 25, 0),
+  S('st1', 'it-shock', 'loc-tool-room-1', 10, 10, 10, 0, 5),
+  S('st2', 'it-hex-bolt', 'loc-bin-1-left', 1200, 240, 120, 0, 200),
+  S('st3', 'it-flat-bolt', 'loc-bin-1-right', 850, 0, 0, 50, 100),
+  S('st4', 'it-lug-nut', 'loc-bin-2', 640, 96, 96, 0, 100),
+  S('st5', 'it-install-kit', 'loc-tool-room-1', 18, 6, 4, 0, 20),
+  S('st6', 'it-rec-325', 'loc-zone-b', 320, 120, 80, 0, 100),
+  S('st7', 'it-rec-325', 'loc-ra-01-01', 64, 0, 0, 0, 50),
+  S('st8', 'it-iq8', 'loc-zone-c', 410, 150, 150, 10, 100),
+  S('st9', 'it-rail', 'loc-zone-e', 260, 60, 20, 0, 50),
+  S('st10', 'it-mid-clamp', 'loc-ra-01-02', 900, 300, 200, 0, 200),
+  S('st11', 'it-end-clamp', 'loc-ra-01-02', 450, 0, 0, 0, 100),
+  S('st12', 'it-combiner', 'loc-tool-room-1', 12, 4, 4, 2, 10),
+  S('st13', 'it-roof-kit', 'loc-zone-a', 40, 12, 8, 0, 50),
+  S('st14', 'it-mc4', 'loc-zone-c', 1500, 400, 250, 0, 300),
+  S('st15', 'it-ground-lug', 'loc-zone-h', 300, 25, 25, 0, 50),
 ];
 
 /** The items Phoenix WH carries (the Figma sample warehouse); two are inactive. */

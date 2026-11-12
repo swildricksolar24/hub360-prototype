@@ -4,6 +4,8 @@ import { DataRow } from '../../../../../../components/DataRow/DataRow';
 import { NumericInput } from '../../../../../../components/NumericInput/NumericInput';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../../shell/PrototypeHelper';
 import { money, type BuildLine, type Item } from '../itemData';
 import { buildCandidates, itemPath, unitCostOf, updateItem, useItems } from '../itemStore';
 import { Card, ItemPicker, nextSort, sortRows, TrashButton } from '../shared';
@@ -149,10 +151,22 @@ export function BuildTab({ item, onNotice }: { item: Item; onNotice: (text: stri
   const word = item.type;
   const lower = word.toLowerCase();
   const setBuild = (fn: (lines: BuildLine[]) => BuildLine[]) => updateItem(item.id, i => ({ ...i, build: fn(i.build) }));
-  const total = buildTotal(item.build, all);
+  const emptyBuild = useHelperFlag('item.emptyBuild');
+  const inactivePart = useHelperFlag('item.inactivePart');
+  // Helper switch: "Empty build" shows no lines (the store keeps them)
+  const lines: BuildLine[] = emptyBuild ? [] : item.build;
+  // Helper switch: "Inactive part in build" shows the first line's item as inactive
+  const inactiveId = inactivePart ? lines[0]?.itemId : undefined;
+  const shownAll = inactiveId ? all.map(i => (i.id === inactiveId ? { ...i, active: false } : i)) : all;
+  const total = buildTotal(lines, all);
 
   return (
     <div className={record.tab}>
+      <PrototypeHelper title="Build">
+        <HelperToggle flag="item.emptyBuild" label="Empty build" />
+        <HelperToggle flag="item.inactivePart" label="Inactive part in build" />
+      </PrototypeHelper>
+
       <Card id="item-build" title={`${word} Build`}>
         <div className={styles.buildHead}>
           <ItemPicker
@@ -170,8 +184,8 @@ export function BuildTab({ item, onNotice }: { item: Item; onNotice: (text: stri
           </p>
         </div>
         <BuildTable
-          lines={item.build}
-          all={all}
+          lines={lines}
+          all={shownAll}
           label={`${word} build`}
           empty={`This ${lower} has no items yet. Search above to add the parts and assemblies it’s built from.`}
           link

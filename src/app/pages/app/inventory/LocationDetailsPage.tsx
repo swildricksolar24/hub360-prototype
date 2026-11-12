@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../../../../components/Button/Button';
-import { DataHeader, type DataColumn } from '../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn } from '../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../components/Icon/Icon';
 import { TextArea } from '../../../../components/TextArea/TextArea';
@@ -16,7 +15,7 @@ import { LocationTree } from './record/LocationStructure';
 import { createLocation, removeLocation } from './record/LocationsTab';
 import { canMoveUnder, codeOf, depthOf, descendantIds, flattenTree, moveUnder, pathOf } from './record/locationTree';
 import { RowMenu } from './record/RowMenu';
-import { STOCK_COLUMNS, StockTable, useStockTable, useStockView, type StockView } from './record/StockTab';
+import { STOCK_COLUMNS, STOCK_VIEWS, STOCK_VIEW_TESTS, StockTable, useStockTable, useStockView, type StockView } from './record/StockTab';
 import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './record/tableKit';
 import type { Warehouse } from './warehouseData';
 import { LOCATION_TYPES, MAX_LOCATION_DEPTH, type CatalogItem, type WarehouseLocation } from './warehouseRecordData';
@@ -33,7 +32,6 @@ import {
   useWarehouses,
 } from './warehouseStore';
 import styles from './record.module.css';
-import table from './table.module.css';
 import listStyles from './warehouses.module.css';
 import { Toast } from '../../../../components/Toast/Toast';
 
@@ -356,14 +354,16 @@ export function LocationDetailsPage() {
 /** An item stocked in this location or one of its sublocations (one row per stock record). */
 type LocationItem = { id: string; item?: CatalogItem; location?: WarehouseLocation; active: boolean };
 
-// 698 fixed + checkbox 28 + ••• 44 + 8 gaps × 16 + 40 padding = 938, leaving Name (the fill column) about 130px at 1440px
+// On the Volt Data Table: on a narrow card the columns shrink to their minWidth, then hide by priority (Sub Category,
+// then Category, then Type), so the table fits the card down to a 1024px window
 const OVERVIEW_COLUMNS: DataColumn[] = [
-  { key: 'location', label: 'Location', width: 100 },
-  { key: 'number', label: 'Item #', width: 130 },
-  { key: 'name', label: 'Name', width: 'fill' },
-  { key: 'type', label: 'Type', width: 84 },
-  { key: 'category', label: 'Category', width: 116 },
-  { key: 'subCategory', label: 'Sub Category', width: 120 },
+  { key: 'location', label: 'Location', width: 100, minWidth: 90 },
+  // Wide enough for the longest item number on one line (115px + the cell's 16px padding)
+  { key: 'number', label: 'Item #', width: 136, minWidth: 132 },
+  { key: 'name', label: 'Name', width: 'fill', minWidth: 120 },
+  { key: 'type', label: 'Type', width: 84, minWidth: 76, priority: 1 },
+  { key: 'category', label: 'Category', width: 116, minWidth: 100, priority: 2 },
+  { key: 'subCategory', label: 'Sub Category', width: 120, minWidth: 110, priority: 3 },
   // Figma: the status pill has no header, and sits right before the ••• button
   { key: 'status', label: 'Status', width: 108, align: 'end', labelHidden: true, sortable: false },
 ];
@@ -371,11 +371,6 @@ const OVERVIEW_VIEWS = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
-];
-const STOCK_VIEWS = [
-  { value: 'all', label: 'All' },
-  { value: 'available', label: 'Available' },
-  { value: 'none', label: 'None available' },
 ];
 type Mode = 'overview' | 'stock' | 'structure';
 
@@ -425,7 +420,8 @@ function LocationContents({
     filter: r => mode !== 'overview' || view === 'all' || r.active === (view === 'active'),
   });
   const st = useStockTable(
-    mode !== 'stock' || view === 'all' ? stockRows : stockRows.filter(s => (view === 'available' ? s.available > 0 : s.available === 0)),
+    // Stock › View: the same options as the warehouse's Stock tab (Available, Stocked, Below Reorder…)
+    mode !== 'stock' ? stockRows : stockRows.filter(s => STOCK_VIEW_TESTS[view]?.(s) ?? true),
   );
   const overviewCols = useColumns(OVERVIEW_COLUMNS);
   const stockCols = useColumns(STOCK_COLUMNS);
@@ -481,7 +477,7 @@ function LocationContents({
         onUpload={() => setInfo('Uploading from a spreadsheet isn’t part of this prototype yet.')}
         actions={{
           selectedCount,
-          options: [{ value: 'export', label: selectedCount ? 'Export selected to CSV' : 'Export to CSV' }],
+          options: [{ value: 'export', label: 'Export to CSV' }],
           onAction: () =>
             onNotice(
               mode === 'structure'
@@ -514,68 +510,58 @@ function LocationContents({
         />
       )}
 
-      {mode === 'stock' && <StockTable code={code} t={st} columns={stockCols.columns} label={`Stock in ${location.name}`} />}
+      {mode === 'stock' && <StockTable code={code} t={st} columns={stockCols.columns} label={`Stock in ${location.name}`} onNotice={onNotice} />}
 
       {mode === 'overview' && (
         <>
-          <div className={table.tableScroll}>
-            <div role="table" aria-label={`Items in ${location.name}`} className={table.table}>
-              <DataHeader className={table.head} corners="none" columns={overviewCols.columns} leading="checkbox" {...t.headerProps} />
-              {t.pageRows.length === 0 && (
-                <p className={`text-medium-regular ${styles.emptyRow}`}>
-                  {rows.length === 0 ? 'Nothing is stored here yet. Use Add Item to add an item.' : 'No items match your search or view.'}
-                </p>
-              )}
-              {t.pageRows.map((r, i) => {
-                const name = r.item?.name ?? 'Unknown item';
-                const where = r.location?.name ?? 'a removed location';
-                const stockRow = stockRows.find(s => s.id === r.id);
-                return (
-                  <div key={r.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!r.active || undefined}>
-                    <DataRow
-                      className={table.row}
-                      columns={overviewCols.columns}
-                      leading="checkbox"
-                      cells={{
-                        // A sublocation links to its own Location Details; this location is the page itself
-                        location:
-                          r.location && r.location.id !== location.id ? (
-                            <AppLink to={locationPath(code, r.location.id)} size="small">
-                              {r.location.name}
-                            </AppLink>
-                          ) : (
-                            where
-                          ),
-                        number: r.item?.number ?? '—',
-                        name,
-                        type: r.item?.type ?? '—',
-                        category: r.item?.category || '—',
-                        subCategory: r.item?.subCategory || '—',
-                        status: <StatusPill active={r.active} />,
-                      }}
-                      {...t.rowSelect(r.id)}
-                      selectLabel={`Select ${name} in ${where}`}
-                      moreLabel={`More actions for ${name} in ${where}`}
-                      onMore={() => setMenuFor(m => (m === r.id ? null : r.id))}
-                    />
-                    {menuFor === r.id && (
-                      <RowMenu
-                        label={`${name} in ${where}`}
-                        onClose={() => setMenuFor(null)}
-                        items={[
-                          ...(r.location && r.location.id !== location.id
-                            ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }]
-                            : []),
-                          { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
-                          { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
-                        ]}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          {/* Volt Data Table (Figma "Data Table" page), as on the warehouse's Locations, Contacts and Printers */}
+          <DataTable
+            aria-label={`Items in ${location.name}`}
+            className={styles.statusStart}
+            columns={overviewCols.columns}
+            rows={t.pageRows}
+            rowLabel={r => `${r.item?.name ?? 'Unknown item'} in ${r.location?.name ?? 'a removed location'}`}
+            sort={t.headerProps.sort}
+            onSortChange={t.headerProps.onSortChange}
+            {...t.selectProps}
+            inactive={r => !r.active}
+            empty={rows.length === 0 ? 'Nothing is stored here yet. Use Add Item to add an item.' : 'No items match your search or view.'}
+            onMore={r => setMenuFor(m => (m === r.id ? null : r.id))}
+            renderAfterRow={r => {
+              if (menuFor !== r.id) return null;
+              const name = r.item?.name ?? 'Unknown item';
+              const where = r.location?.name ?? 'a removed location';
+              const stockRow = stockRows.find(s => s.id === r.id);
+              return (
+                <RowMenu
+                  label={`${name} in ${where}`}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    ...(r.location && r.location.id !== location.id ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }] : []),
+                    { label: 'View in Items', onSelect: () => navigate('/app/inventory/items') },
+                    { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
+                  ]}
+                />
+              );
+            }}
+            cells={r => ({
+              // A sublocation links to its own Location Details; this location is the page itself
+              location:
+                r.location && r.location.id !== location.id ? (
+                  <AppLink to={locationPath(code, r.location.id)} size="small">
+                    {r.location.name}
+                  </AppLink>
+                ) : (
+                  (r.location?.name ?? 'a removed location')
+                ),
+              number: r.item?.number ?? '—',
+              name: r.item?.name ?? 'Unknown item',
+              type: r.item?.type ?? '—',
+              category: r.item?.category || '—',
+              subCategory: r.item?.subCategory || '—',
+              status: <StatusPill active={r.active} />,
+            })}
+          />
           <Pager table={t} label="Item pages" />
         </>
       )}

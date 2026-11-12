@@ -38,11 +38,14 @@ export function useTableControls<T extends { id: string }>(
     search,
     sortValue,
     filter,
+    pinFirst,
     paged = true,
   }: {
     search: (row: T) => string;
     sortValue: (row: T, key: string) => string | number;
     filter?: (row: T) => boolean;
+    /** Rows that always come first, whatever the sort (e.g. the primary contact); the rest keep their order. */
+    pinFirst?: (row: T) => boolean;
     paged?: boolean;
   },
 ) {
@@ -62,6 +65,7 @@ export function useTableControls<T extends { id: string }>(
       return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'en', { numeric: true })) * dir;
     });
   }
+  if (pinFirst) rows = [...rows.filter(pinFirst), ...rows.filter(r => !pinFirst(r))];
   const pageCount = paged ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
   const current = Math.min(page, pageCount);
   const pageRows = paged ? rows.slice((current - 1) * pageSize, current * pageSize) : rows;
@@ -104,6 +108,8 @@ export function useTableControls<T extends { id: string }>(
     },
     /** Props for one DataRow's checkbox. */
     rowSelect: (id: string) => ({ selected: selected.has(id), onSelectedChange: (on: boolean) => toggle(id, on) }),
+    /** Volt DataTable's selection props (`selected` ids and `onSelectedChange`), for tables built on DataTable. */
+    selectProps: { selected: [...selected], onSelectedChange: (ids: string[]) => setSelected(new Set(ids)) },
   };
 }
 export type TableControls<T extends { id: string }> = ReturnType<typeof useTableControls<T>>;
@@ -306,7 +312,16 @@ export function Segmented<V extends string>({
 }
 
 /** A brand button with a ▾ that opens a menu (Figma "Add New ▾", "Add Item ▾"). Escape returns focus to the button. */
-export function MenuButton({ label, items }: { label: string; items: { label: string; icon?: string; onSelect: () => void }[] }) {
+export function MenuButton({
+  label,
+  icon,
+  items,
+}: {
+  label: string;
+  /** An icon before the label (e.g. "plus" on Add Item), in place of the ▾ chevron after it; Volt's Button holds one icon */
+  icon?: string;
+  items: { label: string; icon?: string; onSelect: () => void }[];
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -319,7 +334,15 @@ export function MenuButton({ label, items }: { label: string; items: { label: st
   }, [open]);
   return (
     <div ref={ref} className={styles.menuButton}>
-      <Button size="small" variant="brand" icon="chevron-down" iconPosition="right" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(o => !o)}>
+      <Button
+        size="small"
+        variant="brand"
+        icon={icon ?? 'chevron-down'}
+        iconPosition={icon ? 'left' : 'right'}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen(o => !o)}
+      >
         {label}
       </Button>
       {open && (

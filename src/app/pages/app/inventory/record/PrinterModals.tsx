@@ -138,7 +138,7 @@ export function SetUpAgentModal({
           <h3 id="agent-code" className="text-large-bold">
             2 · Enter this code in the agent
           </h3>
-          <p className={`text-heading-1-bold ${styles.code}`} aria-label={`Pairing code ${code.split('').join(' ')}`}>
+          <p className={`text-heading-2-bold ${styles.code}`} aria-label={`Pairing code ${code.split('').join(' ')}`}>
             {code}
           </p>
           <p className="text-small-regular">

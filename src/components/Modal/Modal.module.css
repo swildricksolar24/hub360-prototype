@@ -158,19 +158,28 @@
   border-radius: var(--radius-12);
 }
 /*
- * Header: one row (Figma Nov 2026). The title block sits on the left with 24px above it; the controls (headerActions,
- * then the close button, all 44px, 8px apart) sit on the right at the top of the row, so the title lands a little
- * below them. The row wraps in reverse on a narrow dialog: the controls move above the title instead of squeezing it.
- * With wrap-reverse the cross axis is flipped, so flex-end means "top".
+ * Header (Figma Nov 2026): a column of two rows with no gap between them.
+ * Row 1: the title on the left with 24px above it; the controls (headerActions, then the close button, all 44px, 8px
+ * apart) on the right at the top of the row, so the title lands a little below them. The row wraps in reverse on a
+ * narrow dialog: the controls move above the title instead of squeezing it. With wrap-reverse the cross axis is
+ * flipped, so flex-end means "top".
+ * Row 2: the description, the full width of the header.
  */
 .header {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-24) var(--space-24);
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-disabled);
+}
+.headerRow {
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-24);
-  padding: 0 var(--space-24) var(--space-24);
-  box-shadow: inset 0 calc(-1 * var(--stroke-width-outline)) 0 var(--color-gray-stroke-disabled);
+}
+.header > .description {
+  overflow-wrap: anywhere;
 }
 .heading {
   display: flex;

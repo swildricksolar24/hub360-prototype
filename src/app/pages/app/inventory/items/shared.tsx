@@ -100,7 +100,8 @@ export function MenuButton({
 }: {
   label: string;
   icon?: string;
-  items: { label: string; icon: string; onSelect: () => void; disabled?: boolean }[];
+  /** The menu's options; no icons, as on the other menus' option lists */
+  items: { label: string; icon?: string; onSelect: () => void; disabled?: boolean }[];
   variant?: 'brand' | 'primary';
 }) {
   const [open, setOpen] = useState(false);

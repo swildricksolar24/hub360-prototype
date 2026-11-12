@@ -9,7 +9,11 @@
   color: var(--color-gray-text-strong);
 }
 
-/* Cards on the white record card: Figma's light gray panels */
+/*
+ * Each section (Printer, Connection, Labels & Print Quality, Maintenance, the Default Use sections, Printers › Settings)
+ * is a card inside the record card: Surfaces/Sunken with a 1px Gray Stroke/Disabled edge. In dark mode Sunken is the
+ * same color as the record card (Surfaces/Overlay), so the edge is what holds the section together there.
+ */
 .panel {
   display: flex;
   flex-direction: column;
@@ -18,6 +22,7 @@
   padding: var(--space-16) var(--space-16) var(--space-24);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-sunken);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
 }
 .panelHead {
   display: flex;
@@ -35,12 +40,13 @@
 }
 
 /* ---------- Empty: first setup (891:3248) ---------- */
+/* First setup (Figma 891:3248): 64px above and below, 16px between the icon, heading, line and steps */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-12);
-  padding: var(--space-48) var(--space-24);
+  gap: var(--space-16);
+  padding: var(--space-64) var(--space-24);
   text-align: center;
 }
 .empty h2,
@@ -55,18 +61,21 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-16);
   width: 100%;
-  max-width: 1080px; /* Figma's three cards; a layout width with no token */
-  margin-top: var(--space-12);
+  max-width: 1300px; /* Figma's three cards; a layout width with no token */
+  margin: 0;
+  padding: 0;
+  list-style: none;
   text-align: left;
 }
+/* Figma: each step is a card in the same fill as the page card (Surfaces/Overlay), so it reads as a column */
 .setupStep {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-12);
+  gap: var(--space-16);
   padding: var(--space-24);
   border-radius: var(--radius-12);
-  background: var(--color-surfaces-sunken);
+  background: var(--color-surfaces-overlay);
 }
 .setupStep p {
   margin: 0;
@@ -82,8 +91,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: var(--space-32);
-  height: var(--space-32);
+  width: calc(var(--space-32) + var(--space-4)); /* Figma's 36px circle */
+  height: calc(var(--space-32) + var(--space-4));
   border-radius: 50%;
   background: var(--color-brand-teal-fill-strong);
   color: var(--color-foundation-solid-white);
@@ -158,6 +167,12 @@
 }
 
 /* ---------- Detail page (901:24728 …) ---------- */
+/* Printer details: a 1px Gray Stroke/Weaker line across the card under the Settings / Default Use / Print Jobs switch
+   (Figma 901:25764), 16px below the buttons; the view's content follows 16px under it (.tab's gap) */
+.viewSwitch {
+  padding-bottom: var(--space-16);
+  box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-weaker);
+}
 .detailHead {
   display: flex;
   flex-wrap: wrap;
@@ -265,25 +280,6 @@
 }
 
 /* Print Jobs: the failed job notice (901:26381) */
-.alert {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-16);
-  padding: var(--space-16) var(--space-16) var(--space-16) var(--space-24);
-  border-radius: var(--radius-8);
-  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-semantic-stroke-error-strong);
-}
-.alert p {
-  margin: 0;
-}
-.alert > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
-}
 .sender {
   display: inline-flex;
   align-items: center;
@@ -370,9 +366,10 @@
   flex-wrap: wrap;
   gap: var(--space-12);
 }
-.code {
-  color: var(--color-brand-teal-text-strong);
-  letter-spacing: 0.04em;
+/* Figma 891:3722: the pairing code is Heading 2/Bold in Brand Teal Fill/Strong.
+   Doubled class: outranks .box p's weak gray. */
+.code.code {
+  color: var(--color-brand-teal-fill-strong);
 }
 .waiting {
   display: flex;

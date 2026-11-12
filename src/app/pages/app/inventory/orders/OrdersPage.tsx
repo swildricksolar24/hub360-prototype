@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../../../../components/Button/Button';
 import { ContextMenu } from '../../../../../components/ContextMenu/ContextMenu';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../components/Icon/Icon';
 import { PageTracker } from '../../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
-import { Skeleton } from '../../../../../components/Skeleton/Skeleton';
 import { AppLink } from '../../../../components/AppLink';
 import { AppModal } from '../../../../components/AppModal';
 import { RowMenu } from '../record/RowMenu';
@@ -17,20 +15,22 @@ import { NewOrderModal } from './NewOrderModal';
 import { OrderStatusPill } from './OrderStatus';
 import { DESIGNED_TYPES, ORDER_STATUSES, ORDER_TYPES, formatDate, type Order, type OrderStatus, type OrderType } from './orderData';
 import { createOrder, orderPath, setOrders, useOrders } from './orderStore';
-import table from '../table.module.css';
 import { PAGE_SIZES } from '../record/tableKit';
 import styles from './orders.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
+import { useHelperFlag } from '../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 
 const ALL = '__all';
 
+// On a narrow card the columns shrink to their minWidth (text wraps to 2 lines); nothing hides
 const COLUMNS: DataColumn[] = [
-  { key: 'number', label: 'Order #', width: 150 },
-  { key: 'type', label: 'Type', width: 110 },
-  { key: 'warehouse', label: 'Warehouse', width: 'fill' },
-  { key: 'status', label: 'Status', width: 130 },
-  { key: 'created', label: 'Created', width: 124, align: 'end' },
-  { key: 'due', label: 'Due', width: 124, align: 'end' },
+  { key: 'number', label: 'Order #', width: 150, minWidth: 110 },
+  { key: 'type', label: 'Type', width: 110, minWidth: 90 },
+  { key: 'warehouse', label: 'Warehouse', width: 'fill', minWidth: 120 },
+  { key: 'status', label: 'Status', width: 130, minWidth: 110 },
+  { key: 'created', label: 'Created', width: 124, minWidth: 100, align: 'end' },
+  { key: 'due', label: 'Due', width: 124, minWidth: 100, align: 'end' },
 ];
 
 /**
@@ -39,10 +39,16 @@ const COLUMNS: DataColumn[] = [
  * designer draws one (ORDERS.md, open question 1).
  */
 export function OrdersPage() {
-  const orders = useOrders();
+  const allOrders = useOrders();
   const warehouses = useWarehouses();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [timerLoading, setLoading] = useState(true);
+  const keepLoading = useHelperFlag('orders.loading');
+  const noOrders = useHelperFlag('orders.empty');
+  // Helper switch: "Keep loading" holds the skeleton after the 500 ms timer
+  const loading = timerLoading || keepLoading;
+  // Helper switch: "No orders" shows the list as if it had none (the store is untouched)
+  const orders = useMemo(() => (noOrders ? [] : allOrders), [noOrders, allOrders]);
   const [notice, setNotice] = useState<string | null>(null);
 
   const [view, setView] = useState<string>(ALL);
@@ -92,21 +98,14 @@ export function OrdersPage() {
   const pageRows = rows.slice((current - 1) * pageSize, current * pageSize);
   useEffect(() => setPage(1), [query, view, pageSize]);
 
-  const pageIds = pageRows.map(o => o.id);
-  const allOnPage = pageIds.length > 0 && pageIds.every(id => selected.has(id));
   const cancellable = orders.filter(o => selected.has(o.id) && o.status === 'In Process');
-
-  function toggleSelected(id: string, on: boolean) {
-    setSelected(s => {
-      const next = new Set(s);
-      if (on) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }
 
   return (
     <div className={styles.page}>
+      <PrototypeHelper title="Orders">
+        <HelperToggle flag="orders.loading" label="Keep loading" />
+        <HelperToggle flag="orders.empty" label="No orders" />
+      </PrototypeHelper>
       <div className={styles.toolbar} role="toolbar" aria-label="Orders">
         <Dropdown
           variant="small"
@@ -123,7 +122,7 @@ export function OrdersPage() {
           hideLabel
           placeholder="Actions"
           options={[
-            { value: 'cancel', label: 'Cancel selected', disabled: cancellable.length === 0 },
+            { value: 'cancel', label: 'Cancel', disabled: cancellable.length === 0 },
             { value: 'export', label: 'Export to CSV' },
           ]}
           value={null}
@@ -153,95 +152,62 @@ export function OrdersPage() {
       {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
 
       <div className={styles.tableCard}>
-        <div className={table.tableScroll}>
-          <div role="table" aria-label="Orders" aria-busy={loading || undefined} className={table.table}>
-            <DataHeader
-              className={table.head}
-              corners="none"
-              columns={COLUMNS}
-              leading="checkbox"
-              sort={sort}
-              onSortChange={key =>
-                setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
-              }
-              allSelected={allOnPage}
-              onSelectAllChange={on =>
-                setSelected(s => {
-                  const next = new Set(s);
-                  pageIds.forEach(id => (on ? next.add(id) : next.delete(id)));
-                  return next;
-                })
-              }
-            />
-            {loading ? (
-              Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className={table.skeletonRow} aria-hidden>
-                  <Skeleton width="100%" height={20} />
-                </div>
-              ))
-            ) : pageRows.length === 0 ? (
-              <div role="row" className={styles.empty}>
-                <div role="cell" className={styles.emptyCell}>
-                  <Icon name="search" size={32} />
-                  <p className="text-large-bold">No orders match your search</p>
-                  <p className="text-medium-regular">Try a different word, or clear the search and view.</p>
-                  <Button
-                    size="small"
-                    variant="outline"
-                    onClick={() => {
-                      setQuery('');
-                      setView(ALL);
-                    }}
-                  >
-                    Clear search and view
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              pageRows.map((o, i) => {
-                const cells: Record<string, ReactNode> = {
-                  number: (
-                    <AppLink to={orderPath(o)} size="small">
-                      {o.number}
-                    </AppLink>
-                  ),
-                  type: o.type,
-                  warehouse: `${o.warehouse} · ${warehouseName(o.warehouse)}`,
-                  status: <OrderStatusPill status={o.status} />,
-                  created: formatDate(o.created),
-                  due: formatDate(o.due),
-                };
-                return (
-                  <div key={o.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-                    <DataRow
-                      className={table.row}
-                      columns={COLUMNS}
-                      cells={cells}
-                      leading="checkbox"
-                      selected={selected.has(o.id)}
-                      onSelectedChange={on => toggleSelected(o.id, on)}
-                      selectLabel={`Select ${o.number}`}
-                      moreLabel={`More actions for ${o.number}`}
-                      onMore={() => setMenuFor(m => (m === o.id ? null : o.id))}
-                    />
-                    {menuFor === o.id && (
-                      <RowMenu
-                        label={o.number}
-                        onClose={() => setMenuFor(null)}
-                        items={[
-                          { label: 'View', onSelect: () => navigate(orderPath(o)) },
-                          ...(o.status === 'In Process'
-                            ? [{ label: 'Cancel Order', onSelect: () => setCancelling([o.id]) }]
-                            : []),
-                        ]}
-                      />
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+        {/* Volt Data Table (Figma "Data Table" page), as on the warehouse record's tables; its skeleton while loading */}
+        <DataTable
+          aria-label="Orders"
+          columns={COLUMNS}
+          rows={pageRows}
+          rowLabel={o => o.number}
+          loading={loading}
+          sort={sort}
+          onSortChange={key =>
+            setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
+          }
+          selected={[...selected]}
+          onSelectedChange={ids => setSelected(new Set(ids))}
+          empty={
+            <div className={styles.emptyCell}>
+              <Icon name="search" size={32} />
+              <p className="text-large-bold">No orders match your search</p>
+              <p className="text-medium-regular">Try a different word, or clear the search and view.</p>
+              <Button
+                size="small"
+                variant="outline"
+                onClick={() => {
+                  setQuery('');
+                  setView(ALL);
+                }}
+              >
+                Clear search and view
+              </Button>
+            </div>
+          }
+          onMore={o => setMenuFor(m => (m === o.id ? null : o.id))}
+          renderAfterRow={o =>
+            menuFor === o.id && (
+              <RowMenu
+                label={o.number}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  { label: 'View', onSelect: () => navigate(orderPath(o)) },
+                  ...(o.status === 'In Process' ? [{ label: 'Cancel Order', onSelect: () => setCancelling([o.id]) }] : []),
+                ]}
+              />
+            )
+          }
+          cells={o => ({
+            number: (
+              <AppLink to={orderPath(o)} size="small">
+                {o.number}
+              </AppLink>
+            ),
+            type: o.type,
+            warehouse: `${o.warehouse} · ${warehouseName(o.warehouse)}`,
+            status: <OrderStatusPill status={o.status} />,
+            created: formatDate(o.created),
+            due: formatDate(o.due),
+          })}
+        />
         <PageTracker
           page={current}
           pageCount={pageCount}

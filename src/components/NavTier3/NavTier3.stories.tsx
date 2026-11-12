@@ -11,7 +11,10 @@ import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const noop = () => {};
 
-/** Figma's actions: Toggle Button ("Active"), a small Drop Down ("Actions"), Save and record arrows. */
+/**
+ * Figma's actions: Toggle Button ("Active"), a small Drop Down ("Actions"), Save and record arrows. They keep the
+ * same look in every state, collapsed and compact included.
+ */
 const actions = (
   <>
     <Toggle contained label="Active" defaultChecked />
@@ -104,6 +107,34 @@ export const Tier3: Story = {
     </div>
   ),
   parameters: { ...figma('2644:3738', 'Tier 3 › Tier 3'), controls: { disable: true } },
+};
+
+/**
+ * Not in Figma: in Collapsed everything stays inside the card. As the card narrows, the title steps down from
+ * Heading 2 to Heading 3 and Heading 4; then the section buttons (only those; the actions never change) switch to
+ * Button Tiny, the Heading 4 title is cut with an ellipsis down to 48px, and the sections that don't fit move into
+ * "More ▾" (the current one stays in the row; 1000 and 800px frames). Then the title text hides behind the icon
+ * (tooltip on hover), then one "Stock ▾" section picker replaces the row (720px), and on the narrowest cards the
+ * actions move to a second line (650px). Resize the browser to see the steps change live.
+ */
+export const CollapsedNarrow: Story = {
+  name: 'Collapsed › Many sections',
+  render: args => {
+    const [value, setValue] = useState('stock');
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
+        {[1700, 1400, 1000, 800, 720, 650].map(width => (
+          <figure key={width} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+            <Caption>{`${width}px`}</Caption>
+            <div style={{ width, maxWidth: '100%' }}>
+              <NavTier3 {...args} collapsed value={value} onChange={setValue} />
+            </div>
+          </figure>
+        ))}
+      </div>
+    );
+  },
+  parameters: { controls: { disable: true } },
 };
 
 export const Labels: Story = {

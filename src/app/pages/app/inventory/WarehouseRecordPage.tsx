@@ -176,9 +176,9 @@ export function WarehouseRecordPage() {
     ),
     contacts: <ContactsTab code={w.code} warehouseName={w.name} onNotice={setNotice} />,
     'pick-pack': <PickPackTab warehouse={w} draft={pickPackDraft} onDraftChange={setPickPackDraft} onNotice={setNotice} />,
-    // Figma: the Printers screens sit on one white card under the header
+    // Figma: the Printers screens sit on one white card under the header, reaching the bottom of the page (as Contacts)
     printers: (
-      <div className={styles.card}>
+      <div className={`${styles.card} ${styles.fillTab}`}>
         <PrintersTab warehouse={w} onNotice={setNotice} draft={printerDraft} onDraftChange={setPrinterDraft} />
       </div>
     ),

@@ -53,8 +53,15 @@
   transform-origin: bottom center;
 }
 
-/* All tabs (Figma Tab Bar "All tabs"): pushed to the far right of the bar, away from the tabs and + */
-.showAll.showAll {
+/*
+ * The right end: any extra `actions` buttons, then All tabs (Figma Tab Bar "All tabs"), 4px apart and pushed to the
+ * far right of the bar, away from the tabs and +. NavTabBar's tab fitting already counts this group's width.
+ */
+.end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-4);
   margin-left: auto;
 }
 
@@ -80,6 +87,11 @@
   outline: none;
 }
 .small:is(:hover, :focus-visible) {
+  --bg: var(--color-gray-fill-weaker);
+  --fg: var(--color-gray-fill-strong);
+}
+/* Not in Figma: while the panel or menu it opens is showing (aria-expanded / aria-pressed), it keeps the hover look */
+.small:is([aria-expanded='true'], [aria-pressed='true']) {
   --bg: var(--color-gray-fill-weaker);
   --fg: var(--color-gray-fill-strong);
 }

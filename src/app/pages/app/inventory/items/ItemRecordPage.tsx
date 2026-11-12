@@ -6,7 +6,9 @@ import { Message } from '../../../../../components/Message/Message';
 import { AppLink } from '../../../../components/AppLink';
 import { AppModal } from '../../../../components/AppModal';
 import { RecordActions, RecordPage } from '../../../../components/RecordPage';
-import { TYPE_ICON, today, type Item, type ItemType } from './itemData';
+import { useHelperFlag } from '../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { TYPE_ICON, today, type Item, type ItemType, type Note } from './itemData';
 import { deactivateItem, deleteItems, itemPath, LIST_PATH, mergeItems, numberLabel, setItems, updateItem, useItems } from './itemStore';
 import { DeactivateItemModal, DeleteItemsModal, MergeItemsModal } from './ItemModals';
 import { BuildTab } from './record/BuildTab';
@@ -53,6 +55,20 @@ const RECORD_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k 
 
 const PLURAL: Record<ItemType, string> = { Part: 'Parts', Assembly: 'Assemblies', Kit: 'Kits' };
 
+/** The Helper's "Pop-up note": the item's first note as a pop-up, or a sample one when it has no notes. */
+const helperPopupNote = (item: Item): Note => ({
+  ...(item.notes[0] ?? {
+    id: `${item.id}-helper-note`,
+    author: 'Waylon Jones',
+    updated: today(),
+    text: `Count the ${item.name} on hand before the next pick: the last cycle count was 6 units short.`,
+    pinMe: false,
+    pinAll: false,
+    types: ['Warehouse'],
+  }),
+  popup: true,
+});
+
 /**
  * Inventory › Items › one Part, Assembly or Kit (ITEMS.md §2–7): the Figma Tier 3 header with the type's tabs. The
  * tab is in the URL (?tab=build), so it survives the app's tab switching without opening a new tab.
@@ -77,6 +93,9 @@ export function ItemRecordPage() {
   const [merging, setMerging] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const popupNote = useHelperFlag('item.popupNote');
+  const noNotes = useHelperFlag('item.noNotes');
+  const [helperNoteClosed, setHelperNoteClosed] = useState(false);
 
   // A different item (previous / next) starts from its own saved details; its pop-up notes show once
   useEffect(() => {
@@ -86,6 +105,8 @@ export function ItemRecordPage() {
     setPopups(item ? item.notes.filter(n => n.popup).map(n => n.id) : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemId]);
+  // The Helper's pop-up note shows again each time its switch is turned on, and on each item
+  useEffect(() => setHelperNoteClosed(false), [popupNote, itemId]);
 
   if (!item || !draft) {
     return (
@@ -117,11 +138,18 @@ export function ItemRecordPage() {
   const go = (to: Item | undefined) =>
     to ? () => navigate(itemPath(to.id, TABS[to.type].some(t => t.id === tab) ? tab : undefined), { state: { replaceTab: true } }) : undefined;
 
-  const pinnedPopups = it.notes.filter(n => popups.includes(n.id));
+  const savedPopups = it.notes.filter(n => popups.includes(n.id));
+  // Helper switches: "Pop-up note" adds the first (or a sample) note as a pop-up; "No notes" hides every pop-up
+  const helperNote = popupNote && !helperNoteClosed ? helperPopupNote(it) : null;
+  const pinnedPopups = noNotes ? [] : helperNote && !popups.includes(helperNote.id) ? [helperNote, ...savedPopups] : savedPopups;
+  const closePopup = (n: Note) => {
+    if (n.id === helperNote?.id) setHelperNoteClosed(true);
+    setPopups(p => p.filter(id => id !== n.id));
+  };
   const notices: ReactNode = (
     <>
       {pinnedPopups.map(n => (
-        <Message key={n.id} type="info" title={`Note from ${n.author}`} body={n.text} onClose={() => setPopups(p => p.filter(id => id !== n.id))} />
+        <Message key={n.id} type="info" title={`Note from ${n.author}`} body={n.text} onClose={() => closePopup(n)} />
       ))}
       {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
     </>
@@ -142,6 +170,12 @@ export function ItemRecordPage() {
 
   return (
     <>
+      <PrototypeHelper title="Item">
+        <HelperToggle flag="item.popupNote" label="Pop-up note" />
+        <HelperToggle flag="item.noNotes" label="No notes" />
+        <HelperToggle flag="item.inactiveReplacement" label="Inactive replacement" />
+      </PrototypeHelper>
+
       <RecordPage
         title={it.name.toUpperCase()}
         icon={TYPE_ICON[word]}

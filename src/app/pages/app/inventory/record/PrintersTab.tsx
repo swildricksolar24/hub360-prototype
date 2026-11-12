@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Badge } from '../../../../../components/Badge/Badge';
 import { Button } from '../../../../../components/Button/Button';
-import { Tag } from '../../../../../components/Tag/Tag';
 import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
-import { Tabs } from '../../../../../components/Tabs/Tabs';
 import { Toggle } from '../../../../../components/Toggle/Toggle';
 import {
   HISTORY,
@@ -21,6 +19,8 @@ import {
   type Printer,
 } from '../printerData';
 import type { Warehouse } from '../warehouseData';
+import { useHelperFlag } from '../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 import {
   setAgents,
   setPrintDefaults,
@@ -36,18 +36,19 @@ import {
 import { PrinterDetails, statusBadge, type PrinterDraft } from './PrinterDetails';
 import { AddPrinterModal, RemovePrinterModal, SetUpAgentModal } from './PrinterModals';
 import { RowMenu } from './RowMenu';
-import { Pager, useTableControls } from './tableKit';
+import { Pager, Segmented, useTableControls } from './tableKit';
 import styles from './printers.module.css';
 
 const options = (list: readonly string[]) => list.map(v => ({ value: v, label: v }));
 
 const LIST_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Printer', width: 'fill', filterable: true },
-  { key: 'area', label: 'Area', width: 'fill', filterable: true },
-  { key: 'type', label: 'Type', width: 120, filterable: true },
-  { key: 'connection', label: 'Connection', width: 'fill', filterable: true },
-  { key: 'sizes', label: 'Label Sizes', width: 160, filterable: true },
-  { key: 'usedFor', label: 'Used For', width: 'fill', filterable: true },
+  // Narrow cards: columns shrink to their minWidth, then hide by priority: Label Sizes, then Connection, then Used For
+  { key: 'name', label: 'Printer', width: 'fill', minWidth: 120, filterable: true },
+  { key: 'area', label: 'Area', width: 'fill', minWidth: 100, filterable: true },
+  { key: 'type', label: 'Type', width: 120, minWidth: 90, filterable: true },
+  { key: 'connection', label: 'Connection', width: 'fill', minWidth: 110, priority: 2, filterable: true },
+  { key: 'sizes', label: 'Label Sizes', width: 160, minWidth: 110, priority: 3, filterable: true },
+  { key: 'usedFor', label: 'Used For', width: 'fill', minWidth: 110, priority: 1, filterable: true },
   { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
@@ -61,9 +62,10 @@ const AGENT_COLUMNS: DataColumn[] = [
 ];
 
 /**
- * Warehouse record › Printers (Figma "Printers" page, 886:64893). A warehouse without printers shows the first-setup
- * screen (891:3248); otherwise List (886:64894) and Settings (911:5680). A printer's name opens Printer Details
- * (901:24728 …). The view and the open printer are in the URL: ?tab=printers&view=settings, &printer=pr3&pview=jobs.
+ * Warehouse record › Printers (Figma "Printers" page, 886:64893): List (886:64894) and Settings (911:5680). A warehouse
+ * without printers shows the first-setup screen (891:3248) in List, with Settings still a click away. A printer's name
+ * opens Printer Details (901:24728 …). The view and the open printer are in the URL (?tab=printers&view=settings,
+ * &printer=pr3&pview=jobs); switching List / Settings adds a history entry, so Back and Forward step between them.
  */
 export function PrintersTab({
   warehouse,
@@ -79,16 +81,48 @@ export function PrintersTab({
 }) {
   const [params, setParams] = useSearchParams();
   const code = warehouse.code;
-  const printers = usePrinters(code);
+  // Helper switches (a prototype tool): view-only overrides, the data is untouched
+  const noPrinters = useHelperFlag('printers.empty');
+  const agentsOffline = useHelperFlag('printers.agentOffline');
+  const printerOffline = useHelperFlag('printer.offline');
+  const printerPaused = useHelperFlag('printer.paused');
+  const printerInactive = useHelperFlag('printer.inactive');
+
+  const storedPrinters = usePrinters(code);
+  const printers = noPrinters ? [] : storedPrinters;
   const defaults = usePrintDefaults(code);
-  const allAgents = useAgents();
+  const storedAgents = useAgents();
+  const allAgents = agentsOffline ? storedAgents.map(a => (a.warehouse === code ? { ...a, status: 'offline' as const, lastSeen: '2 h ago' } : a)) : storedAgents;
   const agents = allAgents.filter(a => a.warehouse === code);
   const [settingUp, setSettingUp] = useState(false);
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<Printer | null>(null);
 
   const view = params.get('view') === 'settings' ? 'settings' : 'list';
-  const open = printers.find(p => p.id === params.get('printer'));
+  const openStored = printers.find(p => p.id === params.get('printer'));
+  // The Printer switches apply to the printer that's open
+  const open = openStored && {
+    ...openStored,
+    ...(printerOffline && { online: false, lastChecked: 'Just now · no response' }),
+    ...(printerPaused && { paused: true }),
+    ...(printerInactive && { active: false }),
+  };
+
+  const helper = (
+    <>
+      <PrototypeHelper title="Printers">
+        <HelperToggle flag="printers.empty" label="No printers" />
+        <HelperToggle flag="printers.agentOffline" label="Print agent offline" />
+      </PrototypeHelper>
+      {open && (
+        <PrototypeHelper title="Printer">
+          <HelperToggle flag="printer.offline" label="Printer offline" />
+          <HelperToggle flag="printer.paused" label="Printer paused" />
+          <HelperToggle flag="printer.inactive" label="Printer inactive" />
+        </PrototypeHelper>
+      )}
+    </>
+  );
   const go = (next: Record<string, string>, replace = false) => setParams({ tab: 'printers', ...next }, { replace });
 
   function pair(agent: Omit<PrintAgent, 'id'>) {
@@ -142,6 +176,8 @@ export function PrintersTab({
   if (open) {
     return (
       <>
+        {/* First, so the Helper lists Printers and Printer above the open view's group */}
+        {helper}
         <PrinterDetails
           warehouse={warehouse}
           printer={open}
@@ -151,7 +187,7 @@ export function PrintersTab({
           draft={draft}
           onDraftChange={onDraftChange}
           view={params.get('pview') ?? 'settings'}
-          onViewChange={v => go({ printer: open.id, ...(v === 'settings' ? {} : { pview: v }) }, true)}
+          onViewChange={v => go({ printer: open.id, ...(v === 'settings' ? {} : { pview: v }) })}
           onBack={() => go({})}
           onPrinterChange={change => patch(open.id, change)}
           onRemove={() => setRemoving(open)}
@@ -162,31 +198,29 @@ export function PrintersTab({
     );
   }
 
-  if (printers.length === 0) {
-    return (
-      <>
-        <FirstSetup warehouse={warehouse} agents={agents} onSetUpAgent={() => setSettingUp(true)} onAddPrinter={() => setAdding(true)} />
-        {modals}
-      </>
-    );
-  }
-
   return (
     <div className={styles.tab}>
-      <Tabs
-        aria-label="Printers"
-        value={view}
-        onChange={v => go(v === 'settings' ? { view: 'settings' } : {}, true)}
-        items={[
-          {
-            id: 'list',
-            label: 'List',
-            content: <PrinterList printers={printers} defaults={defaults} onOpen={p => go({ printer: p.id })} onAdd={() => setAdding(true)} onRemove={setRemoving} onPatch={patch} onNotice={onNotice} />,
-          },
-          { id: 'settings', label: 'Settings', content: <PrinterSettings warehouse={warehouse} printers={printers} agents={allAgents} onSetUpAgent={() => setSettingUp(true)} /> },
-        ]}
-      />
+      {/* Volt "Button Group / Horizontal" (Base 523:795), the same switch as Locations' Tree / Flat List */}
+      <div>
+        <Segmented
+          label="Printers view"
+          options={[
+            { value: 'list', label: 'List' },
+            { value: 'settings', label: 'Settings' },
+          ]}
+          value={view}
+          onChange={v => go(v === 'settings' ? { view: 'settings' } : {})}
+        />
+      </div>
+      {view === 'settings' ? (
+        <PrinterSettings warehouse={warehouse} printers={printers} agents={allAgents} onSetUpAgent={() => setSettingUp(true)} />
+      ) : printers.length === 0 ? (
+        <FirstSetup warehouse={warehouse} agents={agents} onSetUpAgent={() => setSettingUp(true)} onAddPrinter={() => setAdding(true)} />
+      ) : (
+        <PrinterList printers={printers} defaults={defaults} onOpen={p => go({ printer: p.id })} onAdd={() => setAdding(true)} onRemove={setRemoving} onPatch={patch} onNotice={onNotice} />
+      )}
       {modals}
+      {helper}
     </div>
   );
 }
@@ -205,27 +239,24 @@ function FirstSetup({
   onAddPrinter: () => void;
 }) {
   const [, setParams] = useSearchParams();
+  // Figma's copy in every state: a paired agent only turns Add Printer on (the text and step 1 don't change)
   const paired = agents.length > 0;
   return (
     <div className={styles.empty}>
-      <Icon name="monitor" size={32} />
+      <Icon name="monitor" size={48} />
       <h2 className="text-heading-2-bold">No Printers Are Set Up for this Warehouse Yet</h2>
       <p className="text-medium-regular">Printers print pick tickets, packing slips and labels. Set them up once and every printer list in this warehouse uses them.</p>
       <ol className={styles.setupSteps} aria-label="Printer setup">
         <li className={styles.setupStep}>
           <span className={styles.setupTitle}>
-            <span className={styles.stepNumber} data-done={paired || undefined} aria-hidden>
-              {paired ? <Icon name="check" size={20} color="currentColor" /> : 1}
+            <span className={styles.stepNumber} aria-hidden>
+              1
             </span>
             <span className="text-large-bold">Install the print agent</span>
           </span>
-          <p className="text-small-regular">
-            {paired
-              ? `${agents.map(a => a.computer).join(', ')} ${agents.length === 1 ? 'is' : 'are'} paired with ${warehouse.name}.`
-              : 'A small app on a warehouse computer that sends jobs to your printers.'}
-          </p>
-          <Button size="small" variant={paired ? 'outline' : 'brand'} onClick={onSetUpAgent}>
-            {paired ? 'Set Up Another Agent' : 'Set Up Print Agent'}
+          <p className="text-small-regular">A small app on a warehouse computer that sends jobs to your printers.</p>
+          <Button size="small" variant="brand" onClick={onSetUpAgent}>
+            Set Up Print Agent
           </Button>
         </li>
         <li className={styles.setupStep}>
@@ -236,7 +267,7 @@ function FirstSetup({
             <span className="text-large-bold">Add printers</span>
           </span>
           <p className="text-small-regular">Find them on the network, enter an IP address, or pick a USB printer.</p>
-          <Button size="small" variant={paired ? 'brand' : 'outline'} disabled={!paired} onClick={onAddPrinter}>
+          <Button size="small" variant={paired ? 'brand' : 'outline'} icon="plus" disabled={!paired} onClick={onAddPrinter}>
             Add Printer
           </Button>
         </li>
@@ -291,21 +322,26 @@ function PrinterList({
   return (
     <div className={styles.tab}>
       <div className={styles.toolbar} role="toolbar" aria-label="Printers">
-        <div className={styles.chips} role="group" aria-label="Status">
-          {(
-            [
-              ['all', `All (${printers.length})`],
-              ['online', `Online (${online})`],
-              ['offline', `Offline (${printers.length - online})`],
-            ] as const
-          ).map(([value, label]) => (
-            <Tag key={value} size="small" selected={status === value} onClick={() => setStatus(value)}>
-              {label}
-            </Tag>
-          ))}
-        </div>
+        {/* The View ▾ filter the other record tables use (as Contacts) */}
+        <Dropdown
+          variant="small"
+          label="View"
+          hideLabel
+          options={[
+            { value: 'all', label: `All (${printers.length})` },
+            { value: 'online', label: `Online (${online})` },
+            { value: 'offline', label: `Offline (${printers.length - online})` },
+          ]}
+          value={status}
+          onChange={v => {
+            setStatus(v as typeof status);
+            t.setPage(1);
+          }}
+          renderValue={sel => `View: ${sel[0]?.label ?? 'All'}`}
+        />
         <SearchInput className={styles.toolbarSearch} aria-label="Search printers" placeholder="Search printers" value={t.query} onChange={e => t.setQuery(e.target.value)} />
-        <Button size="small" variant="brand" onClick={onAdd}>
+        {/* Same as Add Carrier and Add Contact: Button Small Brand with the plus icon */}
+        <Button size="small" variant="brand" icon="plus" onClick={onAdd}>
           Add Printer
         </Button>
       </div>

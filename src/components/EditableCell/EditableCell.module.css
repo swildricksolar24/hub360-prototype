@@ -11,7 +11,7 @@
   gap: var(--space-4);
   box-sizing: border-box;
   width: 100%;
-  /* 120px wide in Figma; fills its table column here */
+  /* 120px wide in Figma's set; fills its table column here, as in the Inventory screens */
   min-width: 0;
   padding: var(--space-12);
   border-radius: var(--radius-12);
@@ -43,35 +43,71 @@
   outline: none;
   appearance: none;
 }
-/* The select fills the whole cell so the icon area is clickable too */
+/*
+ * Select: like the input, the cell fills its table column (Figma Inventory › printer Default Use, Nov 2026); a long
+ * value ellipsizes. The button is the cell's content and carries its padding, so the whole cell (icon area included)
+ * is clickable; the icon sits over the button's right padding.
+ */
+.cell[data-type='select'] {
+  padding: 0;
+}
 .cell[data-type='select'] .field {
-  position: absolute;
-  inset: 0;
+  display: block;
+  min-width: 0;
   padding: var(--space-12) calc(var(--space-12) + var(--space-16) + var(--space-4)) var(--space-12) var(--space-12);
+  text-align: start;
   cursor: pointer;
 }
-.cell[data-type='select'] .field option {
-  /* Native option popups ignore transparent backgrounds; use the overlay surface */
-  background: var(--color-surfaces-overlay);
+.cell[data-type='select'] .field .value {
+  display: block;
+}
+.cell[data-type='select'] .icon {
+  position: absolute;
+  top: 50%;
+  right: var(--space-12);
+  transform: translateY(-50%);
+}
+/*
+ * The select's menu (with Dropdown's .popup look): a popover in the top layer, anchored to the cell (EditableCell.tsx
+ * sets anchor-name on the cell and position-anchor here). 4px under the cell's left edge, at least as wide as the
+ * cell, below it unless it wouldn't fit (then above, flipping the gap too). The browser keeps it on the cell while the
+ * page or a table scrolls. Doubled class: outranks .popup's absolute placement and the popover's default styles.
+ */
+.menu.menu {
+  position: fixed;
+  inset: auto;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: anchor-size(width);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border: 0;
   color: var(--color-gray-text-strong);
+  position-try-fallbacks: flip-block;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 .icon {
   margin-left: auto;
   color: var(--color-gray-fill-strong);
   pointer-events: none;
 }
-/* Keeps the cell height when the select is absolutely positioned */
-.cell[data-type='select']::before {
-  content: '';
-  height: var(--line-height-medium);
-}
 
 /* States */
 .cell:is([data-type='input'], [data-type='select']):hover {
   --bg: var(--color-gray-fill-hover);
 }
-/* Figma has no focus state; the input-family focus ring keeps keyboard focus visible */
-.cell:focus-within {
+/* Figma has no focus state; the input-family focus ring keeps keyboard focus visible (and stays while the select's
+   menu is open, since focus is then in the menu) */
+.cell:focus-within,
+.cell[data-open] {
   --bg: var(--color-gray-fill-hover);
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);

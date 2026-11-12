@@ -20,6 +20,8 @@ export function useDropdown({ open, defaultOpen, onOpenChange }: DropdownOpenPro
   const isOpen = !disabled && (open ?? inner);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  /** For a popup rendered outside the root (a portal, e.g. EditableCell's menu): presses inside it aren't "outside". */
+  const popupRef = useRef<HTMLDivElement>(null);
 
   const setOpen = (next: boolean, byUser = true) => {
     if (open === undefined) setInner(next);
@@ -36,7 +38,8 @@ export function useDropdown({ open, defaultOpen, onOpenChange }: DropdownOpenPro
   useEffect(() => {
     if (!isOpen) return;
     const onDown = (e: PointerEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false, false);
+      const target = e.target as Node;
+      if (!rootRef.current?.contains(target) && !popupRef.current?.contains(target)) setOpen(false, false);
     };
     document.addEventListener('pointerdown', onDown);
     return () => document.removeEventListener('pointerdown', onDown);
@@ -61,5 +64,5 @@ export function useDropdown({ open, defaultOpen, onOpenChange }: DropdownOpenPro
   /** Pass to ListBox / TreeList `onDismiss`. */
   const onDismiss = () => close();
 
-  return { isOpen, focusOnOpen, setOpen, close, onDismiss, rootRef, triggerRef, triggerProps };
+  return { isOpen, focusOnOpen, setOpen, close, onDismiss, rootRef, triggerRef, popupRef, triggerProps };
 }

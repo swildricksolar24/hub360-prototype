@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import {
   CATALOG_ITEMS,
+  PHX_EXTRA_CONTACTS,
   SAMPLE_CARRIERS,
   SAMPLE_CONTACTS,
   SAMPLE_HISTORY,
@@ -94,7 +95,8 @@ export const setCarriers = carriers.set;
 /** A warehouse's carrier accounts, read once (the Activate / Deactivate confirmations). */
 export const getCarriers = carriers.get;
 
-const contacts = createRecordStore<Contact[]>(SAMPLE_CONTACTS);
+// Phoenix WH has enough people for a second page; the other warehouses start with Figma's four
+const contacts = createRecordStore<Contact[]>(code => (code === 'PHX-124' ? [...SAMPLE_CONTACTS, ...PHX_EXTRA_CONTACTS] : SAMPLE_CONTACTS));
 
 export const useContacts = contacts.use;
 export const setContacts = contacts.set;

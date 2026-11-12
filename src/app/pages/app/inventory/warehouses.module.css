@@ -65,12 +65,9 @@
 }
 
 /* Empty and no-results states */
-.empty {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-48) var(--space-24);
-}
+/* No warehouses (or none match): centered in the Data Table's empty cell (its own 16px + 32px = 48px above and below) */
 .emptyCell {
+  padding-block: var(--space-32);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,4 +90,9 @@
 /* Addresses stay on one line, as in Figma: the table scrolls sideways before they wrap (table.module.css --table-fill-min) */
 .table {
   --table-fill-min: 320px; /* layout width, no token */
+}
+/* Holds the Data Table and a column's filter pop-over, which ColumnFilter places under its header cell */
+.tableBox {
+  position: relative;
+  min-width: 0;
 }

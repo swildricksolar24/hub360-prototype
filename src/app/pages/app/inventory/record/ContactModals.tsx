@@ -3,6 +3,7 @@ import { Avatar } from '../../../../../components/Avatar/Avatar';
 import { Button } from '../../../../../components/Button/Button';
 import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
+import { FilterChipDropdown } from '../../../../../components/FilterChipDropdown/FilterChipDropdown';
 import { Message } from '../../../../../components/Message/Message';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
@@ -242,13 +243,14 @@ export function ContactFormModal({
           <TextInput label="Phone" type="tel" value={form.phone} onChange={e => set('phone')(e.target.value)} autoComplete="off" />
           <TextInput label="Email" type="email" value={form.email} onChange={e => set('email')(e.target.value)} error={tried ? errors.email : undefined} autoComplete="off" />
         </div>
-        <Dropdown
+        {/* Volt "Drop Down - Filter Chip": the chosen roles show as removable chips under the field, with no panel around them */}
+        <FilterChipDropdown
+          chipsAppearance="none"
           label="Additional Roles"
           placeholder="Select"
-          multiple
           options={options(CONTACT_ROLES.filter(r => r !== form.role))}
-          value={form.additionalRoles}
-          onChange={v => set('additionalRoles')(v as string[])}
+          value={form.additionalRoles.filter(r => r !== form.role)}
+          onChange={v => set('additionalRoles')(v)}
         />
         <button type="submit" hidden />
       </form>

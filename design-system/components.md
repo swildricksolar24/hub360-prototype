@@ -142,7 +142,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | OTP Input* | OTP Input* | 414:1616 | 6 | State² | Label |
 | Text Input - Autocomplete* | Text Input - Autocomplete* | 449:2189 | 4 | State (Default, Activated Search, Active Input, Selected) | — |
 | Text Input - Numeric* | Text Input - Numeric* | 397:691 | 6 | State² | Label, Placeholder, Error |
-| Drop Down - Filter Chip | Default | 2678:7113 | 9 | State (…, Default - Light, Press - Alt, Required) | Label, Select |
+| Drop Down - Filter Chip | Default | 2678:7113 | 10 | State (…, Default - Light, Press - Alt, Press - No Panel, Required) | Label, Select |
 | Drop Down - Selector | Autocomplete / Dropdown | 451:779 | 6 | State (Default, Hover, Active, Active Input, Selected, Disabled) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Chips | 2747:6026 | 6 | State (same) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Photo Library | 2781:1158 | 5 | State | Label |
@@ -167,6 +167,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Message | Message | 503:3072 | 2 | State (Default, Hover) | Title, Body |
 | Message | Message | 503:3176 | 8 | Type (Info, Caution, Error, Success) × State | — |
 | Toast | Toast (added Nov 2, 2026; coded as src/components/Toast) | 3079:263 | 4 | Type (Info, Success, Caution, Error) | — |
+| Action Banner | Action Banner (standalone; added Nov 12, 2026 from the Inventory printer › Print Jobs frame; coded as src/components/ActionBanner) | 3506:3 | 1 | — | Title, Body |
 | Notification Box* | Notification Box* | 744:4494 | 4 | Type (Alert, Chat, Email, Read) | — |
 | Progress Bar* | Progress Bar* | 520:583 | 2 | Style (Default, With Percentage) | — |
 | Progress Bar* | Progress Circle | 520:588 | 2 | Style | — |

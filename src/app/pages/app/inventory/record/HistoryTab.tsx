@@ -1,18 +1,23 @@
 import { Fragment, type ReactNode } from 'react';
-import { DataHeader, type DataColumn } from '../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
 import { AppLink } from '../../../../components/AppLink';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { useHelperFlag } from '../../../../shell/helperFlags';
 import { historyDate, type CatalogItem, type HistoryEntry, type HistoryPart, type WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, useCatalog, useHistory, useLocations } from '../warehouseStore';
 import { Pager, TableToolbar, useColumns, useTableControls } from './tableKit';
 import styles from '../record.module.css';
-import table from '../table.module.css';
 
+// Action Performed fills; the rest hug their content (fixed at the widest of their values and their header label + the
+// 24px sort icon, + the cell's 16px padding), so the sentence gets the room and stays on one or two lines
 const COLUMNS: DataColumn[] = [
-  { key: 'type', label: 'Action Type', width: 190 },
-  { key: 'action', label: 'Action Performed', width: 'fill', sortable: false },
-  { key: 'by', label: 'Created By', width: 180 },
-  { key: 'date', label: 'Date Created', width: 170 },
+  // The widest badge ("Stock Order", 94px) + 16
+  { key: 'type', label: 'Action Type', width: 114, fixed: true },
+  { key: 'action', label: 'Action Performed', width: 'fill', minWidth: 260, sortable: false },
+  // The longest name ("Roman Sionis", 93px) + 16
+  { key: 'by', label: 'Created By', width: 110, fixed: true },
+  // The header: "Date Created" (77px) + 2px gap + the sort icon (24px) + 16
+  { key: 'date', label: 'Date Created', width: 120, fixed: true },
 ];
 
 // Orders and the item records aren't built yet; their links go to the Orders and Items sections for now
@@ -31,11 +36,14 @@ function partText(part: HistoryPart, catalog: CatalogItem[], locations: Warehous
 }
 
 /**
- * Warehouse record › History (Figma 571:57601, named ".../Items" in Figma): what happened in the warehouse. 80px rows
- * with no checkboxes or •••; a teal Action Type badge; the sentence links to its order, items and locations.
+ * Warehouse record › History (Figma 571:57601, named ".../Items" in Figma): what happened in the warehouse, on the Volt
+ * Data Table with no checkboxes or •••; a teal Action Type badge; the sentence links to its order, items and locations.
  */
 export function HistoryTab({ code }: { code: string }) {
-  const history = useHistory(code);
+  const stored = useHistory(code);
+  // Helper switch: no history, so the table shows "Nothing has happened here yet" (the view only; the store keeps its rows)
+  const empty = useHelperFlag('warehouseHistory.empty');
+  const history = empty ? [] : stored;
   const catalog = useCatalog();
   const locations = useLocations(code);
   const cols = useColumns(COLUMNS);
@@ -71,40 +79,35 @@ export function HistoryTab({ code }: { code: string }) {
 
   return (
     <div className={styles.tab}>
+      <PrototypeHelper title="History">
+        <HelperToggle flag="warehouseHistory.empty" label="No history" />
+      </PrototypeHelper>
       <section className={styles.card} aria-label="History">
         <TableToolbar label="History" onColumns={() => cols.setOpen(true)} search={{ value: t.query, onChange: t.setQuery, label: 'Search history' }} />
-        <div className={table.tableScroll}>
-          <div role="table" aria-label="Warehouse history" className={table.table}>
-            <DataHeader className={table.head} corners="none" columns={cols.columns} leading="none" actions={false} sort={t.headerProps.sort} onSortChange={t.headerProps.onSortChange} />
-            {t.pageRows.length === 0 && (
-              <p className={`text-medium-regular ${styles.emptyRow}`}>{history.length === 0 ? 'Nothing has happened here yet.' : 'No history matches your search.'}</p>
-            )}
-            {t.pageRows.map((h, i) => {
-              const { day, time } = historyDate(h.date);
-              return (
-                <div key={h.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-                  <DataRow
-                    className={`${table.row} ${styles.historyRow}`}
-                    columns={cols.columns}
-                    leading="none"
-                    actions={false}
-                    cells={{
-                      type: <span className={styles.actionBadge}>{h.type}</span>,
-                      action: <span className={styles.sentence}>{h.parts.map(render)}</span>,
-                      by: h.by,
-                      date: (
-                        <span className={styles.twoLines}>
-                          <span>{day}</span>
-                          <span className={styles.weak}>{time}</span>
-                        </span>
-                      ),
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        {/* Volt Data Table (Figma "Data Table" page), as on the warehouse's other tabs; no checkboxes or ••• (Figma) */}
+        <DataTable
+          aria-label="Warehouse history"
+          columns={cols.columns}
+          rows={t.pageRows}
+          rowLabel={h => `${h.type} ${historyDate(h.date).day}`}
+          sort={t.headerProps.sort}
+          onSortChange={t.headerProps.onSortChange}
+          empty={history.length === 0 ? 'Nothing has happened here yet.' : 'No history matches your search.'}
+          cells={h => {
+            const { day, time } = historyDate(h.date);
+            return {
+              type: <span className={styles.actionBadge}>{h.type}</span>,
+              action: <span className={styles.sentence}>{h.parts.map(render)}</span>,
+              by: h.by,
+              date: (
+                <span className={styles.twoLines}>
+                  <span>{day}</span>
+                  <span className={styles.weak}>{time}</span>
+                </span>
+              ),
+            };
+          }}
+        />
         <Pager table={t} label="History pages" />
       </section>
       {cols.modal}

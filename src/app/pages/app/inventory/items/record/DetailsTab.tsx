@@ -14,6 +14,7 @@ import { UploadFile } from '../../../../../../components/UploadFile/UploadFile';
 import { useAuth } from '../../../../../auth/AuthContext';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
 import { RowMenu } from '../../record/RowMenu';
 import {
   CATEGORIES,
@@ -454,8 +455,13 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
   const [open, setOpen] = useState(false);
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [sort, setSort] = useState<DataSort | undefined>();
+  const inactiveReplacement = useHelperFlag('item.inactiveReplacement');
+  const linked = item.replacements.map(id => all.find(i => i.id === id)).filter((i): i is Item => !!i);
+  // Helper switch: "Inactive replacement" shows the first replacement as inactive, or adds an inactive item when there are none
+  const fallback = all.find(i => !i.active && i.id !== item.id);
+  const shown: Item[] = !inactiveReplacement ? linked : linked.length ? [{ ...linked[0], active: false }, ...linked.slice(1)] : fallback ? [fallback] : [];
   const rows = sortRows(
-    item.replacements.map(id => all.find(i => i.id === id)).filter((i): i is Item => !!i),
+    shown,
     sort,
     (r, k) => (k === 'number' ? r.id : String(r[k as 'type' | 'name'])),
   );
@@ -750,7 +756,10 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
   const [sort, setSort] = useState<DataSort | undefined>();
   const q = query.trim().toLowerCase();
   const pinned = (n: Note) => n.pinAll || (n.pinMe && n.author === me);
-  const found = item.notes.filter(n => !q || `${n.author} ${n.text} ${n.types.join(' ')}`.toLowerCase().includes(q));
+  // Helper switch: "No notes" lists none (the store keeps them)
+  const noNotes = useHelperFlag('item.noNotes');
+  const notes: Note[] = noNotes ? [] : item.notes;
+  const found = notes.filter(n => !q || `${n.author} ${n.text} ${n.types.join(' ')}`.toLowerCase().includes(q));
   const sorted = sortRows(found, sort, (n, k) => (k === 'updated' ? Date.parse(n.updated) || 0 : n.author));
   // Pinned notes stay on top
   const rows = [...sorted.filter(pinned), ...sorted.filter(n => !pinned(n))];

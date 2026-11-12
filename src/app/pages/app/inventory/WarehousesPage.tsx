@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/Button/Button';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../components/Icon/Icon';
 import { PageTracker } from '../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
-import { Skeleton } from '../../../../components/Skeleton/Skeleton';
 import { AppLink } from '../../../components/AppLink';
 import { AppModal } from '../../../components/AppModal';
 import { AddWarehouseModal } from './AddWarehouseModal';
@@ -20,7 +18,9 @@ import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
 import { ColumnFilter } from './ColumnFilter';
 import { WarehouseStatusModal, applyWarehouseStatus, type ActivateOptions } from './WarehouseStatusModal';
 import { useAuth } from '../../../auth/AuthContext';
-import table from './table.module.css';
+import { useHelperFlag } from '../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../shell/PrototypeHelper';
+import record from './record.module.css';
 import styles from './warehouses.module.css';
 import { Toast } from '../../../../components/Toast/Toast';
 
@@ -35,6 +35,8 @@ const STATUS_VIEWS: { value: StatusView; label: string }[] = [
 
 type StatusChange = { ids: string[]; active: boolean };
 
+const NO_WAREHOUSES: Warehouse[] = [];
+
 /**
  * Inventory › Warehouses: the Figma "Inventory Management – Core" › Warehouses flow (see WAREHOUSES.md), built with
  * the coded design system. A toolbar (view, columns, upload, actions, search, Add Warehouse), the warehouse table
@@ -42,9 +44,14 @@ type StatusChange = { ids: string[]; active: boolean };
  */
 export function WarehousesPage() {
   // Shared with the warehouse record pages (warehouseStore.ts)
-  const warehouses = useWarehouses();
+  const stored = useWarehouses();
+  // Helper switch "No warehouses": the page shows an empty list (the store keeps its warehouses)
+  const warehouses = useHelperFlag('warehouses.empty') ? NO_WAREHOUSES : stored;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  // Helper switch "Keep loading": the skeleton stays after the 500 ms load
+  const keepLoading = useHelperFlag('warehouses.loading');
+  const showLoading = loading || keepLoading;
   const [notice, setNotice] = useState<string | null>(null);
 
   // View menu: a status filter (All / Active / Inactive) plus the column layouts saved from Edit Columns
@@ -113,24 +120,14 @@ export function WarehousesPage() {
   const tableColumns: DataColumn[] = [
     ...ordered.map(key => {
       const f = fieldByKey(key)!;
-      return { key, label: f.label, width: f.width, align: f.align, filterable: true };
+      return { key, label: f.label, width: f.width, minWidth: f.minWidth, priority: f.priority, align: f.align, filterable: true };
     }),
     // Figma: the status pill has no header, and sits right before the ••• button
     { key: 'status', label: 'Status', width: 120, align: 'end', labelHidden: true, sortable: false },
   ];
-
-  const pageIds = pageRows.map(w => w.id);
-  const allOnPage = pageIds.length > 0 && pageIds.every(id => selected.has(id));
+  // DataTable fits the columns to the card: they shrink to minWidth, then hide by priority (Empty, Filled Locations,
+  // Locations)
   const selectedRows = warehouses.filter(w => selected.has(w.id));
-
-  function toggleSelected(id: string, on: boolean) {
-    setSelected(s => {
-      const next = new Set(s);
-      if (on) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }
 
   function changeStatus({ ids, active }: StatusChange, note: string, options: ActivateOptions) {
     setNotice(applyWarehouseStatus(warehouses.filter(w => ids.includes(w.id)), active, note, options, user?.name ?? 'You'));
@@ -198,33 +195,26 @@ export function WarehousesPage() {
       {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
 
       <div className={styles.tableCard}>
-        <div className={table.tableScroll} ref={tableRef}>
-          <div role="table" aria-label="Warehouses" aria-busy={loading || undefined} className={`${table.table} ${styles.table}`}>
-            <DataHeader
-              className={table.head}
-              corners="none"
-              columns={tableColumns}
-              leading="checkbox"
-              sort={sort}
-              onSortChange={key =>
-                setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
-              }
-              onFilter={key => setFilterOpen(open => (open === key ? null : key))}
-              activeFilters={Object.keys(filters)}
-              allSelected={allOnPage}
-              onSelectAllChange={on => setSelected(s => {
-                const next = new Set(s);
-                pageIds.forEach(id => (on ? next.add(id) : next.delete(id)));
-                return next;
-              })}
-            />
-            {loading ? (
-              Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className={table.skeletonRow} aria-hidden>
-                  <Skeleton width="100%" height={20} />
-                </div>
-              ))
-            ) : pageRows.length === 0 ? (
+        {/* Volt Data Table (Figma "Data Table" page), as on Items, Orders and the warehouse record, with its column
+            filters and loading skeleton. The box around it places a column's filter pop-over under its header cell. */}
+        <div className={styles.tableBox} ref={tableRef}>
+          <DataTable
+            aria-label="Warehouses"
+            className={`${styles.table} ${record.statusStart}`}
+            columns={tableColumns}
+            rows={pageRows}
+            rowLabel={w => w.name}
+            loading={showLoading}
+            sort={sort}
+            onSortChange={key =>
+              setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
+            }
+            onFilter={key => setFilterOpen(open => (open === key ? null : key))}
+            activeFilters={Object.keys(filters)}
+            selected={[...selected]}
+            onSelectedChange={ids => setSelected(new Set(ids))}
+            inactive={w => !w.active}
+            empty={
               <EmptyState
                 filtered={warehouses.length > 0}
                 onAdd={() => setEditing('new')}
@@ -233,56 +223,37 @@ export function WarehousesPage() {
                   setFilters({});
                 }}
               />
-            ) : (
-              pageRows.map((w, i) => {
-                const cells: Record<string, ReactNode> = Object.fromEntries(ordered.map(key => [key, fieldByKey(key)!.show(w)]));
-                // The code and the name open the warehouse's record
-                for (const key of ['code', 'name'] as const) {
-                  if (key in cells) cells[key] = <AppLink to={recordPath(w)} size="small">{cells[key]}</AppLink>;
-                }
-                cells.status = <StatusPill active={w.active} />;
-                return (
-                  <div
-                    key={w.id}
-                    className={table.rowWrap}
-                    data-stripe={i % 2 === 0 || undefined}
-                    data-inactive={!w.active || undefined}
-                  >
-                    <DataRow
-                      className={table.row}
-                      columns={tableColumns}
-                      cells={cells}
-                      leading="checkbox"
-                      selected={selected.has(w.id)}
-                      onSelectedChange={on => toggleSelected(w.id, on)}
-                      selectLabel={`Select ${w.name}`}
-                      moreLabel={`More actions for ${w.name}`}
-                      onMore={() => setMenuFor(m => (m === w.id ? null : w.id))}
-                    />
-                    {menuFor === w.id && (
-                      <RowMenu
-                        label={w.name}
-                        onClose={() => setMenuFor(null)}
-                        items={[
-                          { label: 'View', onSelect: () => navigate(recordPath(w)) },
-                          // Both, with the one matching the current status disabled
-                          { label: 'Activate', disabled: w.active, onSelect: () => setStatusChange({ ids: [w.id], active: true }) },
-                          { label: 'Deactivate', disabled: !w.active, onSelect: () => setStatusChange({ ids: [w.id], active: false }) },
-                          { label: 'Delete', onSelect: () => setDeleting(w) },
-                        ]}
-                      />
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
+            }
+            onMore={w => setMenuFor(m => (m === w.id ? null : w.id))}
+            renderAfterRow={w =>
+              menuFor === w.id && (
+                <RowMenu
+                  label={w.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    { label: 'View', onSelect: () => navigate(recordPath(w)) },
+                    // Both, with the one matching the current status disabled
+                    { label: 'Activate', disabled: w.active, onSelect: () => setStatusChange({ ids: [w.id], active: true }) },
+                    { label: 'Deactivate', disabled: !w.active, onSelect: () => setStatusChange({ ids: [w.id], active: false }) },
+                    { label: 'Delete', onSelect: () => setDeleting(w) },
+                  ]}
+                />
+              )
+            }
+            cells={w => {
+              const cells: Record<string, ReactNode> = Object.fromEntries(ordered.map(key => [key, fieldByKey(key)!.show(w)]));
+              // The code and the name open the warehouse's record
+              for (const key of ['code', 'name'] as const) {
+                if (key in cells) cells[key] = <AppLink to={recordPath(w)} size="small">{cells[key]}</AppLink>;
+              }
+              cells.status = <StatusPill active={w.active} />;
+              return cells;
+            }}
+          />
           {filterOpen && (
             <ColumnFilter
               key={filterOpen}
-              anchor={tableRef.current?.querySelector<HTMLElement>(
-                `[role="columnheader"]:nth-of-type(${tableColumns.findIndex(c => c.key === filterOpen) + 2})`,
-              )}
+              anchor={tableRef.current?.querySelector<HTMLElement>(`[role="columnheader"][data-column="${filterOpen}"]`)}
               label={tableColumns.find(c => c.key === filterOpen)?.label ?? ''}
               value={filters[filterOpen] ?? ''}
               onApply={text => {
@@ -344,7 +315,8 @@ export function WarehousesPage() {
       <AddWarehouseModal
         open={editing !== null}
         warehouse={editing === 'new' ? null : editing}
-        existingCodes={warehouses.map(w => w.code)}
+        // Every stored code, even while the Helper's "No warehouses" hides them, so a new one can't repeat one
+        existingCodes={stored.map(w => w.code)}
         onClose={() => setEditing(null)}
         onSave={w => {
           const isNew = editing === 'new';
@@ -376,7 +348,7 @@ export function WarehousesPage() {
       <UploadFlow
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
-        existing={warehouses}
+        existing={stored}
         onImport={(creates, updates) => {
           const updated = new Map(updates.map(w => [w.code, w]));
           setWarehouses(list => [...creates, ...list.map(w => updated.get(w.code) ?? w)]);
@@ -391,6 +363,17 @@ export function WarehousesPage() {
           setUploadOpen(false);
         }}
       />
+
+      {/* Prototype Helper switches (not in Figma); UploadFlow and WarehouseStatusModal read the upload and status ones */}
+      <PrototypeHelper title="Warehouses">
+        <HelperToggle flag="warehouses.loading" label="Keep loading" />
+        <HelperToggle flag="warehouses.empty" label="No warehouses" />
+        <HelperToggle flag="warehouses.uploadFails" label="Upload fails" />
+        <HelperToggle flag="warehouses.uploadBadRows" label="Upload has bad rows" />
+        <HelperToggle flag="warehouses.uploadUnmatched" label="Unmatched columns" />
+        <HelperToggle flag="warehouses.nothingHeld" label="Nothing still held" />
+        <HelperToggle flag="warehouses.deactivationHistory" label="Show deactivation history" />
+      </PrototypeHelper>
     </div>
   );
 }
@@ -399,23 +382,22 @@ export function WarehousesPage() {
 
 function EmptyState({ filtered, onAdd, onClear }: { filtered: boolean; onAdd: () => void; onClear: () => void }) {
   return (
-    <div role="row" className={styles.empty}>
-      <div role="cell" className={styles.emptyCell}>
-        <Icon name={filtered ? 'search' : 'warehouse'} size={32} />
-        <p className="text-large-bold">{filtered ? 'No warehouses match your search' : 'No warehouses yet'}</p>
-        <p className="text-medium-regular">
-          {filtered ? 'Try a different word, or clear the search and filters.' : 'Add your first warehouse, or upload a spreadsheet.'}
-        </p>
-        {filtered ? (
-          <Button size="small" variant="outline" onClick={onClear}>
-            Clear search and filters
-          </Button>
-        ) : (
-          <Button size="small" variant="brand" onClick={onAdd}>
-            Add Warehouse
-          </Button>
-        )}
-      </div>
+    // Shown in the Data Table's empty cell (which is the row and cell)
+    <div className={styles.emptyCell}>
+      <Icon name={filtered ? 'search' : 'warehouse'} size={32} />
+      <p className="text-large-bold">{filtered ? 'No warehouses match your search' : 'No warehouses yet'}</p>
+      <p className="text-medium-regular">
+        {filtered ? 'Try a different word, or clear the search and filters.' : 'Add your first warehouse, or upload a spreadsheet.'}
+      </p>
+      {filtered ? (
+        <Button size="small" variant="outline" onClick={onClear}>
+          Clear search and filters
+        </Button>
+      ) : (
+        <Button size="small" variant="brand" onClick={onAdd}>
+          Add Warehouse
+        </Button>
+      )}
     </div>
   );
 }

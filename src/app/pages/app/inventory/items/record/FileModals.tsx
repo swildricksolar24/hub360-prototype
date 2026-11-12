@@ -8,6 +8,7 @@ import { TextInput } from '../../../../../../components/TextInput/TextInput';
 import { UploadFile } from '../../../../../../components/UploadFile/UploadFile';
 import { useAuth } from '../../../../../auth/AuthContext';
 import { AppModal } from '../../../../../components/AppModal';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
 import { FILE_ICON, isImage, today, TYPE_ICON, type FileType, type Item, type ItemFile } from '../itemData';
 import { updateItem } from '../itemStore';
 import { required, requiredNote } from '../shared';
@@ -37,6 +38,16 @@ export const typeFromName = (name: string): FileType => EXT_TYPE[name.split('.')
 /** A file name without its extension (the table shows the type in its own column). */
 export const baseName = (name: string) => (name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name);
 const isUrl = (text: string) => /^https?:\/\/\S+\.\S+/i.test(text.trim());
+
+/**
+ * The profile image to show: the item's own, or with the Helper's "Has profile image" switch on, its first image in
+ * Files (the sample "Front View" when it has none). Only the view changes; the item keeps no profile image.
+ */
+export function useShownProfileImage(item: Item): string | undefined {
+  const forced = useHelperFlag('item.profileImage');
+  if (item.profileImage || !forced) return item.profileImage;
+  return item.files.find(f => isImage(f.type) && f.active)?.name ?? 'Front View';
+}
 
 /** The person signed in, for Modified By. */
 export function useMe() {
@@ -494,6 +505,8 @@ export function ProfileImageFlow({ open, item, onClose, onNotice }: { open: bool
   const [step, setStep] = useState<ProfileStep>('main');
   const [picked, setPicked] = useState<string | null>(null);
   const [upload, setUpload] = useState<File | null>(null);
+  // Helper switch: "Has profile image" shows one when the item has none
+  const profileImage = useShownProfileImage(item);
   useEffect(() => {
     if (!open) return;
     setStep('main');
@@ -529,7 +542,7 @@ export function ProfileImageFlow({ open, item, onClose, onNotice }: { open: bool
       title={step === 'edit' ? 'Edit Profile Image' : step === 'library' ? 'Choose From Files Library' : step === 'upload' ? 'Upload Profile Image' : 'Profile Image'}
       secondaryAction={step === 'main' ? { label: 'Close', onClick: onClose } : back}
       startAction={
-        step === 'main' && item.profileImage
+        step === 'main' && profileImage
           ? {
               label: 'Remove Image',
               danger: true,
@@ -564,11 +577,11 @@ export function ProfileImageFlow({ open, item, onClose, onNotice }: { open: bool
       {step === 'main' && (
         <div className={styles.profileStage}>
           <div className={styles.profileCircle}>
-            <Icon name={item.profileImage ? 'photo' : TYPE_ICON[item.type]} size={48} color="currentColor" />
-            {item.profileImage ?? 'No profile image yet'}
+            <Icon name={profileImage ? 'photo' : TYPE_ICON[item.type]} size={48} color="currentColor" />
+            {profileImage ?? 'No profile image yet'}
           </div>
           <div className={styles.previewActions}>
-            <Button size="small" variant="outline" icon="edit" disabled={!item.profileImage} onClick={() => setStep('edit')}>
+            <Button size="small" variant="outline" icon="edit" disabled={!profileImage} onClick={() => setStep('edit')}>
               Edit
             </Button>
             <Button size="small" variant="outline" icon="folder" onClick={() => setStep('library')}>

@@ -60,21 +60,11 @@
   gap: var(--space-16);
   min-width: 0;
 }
-/* The Totals row under a stock table */
-.totals {
-  font-weight: 700;
-}
-.totals [role='cell'] {
-  font-weight: 700;
-}
 
 /* Empty and no-results states */
-.empty {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-48) var(--space-24);
-}
+/* No items (or none match): centered in the Data Table's empty cell (its own 16px + 32px = 48px above and below) */
 .emptyCell {
+  padding-block: var(--space-32);
   display: flex;
   flex-direction: column;
   align-items: center;

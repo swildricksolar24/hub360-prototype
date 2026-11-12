@@ -54,6 +54,27 @@ export const AllTabsButton: Story = {
   parameters: { controls: { disable: true } },
 };
 
+/**
+ * Not in Figma: `actions` adds buttons at the right end, just left of All tabs, e.g. a NavTabSmall that opens a
+ * panel. While its panel is open (`aria-expanded`), the button keeps its hover look. Click it to toggle. The second
+ * bar has a single tab, so no All tabs button, and the action still sits at the far right.
+ */
+export const WithActions: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useState(false);
+    const helper = (
+      <NavTabSmall icon="preferences" label="Prototype helper" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(o => !o)} />
+    );
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
+        <NavTabBar {...args} actions={helper} />
+        <NavTabBar {...args} tabs={args.tabs.slice(0, 1)} onShowAll={undefined} actions={helper} />
+      </div>
+    );
+  },
+  parameters: { controls: { disable: true } },
+};
+
 export const TabBar: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>

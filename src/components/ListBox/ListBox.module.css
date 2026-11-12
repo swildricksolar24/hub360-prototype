@@ -27,8 +27,9 @@
   box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weak);
 }
 
-/* Dropdown Holder: rows sit directly on the overlay surface */
+/* Dropdown Holder: rows sit directly on the overlay surface, 8px apart (the Menu Options spacing, Figma Nov 2026) */
 .listbox[data-appearance='selector'] {
+  gap: var(--space-8);
   background: var(--color-surfaces-overlay);
 }
 
@@ -243,20 +244,23 @@
 
 /* ---------- Selector appearance (Dropdown Selector rows) ---------- */
 
+/*
+ * Dropdown Selector rows, restyled in Figma (Nov 2026) to the Menu Options / Default rule: 8 x 12px rows with 8px
+ * corners, no divider lines, Gray Fill/Hover on hover. They keep Medium/Regular text: the selector and autocomplete
+ * lists are dense, an exception to the menu rule's Large text.
+ */
 .item[data-appearance='selector'] {
   --bg: transparent;
-  --ring: var(--color-gray-stroke-weaker);
-  --ring-w: var(--stroke-width-outline);
   gap: var(--space-8);
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
 }
 .item[data-appearance='selector']:is(:hover, :focus-visible) {
-  --bg: var(--color-gray-fill-weaker);
-  --ring: var(--color-gray-stroke-disabled);
+  --bg: var(--color-gray-fill-hover);
 }
 /* Not in Figma: press and keyboard focus for selector rows */
 .item[data-appearance='selector']:active {
-  --bg: var(--color-gray-fill-hover);
+  --bg: var(--color-gray-fill-press);
 }
 .item[data-appearance='selector']:focus-visible {
   --ring: var(--color-gray-stroke-weaker);
@@ -265,17 +269,9 @@
 .item[data-appearance='selector'][aria-selected='true']:not([data-type='checkbox']) {
   --bg: var(--color-brand-teal-fill-weaker);
 }
-/* State=Indent / Indent Hover */
+/* State=Indent / Indent Hover: the same row, 40px in */
 .item[data-appearance='selector'][data-level] {
-  --ring-w: 0px;
   padding-left: var(--space-40);
-}
-.item[data-appearance='selector'][data-level]:hover {
-  --bg: var(--color-surfaces-raised);
-}
-.item[data-appearance='selector'][data-level]:focus-visible {
-  --bg: var(--color-surfaces-raised);
-  --ring-w: var(--stroke-width-2);
 }
 .item[data-appearance='selector'][aria-disabled='true'] {
   --bg: var(--color-gray-fill-disabled);

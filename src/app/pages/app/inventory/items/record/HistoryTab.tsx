@@ -7,6 +7,8 @@ import { PageTracker } from '../../../../../../components/PageTracker/PageTracke
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
+import { useHelperFlag } from '../../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../../shell/PrototypeHelper';
 import { PAGE_SIZES } from '../../record/tableKit';
 import type { HistoryEntry, Item, Order } from '../itemData';
 import { useItems } from '../itemStore';
@@ -44,8 +46,11 @@ export function HistoryTab({ item }: { item: Item }) {
   const [pageSize, setPageSize] = useState(10);
   const [opened, setOpened] = useState<HistoryEntry | null>(null);
 
+  // Helper switch: "No history" lists none (the store keeps it)
+  const noHistory = useHelperFlag('itemHistory.empty');
+  const history: HistoryEntry[] = noHistory ? [] : item.history;
   const q = query.trim().toLowerCase();
-  const found = item.history.filter(h => !q || `${h.warehouse} ${h.action} ${h.performed} ${h.order?.number ?? ''} ${h.createdBy} ${h.date}`.toLowerCase().includes(q));
+  const found = history.filter(h => !q || `${h.warehouse} ${h.action} ${h.performed} ${h.order?.number ?? ''} ${h.createdBy} ${h.date}`.toLowerCase().includes(q));
   const rows = sortRows(found, sort, cellValue);
   useEffect(() => setPage(1), [query, pageSize]);
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
@@ -81,6 +86,10 @@ export function HistoryTab({ item }: { item: Item }) {
 
   return (
     <div className={record.tab}>
+      <PrototypeHelper title="History">
+        <HelperToggle flag="itemHistory.empty" label="No history" />
+      </PrototypeHelper>
+
       <section className={record.card} aria-label="History">
         <div className={styles.toolbar} data-inset role="toolbar" aria-label="History">
           <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
@@ -93,7 +102,7 @@ export function HistoryTab({ item }: { item: Item }) {
             <div role="table" aria-label={`History of ${item.name}`} className={table.table}>
               <DataHeader className={table.head} corners="none" columns={tableColumns} leading="none" actions={false} sort={sort} onSortChange={k => setSort(nextSort(k))} />
               {pageRows.length === 0 && (
-                <p className={`text-medium-regular ${record.emptyRow}`}>{item.history.length === 0 ? 'Nothing has happened to this item yet.' : `No history matches “${query}”.`}</p>
+                <p className={`text-medium-regular ${record.emptyRow}`}>{history.length === 0 ? 'Nothing has happened to this item yet.' : `No history matches “${query}”.`}</p>
               )}
               {pageRows.map((h, i) => (
                 <div key={h.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>

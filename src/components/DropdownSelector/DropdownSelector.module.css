@@ -93,9 +93,10 @@
 
 /* ---------- Menu ("box") ---------- */
 
+/* Menu Options / Default: 4px below the button, the standard panel (design-system.md usage rule 10) */
 .popup {
   position: absolute;
-  top: 100%;
+  top: calc(100% + var(--space-4));
   left: 0;
   right: 0;
   z-index: 10;
@@ -123,9 +124,9 @@
   --ring-w: var(--stroke-width-2);
 }
 
-/* Dropdown Holder: four 36px rows, then it scrolls (State=Scrollbar) */
+/* Dropdown Holder: four 36px rows 8px apart, then it scrolls (State=Scrollbar) */
 .holder {
-  max-height: 144px; /* Figma Dropdown Holder height; a component dimension with no token */
+  max-height: calc(4 * 36px + 3 * var(--space-8)); /* Figma Dropdown Selector row height; a component dimension */
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-gray-fill-weak) var(--color-gray-fill-weaker);

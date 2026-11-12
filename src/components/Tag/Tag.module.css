@@ -2,10 +2,11 @@
  * Figma "- Tag" page (Base 2895:7438): six sets, Base / Outline × Large / Small / Tiny, each with
  * State = Default | Selected. Tags are static read-only labels, so Figma has no hover, press or focus states.
  * Strokes are inset box-shadows so selecting never shifts layout.
+ * Labels (Figma, Nov 2026): Base uses fixed Foundation colors, Solid/100 and Solid/White when selected, the same in
+ * light and dark; Outline uses Gray Text/Disabled and Gray Text/Strong when selected.
  */
 .tag {
   --bg: transparent;
-  /* Label: Gray Text/Disabled at State=Default in every set, Gray Text/Strong when selected (Figma, Nov 2026) */
   --fg: var(--color-gray-text-disabled);
   --ring: transparent;
   --ring-w: 0px;
@@ -48,13 +49,19 @@
 
 /* ---------- Base: Brand Teal Fill/Weaker, Selected Brand Teal Fill/Weak ---------- */
 
+/*
+ * Labels are Foundation/Solid/100 and, when selected, Foundation/Solid/White in both themes, exactly as in Figma. In
+ * light mode the unselected label is near-white on a pale teal pill (about 1.1:1 contrast), so it is hard to read there.
+ */
 .tag[data-variant='base'] {
   --bg: var(--color-brand-teal-fill-weaker);
+  --fg: var(--color-foundation-solid-100);
 }
 .tag[data-variant='base'][data-selected] {
   --bg: var(--color-brand-teal-fill-weak);
+  --fg: var(--color-foundation-solid-white);
 }
-.tag[data-selected] {
+.tag[data-variant='outline'][data-selected] {
   --fg: var(--color-gray-text-strong);
 }
 

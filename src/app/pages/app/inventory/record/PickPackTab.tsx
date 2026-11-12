@@ -8,6 +8,8 @@ import { Icon } from '../../../../../components/Icon/Icon';
 import { IconButton } from '../../../../../components/IconButton/IconButton';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { Toggle } from '../../../../../components/Toggle/Toggle';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
+import { useHelperFlag } from '../../../../shell/helperFlags';
 import { printerLabel } from '../printerData';
 import {
   ORDER_DATES,
@@ -68,7 +70,10 @@ export function PickPackTab({
   };
 
   return (
-    <div className={styles.columns}>
+    <div className={`${styles.columns} ${pp.columns}`}>
+      <PrototypeHelper title="Pick / Pack">
+        <HelperToggle flag="pickPack.noLabels" label="No label defaults" />
+      </PrototypeHelper>
       <div className={styles.column}>
         <Card n={1} title="Allocation & Commit" subtitle="When stock is reserved for an order, and when it’s taken out of inventory.">
           {editing ? (
@@ -92,7 +97,14 @@ export function PickPackTab({
                   />
                 </span>
                 <span className="text-medium-regular">days before the order’s</span>
-                <Dropdown label="Date" hideLabel options={options(ORDER_DATES)} value={s.startDate} onChange={v => set('startDate')(v as string)} />
+                <Dropdown
+                  className={pp.dateField}
+                  label="Date"
+                  hideLabel
+                  options={options(ORDER_DATES)}
+                  value={s.startDate}
+                  onChange={v => set('startDate')(v as string)}
+                />
               </div>
               <p className={`text-tiny-regular ${pp.help}`}>
                 The date list comes from the order date fields set up in settings (e.g. Due date, Ship date, Install date), so it can include any number of
@@ -295,7 +307,10 @@ function ChipChoice({ label, options: list, later, value, onChange }: { label: s
  */
 function LabelDefaults({ warehouse, editing, onNotice }: { warehouse: { code: string; name: string }; editing: boolean; onNotice: (text: string) => void }) {
   const { code } = warehouse;
-  const labels = useLabels(code);
+  const stored = useLabels(code);
+  // Helper switch: no label defaults, so the card's empty line shows (the view only; the store keeps its rows)
+  const noLabels = useHelperFlag('pickPack.noLabels');
+  const labels = noLabels ? [] : stored;
   const [open, setOpen] = useState<PickLabel | 'new' | null>(null);
   const [deleting, setDeleting] = useState<PickLabel | null>(null);
 

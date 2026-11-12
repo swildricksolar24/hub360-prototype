@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { ActionBanner } from '../../../../../components/ActionBanner/ActionBanner';
 import { Avatar } from '../../../../../components/Avatar/Avatar';
 import { Badge, type BadgeColor } from '../../../../../components/Badge/Badge';
 import { Button } from '../../../../../components/Button/Button';
@@ -8,10 +9,11 @@ import { EditableCell } from '../../../../../components/EditableCell/EditableCel
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
-import { Tabs } from '../../../../../components/Tabs/Tabs';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { Toggle } from '../../../../../components/Toggle/Toggle';
 import { AppModal } from '../../../../components/AppModal';
+import { setHelperFlag, useHelperFlag } from '../../../../shell/helperFlags';
+import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 import {
   AREAS,
   DARKNESS,
@@ -35,7 +37,7 @@ import {
 import type { Warehouse } from '../warehouseData';
 import { setPrintJobs, usePrintJobs } from '../warehouseStore';
 import { RowMenu } from './RowMenu';
-import { nextSort } from './tableKit';
+import { nextSort, Segmented } from './tableKit';
 import styles from './printers.module.css';
 import type { DataSort } from '../../../../../components/DataHeader/DataHeader';
 
@@ -56,8 +58,13 @@ export function changeCount(draft: PrinterDraft, printer: Printer, defaults: Pri
   return n;
 }
 
-export const statusBadge = (p: Pick<Printer, 'online' | 'paused'>) =>
-  p.paused ? (
+/** A printer's status pill: Inactive (the neutral pill) comes first, since an inactive printer isn't in use, then Paused, then Online / Offline. */
+export const statusBadge = (p: Pick<Printer, 'online' | 'paused' | 'active'>) =>
+  !p.active ? (
+    <Badge shape="pill" color="black">
+      Inactive
+    </Badge>
+  ) : p.paused ? (
     <Badge shape="pill" color="amber">
       Paused
     </Badge>
@@ -167,22 +174,22 @@ export function PrinterDetails({
         </div>
       </div>
 
-      <Tabs
-        aria-label="Printer views"
-        value={view}
-        onChange={onViewChange}
-        items={VIEWS.map(v => ({
-          ...v,
-          content:
-            v.id === 'settings' ? (
-              <SettingsView warehouse={warehouse} p={p} printer={printer} agents={agents} editing={editing} set={set} onPrinterChange={onPrinterChange} onNotice={onNotice} addJob={addJob} />
-            ) : v.id === 'default-use' ? (
-              <DefaultUseView warehouse={warehouse} p={p} printers={printers} defaults={draft?.defaults ?? defaults} draft={draft} onDraftChange={onDraftChange} set={set} />
-            ) : (
-              <PrintJobsView warehouse={warehouse} printer={printer} printers={printers} jobs={jobs.filter(j => j.printerId === printer.id)} onNotice={onNotice} />
-            ),
-        }))}
-      />
+      {/* Volt "Button Group / Horizontal" (Base 523:795), the same switch as the list's List / Settings */}
+      <div className={styles.viewSwitch}>
+        <Segmented
+          label="Printer views"
+          options={VIEWS.map(v => ({ value: v.id, label: v.label }))}
+          value={VIEWS.some(v => v.id === view) ? view : 'settings'}
+          onChange={onViewChange}
+        />
+      </div>
+      {view === 'default-use' ? (
+        <DefaultUseView warehouse={warehouse} p={p} printers={printers} defaults={draft?.defaults ?? defaults} draft={draft} onDraftChange={onDraftChange} set={set} />
+      ) : view === 'jobs' ? (
+        <PrintJobsView warehouse={warehouse} printer={printer} printers={printers} jobs={jobs.filter(j => j.printerId === printer.id)} onNotice={onNotice} />
+      ) : (
+        <SettingsView warehouse={warehouse} p={p} printer={printer} agents={agents} editing={editing} set={set} onPrinterChange={onPrinterChange} onNotice={onNotice} addJob={addJob} />
+      )}
     </div>
   );
 }
@@ -428,20 +435,33 @@ function SettingsView({
 
 /* ---------- Default Use (901:25215 view, 901:25764 edit) ---------- */
 
+// Default Printer and Prints Automatically When keep room for their whole value and header on one line ("CJ3000 ·
+// Shipping Office", "Prints Automatically When" + its icons); on a narrow card Size, then Copies, hide first
 const DEFAULT_COLUMNS: DataColumn[] = [
-  { key: 'document', label: 'Document', width: 'fill', filterable: true },
-  { key: 'printer', label: 'Default Printer', width: 'fill', filterable: true },
-  { key: 'size', label: 'Size', width: 110, filterable: true },
-  { key: 'copies', label: 'Copies', width: 120, filterable: true },
-  { key: 'trigger', label: 'Prints Automatically When', width: 'fill', filterable: true },
-  { key: 'here', label: 'Default Here', width: 170, filterable: true },
+  { key: 'document', label: 'Document', width: 'fill', minWidth: 175, filterable: true },
+  { key: 'printer', label: 'Default Printer', width: 'fill', minWidth: 205, filterable: true },
+  { key: 'size', label: 'Size', width: 120, priority: 2, filterable: true },
+  { key: 'copies', label: 'Copies', width: 100, priority: 1, filterable: true },
+  { key: 'trigger', label: 'Prints Automatically When', width: 'fill', minWidth: 200, filterable: true },
+  { key: 'here', label: 'Default Here', width: 130, filterable: true },
 ];
+/*
+ * While editing, Default Printer and Prints Automatically When are selects (Editable Cells), which fill their column:
+ * their minimums also hold the select's padding and ⇕ icon, so the whole value still shows. Size, then Copies, hide first.
+ */
+// Document's name may wrap, and Default Here is just a toggle while editing, so they give up room to the two selects
+const DEFAULT_EDIT_MINS: Record<string, number> = { document: 140, printer: 255, trigger: 240 };
+// Copies is a text field while editing: wide enough for "1 per carton" with the field's padding
+const DEFAULT_EDIT_WIDTHS: Record<string, number> = { here: 110, copies: 130 };
+const DEFAULT_EDIT_COLUMNS: DataColumn[] = DEFAULT_COLUMNS.map(c =>
+  DEFAULT_EDIT_WIDTHS[c.key] ? { ...c, width: DEFAULT_EDIT_WIDTHS[c.key] } : DEFAULT_EDIT_MINS[c.key] ? { ...c, minWidth: DEFAULT_EDIT_MINS[c.key] } : c,
+);
 
 function DefaultUseView({
   warehouse,
   p,
   printers,
-  defaults,
+  defaults: storedDefaults,
   draft,
   onDraftChange,
   set,
@@ -456,6 +476,10 @@ function DefaultUseView({
 }) {
   const [sort, setSort] = useState<DataSort | undefined>();
   const editing = draft !== null;
+  // Helper switches (a prototype tool): no defaults at all, or the first one with no printer ("Not assigned")
+  const noDefaults = useHelperFlag('printDefaults.empty');
+  const unassigned = useHelperFlag('printDefaults.unassigned');
+  const defaults = noDefaults ? [] : unassigned ? storedDefaults.map((d, i) => (i === 0 ? { ...d, printerId: '' } : d)) : storedDefaults;
   const nameOf = (id: string) => {
     const pr = printers.find(x => x.id === id);
     if (!pr) return 'Not assigned';
@@ -475,6 +499,10 @@ function DefaultUseView({
 
   return (
     <div className={styles.tab}>
+      <PrototypeHelper title="Default Use">
+        <HelperToggle flag="printDefaults.empty" label="No document defaults" />
+        <HelperToggle flag="printDefaults.unassigned" label="A default with no printer" />
+      </PrototypeHelper>
       {editing && (
         <p className={`text-medium-regular ${styles.intro}`}>
           Choose which documents this printer prints by default at {warehouse.name}. These are the warehouse’s document defaults, shared by every printer, so
@@ -483,7 +511,7 @@ function DefaultUseView({
       )}
       <DataTable
         aria-label="Default use"
-        columns={DEFAULT_COLUMNS}
+        columns={editing ? DEFAULT_EDIT_COLUMNS : DEFAULT_COLUMNS}
         rows={rows}
         rowLabel={d => d.document}
         sort={sort}
@@ -591,16 +619,56 @@ function DefaultUseView({
 
 /* ---------- Print Jobs (901:26381) ---------- */
 
+// The text columns keep room for one line; on a narrow card Size, then Copies, then Sent By hide first
 const JOB_COLUMNS: DataColumn[] = [
-  { key: 'time', label: 'Time', width: 120, filterable: true },
-  { key: 'document', label: 'Document', width: 'fill', filterable: true },
-  { key: 'record', label: 'Order / Record', width: 'fill', filterable: true },
-  { key: 'sentBy', label: 'Sent By', width: 150, filterable: true },
-  { key: 'copies', label: 'Copies', width: 130, filterable: true },
-  { key: 'size', label: 'Size', width: 110, filterable: true },
+  { key: 'time', label: 'Time', width: 100, filterable: true },
+  { key: 'document', label: 'Document', width: 'fill', minWidth: 150, filterable: true },
+  { key: 'record', label: 'Order / Record', width: 'fill', minWidth: 150, filterable: true },
+  { key: 'sentBy', label: 'Sent By', width: 120, priority: 1, filterable: true },
+  { key: 'copies', label: 'Copies', width: 90, priority: 2, filterable: true },
+  { key: 'size', label: 'Size', width: 80, priority: 3, filterable: true },
   { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 const JOB_COLOR: Record<PrintJobStatus, BadgeColor> = { Printed: 'green', Failed: 'red', Held: 'amber', Queued: 'blue', Cancelled: 'black' };
+
+/** What the failed-job alert tells people to do about each error */
+function errorHint(error: string | undefined, size: string) {
+  const hints: Record<string, string> = {
+    'out of labels': `Load a new roll of ${size} labels, then retry.`,
+    'out of paper': 'Load paper in the tray, then retry.',
+    'ribbon out': 'Load a new ribbon, then retry.',
+    'printhead open': 'Close the printhead, then retry.',
+    'paper jam': 'Clear the jam and close the cover, then retry.',
+    'toner out': 'Replace the toner cartridge, then retry.',
+    'wrong label size': `Load ${size} labels, or send it to a printer that has them.`,
+    'printer offline': 'Check that the printer is on and connected, then retry.',
+  };
+  return error ? hints[error] ?? '' : '';
+}
+
+/*
+ * Helper switches (a prototype tool, not in Figma) for Print Jobs. They add jobs to the view only, never to the data:
+ * - "Failed print job": a failed job (out of labels, or out of paper on a laser printer) with the job sent after it
+ *   held, so the failed-job banner, the Failed and Held rows, Retry and Send to Another Printer can be tried anywhere.
+ * - "Queued job": a job waiting its turn (the Queued status nothing else produces).
+ * Retry, Send or Cancel on these jobs turns their switch off, as if the job had printed or gone.
+ */
+const HELPER_JOB = 'helper-';
+function helperJobs(printer: Printer, failed: boolean, queued: boolean, time: string): PrintJob[] {
+  const label = printer.type !== 'Laser';
+  const size = label ? (printer.labelSizes[0]?.replace(' in', '') ?? '4 × 6') : 'Letter';
+  const base = { printerId: printer.id, time, sentBy: 'You', size };
+  return [
+    ...(queued ? [{ ...base, id: `${HELPER_JOB}queued`, record: 'SO-10512', document: label ? 'Shipping label' : 'Pick ticket', copies: 1, status: 'Queued' as const }] : []),
+    ...(failed
+      ? [
+          { ...base, id: `${HELPER_JOB}held`, record: 'SO-10511', document: label ? 'Carton labels' : 'Pick ticket', copies: label ? 2 : 1, status: 'Held' as const },
+          { ...base, id: `${HELPER_JOB}failed`, record: 'SO-10511', document: label ? 'Shipping label' : 'Packing slip', copies: 1, status: 'Failed' as const, error: label ? 'out of labels' : 'out of paper' },
+        ]
+      : []),
+  ];
+}
+const flagFor = (j: PrintJob) => (j.id === `${HELPER_JOB}queued` ? 'printJobs.queued' : 'printJobs.failed');
 const initials = (name: string) =>
   name
     .split(/[\s.]+/)
@@ -614,7 +682,7 @@ function PrintJobsView({
   warehouse,
   printer,
   printers,
-  jobs,
+  jobs: storedJobs,
   onNotice,
 }: {
   warehouse: Warehouse;
@@ -631,8 +699,14 @@ function PrintJobsView({
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [moving, setMoving] = useState(false);
   const [moveTo, setMoveTo] = useState<string | null>(null);
+  // Helper switches: their jobs go on top of the printer's real ones (see helperJobs)
+  const failOn = useHelperFlag('printJobs.failed');
+  const queuedOn = useHelperFlag('printJobs.queued');
+  const [helperTime] = useState(() => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+  const jobs = [...helperJobs(printer, failOn, queuedOn, helperTime), ...storedJobs];
 
   const failed = jobs.find(j => j.status === 'Failed');
+  const failedCount = jobs.filter(j => j.status === 'Failed').length;
   const update = (fn: (j: PrintJob) => PrintJob) => setPrintJobs(warehouse.code, list => list.map(j => (j.printerId === printer.id ? fn(j) : j)));
   const docs = [...new Set(jobs.map(j => j.document))];
   const q = query.trim().toLowerCase();
@@ -649,37 +723,41 @@ function PrintJobsView({
   function retry() {
     if (!failed) return;
     update(j => (j.status === 'Failed' || j.status === 'Held' ? { ...j, status: 'Printed', error: undefined } : j));
+    setHelperFlag('printJobs.failed', false);
     onNotice(`${failed.document} for ${failed.record} printed. Held jobs printed after it.`);
   }
 
   return (
     <div className={styles.tab}>
+      <PrototypeHelper title="Print Jobs">
+        <HelperToggle flag="printJobs.failed" label="Failed print job" />
+        <HelperToggle flag="printJobs.queued" label="Queued job" />
+      </PrototypeHelper>
+      {/* Volt ActionBanner (Figma "Action Banner", 901:26407) */}
       {failed && (
-        <div className={styles.alert} role="alert">
-          <div>
-            <p className="text-large-bold">1 job failed · {failed.error}</p>
-            <p className="text-medium-regular">
-              {failed.document} for {failed.record} failed at {failed.time}.{' '}
-              {failed.error === 'out of labels' ? `Load a new roll of ${failed.size} labels, then retry. ` : ''}
-              Jobs waiting behind it are held so they print in order.
-            </p>
-          </div>
-          <div className={styles.buttonRow}>
-            <Button
-              size="small"
-              variant="outline"
-              onClick={() => {
-                setMoveTo(printers.find(x => x.id !== printer.id && x.labelSizes.includes(`${failed.size} in`))?.id ?? printers.find(x => x.id !== printer.id)?.id ?? null);
-                setMoving(true);
-              }}
-            >
-              Send to Another Printer
-            </Button>
-            <Button size="small" variant="brand" onClick={retry}>
-              Retry Job
-            </Button>
-          </div>
-        </div>
+        <ActionBanner
+          title={`${failedCount} ${failedCount === 1 ? 'job' : 'jobs'} failed · ${failed.error}`}
+          actions={
+            <>
+              <Button
+                size="small"
+                variant="outline"
+                onClick={() => {
+                  setMoveTo(printers.find(x => x.id !== printer.id && x.labelSizes.includes(`${failed.size} in`))?.id ?? printers.find(x => x.id !== printer.id)?.id ?? null);
+                  setMoving(true);
+                }}
+              >
+                Send to Another Printer
+              </Button>
+              <Button size="small" variant="brand" onClick={retry}>
+                Retry Job
+              </Button>
+            </>
+          }
+        >
+          {failed.document} for {failed.record} failed at {failed.time}. {errorHint(failed.error, failed.size)} Jobs waiting behind it are held so they print in
+          order.
+        </ActionBanner>
       )}
 
       <div className={styles.toolbar} role="toolbar" aria-label="Print job filters">
@@ -719,7 +797,9 @@ function PrintJobsView({
                   label: 'Cancel',
                   disabled: !(j.status === 'Held' || j.status === 'Queued' || j.status === 'Failed'),
                   onSelect: () => {
-                    update(x => (x.id === j.id ? { ...x, status: 'Cancelled', error: undefined } : x));
+                    // A Helper job isn't in the data: cancelling it turns its switch off
+                    if (j.id.startsWith(HELPER_JOB)) setHelperFlag(flagFor(j), false);
+                    else update(x => (x.id === j.id ? { ...x, status: 'Cancelled', error: undefined } : x));
                     onNotice(`${j.document} for ${j.record} was cancelled.`);
                   },
                 },
@@ -761,6 +841,7 @@ function PrintJobsView({
             setPrintJobs(warehouse.code, list =>
               list.map(j => (j.printerId === printer.id && (j.status === 'Failed' || j.status === 'Held') ? { ...j, printerId: to.id, status: 'Printed', error: undefined } : j)),
             );
+            setHelperFlag('printJobs.failed', false);
             setMoving(false);
             onNotice(`${failed.document} for ${failed.record} printed on ${printerLabel(to)}.`);
           },

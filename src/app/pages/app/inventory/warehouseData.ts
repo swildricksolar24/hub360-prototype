@@ -36,6 +36,10 @@ export type WarehouseField = {
   /** Edit Columns groups the fields by this (the Available fields chips). */
   group: FieldGroup;
   width: number | 'fill';
+  /** The narrowest the column may get on a narrow card (Volt DataColumn `minWidth`); its text wraps to 2 lines. */
+  minWidth?: number;
+  /** Hides the column on a narrow card, higher first (Volt DataColumn `priority`); without it the column always shows. */
+  priority?: number;
   align?: 'start' | 'end';
   /** Text shown in the table. */
   show: (w: Warehouse) => string;
@@ -44,13 +48,14 @@ export type WarehouseField = {
 };
 
 export const FIELDS: WarehouseField[] = [
-  { key: 'code', label: 'Code', group: 'Warehouse', width: 120, show: w => w.code, sortValue: w => w.code },
-  { key: 'name', label: 'Name', group: 'Warehouse', width: 160, show: w => w.name, sortValue: w => w.name },
+  { key: 'code', label: 'Code', group: 'Warehouse', width: 120, minWidth: 90, show: w => w.code, sortValue: w => w.code },
+  { key: 'name', label: 'Name', group: 'Warehouse', width: 160, minWidth: 110, show: w => w.name, sortValue: w => w.name },
   {
     key: 'address',
     label: 'Address',
     group: 'Address',
     width: 'fill',
+    minWidth: 160,
     // In the country's own order (formatAddress), e.g. "11565 W Summertime, Phoenix, AZ 85085"
     show: w => formatAddress(w),
     sortValue: w => `${w.address1} ${w.city}`,
@@ -59,10 +64,10 @@ export const FIELDS: WarehouseField[] = [
   { key: 'state', label: 'State', group: 'Address', width: 100, show: w => w.state, sortValue: w => w.state },
   { key: 'zip', label: 'Zip Code', group: 'Address', width: 110, show: w => w.zip, sortValue: w => w.zip },
   { key: 'country', label: 'Country', group: 'Address', width: 180, show: w => w.country, sortValue: w => w.country },
-  { key: 'value', label: 'Inventory Value', group: 'Inventory', width: 185, show: w => money(w.value), sortValue: w => w.value },
-  { key: 'locations', label: 'Locations', group: 'Inventory', width: 140, show: w => count(w.locations), sortValue: w => w.locations },
-  { key: 'filled', label: 'Filled Locations', group: 'Inventory', width: 185, show: w => count(w.filled), sortValue: w => w.filled },
-  { key: 'empty', label: 'Empty', group: 'Inventory', width: 130, show: w => count(w.locations - w.filled), sortValue: w => w.locations - w.filled },
+  { key: 'value', label: 'Inventory Value', group: 'Inventory', width: 185, minWidth: 120, show: w => money(w.value), sortValue: w => w.value },
+  { key: 'locations', label: 'Locations', group: 'Inventory', width: 140, priority: 1, show: w => count(w.locations), sortValue: w => w.locations },
+  { key: 'filled', label: 'Filled Locations', group: 'Inventory', width: 185, minWidth: 140, priority: 2, show: w => count(w.filled), sortValue: w => w.filled },
+  { key: 'empty', label: 'Empty', group: 'Inventory', width: 130, priority: 3, show: w => count(w.locations - w.filled), sortValue: w => w.locations - w.filled },
 ];
 
 export const fieldByKey = (key: string) => FIELDS.find(f => f.key === key);

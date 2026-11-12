@@ -82,27 +82,22 @@
 }
 
 /*
- * Dropdown Holder: Surfaces/Overlay, 4px gaps, 1px Info Strong outline, inside the row ••• menu's frame (a 16px inset
- * and 12px corners) like every other popup menu
+ * Dropdown Holder in the Menu Options / Default frame (design-system.md usage rule 10): 4px below the field,
+ * Surfaces/Overlay with 12px corners, the drop shadow and a 16px inset; rows 8px apart (ListBox `selector`)
  */
 .popup {
   position: absolute;
-  top: calc(100% + var(--space-2));
+  top: calc(100% + var(--space-4));
   left: 0;
   right: 0;
   z-index: 10;
-  /* six 36px rows and their gaps, plus the inset; a component dimension with no token */
-  max-height: calc(236px + 2 * var(--space-16));
+  /* six 36px rows and their 8px gaps, plus the inset; 36px is the row height, a component dimension */
+  max-height: calc(6 * 36px + 5 * var(--space-8) + 2 * var(--space-16));
   padding: var(--space-16);
   overflow-y: auto;
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);
-  box-shadow:
-    0 0 0 var(--stroke-width-1) var(--color-semantic-stroke-info-strong),
-    var(--shadow-drop);
-}
-.popup > ul {
-  gap: var(--space-4);
+  box-shadow: var(--shadow-drop);
 }
 
 /* Hover animation (not in Figma): state colors fade in and out instead of switching instantly */

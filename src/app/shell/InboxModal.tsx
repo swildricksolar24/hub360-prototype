@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Avatar } from '../../components/Avatar/Avatar';
 import { Badge } from '../../components/Badge/Badge';
 import { IconButton } from '../../components/IconButton/IconButton';
 import { AppModal } from '../components/AppModal';
+import { useHelperFlag } from './helperFlags';
 import { INBOX_TITLES, SAMPLE_INBOX, senderPhoto, type InboxItem, type InboxKind } from './inbox';
 import styles from './InboxModal.module.css';
 
@@ -20,8 +21,18 @@ const SLIDE_MS = 350;
  * marked "New" while the list is open; closing the list marks them read.
  */
 export function useInbox() {
-  const [items, setItems] = useState(SAMPLE_INBOX);
+  const [stored, setItems] = useState(SAMPLE_INBOX);
   const [openKind, setOpenKind] = useState<InboxKind | null>(null);
+
+  // Helper switches (set on the Dashboard; they reach the header badges and these lists everywhere):
+  // "Empty inbox" shows every list as empty, "All read" shows every item as read. The stored lists are untouched.
+  const empty = useHelperFlag('inbox.empty');
+  const allRead = useHelperFlag('inbox.allRead');
+  const items = useMemo(() => {
+    if (!empty && !allRead) return stored;
+    const show = (list: InboxItem[]) => (empty ? [] : list.map(i => (i.unread ? { ...i, unread: false } : i)));
+    return { notifications: show(stored.notifications), messages: show(stored.messages), email: show(stored.email) };
+  }, [stored, empty, allRead]);
 
   function update(kind: InboxKind, change: (list: InboxItem[]) => InboxItem[]) {
     setItems(all => ({ ...all, [kind]: change(all[kind]) }));
@@ -33,7 +44,8 @@ export function useInbox() {
     unread: (kind: InboxKind) => items[kind].filter(i => i.unread).length,
     open: (kind: InboxKind) => setOpenKind(kind),
     close() {
-      if (openKind) update(openKind, list => list.map(i => (i.unread ? { ...i, unread: false } : i)));
+      // Closing marks the list read, but not while a Helper switch hides what's unread (turning it off restores it)
+      if (openKind && !empty && !allRead) update(openKind, list => list.map(i => (i.unread ? { ...i, unread: false } : i)));
       setOpenKind(null);
     },
     // A bookmarked card moves to the top of its list (latest bookmark first); removing the bookmark puts it back
