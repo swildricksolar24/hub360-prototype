@@ -175,14 +175,28 @@ export const Loading: Story = {
 };
 
 /**
- * `onFilter` + `activeFilters`: columns with `filterable` show a filter icon before the sort icon; an active filter
- * shows "Filter - Active" (City here) and keeps its icon visible. Clicks show in the Actions panel.
+ * `onFilter` + `activeFilters`: columns with `filterable` show the Preferences (filter) tile at the far edge; an
+ * active filter's tile is Brand Teal Fill/Weak with a white icon (City here). Filters show only on a list of more than 10 rows, so this
+ * story passes `totalRows` (the whole list, as a paged table would). Clicks show in the Actions panel.
  */
 export const ColumnFilters: Story = {
   args: {
     columns: COLUMNS.map(c => (c.key === 'city' || c.key === 'name' ? { ...c, filterable: true } : c)),
     onFilter: fn(),
     activeFilters: ['city'],
+    totalRows: 24,
+  },
+};
+
+/**
+ * A short list (10 rows or fewer, by `totalRows` or else `rows`) shows only the sort chevrons: the same filterable
+ * columns as Column filters, without the filter tiles. A column whose filter is on would keep its tile.
+ */
+export const ShortListNoFilters: Story = {
+  name: 'Short list (no filters)',
+  args: {
+    columns: COLUMNS.map(c => (c.key === 'city' || c.key === 'name' ? { ...c, filterable: true } : c)),
+    onFilter: fn(),
   },
 };
 
@@ -308,9 +322,9 @@ export const ControlsInCells: Story = {
 };
 
 /**
- * Short headers in narrow columns (80 / 100px): the sort and filter icons take no room while hidden, so "Size" and
- * "Copies" show in full; hover the header (or tab to an icon) and the icons appear, the labels ellipsizing to fit.
- * Copies is sorted, so its icon stays.
+ * Short headers in narrow columns (80 / 100px): a column widens to hold its header (label and chevron in full, plus its filter
+ * tile), so "Size" and "Copies" read in full. Copies is sorted ascending, so its up arrow is highlighted. Filters show here because
+ * `totalRows` is over 10.
  */
 export const NarrowColumns: Story = {
   name: 'Narrow columns',
@@ -329,6 +343,7 @@ export const NarrowColumns: Story = {
       ]}
       cells={r => ({ ...r })}
       sort={{ key: 'copies', direction: 'ascending' }}
+      totalRows={24}
       onSortChange={noop}
       onSelectedChange={noop}
       actions

@@ -12,7 +12,7 @@ import { locationPath, setLocations, setStock, useLocations, useStock } from '..
 import { AddLocationsModal, RemoveLocationModal, type LocationFields } from './LocationModals';
 import { canMoveUnder, childrenOf, codeOf, depthOf, descendantIds, flattenTree, itemsIn, moveUnder, pathOf, slotsOf, usedOf, utilizationText } from './locationTree';
 import { RowMenu } from './RowMenu';
-import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { FilterBox, Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
 import { MAX_LOCATION_DEPTH } from '../warehouseRecordData';
 import styles from '../record.module.css';
 import table from '../table.module.css';
@@ -20,25 +20,26 @@ import { Toast } from '../../../../../components/Toast/Toast';
 
 // On a narrow card the columns shrink to their minWidth, then hide by priority (useFittingColumns): Rules, then Code,
 // then Type
+// Type, Status and (flat) Parent repeat across locations, so only they filter; names, codes, counts and rules don't
 const TREE_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Location Name', width: 'fill', minWidth: 160, filterable: true },
-  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2, filterable: true },
-  { key: 'type', label: 'Type', width: 116, minWidth: 90, priority: 1, filterable: true },
-  { key: 'items', label: 'Items', width: 116, minWidth: 90, filterable: true },
-  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 120, filterable: true },
-  { key: 'rules', label: 'Rules', width: 180, minWidth: 120, priority: 3, filterable: true },
+  { key: 'name', label: 'Location Name', width: 'fill', minWidth: 160 },
+  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2 },
+  { key: 'type', label: 'Type', width: 116, minWidth: 100, priority: 1, filterable: true },
+  { key: 'items', label: 'Items', width: 116, minWidth: 104 },
+  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 128 },
+  { key: 'rules', label: 'Rules', width: 180, minWidth: 120, priority: 3 },
   { key: 'status', label: 'Status', width: 110, filterable: true },
   // Figma: a + to add a location inside this one, before the •••
   { key: 'add', label: 'Add location inside', width: 40, labelHidden: true, sortable: false },
 ];
 const FLAT_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Location', width: 130, minWidth: 100, filterable: true },
+  { key: 'name', label: 'Location', width: 130, minWidth: 100 },
   { key: 'parent', label: 'Parent', width: 'fill', minWidth: 120, filterable: true },
-  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2, filterable: true },
-  { key: 'type', label: 'Type', width: 116, minWidth: 90, priority: 1, filterable: true },
-  { key: 'items', label: 'Items', width: 116, minWidth: 90, filterable: true },
-  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 120, filterable: true },
-  { key: 'rules', label: 'Rules', width: 160, minWidth: 120, priority: 3, filterable: true },
+  { key: 'code', label: 'Code', width: 130, minWidth: 100, priority: 2 },
+  { key: 'type', label: 'Type', width: 116, minWidth: 100, priority: 1, filterable: true },
+  { key: 'items', label: 'Items', width: 116, minWidth: 104 },
+  { key: 'utilization', label: 'Utilization', width: 140, minWidth: 128 },
+  { key: 'rules', label: 'Rules', width: 160, minWidth: 120, priority: 3 },
   { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
@@ -131,6 +132,9 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
                     : String(l[key as keyof WarehouseLocation] ?? ''),
       // A view other than All lists every match, collapsed or not
       filter: l => inView(l, view) && (mode === 'flat' || view !== 'all' || !hiddenByCollapse(l)),
+      // The filterable columns' text: Type, Status, and the Parent's path (top-level locations show as "(Blank)")
+      filterText: (l, key) =>
+        key === 'status' ? (l.active ? 'Active' : 'Inactive') : key === 'parent' ? (l.parentId ? pathOf(locations, l.parentId) : '') : l.type,
     },
   );
 
@@ -317,77 +321,80 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
         )}
         {/* Volt Data Table (Figma "Data Table" page), as on Contacts and Printers. In the tree, a row drags onto another
             (rowProps); the ••• shows on every row, as in Figma's Locations screens. */}
-        <DataTable
-          aria-label="Warehouse locations"
-          className={table.fillNarrow}
-          columns={cols.columns}
-          rows={t.pageRows}
-          rowLabel={l => l.name}
-          sort={t.headerProps.sort}
-          onSortChange={t.headerProps.onSortChange}
-          {...t.selectProps}
-          inactive={l => !l.active}
-          actionsVisible
-          empty={locations.length === 0 ? 'No locations yet. Use Add Location to add one.' : 'No locations match your search or view.'}
-          onMore={l => setMenuFor(m => (m === l.id ? null : l.id))}
-          rowProps={l =>
-            mode === 'tree'
-              ? {
-                  draggable: true,
-                  'data-drop': dropOn === l.id || undefined,
-                  onDragStart: e => {
-                    e.dataTransfer.setData('text/plain', l.id);
-                    e.dataTransfer.effectAllowed = 'move';
-                    setDragging(l.id);
-                  },
-                  onDragEnd: () => {
-                    setDragging(null);
-                    setDropOn(null);
-                  },
-                  onDragOver: e => {
-                    if (!dragging || dragging === l.id || !canMoveUnder(locations, dragging, l.id)) return;
-                    e.preventDefault();
-                    setDropOn(l.id);
-                  },
-                  onDragLeave: () => setDropOn(d2 => (d2 === l.id ? null : d2)),
-                  onDrop: e => {
-                    e.preventDefault();
-                    if (dragging) move(dragging, l.id);
-                    setDragging(null);
-                    setDropOn(null);
-                  },
-                }
-              : {}
-          }
-          renderAfterRow={l =>
-            menuFor === l.id && (
-              <RowMenu
-                label={l.name}
-                onClose={() => setMenuFor(null)}
-                items={[
-                  { label: 'View', onSelect: () => open(l) },
-                  ...(canAddInside(l) ? [{ label: 'Add Location Inside', onSelect: () => setAdding({ parentId: l.id }) }] : []),
-                  ...(l.parentId ? [{ label: 'Move to Top Level', onSelect: () => move(l.id, null) }] : []),
-                  { label: l.frozen ? 'Unfreeze' : 'Freeze', onSelect: () => toggleRule(l, 'frozen') },
-                  { label: l.nonPickable ? 'Make Pickable' : 'Make Non-pickable', onSelect: () => toggleRule(l, 'nonPickable') },
-                  { label: l.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([l.id], !l.active) },
-                  { label: 'Remove', onSelect: () => setRemoving(l) },
-                ]}
-              />
-            )
-          }
-          cells={l => ({
-            name: nameCell(l),
-            parent: l.parentId ? pathOf(locations, l.parentId) : '—',
-            code: codeOf(locations, l.id),
-            type: l.type || '—',
-            items: items(l).toLocaleString('en-US'),
-            utilization: utilizationText(l),
-            rules: rules(l),
-            status: status(l),
-            add: canAddInside(l) ? <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} /> : null,
-          })}
-        />
+        <FilterBox table={t} columns={cols.columns}>
+          <DataTable
+            aria-label="Warehouse locations"
+            className={table.fillNarrow}
+            columns={cols.columns}
+            rows={t.pageRows}
+            rowLabel={l => l.name}
+            sort={t.headerProps.sort}
+            onSortChange={t.headerProps.onSortChange}
+            {...t.selectProps}
+            {...t.filterProps}
+            inactive={l => !l.active}
+            actionsVisible
+            empty={locations.length === 0 ? 'No locations yet. Use Add Location to add one.' : 'No locations match your search, view or filters.'}
+            onMore={l => setMenuFor(m => (m === l.id ? null : l.id))}
+            rowProps={l =>
+              mode === 'tree'
+                ? {
+                    draggable: true,
+                    'data-drop': dropOn === l.id || undefined,
+                    onDragStart: e => {
+                      e.dataTransfer.setData('text/plain', l.id);
+                      e.dataTransfer.effectAllowed = 'move';
+                      setDragging(l.id);
+                    },
+                    onDragEnd: () => {
+                      setDragging(null);
+                      setDropOn(null);
+                    },
+                    onDragOver: e => {
+                      if (!dragging || dragging === l.id || !canMoveUnder(locations, dragging, l.id)) return;
+                      e.preventDefault();
+                      setDropOn(l.id);
+                    },
+                    onDragLeave: () => setDropOn(d2 => (d2 === l.id ? null : d2)),
+                    onDrop: e => {
+                      e.preventDefault();
+                      if (dragging) move(dragging, l.id);
+                      setDragging(null);
+                      setDropOn(null);
+                    },
+                  }
+                : {}
+            }
+            renderAfterRow={l =>
+              menuFor === l.id && (
+                <RowMenu
+                  label={l.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    { label: 'View', onSelect: () => open(l) },
+                    ...(canAddInside(l) ? [{ label: 'Add Location Inside', onSelect: () => setAdding({ parentId: l.id }) }] : []),
+                    ...(l.parentId ? [{ label: 'Move to Top Level', onSelect: () => move(l.id, null) }] : []),
+                    { label: l.frozen ? 'Unfreeze' : 'Freeze', onSelect: () => toggleRule(l, 'frozen') },
+                    { label: l.nonPickable ? 'Make Pickable' : 'Make Non-pickable', onSelect: () => toggleRule(l, 'nonPickable') },
+                    { label: l.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([l.id], !l.active) },
+                    { label: 'Remove', onSelect: () => setRemoving(l) },
+                  ]}
+                />
+              )
+            }
+            cells={l => ({
+              name: nameCell(l),
+              parent: l.parentId ? pathOf(locations, l.parentId) : '—',
+              code: codeOf(locations, l.id),
+              type: l.type || '—',
+              items: items(l).toLocaleString('en-US'),
+              utilization: utilizationText(l),
+              rules: rules(l),
+              status: status(l),
+              add: canAddInside(l) ? <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} /> : null,
+            })}
+          />
+        </FilterBox>
         <Pager table={t} label="Location pages" />
       </section>
 

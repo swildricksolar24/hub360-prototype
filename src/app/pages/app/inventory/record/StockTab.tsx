@@ -7,7 +7,7 @@ import { useHelperFlag } from '../../../../shell/helperFlags';
 import { availableOf, belowReorder, type CatalogItem, type StockRow, type WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, setStock, useCatalog, useLocations, useStock } from '../warehouseStore';
 import { RowMenu } from './RowMenu';
-import { Pager, StatusPill, TableToolbar, count, useColumns, useTableControls, viewInItems, type TableControls } from './tableKit';
+import { FilterBox, Pager, StatusPill, TableToolbar, count, useColumns, useTableControls, viewInItems, type TableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
@@ -31,9 +31,10 @@ export const STOCK_COLUMNS: DataColumn[] = [
   { key: 'available', label: 'Available', width: 104, align: 'end' },
   // What View › Below Reorder compares Available with (shortened as on the Inventory Dashboard's Low Stock table)
   { key: 'reorderPoint', label: 'Reorder Pt', width: 112, align: 'end', priority: 2 },
-  { key: 'location', label: 'Location', width: 96, priority: 1 },
+  // Location and Status repeat across stock records, so they filter (a checkbox list of their values)
+  { key: 'location', label: 'Location', width: 96, priority: 1, filterable: true },
   // Active / Inactive (Stock › Actions › Activate / Deactivate): the status dot and word, as on the other tables
-  { key: 'status', label: 'Status', width: 110 },
+  { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
 /** The warehouse's stock records (optionally only those in some locations), joined to their items and locations. */
@@ -86,6 +87,7 @@ export function useStockTable(rows: StockView[]) {
               : key === 'reorderPoint'
                 ? (s.reorderPoint ?? -1)
                 : (s.location?.name ?? ''),
+    filterText: (s, key) => (key === 'status' ? (s.active ? 'Active' : 'Inactive') : (s.location?.name ?? '')),
   });
 }
 
@@ -124,69 +126,72 @@ export function StockTable({
   return (
     <>
       {/* Volt Data Table (Figma "Data Table" page) with its summary row for the Totals, as on Locations and Contacts */}
-      <DataTable
-        aria-label={label}
-        className={`${table.fillNarrowest} ${styles.statusStart}`}
-        columns={columns}
-        rows={t.pageRows}
-        rowLabel={nameOf}
-        sort={t.headerProps.sort}
-        onSortChange={t.headerProps.onSortChange}
-        {...t.selectProps}
-        inactive={s => !s.active}
-        empty={t.query && !noStock ? 'No stock matches your search.' : 'No stock here yet.'}
-        onMore={s => setMenuFor(m => (m === s.id ? null : s.id))}
-        renderAfterRow={s =>
-          menuFor === s.id && (
-            <RowMenu
-              label={nameOf(s)}
-              onClose={() => setMenuFor(null)}
-              items={[
-                ...(s.location ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, s.location!.id)) }] : []),
-                // The item's record in Items, when it has one
-                ...viewInItems(s.item?.name, navigate),
-                {
-                  label: s.active ? 'Deactivate' : 'Activate',
-                  onSelect: () => {
-                    setStockActive(code, [s.id], !s.active);
-                    onNotice?.(`${nameOf(s)} ${s.active ? 'deactivated' : 'activated'}.`);
+      <FilterBox table={t} columns={columns}>
+        <DataTable
+          aria-label={label}
+          className={`${table.fillNarrowest} ${styles.statusStart}`}
+          columns={columns}
+          rows={t.pageRows}
+          rowLabel={nameOf}
+          sort={t.headerProps.sort}
+          onSortChange={t.headerProps.onSortChange}
+          {...t.selectProps}
+          {...t.filterProps}
+          inactive={s => !s.active}
+          empty={(t.query || t.filtered) && !noStock ? 'No stock matches your search or filters.' : 'No stock here yet.'}
+          onMore={s => setMenuFor(m => (m === s.id ? null : s.id))}
+          renderAfterRow={s =>
+            menuFor === s.id && (
+              <RowMenu
+                label={nameOf(s)}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  ...(s.location ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, s.location!.id)) }] : []),
+                  // The item's record in Items, when it has one
+                  ...viewInItems(s.item?.name, navigate),
+                  {
+                    label: s.active ? 'Deactivate' : 'Activate',
+                    onSelect: () => {
+                      setStockActive(code, [s.id], !s.active);
+                      onNotice?.(`${nameOf(s)} ${s.active ? 'deactivated' : 'activated'}.`);
+                    },
                   },
-                },
-              ]}
-            />
-          )
-        }
-        cells={s => ({
-          number: s.item?.number ?? '—',
-          description: s.item?.description || s.item?.name || '—',
-          onHand: count(s.onHand),
-          allocated: count(s.allocated),
-          committed: count(s.committed),
-          frozen: count(s.frozen),
-          available: count(s.available),
-          reorderPoint: s.reorderPoint === undefined ? '—' : count(s.reorderPoint),
-          location: s.location ? (
-            <AppLink to={locationPath(code, s.location.id)} size="small">
-              {s.location.name}
-            </AppLink>
-          ) : (
-            '—'
-          ),
-          status: <StatusPill active={s.active} />,
-        })}
-        summary={
-          t.rows.length > 0
-            ? {
-                number: 'Totals',
-                onHand: count(totals.onHand),
-                allocated: count(totals.allocated),
-                committed: count(totals.committed),
-                frozen: count(totals.frozen),
-                available: count(totals.available),
-              }
-            : undefined
-        }
-      />
+                ]}
+              />
+            )
+          }
+          cells={s => ({
+            number: s.item?.number ?? '—',
+            description: s.item?.description || s.item?.name || '—',
+            onHand: count(s.onHand),
+            allocated: count(s.allocated),
+            committed: count(s.committed),
+            frozen: count(s.frozen),
+            available: count(s.available),
+            reorderPoint: s.reorderPoint === undefined ? '—' : count(s.reorderPoint),
+            location: s.location ? (
+              <AppLink to={locationPath(code, s.location.id)} size="small">
+                {s.location.name}
+              </AppLink>
+            ) : (
+              '—'
+            ),
+            status: <StatusPill active={s.active} />,
+          })}
+          summary={
+            t.rows.length > 0
+              ? {
+                  number: 'Totals',
+                  onHand: count(totals.onHand),
+                  allocated: count(totals.allocated),
+                  committed: count(totals.committed),
+                  frozen: count(totals.frozen),
+                  available: count(totals.available),
+                }
+              : undefined
+          }
+        />
+      </FilterBox>
       <Pager table={t} label="Stock pages" />
     </>
   );

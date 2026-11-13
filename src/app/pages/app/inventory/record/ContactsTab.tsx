@@ -11,7 +11,7 @@ import { INTERNAL_COMPANY, type Contact } from '../warehouseRecordData';
 import { setContacts, useContacts } from '../warehouseStore';
 import { ContactFormModal, RemoveContactModal, SearchContactsModal, type ContactFields } from './ContactModals';
 import { RowMenu } from './RowMenu';
-import { Pager, StatusPill, useTableControls } from './tableKit';
+import { FilterBox, Pager, StatusPill, useTableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 
@@ -21,20 +21,20 @@ const COLUMNS: DataColumn[] = [
   // Figma: just the 20px star, 16px from the checkbox (the button's 4px padding on each side makes 28)
   { key: 'primary', label: 'Primary contact', width: 28, labelHidden: true, sortable: false },
   { key: 'name', label: 'Name', width: 140, minWidth: 110 },
-  { key: 'company', label: 'Company', width: 'fill', minWidth: 120, priority: 1 },
+  { key: 'company', label: 'Company', width: 'fill', minWidth: 120, priority: 1, filterable: true },
   { key: 'phone', label: 'Phone', width: 130, priority: 2 },
   { key: 'email', label: 'Email', width: 210, minWidth: 160 },
-  { key: 'role', label: 'Primary Role', width: 150, minWidth: 110 },
+  { key: 'role', label: 'Primary Role', width: 150, minWidth: 110, filterable: true },
   { key: 'additionalRoles', label: 'Additional Roles', width: 'fill', minWidth: 120, priority: 3 },
-  // Figma: the status pill sits right before the ••• button
-  { key: 'status', label: 'Status', width: 110, align: 'end', labelHidden: true, sortable: false },
+  // Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
+  { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
 type Who = 'all' | 'internal' | 'external';
 const isInternal = (c: Pick<Contact, 'company'>) => c.company === INTERNAL_COMPANY;
 /** "Acme Solar (Internal)": the company's own people are marked internal (Figma 848:20960). */
 const companyText = (c: Contact) => (c.company ? (isInternal(c) ? `${c.company} (Internal)` : c.company) : '—');
-const text = (c: Contact, key: string) => (key === 'additionalRoles' ? c.additionalRoles.join(', ') : key === 'company' ? companyText(c) : String(c[key as keyof Contact] ?? ''));
+const text = (c: Contact, key: string) => (key === 'status' ? (c.active ? 'Active' : 'Inactive') : key === 'additionalRoles' ? c.additionalRoles.join(', ') : key === 'company' ? companyText(c) : String(c[key as keyof Contact] ?? ''));
 
 /**
  * Warehouse record › Contacts (Figma 848:20960): All / Internal / External, search, and the people who work with the
@@ -58,6 +58,7 @@ export function ContactsTab({ code, warehouseName, onNotice }: { code: string; w
   const t = useTableControls(contacts, {
     search: c => `${c.name} ${c.company} ${c.role} ${c.email} ${c.additionalRoles.join(' ')}`,
     sortValue: text,
+    filterText: text,
     filter: c => who === 'all' || (who === 'internal') === isInternal(c),
     // The primary contact is always the first row, whatever the sort
     pinFirst: c => c.primary,
@@ -120,76 +121,79 @@ export function ContactsTab({ code, warehouseName, onNotice }: { code: string; w
             Add Contact
           </Button>
         </div>
-        <DataTable
-          aria-label="Warehouse contacts"
-          className={styles.statusStart}
-          columns={COLUMNS}
-          rows={t.pageRows}
-          rowLabel={c => c.name}
-          sort={t.headerProps.sort}
-          onSortChange={t.headerProps.onSortChange}
-          selected={selected}
-          onSelectedChange={setSelected}
-          inactive={c => !c.active}
-          actionsVisible
-          empty={contacts.length ? 'No contacts match. Clear the search or choose All.' : 'No contacts yet. Use Add Contact to add the people who work here.'}
-          onMore={c => setMenuFor(m => (m === c.id ? null : c.id))}
-          renderAfterRow={c =>
-            menuFor === c.id && (
-              <RowMenu
-                label={c.name}
-                onClose={() => setMenuFor(null)}
-                items={[
-                  { label: 'Edit', onSelect: () => setEditing(c) },
-                  { label: 'Make Primary', disabled: c.primary, onSelect: () => makePrimary(c) },
-                  {
-                    label: c.active ? 'Deactivate' : 'Activate',
-                    onSelect: () => {
-                      update(list => list.map(x => (x.id === c.id ? { ...x, active: !c.active } : x)));
-                      onNotice(`${c.name} ${c.active ? 'deactivated' : 'activated'}.`);
+        <FilterBox table={t} columns={COLUMNS}>
+          <DataTable
+            aria-label="Warehouse contacts"
+            className={styles.statusStart}
+            columns={COLUMNS}
+            rows={t.pageRows}
+            rowLabel={c => c.name}
+            sort={t.headerProps.sort}
+            onSortChange={t.headerProps.onSortChange}
+            selected={selected}
+            onSelectedChange={setSelected}
+            {...t.filterProps}
+            inactive={c => !c.active}
+            actionsVisible
+            empty={contacts.length ? 'No contacts match. Clear the search and filters, or choose All.' : 'No contacts yet. Use Add Contact to add the people who work here.'}
+            onMore={c => setMenuFor(m => (m === c.id ? null : c.id))}
+            renderAfterRow={c =>
+              menuFor === c.id && (
+                <RowMenu
+                  label={c.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    { label: 'Edit', onSelect: () => setEditing(c) },
+                    { label: 'Make Primary', disabled: c.primary, onSelect: () => makePrimary(c) },
+                    {
+                      label: c.active ? 'Deactivate' : 'Activate',
+                      onSelect: () => {
+                        update(list => list.map(x => (x.id === c.id ? { ...x, active: !c.active } : x)));
+                        onNotice(`${c.name} ${c.active ? 'deactivated' : 'activated'}.`);
+                      },
                     },
-                  },
-                  { label: 'Remove from Warehouse', onSelect: () => setRemoving(c) },
-                ]}
-              />
-            )
-          }
-          cells={c => ({
-            primary: (
-              <button
-                type="button"
-                className={styles.star}
-                aria-pressed={c.primary}
-                aria-label={c.primary ? `${c.name} is the primary contact` : `Make ${c.name} the primary contact`}
-                title={c.primary ? 'Primary contact' : 'Make primary contact'}
-                onClick={() => !c.primary && makePrimary(c)}
-              >
-                <Icon name={c.primary ? 'rating' : 'rating-hollow'} size={20} color="currentColor" />
-              </button>
-            ),
-            name: (
-              <button type="button" className={styles.cellLink} onClick={() => setEditing(c)}>
-                {c.name}
-              </button>
-            ),
-            company: companyText(c),
-            phone: c.phone || '—',
-            email: c.email || '—',
-            role: c.role || '—',
-            additionalRoles: c.additionalRoles.length ? (
-              <span className={table.tags}>
-                {c.additionalRoles.map(r => (
-                  <Tag key={r} size="tiny" selected>
-                    {r}
-                  </Tag>
-                ))}
-              </span>
-            ) : (
-              '—'
-            ),
-            status: <StatusPill active={c.active} />,
-          })}
-        />
+                    { label: 'Remove from Warehouse', onSelect: () => setRemoving(c) },
+                  ]}
+                />
+              )
+            }
+            cells={c => ({
+              primary: (
+                <button
+                  type="button"
+                  className={styles.star}
+                  aria-pressed={c.primary}
+                  aria-label={c.primary ? `${c.name} is the primary contact` : `Make ${c.name} the primary contact`}
+                  title={c.primary ? 'Primary contact' : 'Make primary contact'}
+                  onClick={() => !c.primary && makePrimary(c)}
+                >
+                  <Icon name={c.primary ? 'rating' : 'rating-hollow'} size={20} color="currentColor" />
+                </button>
+              ),
+              name: (
+                <button type="button" className={styles.cellLink} onClick={() => setEditing(c)}>
+                  {c.name}
+                </button>
+              ),
+              company: companyText(c),
+              phone: c.phone || '—',
+              email: c.email || '—',
+              role: c.role || '—',
+              additionalRoles: c.additionalRoles.length ? (
+                <span className={table.tags}>
+                  {c.additionalRoles.map(r => (
+                    <Tag key={r} size="tiny" selected>
+                      {r}
+                    </Tag>
+                  ))}
+                </span>
+              ) : (
+                '—'
+              ),
+              status: <StatusPill active={c.active} />,
+            })}
+          />
+        </FilterBox>
         {/* Pinned to the bottom of the card */}
         <div className={styles.cardFoot}>
           <Pager table={t} label="Contact pages" />

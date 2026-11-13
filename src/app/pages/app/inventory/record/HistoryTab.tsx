@@ -7,17 +7,18 @@ import { historyDate, type CatalogItem, type HistoryEntry, type HistoryPart, typ
 import { locationPath, useCatalog, useHistory, useLocations } from '../warehouseStore';
 import { itemPath, itemRecordFor, useItems } from '../items/itemStore';
 import { orderPath, useOrders } from '../orders/orderStore';
-import { Pager, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { FilterBox, Pager, TableToolbar, useColumns, useTableControls } from './tableKit';
 import styles from '../record.module.css';
 
 // Action Performed fills; the rest hug their content (fixed at the widest of their values and their header label + the
 // 24px sort icon, + the cell's 16px padding), so the sentence gets the room and stays on one or two lines
 const COLUMNS: DataColumn[] = [
-  // The widest badge ("Stock Order", 94px) + 16
-  { key: 'type', label: 'Action Type', width: 114, fixed: true },
+  // Action Type and Created By repeat, so they filter. The header: "Action Type" (77px) + 4px + the 20px sort tile + 8px
+  // + the 20px filter tile + 16 (the widest badge, "Stock Order", 94px, fits)
+  { key: 'type', label: 'Action Type', width: 146, fixed: true, filterable: true },
   { key: 'action', label: 'Action Performed', width: 'fill', minWidth: 260, sortable: false },
-  // The longest name ("Maximilian Veers", 93px) + 16
-  { key: 'by', label: 'Created By', width: 110, fixed: true },
+  // The header: "Created By" (68px) + the tiles as above + 16 (the longest name, "Maximilian Veers", 93px, fits)
+  { key: 'by', label: 'Created By', width: 136, fixed: true, filterable: true },
   // The header: "Date Created" (77px) + 2px gap + the sort icon (24px) + 16
   { key: 'date', label: 'Date Created', width: 120, fixed: true },
 ];
@@ -52,6 +53,7 @@ export function HistoryTab({ code }: { code: string }) {
   const t = useTableControls(history, {
     search: h => `${h.type} ${sentence(h)} ${h.by} ${historyDate(h.date).day}`,
     sortValue: (h, key) => (key === 'date' ? h.date : key === 'by' ? h.by : h.type),
+    filterText: (h, key) => (key === 'by' ? h.by : h.type),
   });
 
   // An order or item links to its own record when the prototype has one; otherwise it's plain text (the sample
@@ -96,29 +98,32 @@ export function HistoryTab({ code }: { code: string }) {
       <section className={styles.card} aria-label="History">
         <TableToolbar label="History" onColumns={() => cols.setOpen(true)} search={{ value: t.query, onChange: t.setQuery, label: 'Search history' }} />
         {/* Volt Data Table (Figma "Data Table" page), as on the warehouse's other tabs; no checkboxes or ••• (Figma) */}
-        <DataTable
-          aria-label="Warehouse history"
-          columns={cols.columns}
-          rows={t.pageRows}
-          rowLabel={h => `${h.type} ${historyDate(h.date).day}`}
-          sort={t.headerProps.sort}
-          onSortChange={t.headerProps.onSortChange}
-          empty={history.length === 0 ? 'Nothing has happened here yet.' : 'No history matches your search.'}
-          cells={h => {
-            const { day, time } = historyDate(h.date);
-            return {
-              type: <span className={styles.actionBadge}>{h.type}</span>,
-              action: <span className={styles.sentence}>{h.parts.map(render)}</span>,
-              by: h.by,
-              date: (
-                <span className={styles.twoLines}>
-                  <span>{day}</span>
-                  <span className={styles.weak}>{time}</span>
-                </span>
-              ),
-            };
-          }}
-        />
+        <FilterBox table={t} columns={cols.columns}>
+          <DataTable
+            aria-label="Warehouse history"
+            columns={cols.columns}
+            rows={t.pageRows}
+            rowLabel={h => `${h.type} ${historyDate(h.date).day}`}
+            sort={t.headerProps.sort}
+            onSortChange={t.headerProps.onSortChange}
+            {...t.filterProps}
+            empty={history.length === 0 ? 'Nothing has happened here yet.' : 'No history matches your search or filters.'}
+            cells={h => {
+              const { day, time } = historyDate(h.date);
+              return {
+                type: <span className={styles.actionBadge}>{h.type}</span>,
+                action: <span className={styles.sentence}>{h.parts.map(render)}</span>,
+                by: h.by,
+                date: (
+                  <span className={styles.twoLines}>
+                    <span>{day}</span>
+                    <span className={styles.weak}>{time}</span>
+                  </span>
+                ),
+              };
+            }}
+          />
+        </FilterBox>
         <Pager table={t} label="History pages" />
       </section>
       {cols.modal}

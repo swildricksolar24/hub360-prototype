@@ -18,7 +18,7 @@ import {
 } from '../warehouseStore';
 import { CloneWarehouseModal, ConfirmCloneModal, ItemFormModal, RemoveItemsModal, SearchItemsModal } from './ItemModals';
 import { RowMenu } from './RowMenu';
-import { MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
+import { FilterBox, MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
 import styles from '../record.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
@@ -28,12 +28,16 @@ const COLUMNS: DataColumn[] = [
   // Wide enough for the longest item number on one line ("0004-5896-4521": 115px + the cell's 16px padding)
   { key: 'number', label: 'Item #', width: 136, minWidth: 132 },
   { key: 'name', label: 'Name', width: 'fill', minWidth: 120 },
-  { key: 'type', label: 'Type', width: 84 },
-  { key: 'category', label: 'Category', width: 116, minWidth: 100 },
-  { key: 'subCategory', label: 'Sub Category', width: 140, minWidth: 110 },
-  // Figma: the status pill has no header, and sits right before the ••• button
-  { key: 'status', label: 'Status', width: 108, align: 'end', labelHidden: true, sortable: false },
+  // Type, Category, Sub Category and Status repeat across items, so they filter (a checkbox list of their values)
+  { key: 'type', label: 'Type', width: 84, filterable: true },
+  { key: 'category', label: 'Category', width: 116, minWidth: 100, filterable: true },
+  { key: 'subCategory', label: 'Sub Category', width: 140, minWidth: 110, filterable: true },
+  // Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
+  { key: 'status', label: 'Status', width: 108, filterable: true },
 ];
+
+/** A cell's text as it shows: what the Status column sorts and filters by, and each filter's values. */
+const cellText = (i: WarehouseItem, key: string) => (key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(i[key as keyof WarehouseItem] ?? ''));
 
 const VIEWS = [
   { value: 'all', label: 'All' },
@@ -71,8 +75,9 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
 
   const t = useTableControls(items, {
     search: i => `${i.number} ${i.name} ${i.type} ${i.category} ${i.subCategory}`,
-    sortValue: (i, key) => String(i[key as keyof WarehouseItem] ?? ''),
+    sortValue: cellText,
     filter: i => view === 'all' || i.type === view,
+    filterText: cellText,
   });
 
   const update = (next: (list: WarehouseItem[]) => WarehouseItem[]) => setWarehouseItems(code, next);
@@ -135,41 +140,44 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
           }
         />
         {/* Volt Data Table (Figma "Data Table" page), as on Locations, Stock and Contacts */}
-        <DataTable
-          aria-label="Warehouse items"
-          className={styles.statusStart}
-          columns={cols.columns}
-          rows={t.pageRows}
-          rowLabel={i => i.name}
-          sort={t.headerProps.sort}
-          onSortChange={t.headerProps.onSortChange}
-          {...t.selectProps}
-          inactive={i => !i.active}
-          empty={items.length === 0 ? 'No items yet. Use Add Item to add some, or clone another warehouse.' : 'No items match your search or view.'}
-          onMore={i => setMenuFor(m => (m === i.id ? null : i.id))}
-          renderAfterRow={i =>
-            menuFor === i.id && (
-              <RowMenu
-                label={i.name}
-                onClose={() => setMenuFor(null)}
-                items={[
-                  // The item's record in Items, when it has one
-                  ...viewInItems(i.name, navigate),
-                  { label: i.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([i.id], !i.active) },
-                  { label: 'Remove', onSelect: () => setRemoving([i]) },
-                ]}
-              />
-            )
-          }
-          cells={i => ({
-            number: i.number,
-            name: i.name,
-            type: i.type,
-            category: i.category || '—',
-            subCategory: i.subCategory || '—',
-            status: <StatusPill active={i.active} />,
-          })}
-        />
+        <FilterBox table={t} columns={cols.columns}>
+          <DataTable
+            aria-label="Warehouse items"
+            className={styles.statusStart}
+            columns={cols.columns}
+            rows={t.pageRows}
+            rowLabel={i => i.name}
+            sort={t.headerProps.sort}
+            onSortChange={t.headerProps.onSortChange}
+            {...t.selectProps}
+            {...t.filterProps}
+            inactive={i => !i.active}
+            empty={items.length === 0 ? 'No items yet. Use Add Item to add some, or clone another warehouse.' : 'No items match your search, view or filters.'}
+            onMore={i => setMenuFor(m => (m === i.id ? null : i.id))}
+            renderAfterRow={i =>
+              menuFor === i.id && (
+                <RowMenu
+                  label={i.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    // The item's record in Items, when it has one
+                    ...viewInItems(i.name, navigate),
+                    { label: i.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([i.id], !i.active) },
+                    { label: 'Remove', onSelect: () => setRemoving([i]) },
+                  ]}
+                />
+              )
+            }
+            cells={i => ({
+              number: i.number,
+              name: i.name,
+              type: i.type,
+              category: i.category || '—',
+              subCategory: i.subCategory || '—',
+              status: <StatusPill active={i.active} />,
+            })}
+          />
+        </FilterBox>
         <Pager table={t} label="Item pages" />
       </section>
 

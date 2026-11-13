@@ -11,6 +11,7 @@ import { Toggle } from '../../../../../components/Toggle/Toggle';
 import { AppModal } from '../../../../components/AppModal';
 import { COMPANIES, CONTACT_ROLES, CRM_PEOPLE, initialsOf, type Contact } from '../warehouseRecordData';
 import styles from '../record.module.css';
+import { useProfilePhoto } from '../../../../auth/useProfilePhoto';
 
 export type ContactFields = Omit<Contact, 'id' | 'primary'>;
 
@@ -39,6 +40,8 @@ export function SearchContactsModal({
   onAdd: (contacts: ContactFields[]) => void;
   onAddNew: () => void;
 }) {
+  // Every person shows the current profile photo (initials when there is none)
+  const photo = useProfilePhoto();
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<Set<string>>(new Set());
   useEffect(() => {
@@ -87,7 +90,7 @@ export function SearchContactsModal({
                   size="small"
                   label={
                     <span className={styles.pickPerson}>
-                      <Avatar size="small" type="initial" initials={initialsOf(p.name)} label={p.name} />
+                      <Avatar size="small" src={photo} initials={initialsOf(p.name)} label={p.name} />
                       <span className={styles.pickText}>
                         <span className="text-medium-bold">{p.name}</span>
                         <span className="text-tiny-regular">

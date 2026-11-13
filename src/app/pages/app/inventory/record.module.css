@@ -326,7 +326,7 @@
   color: var(--color-gray-fill-strong);
 }
 .star[aria-pressed='true'] {
-  color: var(--color-brand-orange-fill-strong);
+  color: var(--color-brand-teal-fill-strong);
   cursor: default;
 }
 .star:focus-visible {

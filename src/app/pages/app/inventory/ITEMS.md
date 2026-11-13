@@ -15,7 +15,11 @@ the Figma flow. It's built in `items/`: the list (`ItemsPage`) and one record pa
   - `RecordPage` for every record;
   - `AppModal` for every dialog, with an X (general note 1);
   - "#" instead of "Number" in labels (general note 3);
-  - the shared table pattern.
+  - the shared table pattern: every table here is the Volt `DataTable` (the record tabs' Files, Assemblies / Kits,
+    Build, History and the History order modal included), with a sort chevron on each header and a checkbox-list filter
+    on the columns whose values repeat (Type, Category, Sub Category, Unit, Status, Warehouse, Location, Action Type,
+    Created By, File Type, Modified By, Item Type). Filters show only on lists of more than 10 rows; a filtered Status
+    column gets a "Status" header, which Figma leaves off.
 
 ## How the pieces relate
 
@@ -44,13 +48,13 @@ the Figma flow. It's built in `items/`: the list (`ItemsPage`) and one record pa
 
 **Overview (Figma 681:14463):** a totals line ("1,412 Items  1,218 Parts  112 Kits  82 Assemblies", counting the
 rows that match the view, search and filters), then the table: ☐ · Item (the number, a link, with the name under it)
-· Type · Category · Unit · On Hand · Available · Warehouses · Status · •••. Every column sorts and has a "Contains…"
-filter. On Hand and Available add up the item's stock rows; Warehouses counts the warehouses holding it. Unit is the
+· Type · Category · Unit · On Hand · Available · Warehouses · Status · •••. Every column sorts; Type,
+Category, Unit and Status also filter (a checkbox list of the column's values, with search on longer lists). On Hand and Available add up the item's stock rows; Warehouses counts the warehouses holding it. Unit is the
 item's Unit Type without its abbreviation (Each, Pair, Foot, Kit). A pager sits below.
 
 **Stock (Figma 681:14475):** ☐ · Item (TwoLineCell: the number, a link, with the name under it) · Category ·
 Warehouse · On Hand · Allocated · Committed · Frozen · Available · Status · •••, one row per item and warehouse
-location; an item with no stock gets one row with "—" and zeros. Every column sorts and has a "Contains…" filter.
+location; an item with no stock gets one row with "—" and zeros. Every column sorts; Item, Category, Warehouse, Location and Status also filter (a checkbox list of their values).
 Status is a Badge pill: black **Inactive (catalog)** for an inactive item, amber **Below reorder pt** when Available is
 0 or under the item's reorder point, otherwise green **Stocked**. ••• has View Item and View Warehouse Stock. Location
 (a link to the warehouse's Locations tab) is off by default and can be added under Columns. No Totals row on the list;
@@ -85,7 +89,8 @@ an item's own Stock tab keeps Warehouse … Status plus Location, and a Totals r
 
 Built to Figma's Part Details (127:6327). The same cards serve all three types; the labels follow the type. Two
 columns (1060 : 560 in Figma, one column under 1280px): Identification, Specifications, Units & Packaging and
-Warranty on the left; Images, Tracking, Compliance and Replacement Items on the right; Notes under both.
+Warranty on the left; Images, Tracking, Compliance and Replacement Items on the right; Notes under both. Both columns
+end on the same line: the last card in each grows to fill the gap. Reorder Details and Last Purchase share a height.
 
 **Editing banner** (Figma 918:39755): while Details has unsaved changes, the shared `EditBanner` sits above the
 header: "You’re editing REC 325 Solar Panel. 2 unsaved changes." with Discard Changes and Save Changes. Save
@@ -126,7 +131,9 @@ warranties already registered on sold serials)
 **Images:** three across, 110px tiles with a star (the main image; starring another moves it first), a remove ✕ and a
 drag handle; drag to reorder. Photos can also be dragged onto the gallery from the computer (it outlines in teal while
 they're over it); with no photos the card shows the Volt upload drop zone. JPG, PNG or WebP up to 25 MB; other files are
-turned away with a notice. A photo added this session shows in its tile. + Upload takes the same files. Hint: "Drag to reorder. The starred image is the main
+turned away with a notice. A photo added this session shows in its tile; the solar panel samples show real photos from
+`src/app/assets/item-photos` (Wikimedia Commons, credited in its CREDITS.md). The corner controls sit on small
+card-colored backings so they read over any photo. + Upload takes the same files. Hint: "Drag to reorder. The starred image is the main
 image on lists, quotes and the catalog. JPG, PNG or WebP up to 25 MB."
 
 **Tracking** (Figma note: a part can be both lot controlled and serialized): a sunken row per toggle with its hint:
@@ -138,16 +145,21 @@ Non-inventory item, Discontinued.
 
 **Replacement Items** (Figma note: drag to set the order they're offered in; the reason shows to the person picking a
 substitute): a sunken row each: drag handle, "# · name" (a link), the reason ▾ (Preferred substitute, When REC is out
-of stock, Customer approval needed, Last resort) and remove. + Add Replacement opens the Add Replacement modal.
+of stock, Customer approval needed, Last resort) and remove. The name and reason share a line when the row is 460px or
+wider (1920); in a narrower row (1440 and below) the reason drops under the name at full width. + Add Replacement
+opens the Add Replacement modal.
 
 **Notes:** + Add Note in the title row, the search under it, then the table: avatar · Created By · Last Updated · Note
-· pin.
+· pin, on the Volt `DataTable` (Created By and Last Updated keep their width, the note fills the rest; the pin is a
+compact `IconButton`, selected when pinned; Edit / Delete sit in the row's •••).
 
 **Not on Figma's Details** (kept under Notes until their tabs exist; Figma's tab bar adds Suppliers and Cost):
 - **Reorder Details:** Global Min Quantity, Global Safety Stock, Global Reorder Point, Average Lead Time (Days), and
   ☑ Auto-Calculate (ⓘ).
 - **Last Purchase:** Supplier; Purchase Date and Purchase Quantity; Unit Type (Each) and Cost ($).
-- **Supplier:** + Add Supplier; table: ★ (primary) · Supplier · Item # · Cost · Date · Lead Time (Days).
+- **Supplier:** + Add Supplier; table: ★ (primary) · Supplier · Item # · Cost · Date · Lead Time (Days), on the Volt
+  `DataTable` (the name fills, the rest keep their width; ★ is a plain star, no button box, filled brand teal for the primary; Edit /
+  Make Primary / Remove in the row's •••).
 
 **Modals**
 - **Add Warranty**

@@ -2,9 +2,7 @@ import { useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { Avatar } from '../../../../../../components/Avatar/Avatar';
 import { Badge } from '../../../../../../components/Badge/Badge';
 import { Button } from '../../../../../../components/Button/Button';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../../components/DataRow/DataRow';
-import { DataTable, type DataColumn as TableColumn } from '../../../../../../components/DataTable/DataTable';
+import { DataTable, type DataColumn as TableColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
 import { EditableCell } from '../../../../../../components/EditableCell/EditableCell';
 import { Icon } from '../../../../../../components/Icon/Icon';
@@ -19,6 +17,7 @@ import { useAuth } from '../../../../../auth/AuthContext';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
 import { useHelperFlag } from '../../../../../shell/helperFlags';
+import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from '../../ColumnFilter';
 import { RowMenu } from '../../record/RowMenu';
 import {
   allCompliance,
@@ -54,8 +53,9 @@ import { itemPath, updateItem, useItems } from '../itemStore';
 import { Card, InfoCheckbox, MenuButton, nextSort, options, required, sortRows } from '../shared';
 import { DeleteNoteModal, NoteModal, RemoveSupplierModal, ReplacementModal, SupplierModal, WarrantyModal } from './DetailsModals';
 import record from '../../record.module.css';
-import table from '../../table.module.css';
+import warehouseStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
+import { useProfilePhoto } from '../../../../../auth/useProfilePhoto';
 
 /** The Details cards' fields; the record page keeps them so Save (the header's, or the editing banner's) saves them. */
 export type DetailsDraft = Pick<
@@ -471,13 +471,16 @@ function SpecInput({ field, value, error, onChange }: { field: SpecField; value:
 /* ---------- Units & Packaging ---------- */
 
 const UNIT_COLUMNS: TableColumn[] = [
-  { key: 'unit', label: 'Unit', width: 190, sortable: false },
-  { key: 'contains', label: 'Contains', width: 110, sortable: false },
-  { key: 'uom', label: 'UoM', width: 150, sortable: false },
-  { key: 'barcode', label: 'Barcode / UPC', width: 'fill', minWidth: 150, sortable: false },
-  { key: 'weight', label: 'Weight', width: 130, sortable: false },
-  { key: 'print', label: 'Print label', width: 40, labelHidden: true, sortable: false },
-  { key: 'remove', label: 'Remove', width: 40, labelHidden: true, sortable: false },
+  // Figma's header items carry a filter and a sort; like every DataTable, they show while the pointer is over the header
+  { key: 'unit', label: 'Unit', width: 190, minWidth: 130 },
+  { key: 'contains', label: 'Contains', width: 124 },
+  { key: 'uom', label: 'UoM', width: 150, minWidth: 100, filterable: true },
+  { key: 'barcode', label: 'Barcode / UPC', width: 'fill', minWidth: 160 },
+  { key: 'weight', label: 'Weight', width: 130, minWidth: 112 },
+  // The row buttons are 40px; with Volt's 8px cell padding each side, their columns need 56px (fixed, so the data
+  // columns take the rest of the width)
+  { key: 'print', label: 'Print label', width: 56, labelHidden: true, sortable: false, fixed: true },
+  { key: 'remove', label: 'Remove', width: 56, labelHidden: true, sortable: false, fixed: true },
 ];
 
 /**
@@ -493,6 +496,17 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
   const taken = new Set(all.filter(i => i.id !== item.id).flatMap(i => i.units.map(u => u.barcode)).filter(Boolean));
   const duplicate = (u: ItemUnit) => !!u.barcode.trim() && (taken.has(u.barcode.trim()) || units.some(o => o.id !== u.id && o.barcode.trim() === u.barcode.trim()));
   const names = units.map(u => u.unit).filter(Boolean);
+  // Sort and filter change only what's shown; the saved order (base unit first) stays
+  const [sort, setSort] = useState<DataSort | undefined>();
+  const [filters, setFilters] = useState<ColumnFilters>({});
+  const [filterOpen, setFilterOpen] = useState<string | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const cellValue = (u: ItemUnit, key: string): string | number => (key === 'contains' ? (u.contains ?? 0) : String(u[key as 'unit' | 'uom' | 'barcode' | 'weight'] ?? ''));
+  const shown = sortRows(
+    units.filter(u => matchesFilters(u, filters, (x, k) => String(cellValue(x, k)))),
+    sort,
+    cellValue,
+  );
 
   return (
     <DetailCard
@@ -518,12 +532,21 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
         <Dropdown label="Sell Unit (Default)" placeholder="Select" options={options(PACKAGES.map(p => p.label))} value={draft.sellUnit || null} onChange={v => set('sellUnit', v as string)} />
         <Dropdown label="Count Unit (Default)" placeholder="Select" options={options(PACKAGES.map(p => p.label))} value={draft.countUnit || null} onChange={v => set('countUnit', v as string)} />
       </div>
+      {/* The box around the table places a column's filter pop-over under its header cell */}
+      <div className={warehouseStyles.tableBox} ref={tableRef}>
       <DataTable
         aria-label="Units"
         columns={UNIT_COLUMNS}
-        rows={units}
+        rows={shown}
+        totalRows={units.length}
         rowLabel={u => u.unit || 'New unit'}
         actions={false}
+        sort={sort}
+        onSortChange={k => setSort(nextSort(k))}
+        onFilter={k => setFilterOpen(open => (open === k ? null : k))}
+        activeFilters={Object.keys(filters)}
+        openFilter={filterOpen ?? undefined}
+        empty="No units match these filters."
         cells={u => {
           const i = units.indexOf(u);
           const base = i === 0;
@@ -570,6 +593,7 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
               // The base unit stays: a lock in the same button as the rows' remove, which says why when pressed
               <IconButton
                 size="compact"
+               
                 icon="lock"
                 label={`${u.unit || 'The base unit'} is the base unit and can’t be removed`}
                 title="The base unit can’t be removed"
@@ -578,6 +602,7 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
             ) : (
               <IconButton
                 size="compact"
+               
                 icon="delete"
                 label={`Remove ${u.unit || 'this unit'}`}
                 onClick={() =>
@@ -591,6 +616,21 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
           };
         }}
       />
+      {filterOpen && (
+        <ColumnFilter
+          key={filterOpen}
+          anchor={tableRef.current?.querySelector<HTMLElement>(`[role="columnheader"][data-column="${filterOpen}"]`)}
+          label={UNIT_COLUMNS.find(c => c.key === filterOpen)?.label ?? ''}
+          options={filterOptions(units, u => String(cellValue(u, filterOpen)))}
+          value={filters[filterOpen] ?? []}
+          onApply={values => {
+            setFilters(f => withFilter(f, filterOpen, values));
+            setFilterOpen(null);
+          }}
+          onClose={() => setFilterOpen(null)}
+        />
+      )}
+      </div>
       {units.some(duplicate) && <p className={`text-small-regular ${styles.fieldError}`}>Barcodes must be unique across items. Change the highlighted barcode.</p>}
     </DetailCard>
   );
@@ -729,6 +769,14 @@ function useReorder<T>(list: T[], onReorder: (next: T[]) => void) {
 
 /** Pictures of photos added this session, by file name (the prototype keeps only names; a reload drops these). */
 const imagePreviews = new Map<string, string>();
+/**
+ * The sample items' photos (assets/item-photos, credited in its CREDITS.md), by file: "Front View.jpg" shows
+ * front-view.jpg.
+ */
+const SAMPLE_PHOTOS = Object.fromEntries(
+  Object.entries(import.meta.glob<string>('../../../../../assets/item-photos/*.jpg', { eager: true, import: 'default' })).map(([path, url]) => [path.split('/').pop()!, url]),
+);
+const photoFor = (name: string) => imagePreviews.get(name) ?? SAMPLE_PHOTOS[name.toLowerCase().replace(/\s+/g, '-')];
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE = 25 * 1024 * 1024;
 
@@ -806,8 +854,8 @@ function ImagesCard({ draft, set, onNotice }: { draft: DetailsDraft; set: SetFie
         <ul className={styles.gallery} aria-label="Images" data-dropping={dropping || undefined} {...dropProps}>
           {images.map((name, i) => (
             <li key={name} className={styles.imageTile} title={name} {...drag.item(i)}>
-              {imagePreviews.has(name) ? (
-                <img className={styles.tileImage} src={imagePreviews.get(name)} alt="" draggable={false} />
+              {photoFor(name) ? (
+                <img className={styles.tileImage} src={photoFor(name)} alt="" draggable={false} />
               ) : (
                 <Icon name="photo" size={32} color="currentColor" />
               )}
@@ -936,14 +984,16 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
       }
     >
       {shown.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No replacement items. Use Add Replacement to add one.</p>}
-      <ul className={styles.detailList} aria-label="Replacement items">
+      <ul className={`${styles.detailList} ${styles.replacementList}`} aria-label="Replacement items">
         {shown.map((r, i) => (
           <li key={r.id} className={styles.replacementRow} data-inactive={!r.active || undefined} {...drag.item(i)}>
             {/* Drag the row to reorder; with the keyboard, focus the handle and press ↑ / ↓ */}
-            <button
-              type="button"
+            {/* The same Volt compact icon button as the row's delete */}
+            <IconButton
+              size="compact"
+              icon="drag-indicator"
               className={styles.rowDrag}
-              aria-label={`Move ${r.name} (${i + 1} of ${shown.length}). Use the up and down arrow keys.`}
+              label={`Move ${r.name} (${i + 1} of ${shown.length}). Use the up and down arrow keys.`}
               title="Drag to reorder"
               onKeyDown={e => {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
@@ -951,23 +1001,24 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
                   drag.move(i, e.key === 'ArrowUp' ? i - 1 : i + 1);
                 }
               }}
-            >
-              <Icon name="drag-indicator" size={24} color="currentColor" />
-            </button>
-            {/* draggable={false}: a link drags itself as a URL, which would stop the row from moving */}
-            <AppLink to={itemPath(r.id)} size="small" className={styles.replacementName} draggable={false}>
-              {r.id} · {r.name}
-              {!r.active && ' (inactive)'}
-            </AppLink>
-            <Dropdown
-              className={styles.replacementReason}
-              variant="small"
-              label={`Why ${r.name} is offered`}
-              hideLabel
-              options={options(reasons)}
-              value={item.replacementReasons[r.id] ?? reasons[0]}
-              onChange={v => updateItem(item.id, x => ({ ...x, replacementReasons: { ...x.replacementReasons, [r.id]: v as string } }))}
             />
+            {/* Name and reason: side by side when the row has room, the reason under the name when it doesn't */}
+            <div className={styles.replacementMain}>
+              {/* draggable={false}: a link drags itself as a URL, which would stop the row from moving */}
+              <AppLink to={itemPath(r.id)} size="small" className={styles.replacementName} draggable={false}>
+                {r.id} · {r.name}
+                {!r.active && ' (inactive)'}
+              </AppLink>
+              <Dropdown
+                className={styles.replacementReason}
+                variant="small"
+                label={`Why ${r.name} is offered`}
+                hideLabel
+                options={options(reasons)}
+                value={item.replacementReasons[r.id] ?? reasons[0]}
+                onChange={v => updateItem(item.id, x => ({ ...x, replacementReasons: { ...x.replacementReasons, [r.id]: v as string } }))}
+              />
+            </div>
             <IconButton
               size="compact"
               icon="delete"
@@ -1050,13 +1101,14 @@ function LastPurchaseCard({ draft, set }: { draft: DetailsDraft; set: SetField }
 
 /* ---------- Supplier ---------- */
 
-const SUPPLIER_COLUMNS: DataColumn[] = [
-  { key: 'primary', label: 'Primary supplier', width: 56, labelHidden: true, sortable: false },
-  { key: 'supplier', label: 'Supplier', width: 'fill' },
-  { key: 'partNumber', label: 'Item #', width: 130 },
-  { key: 'cost', label: 'Cost', width: 110, align: 'end' },
-  { key: 'updated', label: 'Date', width: 130 },
-  { key: 'leadTime', label: 'Lead Time (Days)', width: 160, align: 'end' },
+// The supplier name fills; the short values keep their width (wide enough for the header's icons)
+const SUPPLIER_COLUMNS: TableColumn[] = [
+  { key: 'primary', label: 'Primary supplier', width: 56, labelHidden: true, sortable: false, fixed: true },
+  { key: 'supplier', label: 'Supplier', width: 'fill', minWidth: 160 },
+  { key: 'partNumber', label: 'Item #', width: 130, fixed: true },
+  { key: 'cost', label: 'Cost', width: 110, align: 'end', fixed: true },
+  { key: 'updated', label: 'Date', width: 140, fixed: true },
+  { key: 'leadTime', label: 'Lead Time (Days)', width: 190, align: 'end', fixed: true },
 ];
 
 function SupplierCard({ item, onNotice }: { item: Item; onNotice: (t: string) => void }) {
@@ -1084,56 +1136,55 @@ function SupplierCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
         </Button>
       }
     >
-      <div className={table.tableScroll}>
-        <div role="table" aria-label="Suppliers" className={table.table}>
-          <DataHeader className={table.head} corners="none" columns={SUPPLIER_COLUMNS} leading="none" sort={sort} onSortChange={k => setSort(nextSort(k))} />
-          {rows.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No suppliers yet. Use Add Supplier to add one.</p>}
-          {rows.map((s, i) => (
-            <div key={s.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-              <DataRow
-                className={table.row}
-                columns={SUPPLIER_COLUMNS}
-                leading="none"
-                cells={{
-                  primary: (
-                    <button
-                      type="button"
-                      className={record.star}
-                      aria-pressed={s.primary}
-                      aria-label={s.primary ? `${s.supplier} is the primary supplier` : `Make ${s.supplier} the primary supplier`}
-                      title={s.primary ? 'Primary supplier' : 'Make primary supplier'}
-                      onClick={() => !s.primary && makePrimary(s)}
-                    >
-                      <Icon name={s.primary ? 'rating' : 'rating-hollow'} size={20} color="currentColor" />
-                    </button>
-                  ),
-                  supplier: (
-                    <button type="button" className={record.cellLink} onClick={() => setEditing(s)}>
-                      {s.supplier}
-                    </button>
-                  ),
-                  partNumber: s.partNumber || '—',
-                  cost: money(s.packages.pack.cost),
-                  updated: s.updated,
-                  leadTime: s.packages.pack.leadTime == null ? '—' : String(s.packages.pack.leadTime),
-                }}
-                moreLabel={`More actions for ${s.supplier}`}
-                onMore={() => setMenuFor(m => (m === s.id ? null : s.id))}
+      {/* The Volt DataTable, like every other table in the app */}
+      <div className={warehouseStyles.tableBox}>
+        <DataTable
+          aria-label="Suppliers"
+          columns={SUPPLIER_COLUMNS}
+          rows={rows}
+          rowLabel={s => s.supplier}
+          sort={sort}
+          onSortChange={k => setSort(nextSort(k))}
+          empty="No suppliers yet. Use Add Supplier to add one."
+          cells={s => ({
+            primary: (
+              // A plain star, no button box: filled for the primary, outlined to make one primary
+              <button
+                type="button"
+                className={record.star}
+                aria-pressed={s.primary}
+                aria-label={s.primary ? `${s.supplier} is the primary supplier` : `Make ${s.supplier} the primary supplier`}
+                title={s.primary ? 'Primary supplier' : 'Make primary supplier'}
+                onClick={() => !s.primary && makePrimary(s)}
+              >
+                <Icon name={s.primary ? 'rating' : 'rating-hollow'} size={20} color="currentColor" />
+              </button>
+            ),
+            supplier: (
+              <button type="button" className={record.cellLink} onClick={() => setEditing(s)}>
+                {s.supplier}
+              </button>
+            ),
+            partNumber: s.partNumber || '—',
+            cost: money(s.packages.pack.cost),
+            updated: s.updated,
+            leadTime: s.packages.pack.leadTime == null ? '—' : String(s.packages.pack.leadTime),
+          })}
+          onMore={s => setMenuFor(m => (m === s.id ? null : s.id))}
+          renderAfterRow={s =>
+            menuFor === s.id && (
+              <RowMenu
+                label={s.supplier}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  { label: 'Edit', onSelect: () => setEditing(s) },
+                  ...(s.primary ? [] : [{ label: 'Make Primary', onSelect: () => makePrimary(s) }]),
+                  { label: 'Remove', onSelect: () => setRemoving(s) },
+                ]}
               />
-              {menuFor === s.id && (
-                <RowMenu
-                  label={s.supplier}
-                  onClose={() => setMenuFor(null)}
-                  items={[
-                    { label: 'Edit', onSelect: () => setEditing(s) },
-                    ...(s.primary ? [] : [{ label: 'Make Primary', onSelect: () => makePrimary(s) }]),
-                    { label: 'Remove', onSelect: () => setRemoving(s) },
-                  ]}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+            )
+          }
+        />
       </div>
       <SupplierModal
         open={editing !== null}
@@ -1175,15 +1226,18 @@ function SupplierCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
 
 /* ---------- Notes ---------- */
 
-const NOTE_COLUMNS: DataColumn[] = [
-  { key: 'author', label: 'Created By', width: 200 },
-  { key: 'updated', label: 'Last Updated', width: 140 },
-  { key: 'text', label: 'Note', width: 'fill', sortable: false },
-  { key: 'pin', label: 'Pinned', width: 56, labelHidden: true, sortable: false },
+const NOTE_COLUMNS: TableColumn[] = [
+  // Name and date are short, so they keep their width and the note takes the rest
+  { key: 'author', label: 'Created By', width: 200, fixed: true },
+  { key: 'updated', label: 'Last Updated', width: 160, fixed: true },
+  { key: 'text', label: 'Note', width: 'fill', minWidth: 160, sortable: false },
+  { key: 'pin', label: 'Pinned', width: 56, labelHidden: true, sortable: false, fixed: true },
 ];
 
 function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => void }) {
   const { user } = useAuth();
+  // Every author shows the current profile photo (initials when there is none)
+  const photo = useProfilePhoto();
   const me = user?.name ?? 'TK-421';
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<Note | 'new' | null>(null);
@@ -1214,60 +1268,54 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
     >
       {/* Figma Notes: the search runs full width under the title */}
       <SearchInput aria-label="Search notes" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
-      <div className={table.tableScroll}>
-        <div role="table" aria-label="Notes" className={table.table}>
-          <DataHeader className={table.head} corners="none" columns={NOTE_COLUMNS} leading="none" sort={sort} onSortChange={k => setSort(nextSort(k))} />
-          {rows.length === 0 && (
-            <p className={`text-medium-regular ${record.emptyRow}`}>{q ? `No notes match “${query}”.` : 'No notes yet. Use Add Note to add one.'}</p>
-          )}
-          {rows.map((n, i) => (
-            <div key={n.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-              <DataRow
-                className={table.row}
-                columns={NOTE_COLUMNS}
-                leading="none"
-                cells={{
-                  author: (
-                    <span className={styles.cellIcon}>
-                      <Avatar size="small" initials={initialsOf(n.author)} />
-                      {n.author}
-                    </span>
-                  ),
-                  updated: n.updated,
-                  text: (
-                    <button type="button" className={record.cellLink} onClick={() => setEditing(n)}>
-                      {n.text}
-                    </button>
-                  ),
-                  pin: (
-                    <button
-                      type="button"
-                      className={styles.iconToggle}
-                      aria-pressed={pinned(n)}
-                      aria-label={pinned(n) ? 'Unpin note' : 'Pin note for everyone'}
-                      title={n.pinAll ? 'Pinned for everyone' : n.pinMe ? 'Pinned for you' : 'Not pinned'}
-                      onClick={() => update(list => list.map(x => (x.id === n.id ? { ...x, pinAll: !pinned(n), pinMe: !pinned(n) && x.pinMe } : x)))}
-                    >
-                      <Icon name="bookmark" size={20} color="currentColor" />
-                    </button>
-                  ),
-                }}
-                moreLabel={`More actions for the note by ${n.author}`}
-                onMore={() => setMenuFor(m => (m === n.id ? null : n.id))}
+      {/* The Volt DataTable, like every other table in the app */}
+      <div className={warehouseStyles.tableBox}>
+        <DataTable
+          aria-label="Notes"
+          columns={NOTE_COLUMNS}
+          rows={rows}
+          rowLabel={n => `Note by ${n.author}`}
+          sort={sort}
+          onSortChange={k => setSort(nextSort(k))}
+          empty={q ? `No notes match “${query}”.` : 'No notes yet. Use Add Note to add one.'}
+          cells={n => ({
+            author: (
+              <span className={styles.cellIcon}>
+                <Avatar size="small" src={photo} initials={initialsOf(n.author)} />
+                {n.author}
+              </span>
+            ),
+            updated: n.updated,
+            text: (
+              <button type="button" className={record.cellLink} onClick={() => setEditing(n)}>
+                {n.text}
+              </button>
+            ),
+            pin: (
+              <IconButton
+                size="compact"
+                icon="bookmark"
+                selected={pinned(n)}
+                label={pinned(n) ? 'Unpin note' : 'Pin note for everyone'}
+                title={n.pinAll ? 'Pinned for everyone' : n.pinMe ? 'Pinned for you' : 'Not pinned'}
+                onClick={() => update(list => list.map(x => (x.id === n.id ? { ...x, pinAll: !pinned(n), pinMe: !pinned(n) && x.pinMe } : x)))}
               />
-              {menuFor === n.id && (
-                <RowMenu
-                  label={`note by ${n.author}`}
-                  onClose={() => setMenuFor(null)}
-                  items={[
-                    { label: 'Edit', onSelect: () => setEditing(n) },
-                    { label: 'Delete', onSelect: () => setDeleting(n) },
-                  ]}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+            ),
+          })}
+          onMore={n => setMenuFor(m => (m === n.id ? null : n.id))}
+          renderAfterRow={n =>
+            menuFor === n.id && (
+              <RowMenu
+                label={`note by ${n.author}`}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  { label: 'Edit', onSelect: () => setEditing(n) },
+                  { label: 'Delete', onSelect: () => setDeleting(n) },
+                ]}
+              />
+            )
+          }
+        />
       </div>
       <NoteModal
         open={editing !== null}

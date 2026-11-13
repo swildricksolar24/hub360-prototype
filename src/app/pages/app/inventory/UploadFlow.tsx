@@ -408,6 +408,7 @@ export function UploadFlow({
               <DataHeader
                 className={table.head}
                 corners="none"
+                stretched
                 columns={MATCH_COLUMNS}
                 leading="none"
                 actions={false}

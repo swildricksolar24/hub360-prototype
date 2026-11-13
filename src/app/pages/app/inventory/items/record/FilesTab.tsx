@@ -1,8 +1,7 @@
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { Breadcrumb } from '../../../../../../components/Breadcrumb/Breadcrumb';
 import { Button } from '../../../../../../components/Button/Button';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
@@ -14,19 +13,21 @@ import { FILE_ICON, isImage, today, type FileType, type Item, type ItemFile } fr
 import { updateItem } from '../itemStore';
 import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection } from '../shared';
 import { DeleteFilesModal, EditFileModal, FileTypeLabel, NewFolderModal, newFile, UploadFilesModal, UrlFileModal, useMe, useShownProfileImage, ViewFileModal } from './FileModals';
+import { useColumnFilters } from '../../ColumnFilter';
 import record from '../../record.module.css';
-import table from '../../table.module.css';
+import listStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
 
+// File Type, Modified By and Status repeat, so they filter (a checkbox list of their values)
 const COLUMNS: DataColumn[] = [
   { key: 'name', label: 'File Name', width: 'fill' },
-  { key: 'type', label: 'File Type', width: 120 },
+  { key: 'type', label: 'File Type', width: 120, filterable: true },
   { key: 'modified', label: 'Modified', width: 130 },
-  { key: 'modifiedBy', label: 'Modified By', width: 170 },
+  { key: 'modifiedBy', label: 'Modified By', width: 170, filterable: true },
 ];
 const COLUMN_OPTIONS = COLUMNS.map(c => ({ key: c.key, label: c.label, locked: c.key === 'name' }));
-// Figma: the status pill has no header, and sits right before the ••• button
-const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 110, align: 'end', labelHidden: true, sortable: false };
+// Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
+const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 110, filterable: true };
 
 const DOCUMENTS: FileType[] = ['pdf', 'doc', 'xls', 'ppt'];
 /** View ▾: filters of the library. */
@@ -41,7 +42,17 @@ const VIEWS: { value: string; label: string; test: (f: ItemFile) => boolean }[] 
 ];
 
 const cellValue = (f: ItemFile, key: string): string | number =>
-  key === 'modified' ? Date.parse(f.modified) || 0 : key === 'type' ? f.type : key === 'modifiedBy' ? f.modifiedBy : f.name.toLowerCase();
+  key === 'modified'
+    ? Date.parse(f.modified) || 0
+    : key === 'type'
+      ? f.type
+      : key === 'modifiedBy'
+        ? f.modifiedBy
+        : key === 'status'
+          ? (f.active ? 'Active' : 'Inactive')
+          : f.name.toLowerCase();
+/** A cell's text as it shows, for the column filters' value lists. */
+const filterText = (f: ItemFile, key: string) => String(cellValue(f, key));
 
 /**
  * Item record › Files (ITEMS.md §3; Figma 612:14668): the item's library of folders, documents, photos, videos and
@@ -73,9 +84,13 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
 
   // A folder that was deleted (or merged away) falls back to the top of the library
   const current = folder && files.some(f => f.id === folder) ? folder : null;
+  // This folder's files: what the column filters list and count (the 10-row rule)
+  const inFolder = files.filter(f => f.folder === current);
+  const colFilters = useColumnFilters(inFolder, filterText);
   const q = query.trim().toLowerCase();
+  const narrowed = !!q || view !== 'all' || Object.keys(colFilters.filters).length > 0;
   const test = VIEWS.find(v => v.value === view)?.test ?? (() => true);
-  const listed = files.filter(f => f.folder === current && test(f) && (!q || `${f.name} ${f.type} ${f.modifiedBy} ${f.description}`.toLowerCase().includes(q)));
+  const listed = inFolder.filter(f => test(f) && (!q || `${f.name} ${f.type} ${f.modifiedBy} ${f.description}`.toLowerCase().includes(q)) && colFilters.matches(f));
   const sorted = sortRows(listed, sort, cellValue);
   // Folders stay above files
   const rows = [...sorted.filter(f => f.type === 'Folder'), ...sorted.filter(f => f.type !== 'Folder')];
@@ -213,112 +228,104 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
           {addMenu}
         </div>
 
-        <div className={table.tableScroll}>
-          <div role="table" aria-label={trail.length ? `Files in ${trail[trail.length - 1].name}` : 'Files'} className={table.table}>
-            <DataHeader
-              className={table.head}
-              corners="none"
-              columns={tableColumns}
-              leading="checkbox"
-              sort={sort}
-              onSortChange={k => setSort(nextSort(k))}
-              allSelected={rows.length > 0 && rows.every(f => sel.selected.has(f.id))}
-              onSelectAllChange={on => sel.setMany(rows.map(f => f.id), on)}
-            />
-            {rows.length === 0 && (
-              <div role="row" className={styles.empty}>
-                <div role="cell" className={styles.emptyCell}>
-                  <Icon name={q || view !== 'all' ? 'search' : 'folder'} size={32} />
-                  <p className="text-large-bold">{q || view !== 'all' ? 'No files match your search' : current ? 'This folder is empty' : 'No files yet'}</p>
-                  <p className="text-medium-regular">
-                    {q || view !== 'all' ? 'Try a different word, or clear the search and view.' : 'Upload spec sheets, photos, videos and links for this item.'}
-                  </p>
-                  {q || view !== 'all' ? (
-                    <Button
-                      size="small"
-                      variant="outline"
-                      onClick={() => {
-                        setQuery('');
-                        setView('all');
-                      }}
-                    >
-                      Clear search and view
-                    </Button>
-                  ) : (
-                    addMenu
-                  )}
-                </div>
+        {/* Volt Data Table (Figma "Data Table" page); File Type, Modified By and Status filter */}
+        <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+          <DataTable
+            aria-label={trail.length ? `Files in ${trail[trail.length - 1].name}` : 'Files'}
+            className={record.statusStart}
+            columns={tableColumns}
+            rows={rows}
+            rowLabel={f => f.name}
+            sort={sort}
+            onSortChange={k => setSort(nextSort(k))}
+            selected={[...sel.selected]}
+            onSelectedChange={ids => {
+              sel.setMany([...sel.selected], false);
+              sel.setMany(ids, true);
+            }}
+            {...colFilters.tableProps}
+            totalRows={inFolder.length}
+            inactive={f => !f.active}
+            empty={
+              <div className={styles.emptyCell}>
+                <Icon name={narrowed ? 'search' : 'folder'} size={32} />
+                <p className="text-large-bold">{narrowed ? 'No files match your search' : current ? 'This folder is empty' : 'No files yet'}</p>
+                <p className="text-medium-regular">
+                  {narrowed ? 'Try a different word, or clear the search, view and filters.' : 'Upload spec sheets, photos, videos and links for this item.'}
+                </p>
+                {narrowed ? (
+                  <Button
+                    size="small"
+                    variant="outline"
+                    onClick={() => {
+                      setQuery('');
+                      setView('all');
+                      colFilters.clear();
+                    }}
+                  >
+                    Clear search, view and filters
+                  </Button>
+                ) : (
+                  addMenu
+                )}
               </div>
-            )}
-            {rows.map((f, i) => {
-              const cells: Record<string, ReactNode> = {
-                name:
-                  renaming?.id === f.id ? (
-                    <div className={styles.cellField}>
-                      <TextInput
-                        label="Folder name"
-                        value={renaming.name}
-                        onChange={e => setRenaming({ id: f.id, name: e.target.value })}
-                        onBlur={commitRename}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') commitRename();
-                          if (e.key === 'Escape') setRenaming(null);
-                        }}
-                        autoFocus
-                        autoComplete="off"
-                      />
-                    </div>
-                  ) : (
-                    <span className={styles.cellIcon}>
-                      <Icon name={FILE_ICON[f.type]} size={20} color="currentColor" className={styles.glyph} />
-                      <button type="button" className={record.cellLink} onClick={() => openFile(f)}>
-                        {f.name}
-                      </button>
-                    </span>
-                  ),
-                type: <FileTypeLabel type={f.type} />,
-                modified: f.modified,
-                modifiedBy: f.modifiedBy,
-                status: <StatusPill active={f.active} />,
-              };
-              const folderItems = [
-                { label: 'Open', icon: 'folder', onSelect: () => open(f.id) },
-                { label: 'Rename', icon: 'edit', onSelect: () => setRenaming({ id: f.id, name: f.name }) },
-              ];
-              const fileItems = [
-                { label: 'View', icon: 'visibility', onSelect: () => setViewing(f.id) },
-                { label: 'Edit', icon: 'edit', onSelect: () => setEditing(f) },
-                { label: 'Download', icon: 'export-download', onSelect: () => download(f) },
-                ...(isImage(f.type) ? [{ label: 'Set as Profile Image', icon: 'photo', onSelect: () => setProfile(f) }] : []),
-              ];
-              return (
-                <div key={f.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!f.active || undefined}>
-                  <DataRow
-                    className={table.row}
-                    columns={tableColumns}
-                    leading="checkbox"
-                    cells={cells}
-                    selected={sel.selected.has(f.id)}
-                    onSelectedChange={on => sel.toggle(f.id, on)}
-                    selectLabel={`Select ${f.name}`}
-                    moreLabel={`More actions for ${f.name}`}
-                    onMore={() => setMenuFor(m => (m === f.id ? null : f.id))}
-                  />
-                  {menuFor === f.id && (
-                    <RowMenu
-                      label={f.name}
-                      onClose={() => setMenuFor(null)}
-                      items={[
-                        ...(f.type === 'Folder' ? folderItems : fileItems),
-                        { label: f.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([f], !f.active) },
-                        { label: 'Delete', onSelect: () => setDeleting([f]) },
-                      ]}
+            }
+            onMore={f => setMenuFor(m => (m === f.id ? null : f.id))}
+            renderAfterRow={f =>
+              menuFor === f.id && (
+                <RowMenu
+                  label={f.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    ...(f.type === 'Folder'
+                      ? [
+                          { label: 'Open', onSelect: () => open(f.id) },
+                          { label: 'Rename', onSelect: () => setRenaming({ id: f.id, name: f.name }) },
+                        ]
+                      : [
+                          { label: 'View', onSelect: () => setViewing(f.id) },
+                          { label: 'Edit', onSelect: () => setEditing(f) },
+                          { label: 'Download', onSelect: () => download(f) },
+                          ...(isImage(f.type) ? [{ label: 'Set as Profile Image', onSelect: () => setProfile(f) }] : []),
+                        ]),
+                    { label: f.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([f], !f.active) },
+                    { label: 'Delete', onSelect: () => setDeleting([f]) },
+                  ]}
+                />
+              )
+            }
+            cells={(f): Record<string, ReactNode> => ({
+              name:
+                renaming?.id === f.id ? (
+                  <div className={styles.cellField}>
+                    <TextInput
+                      label="Folder name"
+                      value={renaming.name}
+                      onChange={e => setRenaming({ id: f.id, name: e.target.value })}
+                      onBlur={commitRename}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') commitRename();
+                        if (e.key === 'Escape') setRenaming(null);
+                      }}
+                      autoFocus
+                      autoComplete="off"
                     />
-                  )}
-                </div>
-              );
+                  </div>
+                ) : (
+                  <span className={styles.cellIcon}>
+                    <Icon name={FILE_ICON[f.type]} size={20} color="currentColor" className={styles.glyph} />
+                    <button type="button" className={record.cellLink} onClick={() => openFile(f)}>
+                      {f.name}
+                    </button>
+                  </span>
+                ),
+              type: <FileTypeLabel type={f.type} />,
+              modified: f.modified,
+              modifiedBy: f.modifiedBy,
+              status: <StatusPill active={f.active} />,
             })}
-          </div>
+          />
+          {colFilters.popover(tableColumns)}
         </div>
       </section>
 

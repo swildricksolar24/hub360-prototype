@@ -61,8 +61,10 @@ about the Tier 3 header.
 | `empty` | Empty | end | 64 |
 | `status` | (no header) | end | Figma Tag "Small" pill: Active on Brand Orange Fill/Strong, Inactive on Gray Fill/Weak 70% |
 
-- Every header has sort and filter icons (Figma "Header Item / 2 Icons"): `onSortChange`, `onFilter`,
-  `activeFilters`. The select-all checkbox sits in the header's leading area (`allSelected`, `onSelectAllChange`).
+- Every header has a sort chevron (Figma Data Table Header, Header Item "Stretched"); City, State and Country (offered under
+  Columns) and the Status column (headed "Status" because it filters; Figma leaves it unlabeled; Active / Inactive, alongside the View menu) also get a filter button, since their values repeat (codes, names, addresses and amounts don't): `onSortChange`,
+  `onFilter`, `activeFilters`, `openFilter`. The filter button shows while its header is hovered (or its filter is on or
+  open) and opens ColumnFilter: a Volt checkbox list of the column's values (search from 8 values), Clear and Apply. The select-all checkbox sits in the header's leading area (`allSelected`, `onSelectAllChange`).
 - **Inactive rows** are dimmed (Figma greys the text). Use `--color-gray-text-weak` on the row's cells; the
   checkbox and ••• stay enabled.
 - **Row •••** opens a `ContextMenu`: View, Edit, Activate or Deactivate (whichever applies), Delete. Figma doesn't

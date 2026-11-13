@@ -1,8 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../../../components/Button/Button';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { PageTracker } from '../../../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
 import { AppLink } from '../../../../../components/AppLink';
@@ -13,15 +12,17 @@ import { PAGE_SIZES } from '../../record/tableKit';
 import type { HistoryEntry, Item, Order } from '../itemData';
 import { useItems } from '../itemStore';
 import { ColumnsModal, nextSort, sortRows } from '../shared';
+import { useColumnFilters } from '../../ColumnFilter';
 import record from '../../record.module.css';
-import table from '../../table.module.css';
+import listStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
 
+// Warehouse, Action Type and Created By repeat, so they filter
 const COLUMNS: DataColumn[] = [
-  { key: 'warehouse', label: 'Warehouse', width: 120 },
-  { key: 'action', label: 'Action Type', width: 150 },
+  { key: 'warehouse', label: 'Warehouse', width: 120, filterable: true },
+  { key: 'action', label: 'Action Type', width: 150, filterable: true },
   { key: 'performed', label: 'Action Performed', width: 'fill', sortable: false },
-  { key: 'createdBy', label: 'Created By', width: 170 },
+  { key: 'createdBy', label: 'Created By', width: 170, filterable: true },
   { key: 'date', label: 'Date Created', width: 140 },
 ];
 const COLUMN_OPTIONS = COLUMNS.map(c => ({ key: c.key, label: c.label, locked: c.key === 'action' || c.key === 'performed' }));
@@ -49,10 +50,13 @@ export function HistoryTab({ item }: { item: Item }) {
   // Helper switch: "No history" lists none (the store keeps it)
   const noHistory = useHelperFlag('itemHistory.empty');
   const history: HistoryEntry[] = noHistory ? [] : item.history;
+  const colFilters = useColumnFilters(history, (h, key) => String(cellValue(h, key)));
   const q = query.trim().toLowerCase();
-  const found = history.filter(h => !q || `${h.warehouse} ${h.action} ${h.performed} ${h.order?.number ?? ''} ${h.createdBy} ${h.date}`.toLowerCase().includes(q));
+  const found = history.filter(
+    h => (!q || `${h.warehouse} ${h.action} ${h.performed} ${h.order?.number ?? ''} ${h.createdBy} ${h.date}`.toLowerCase().includes(q)) && colFilters.matches(h),
+  );
   const rows = sortRows(found, sort, cellValue);
-  useEffect(() => setPage(1), [query, pageSize]);
+  useEffect(() => setPage(1), [query, pageSize, colFilters.filters]);
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, pageCount);
   const pageRows = rows.slice((current - 1) * pageSize, current * pageSize);
@@ -98,40 +102,38 @@ export function HistoryTab({ item }: { item: Item }) {
           <SearchInput className={styles.search} aria-label="Search history" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
         </div>
         <div className={styles.tableStack}>
-          <div className={table.tableScroll}>
-            <div role="table" aria-label={`History of ${item.name}`} className={table.table}>
-              <DataHeader className={table.head} corners="none" columns={tableColumns} leading="none" actions={false} sort={sort} onSortChange={k => setSort(nextSort(k))} />
-              {pageRows.length === 0 && (
-                <p className={`text-medium-regular ${record.emptyRow}`}>{history.length === 0 ? 'Nothing has happened to this item yet.' : `No history matches “${query}”.`}</p>
-              )}
-              {pageRows.map((h, i) => (
-                <div key={h.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-                  <DataRow
-                    className={table.row}
-                    columns={tableColumns}
-                    leading="none"
-                    actions={false}
-                    cells={{
-                      warehouse: (
-                        <AppLink to={warehousePath(h.warehouse)} size="small">
-                          {h.warehouse}
-                        </AppLink>
-                      ),
-                      action: h.order ? (
-                        <button type="button" className={styles.actionType} onClick={() => setOpened(h)} aria-label={`Open ${h.action} ${h.order.number}`}>
-                          {h.action}
-                        </button>
-                      ) : (
-                        <span className={styles.actionType}>{h.action}</span>
-                      ),
-                      performed: sentence(h),
-                      createdBy: h.createdBy,
-                      date: h.date,
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+          {/* Volt Data Table (Figma "Data Table" page), as on the warehouse's tabs; Warehouse, Action Type and Created
+              By filter (a checkbox list of their values) */}
+          <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+            <DataTable
+              aria-label={`History of ${item.name}`}
+              columns={tableColumns}
+              rows={pageRows}
+              rowLabel={h => `${h.action} ${h.date}`}
+              sort={sort}
+              onSortChange={k => setSort(nextSort(k))}
+              {...colFilters.tableProps}
+              totalRows={history.length}
+              empty={history.length === 0 ? 'Nothing has happened to this item yet.' : 'No history matches your search or filters.'}
+              cells={h => ({
+                warehouse: (
+                  <AppLink to={warehousePath(h.warehouse)} size="small">
+                    {h.warehouse}
+                  </AppLink>
+                ),
+                action: h.order ? (
+                  <button type="button" className={styles.actionType} onClick={() => setOpened(h)} aria-label={`Open ${h.action} ${h.order.number}`}>
+                    {h.action}
+                  </button>
+                ) : (
+                  <span className={styles.actionType}>{h.action}</span>
+                ),
+                performed: sentence(h),
+                createdBy: h.createdBy,
+                date: h.date,
+              })}
+            />
+            {colFilters.popover(tableColumns)}
           </div>
           {rows.length > 0 && (
             <PageTracker
@@ -190,20 +192,9 @@ const LINE_COLUMNS: DataColumn[] = [
   { key: 'difference', label: 'Difference', width: 100, align: 'end', sortable: false },
 ];
 
-/** A small read-only table inside the order modal. */
+/** A small read-only table inside the order modal (Volt Data Table, no sort or filters). */
 function StaticTable({ label, columns, rows }: { label: string; columns: DataColumn[]; rows: { id: string; cells: Record<string, ReactNode> }[] }) {
-  return (
-    <div className={table.tableScroll}>
-      <div role="table" aria-label={label} className={table.table}>
-        <DataHeader className={table.head} corners="none" columns={columns} leading="none" actions={false} />
-        {rows.map((r, i) => (
-          <div key={r.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
-            <DataRow className={table.row} columns={columns} leading="none" actions={false} cells={r.cells} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <DataTable aria-label={label} columns={columns} rows={rows} cells={r => r.cells} />;
 }
 
 /**

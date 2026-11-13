@@ -11,8 +11,10 @@ import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
 import { Tooltip } from '../../../../../components/Tooltip/Tooltip';
 import { Status } from '../../../../../components/Status/Status';
 import { AppModal } from '../../../../components/AppModal';
+import { useColumnFilters } from '../ColumnFilter';
 import { itemPath, itemRecordFor } from '../items/itemStore';
 import styles from '../record.module.css';
+import boxStyles from '../warehouses.module.css';
 import table from '../table.module.css';
 
 /*
@@ -30,8 +32,12 @@ export const nextSort = (s: DataSort | undefined, key: string): DataSort =>
   s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' };
 
 /**
- * Search, sort, selection and paging for one table. `search` gives a row's searchable text, `sortValue` its value for a
- * column; `filter` (e.g. a View) narrows the rows first. `paged: false` shows every row (no PageTracker).
+ * Search, sort, column filters, selection and paging for one table. `search` gives a row's searchable text, `sortValue`
+ * its value for a column; `filter` (e.g. a View) narrows the rows first. `filterText` (a cell's text as it shows) turns
+ * on column filters: spread `filterProps` on the DataTable, put `filterBox` on the positioned box around it
+ * (warehouses.module.css `.tableBox`) and render `filterPopover(columns)` in that box; mark only columns whose values
+ * repeat as `filterable`. `filterProps` also carries `totalRows`, so a short list shows no filters. `paged: false` shows
+ * every row (no PageTracker).
  */
 export function useTableControls<T extends { id: string }>(
   all: T[],
@@ -39,12 +45,14 @@ export function useTableControls<T extends { id: string }>(
     search,
     sortValue,
     filter,
+    filterText,
     pinFirst,
     paged = true,
   }: {
     search: (row: T) => string;
     sortValue: (row: T, key: string) => string | number;
     filter?: (row: T) => boolean;
+    filterText?: (row: T, key: string) => string;
     /** Rows that always come first, whatever the sort (e.g. the primary contact); the rest keep their order. */
     pinFirst?: (row: T) => boolean;
     paged?: boolean;
@@ -55,9 +63,10 @@ export function useTableControls<T extends { id: string }>(
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const columnFilters = useColumnFilters(all, filterText ?? (() => ''));
 
   const q = query.trim().toLowerCase();
-  let rows = all.filter(r => (!filter || filter(r)) && (!q || search(r).toLowerCase().includes(q)));
+  let rows = all.filter(r => (!filter || filter(r)) && (!q || search(r).toLowerCase().includes(q)) && columnFilters.matches(r));
   if (sort) {
     const dir = sort.direction === 'ascending' ? 1 : -1;
     rows = [...rows].sort((a, b) => {
@@ -70,7 +79,7 @@ export function useTableControls<T extends { id: string }>(
   const pageCount = paged ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
   const current = Math.min(page, pageCount);
   const pageRows = paged ? rows.slice((current - 1) * pageSize, current * pageSize) : rows;
-  useEffect(() => setPage(1), [query, pageSize]);
+  useEffect(() => setPage(1), [query, pageSize, columnFilters.filters]);
 
   const pageIds = pageRows.map(r => r.id);
   const toggle = (id: string, on: boolean) =>
@@ -111,9 +120,40 @@ export function useTableControls<T extends { id: string }>(
     rowSelect: (id: string) => ({ selected: selected.has(id), onSelectedChange: (on: boolean) => toggle(id, on) }),
     /** Volt DataTable's selection props (`selected` ids and `onSelectedChange`), for tables built on DataTable. */
     selectProps: { selected: [...selected], onSelectedChange: (ids: string[]) => setSelected(new Set(ids)) },
+    /** DataTable's column filter props (with `filterText`) and `totalRows` (the whole list, for the 10-row rule). */
+    filterProps: { ...(filterText ? columnFilters.tableProps : {}), totalRows: all.length },
+    /** Whether any column filter is on (e.g. for the empty message). */
+    filtered: Object.keys(columnFilters.filters).length > 0,
+    /** Removes every column filter. */
+    clearFilters: columnFilters.clear,
+    /** The positioned box around the table that the filter pop-over sits in. */
+    filterBox: columnFilters.boxRef,
+    /** The open column's filter pop-over; render it in `filterBox`, after the table. */
+    filterPopover: columnFilters.popover,
   };
 }
 export type TableControls<T extends { id: string }> = ReturnType<typeof useTableControls<T>>;
+
+/**
+ * The positioned box a table with column filters sits in: it holds the table and the open column's filter pop-over
+ * (useTableControls with `filterText`). Wrap the DataTable in it and spread `filterProps` on the table.
+ */
+export function FilterBox<T extends { id: string }>({
+  table: t,
+  columns,
+  children,
+}: {
+  table: TableControls<T>;
+  columns: { key: string; label: string }[];
+  children: ReactNode;
+}) {
+  return (
+    <div ref={t.filterBox} className={boxStyles.tableBox}>
+      {children}
+      {t.filterPopover(columns)}
+    </div>
+  );
+}
 
 /** The standard pager under a table (Figma "Page Tracker": 10 / 25 / 50 rows, 5 page buttons). */
 export function Pager<T extends { id: string }>({ table: t, label }: { table: TableControls<T>; label: string }) {

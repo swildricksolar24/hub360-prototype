@@ -9,24 +9,16 @@ export type InboxItem = {
   title: string;
   message: string;
   time: string;
-  /** Sender's name (chat and email): the photo, the initials fallback, and the line under the preview. */
+  /**
+   * Sender's name (chat and email): the initials fallback and the line under the preview. Every sender's picture is
+   * the current profile photo (InboxModal).
+   */
   from?: string;
   /** The sender's company (outside senders) or department (Solar Topps colleagues), shown after the name. */
   org?: string;
   unread: boolean;
   bookmarked?: boolean;
 };
-
-/**
- * Sender pictures for chat and email: cartoon avatars saved in assets/people/ as <sender-name>.svg. They come
- * from DiceBear's "Avataaars" style (api.dicebear.com/9.x/avataaars, seeded with the file name, on a pastel
- * background): "Avataaars" by Pablo Stanley, https://avataaars.com/, free for personal and commercial use.
- */
-const PHOTOS = import.meta.glob<string>('../assets/people/*.svg', { eager: true, import: 'default' });
-
-/** The sender's picture, or undefined when there is none (the card then shows initials). */
-export const senderPhoto = (from: string) =>
-  PHOTOS[`../assets/people/${from.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.svg`];
 
 /** Modal titles from Figma; the header buttons keep their own labels (Notifications, Messages, Email). */
 export const INBOX_TITLES: Record<InboxKind, string> = {

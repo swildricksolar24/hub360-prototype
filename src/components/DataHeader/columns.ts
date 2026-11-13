@@ -36,7 +36,11 @@ export type DataColumn = {
   align?: 'start' | 'center' | 'end';
   /** Shows the sort icon (Figma Header Item). Default true. */
   sortable?: boolean;
-  /** Adds the filter icon before the sort icon (Figma Header Item `State=Default - 2 Icons`). */
+  /**
+   * Adds the filter button (Figma Header Item `Default - 2 Icons` / `Stretched`). Give it only to columns whose values
+   * repeat, so picking some of them makes sense: a type, category, place or status, not unique names, codes, addresses or
+   * amounts. DataTable shows it only when the table has `onFilter` and more than 10 rows.
+   */
   filterable?: boolean;
   /** Hides the header text visually but keeps it for screen readers. */
   labelHidden?: boolean;

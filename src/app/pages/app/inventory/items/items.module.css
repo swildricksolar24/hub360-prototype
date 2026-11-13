@@ -169,7 +169,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-16);
-  align-items: start;
+  /* Both cards take the row's height */
+  align-items: stretch;
 }
 .fields4 {
   display: grid;
@@ -678,7 +679,8 @@ button.actionType:focus-visible {
   display: grid;
   grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
   gap: var(--space-12);
-  align-items: start;
+  /* Both columns end on the same line */
+  align-items: stretch;
 }
 @media (max-width: 1279px) {
   .detailColumns {
@@ -690,6 +692,10 @@ button.actionType:focus-visible {
   flex-direction: column;
   gap: var(--space-12);
   min-width: 0;
+}
+/* The shorter column's last card (Warranty or Replacement Items) grows to fill the gap */
+.detailColumn > :last-child {
+  flex-grow: 1;
 }
 /* Figma's Details cards: Large/Bold titles over a Gray Stroke/Strong divider */
 .detailCard h2 {
@@ -898,17 +904,9 @@ button.actionType:focus-visible {
 .replacementRow[data-inactive] {
   opacity: 0.6;
 }
+/* The drag handle is Volt's compact IconButton (like the row's delete); only its cursor differs */
 .rowDrag {
-  display: inline-flex;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-4);
-  background: transparent;
-  color: var(--color-gray-text-strong);
   cursor: grab;
-}
-.rowDrag:focus-visible {
-  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
 }
 /* While dragging: the moving row fades, and the row it would land on gets a teal edge */
 .replacementRow[data-dragging],
@@ -919,14 +917,40 @@ button.actionType:focus-visible {
 .imageTile[data-drop-target] {
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
 }
+/* The list measures its own width, so a row lays out by the room the card gives it, not the window */
+.replacementList {
+  container-type: inline-size;
+}
+/* Narrow (the right column at 1440 and below): the reason menu sits under the name, full width */
+.replacementMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
 .replacementName {
-  flex: 0 1 150px;
+  align-self: flex-start;
   min-width: 0;
   font-weight: 700;
 }
 .replacementReason {
-  flex: 1;
   min-width: 0;
+}
+/* Wide: name and reason on one line */
+@container (min-width: 460px) {
+  .replacementMain {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-12);
+  }
+  .replacementName {
+    flex: 0 1 150px;
+    align-self: center;
+  }
+  .replacementReason {
+    flex: 1;
+  }
 }
 /* The small status / reason menus fill their slot, as in Figma (the Volt small dropdown hugs its text by default) */
 .complianceStatus > div,
@@ -952,4 +976,18 @@ button.actionType:focus-visible {
   border-radius: var(--radius-8);
   box-shadow: 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
   background: var(--color-brand-teal-fill-weaker);
+}
+/* Images: the corner controls sit on a small card-colored backing, so they stay readable over any photo */
+.tileStar,
+.tileRemove,
+.tileDrag {
+  background: var(--color-surfaces-overlay);
+}
+.tileStar:hover,
+.tileRemove:hover {
+  background: var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--space-24) var(--color-gray-fill-hover);
+}
+.tileDrag {
+  border-radius: var(--radius-4);
 }

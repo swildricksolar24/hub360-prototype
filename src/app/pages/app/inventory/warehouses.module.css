@@ -42,26 +42,46 @@
 }
 /* The table itself: table.module.css (shared with the warehouse record tabs) */
 
-/* Header filter pop-over, under the column it filters */
+/*
+ * Header filter pop-over, under the column it filters: the Figma "Menu Options" panel (Surfaces/Overlay, 12px corners,
+ * the drop shadow) holding a search field (long lists), the values as Volt Checkboxes (Figma "Checkbox / Small",
+ * 363:5386: 24px boxes with their label, 12px apart, 16px inset, scrolling past eight) and small Clear / Apply buttons
+ * under a 1px line.
+ */
 .filter {
   position: absolute;
   z-index: 3;
   top: var(--space-56);
-  width: 280px; /* pop-over width; no token */
-  padding: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  width: 280px; /* pop-over width (ColumnFilter.tsx FILTER_WIDTH); no token */
   border-radius: var(--radius-12);
-  background: var(--color-surfaces-raised);
+  background: var(--color-surfaces-overlay);
   box-shadow: var(--shadow-drop);
+  overflow: hidden;
 }
-.filter form {
+.filterSearch {
+  padding: var(--space-16) var(--space-16) 0;
+}
+.filterList {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
+  padding: var(--space-16);
+  /* Eight 24px checkboxes, 12px apart, inside the 16px inset; a component dimension with no token */
+  max-height: calc(8 * 24px + 7 * var(--space-12) + 2 * var(--space-16));
+  overflow-y: auto;
+}
+.filterEmpty {
+  margin: 0;
+  color: var(--color-gray-text-weak);
 }
 .filterActions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-8);
+  padding: var(--space-12) var(--space-16);
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-disabled);
 }
 
 /* Empty and no-results states */

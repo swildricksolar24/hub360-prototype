@@ -170,10 +170,11 @@ const CONNECTIONS: { value: Connection; label: string; description: (agent: stri
   { value: 'usb', label: 'USB to the agent’s computer', description: agent => `Lists printers plugged into ${agent || 'the agent’s computer'} or installed on it.` },
 ];
 
+// A short list with no filters wired; Model, Type and Already Added are the columns whose values repeat
 const FOUND_COLUMNS: DataColumn[] = [
-  { key: 'name', label: 'Printer', width: 'fill', filterable: true },
+  { key: 'name', label: 'Printer', width: 'fill' },
   { key: 'model', label: 'Model', width: 'fill', filterable: true },
-  { key: 'ip', label: 'IP Address', width: 130, filterable: true },
+  { key: 'ip', label: 'IP Address', width: 130 },
   { key: 'type', label: 'Type', width: 130, filterable: true },
   { key: 'added', label: 'Already Added', width: 150, filterable: true },
 ];

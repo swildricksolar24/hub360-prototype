@@ -48,7 +48,7 @@ export type WarehouseField = {
 };
 
 export const FIELDS: WarehouseField[] = [
-  { key: 'code', label: 'Code', group: 'Warehouse', width: 120, minWidth: 90, show: w => w.code, sortValue: w => w.code },
+  { key: 'code', label: 'Code', group: 'Warehouse', width: 120, minWidth: 100, show: w => w.code, sortValue: w => w.code },
   { key: 'name', label: 'Name', group: 'Warehouse', width: 160, minWidth: 110, show: w => w.name, sortValue: w => w.name },
   {
     key: 'address',
@@ -64,9 +64,9 @@ export const FIELDS: WarehouseField[] = [
   { key: 'state', label: 'State', group: 'Address', width: 100, show: w => w.state, sortValue: w => w.state },
   { key: 'zip', label: 'Zip Code', group: 'Address', width: 110, show: w => w.zip, sortValue: w => w.zip },
   { key: 'country', label: 'Country', group: 'Address', width: 180, show: w => w.country, sortValue: w => w.country },
-  { key: 'value', label: 'Inventory Value', group: 'Inventory', width: 185, minWidth: 120, show: w => money(w.value), sortValue: w => w.value },
+  { key: 'value', label: 'Inventory Value', group: 'Inventory', width: 185, minWidth: 164, show: w => money(w.value), sortValue: w => w.value },
   { key: 'locations', label: 'Locations', group: 'Inventory', width: 140, priority: 1, show: w => count(w.locations), sortValue: w => w.locations },
-  { key: 'filled', label: 'Filled Locations', group: 'Inventory', width: 185, minWidth: 140, priority: 2, show: w => count(w.filled), sortValue: w => w.filled },
+  { key: 'filled', label: 'Filled Locations', group: 'Inventory', width: 185, minWidth: 164, priority: 2, show: w => count(w.filled), sortValue: w => w.filled },
   { key: 'empty', label: 'Empty', group: 'Inventory', width: 130, priority: 3, show: w => count(w.locations - w.filled), sortValue: w => w.locations - w.filled },
 ];
 

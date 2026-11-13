@@ -31,7 +31,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Icon Library | Icon / Arrow | 23:137 | 4 | Direction | — |
 | Icon Library | Icon / Chevron | 32:920 | 6 | Direction (+ Double Up/Down) | — |
 | Icon Library | Icon / Last | 692:1076 | 4 | Direction | — |
-| Icon Library | Icon / Material | 56:932 | 97 | Icon (Draft added Nov 4, 2026) | — |
+| Icon Library | Icon / Material | 56:932 | 101 | Icon (Draft added Nov 4, 2026; Sort Ascending / Sort Descending added Nov 13, 2026: Sort with the arrow for the direction in Gray Fill/Strong and the other in Gray Fill/Disabled, coded as sort-ascending / sort-descending, the faded arrow on the token) | — |
 | Colors | Block | 949:2217 | — | standalone | — |
 | Arrows | Pointer | 774:1557 | 2 | Type (Straight, Elbow) | — |
 
@@ -196,7 +196,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Timeline | Status Step | 2899:7484 | 9 | State (Done, Current, Upcoming) × Property (Start, Middle, End) | Label |
 | Timeline | Status Connector | 2900:5 | 2 | State (Done, Upcoming) | — |
 | Data Headers* | User Headers | 707:5584 | 7 | Screen (Users, Departments, Locations, Roles, Supervisors, Tags, Notes) | — |
-| Data Headers* | Header Item | 754:2169 | 2 | State (Default, Default - 2 Icons) | Label |
+| Data Headers* | Header Item | 754:2169 | 9 | State (Default, Default - 2 Icons, Stretched, Stretched 2 icons, Stretched - Hover, Stretched - Ascending, Stretched - Descending, Stretched - Filter Active, Stretched - No Filter). The Data Table Header uses the Stretched states, coded as DataHeader `stretched`: label + 16px sort chevron 4px after it, the Preferences filter (16px on a 20px tile at 5% gray, icon Foundation/Transparent/200) at the far edge, hidden until the item is hovered (Hover); Ascending / Descending put the chevron on the 5% tile with Icon=Sort Ascending / Descending; Filter Active is Brand Teal Fill/Weak with a white icon; No Filter for a column without one (a list of 10 rows or fewer, or values that don't repeat). Stretched 2 icons isn't coded | Label |
 | Data Headers* | Tenant Headers* | 1098:813 | 1 | State | — |
 | Data Rows* | Data Rows | 707:5559 | 7 | Screen | Show Shade |
 | Data Rows* | Row Item | 759:2011 | 1 | State | Value, Show Slot, Show Value |

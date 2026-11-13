@@ -15,7 +15,7 @@ import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, fieldByKey, type SavedView, type
 import { RowMenu } from './record/RowMenu';
 import { PAGE_SIZES, StatusPill } from './record/tableKit';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
-import { ColumnFilter } from './ColumnFilter';
+import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from './ColumnFilter';
 import { WarehouseStatusModal, applyWarehouseStatus, type ActivateOptions } from './WarehouseStatusModal';
 import { useAuth } from '../../../auth/AuthContext';
 import { useHelperFlag } from '../../../shell/helperFlags';
@@ -36,6 +36,11 @@ const STATUS_VIEWS: { value: StatusView; label: string }[] = [
 type StatusChange = { ids: string[]; active: boolean };
 
 const NO_WAREHOUSES: Warehouse[] = [];
+
+/** Columns whose values repeat, so filtering by them makes sense (codes, names, addresses, zip codes and amounts don't). */
+const FILTER_KEYS = new Set(['city', 'state', 'country']); // and the Status column below
+/** A cell's text as it shows, for the column filters' value lists. */
+const cellText = (w: Warehouse, key: string) => (key === 'status' ? (w.active ? 'Active' : 'Inactive') : (fieldByKey(key)?.show(w) ?? ''));
 
 /**
  * Inventory › Warehouses: the Figma "Inventory Management – Core" › Warehouses flow (see WAREHOUSES.md), built with
@@ -63,7 +68,7 @@ export function WarehousesPage() {
 
   // Finding rows
   const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<ColumnFilters>({});
   const [filterOpen, setFilterOpen] = useState<string | null>(null);
   const [sort, setSort] = useState<DataSort | undefined>();
   const [page, setPage] = useState(1);
@@ -97,11 +102,7 @@ export function WarehousesPage() {
       if (statusView === 'active' && !w.active) return false;
       if (statusView === 'inactive' && w.active) return false;
       if (q &&!`${w.code} ${w.name} ${FIELDS[2].show(w)}`.toLowerCase().includes(q)) return false;
-      return Object.entries(filters).every(([key, text]) => {
-        const field = key === 'status' ? null : fieldByKey(key);
-        const shown = field ? field.show(w) : w.active ? 'Active' : 'Inactive';
-        return shown.toLowerCase().includes(text.toLowerCase());
-      });
+      return matchesFilters(w, filters, cellText);
     });
     if (!sort) return list;
     const field = fieldByKey(sort.key);
@@ -120,10 +121,11 @@ export function WarehousesPage() {
   const tableColumns: DataColumn[] = [
     ...ordered.map(key => {
       const f = fieldByKey(key)!;
-      return { key, label: f.label, width: f.width, minWidth: f.minWidth, priority: f.priority, align: f.align, filterable: true };
+      return { key, label: f.label, width: f.width, minWidth: f.minWidth, priority: f.priority, align: f.align, filterable: FILTER_KEYS.has(key) };
     }),
-    // Figma: the status pill has no header, and sits right before the ••• button
-    { key: 'status', label: 'Status', width: 120, align: 'end', labelHidden: true, sortable: false },
+    // Figma's status pill has no header; with its filter it gets one: "Status", over the pills (which start at the left
+    // of the column), sorting and filtering by Active / Inactive. It sits right before the ••• button
+    { key: 'status', label: 'Status', width: 120, fixed: true, filterable: true },
   ];
   // DataTable fits the columns to the card: they shrink to minWidth, then hide by priority (Empty, Filled Locations,
   // Locations)
@@ -203,6 +205,7 @@ export function WarehousesPage() {
             className={`${styles.table} ${record.statusStart}`}
             columns={tableColumns}
             rows={pageRows}
+            totalRows={warehouses.length}
             rowLabel={w => w.name}
             loading={showLoading}
             sort={sort}
@@ -211,6 +214,7 @@ export function WarehousesPage() {
             }
             onFilter={key => setFilterOpen(open => (open === key ? null : key))}
             activeFilters={Object.keys(filters)}
+            openFilter={filterOpen ?? undefined}
             selected={[...selected]}
             onSelectedChange={ids => setSelected(new Set(ids))}
             inactive={w => !w.active}
@@ -255,14 +259,10 @@ export function WarehousesPage() {
               key={filterOpen}
               anchor={tableRef.current?.querySelector<HTMLElement>(`[role="columnheader"][data-column="${filterOpen}"]`)}
               label={tableColumns.find(c => c.key === filterOpen)?.label ?? ''}
-              value={filters[filterOpen] ?? ''}
-              onApply={text => {
-                setFilters(f => {
-                  const next = { ...f };
-                  if (text.trim()) next[filterOpen] = text.trim();
-                  else delete next[filterOpen];
-                  return next;
-                });
+              options={filterOptions(warehouses, w => cellText(w, filterOpen))}
+              value={filters[filterOpen] ?? []}
+              onApply={values => {
+                setFilters(f => withFilter(f, filterOpen, values));
                 setFilterOpen(null);
               }}
               onClose={() => setFilterOpen(null)}

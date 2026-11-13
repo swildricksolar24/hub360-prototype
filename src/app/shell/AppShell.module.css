@@ -70,6 +70,13 @@
   }
 }
 
+/* Holds Tier 1 so its width can animate between compact and labelled (AppShell.tsx); clips the rail while it changes */
+.tier1Slot {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+}
+
 /* Holds Tier 2 so its width can animate open (AppShell.tsx); clips the menu while it grows */
 .tier2Slot {
   display: flex;

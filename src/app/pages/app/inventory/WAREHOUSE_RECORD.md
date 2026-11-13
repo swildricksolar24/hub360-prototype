@@ -108,8 +108,9 @@ instead, so the header doesn't jump between tabs.
 ## Standard table (tabs 1, 2, 5, 6, 7)
 
 All of these tabs use the same table pattern as the Warehouses list:
-- `DataHeader` / `DataRow` with header and row checkboxes;
-- sort and filter icons on every header;
+- the Volt `DataTable` with header and row checkboxes;
+- a sort chevron on every header, and a filter (a checkbox list) on the columns whose values repeat (Type, Category,
+  Location, Status, Action Type, Created By, Company, Role, Area); filters show on lists of more than 10 rows;
 - alternating Sunken / Overlay rows;
 - inactive rows dimmed to 0.4, keeping the pill and ••• at full strength;
 - the Active / Inactive pill;

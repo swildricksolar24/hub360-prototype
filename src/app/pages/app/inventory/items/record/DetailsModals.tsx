@@ -397,7 +397,7 @@ export function ReplacementModal({
         />
         <div className={table.tableScroll}>
           <div role="table" aria-label="Replacement items" className={table.table}>
-            <DataHeader className={table.head} corners="none" columns={REPLACEMENT_COLUMNS} leading="none" actions={false} />
+            <DataHeader className={table.head} corners="none" stretched columns={REPLACEMENT_COLUMNS} leading="none" actions={false} />
             {rows.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>No replacements yet. Search above to add one.</p>}
             {rows.map((r, i) => (
               <div key={r.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined}>
