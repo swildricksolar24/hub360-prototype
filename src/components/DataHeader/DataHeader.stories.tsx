@@ -60,15 +60,26 @@ export const UserHeaders: Story = {
   parameters: { ...figma('707:5584', 'Data Headers* › User Headers'), controls: { disable: true } },
 };
 
-/** Figma Header Item: `State=Default` (sort icon) and `State=Default - 2 Icons` (filter + sort). */
+/**
+ * Figma Header Item: `State=Default` (sort icon), `Default - 2 Icons` (filter + sort), and the Data Table Header's
+ * `Stretched` (`stretched`: the label with a 16px sort chevron, the Preferences filter tile at the far edge), also shown
+ * without its filter (a short list) and end-aligned (numbers).
+ */
+const HEADER_ITEM_STATES = [
+  { name: 'State=Default', props: {} },
+  { name: 'State=Default - 2 Icons', props: { filterable: true } },
+  { name: 'State=Stretched', props: { stretched: true, filterable: true } },
+  { name: 'Stretched, no filter', props: { stretched: true } },
+  { name: 'Stretched, end-aligned', props: { stretched: true, filterable: true, align: 'end' as const } },
+];
 export const HeaderItems: Story = {
   render: () => (
     <div role="table" aria-label="Header items">
       <div role="row" style={{ display: 'flex', gap: 'var(--space-24)' }}>
-        {(['Default', 'Default - 2 Icons'] as const).map(state => (
-          <figure key={state} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-            <Caption>{`State=${state}`}</Caption>
-            <HeaderItem label="Label" filterable={state === 'Default - 2 Icons'} />
+        {HEADER_ITEM_STATES.map(({ name, props }) => (
+          <figure key={name} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', width: 200 }}>
+            <Caption>{name}</Caption>
+            <HeaderItem label="Label" {...props} />
           </figure>
         ))}
       </div>

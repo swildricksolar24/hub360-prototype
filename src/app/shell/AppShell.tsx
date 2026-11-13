@@ -6,7 +6,9 @@ import { Logo } from '../../components/Logo/Logo';
 import { NavTabBar, NavTabSmall } from '../../components/NavTabBar/NavTabBar';
 import { NavTier1 } from '../../components/NavTier1/NavTier1';
 import { NavTier2 } from '../../components/NavTier2/NavTier2';
+import { useAuth } from '../auth/AuthContext';
 import { AccountMenu } from './AccountMenu';
+import { isSkipped, saveLastPage } from './lastPage';
 import { AllTabsModal } from './AllTabsModal';
 import { capturePreview, whenIdle } from './tabPreviews';
 import { InboxModal, useInbox, type ShellContext } from './InboxModal';
@@ -40,6 +42,11 @@ const NEW_TAB = '/app/new-tab/';
 /** How long after a page opens its preview is taken (ms): long enough for it to finish loading and animating. */
 const PREVIEW_DELAY_MS = 1000;
 
+/** The Tier 1 rail's labels (a Side Menu button's text, after its icon box), which fade in when they appear. */
+const RAIL_LABELS = 'li > button > span + span';
+/** Tier 1's icon size in each state (bigger than Figma's 24 / 16px: the design system's next size up). */
+const RAIL_ICON = { default: 32, compact: 20 };
+
 /**
  * A tab shows the page name with that page's icon; `title` is the full "Section · Page" name. `blank` marks a New Tab
  * from the tab bar's +, so the bar knows when one turns into a page.
@@ -52,7 +59,7 @@ type Tab = { id: string; label: string; icon?: string; title: string; blank?: bo
  */
 export function AppShell() {
   const navigate = useNavigate();
-  const { pathname, state } = useLocation();
+  const { pathname, search, state } = useLocation();
   // The shell is the /app layout route, so it reads the section from the URL rather than its own params.
   // Deeper paths are records inside a Tier 2 page, e.g. /app/inventory/warehouses/PHX-124.
   const match = useMatch('/app/:section/:page?/*');
@@ -80,6 +87,21 @@ export function AppShell() {
   // Tier 1 is compact while a selected section shows its Tier 2 menu beside it, and in its default (labelled) state
   // when it's the only menu showing
   const tier1Compact = hasTier2;
+  // Tier 1 animation (not in Figma), kept basic: when the rail switches, its width eases from the old to the new, and
+  // its labels fade in when they appear
+  const tier1Slot = useRef<HTMLDivElement>(null);
+  const railWidth = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const slot = tier1Slot.current;
+    if (!slot) return;
+    const from = railWidth.current;
+    const to = slot.offsetWidth;
+    railWidth.current = to;
+    if (from === null || from === to || reduceMotion) return;
+    slot.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 250, easing: 'ease-out' });
+    if (!tier1Compact)
+      slot.querySelectorAll<HTMLElement>(RAIL_LABELS).forEach(l => l.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' }));
+  }, [tier1Compact, reduceMotion]);
   useLayoutEffect(() => {
     const slot = tier2Slot.current;
     const opening = hasTier2 && !hadTier2.current;
@@ -154,6 +176,22 @@ export function AppShell() {
     });
   }, [pathname, label, shortLabel, tabIcon, newTab, replaceTab]);
 
+  // The Dashboard's "Pick up where you left off" card: every page visited (not the Dashboard, a blank New Tab or the
+  // redirect to the Dashboard on opening) is remembered for this user, with its tab name, place and icon
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user || redirecting.current || isSkipped(pathname)) return;
+    // "Inventory · Items · REC 325 Solar Panel" → where: "Inventory › Items"
+    const parts = label.split(' · ');
+    saveLastPage(user.id, {
+      to: pathname + search,
+      name: shortLabel,
+      where: parts.length > 1 ? parts.slice(0, -1).join(' › ') : '',
+      icon: tabIcon,
+      at: Date.now(),
+    });
+  }, [pathname, search, label, shortLabel, tabIcon, user]);
+
   // The tab bar's +: a new blank tab after the others
   const newTabCount = useRef(0);
   function openNewTab() {
@@ -214,7 +252,7 @@ export function AppShell() {
     if (!q) return;
     for (const s of SECTIONS) {
       if (s.label.toLowerCase().includes(q)) return navigate(sectionPath(s), NEW_TAB_STATE);
-      const page = s.pages?.find(p => p.label.toLowerCase().includes(q));
+      const page = s.pages?.find(p => !p.hidden && p.label.toLowerCase().includes(q));
       if (page) return navigate(sectionPath(s, page.id), NEW_TAB_STATE);
     }
   }
@@ -273,24 +311,25 @@ export function AppShell() {
         avatar={<AccountMenu />}
       />
       <div className={styles.body}>
-        <NavTier1
-          className={styles.tier1}
-          items={SECTIONS.map(({ id, label, icon }) => ({ id, label, icon }))}
-          value={section?.id}
-          onChange={id => {
-            const next = findSection(id);
-            if (next) navigate(sectionPath(next), NEW_TAB_STATE);
-          }}
-          compact={tier1Compact}
-          // Bigger than Figma's 24 / 16px: the design system's next icon size up
-          iconSize={tier1Compact ? 20 : 32}
-        />
+        <div ref={tier1Slot} className={styles.tier1Slot}>
+          <NavTier1
+            className={styles.tier1}
+            items={SECTIONS.map(({ id, label, icon }) => ({ id, label, icon }))}
+            value={section?.id}
+            onChange={id => {
+              const next = findSection(id);
+              if (next) navigate(sectionPath(next), NEW_TAB_STATE);
+            }}
+            compact={tier1Compact}
+            iconSize={tier1Compact ? RAIL_ICON.compact : RAIL_ICON.default}
+          />
+        </div>
         {section?.pages && (
           <div ref={tier2Slot} className={styles.tier2Slot}>
             <NavTier2
               className={styles.tier2}
               aria-label={section.label}
-              items={section.pages}
+              items={section.pages.filter(p => !p.hidden)}
               value={pageId}
               onChange={id => navigate(sectionPath(section, id), NEW_TAB_STATE)}
               variant={tier2Collapsed ? 'collapsed' : 'default'}

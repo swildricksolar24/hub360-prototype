@@ -16,7 +16,7 @@ import { createLocation, removeLocation } from './record/LocationsTab';
 import { canMoveUnder, codeOf, depthOf, descendantIds, flattenTree, moveUnder, pathOf } from './record/locationTree';
 import { RowMenu } from './record/RowMenu';
 import { STOCK_COLUMNS, STOCK_VIEWS, STOCK_VIEW_TESTS, StockTable, useStockTable, useStockView, type StockView } from './record/StockTab';
-import { Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './record/tableKit';
+import { FilterBox, Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './record/tableKit';
 import type { Warehouse } from './warehouseData';
 import { LOCATION_TYPES, MAX_LOCATION_DEPTH, type CatalogItem, type WarehouseLocation } from './warehouseRecordData';
 import {
@@ -357,16 +357,20 @@ type LocationItem = { id: string; item?: CatalogItem; location?: WarehouseLocati
 // On the Volt Data Table: on a narrow card the columns shrink to their minWidth, then hide by priority (Sub Category,
 // then Category, then Type), so the table fits the card down to a 1024px window
 const OVERVIEW_COLUMNS: DataColumn[] = [
-  { key: 'location', label: 'Location', width: 100, minWidth: 90 },
+  { key: 'location', label: 'Location', width: 100, minWidth: 90, filterable: true },
   // Wide enough for the longest item number on one line (115px + the cell's 16px padding)
   { key: 'number', label: 'Item #', width: 136, minWidth: 132 },
   { key: 'name', label: 'Name', width: 'fill', minWidth: 120 },
-  { key: 'type', label: 'Type', width: 84, minWidth: 76, priority: 1 },
-  { key: 'category', label: 'Category', width: 116, minWidth: 100, priority: 2 },
-  { key: 'subCategory', label: 'Sub Category', width: 120, minWidth: 110, priority: 3 },
-  // Figma: the status pill has no header, and sits right before the ••• button
-  { key: 'status', label: 'Status', width: 108, align: 'end', labelHidden: true, sortable: false },
+  // Location (this one and those inside it), Type, Category, Sub Category and Status repeat, so they filter
+  { key: 'type', label: 'Type', width: 84, minWidth: 76, priority: 1, filterable: true },
+  { key: 'category', label: 'Category', width: 116, minWidth: 100, priority: 2, filterable: true },
+  { key: 'subCategory', label: 'Sub Category', width: 120, minWidth: 110, priority: 3, filterable: true },
+  // Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
+  { key: 'status', label: 'Status', width: 108, filterable: true },
 ];
+/** A row's text for a column as it shows: what the overview sorts and filters by, and each filter's values. */
+const overviewText = (r: LocationItem, key: string) =>
+  key === 'location' ? (r.location?.name ?? '') : key === 'status' ? (r.active ? 'Active' : 'Inactive') : String(r.item?.[key as keyof CatalogItem] ?? '');
 const OVERVIEW_VIEWS = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
@@ -415,9 +419,9 @@ function LocationContents({
 
   const t = useTableControls(rows, {
     search: r => `${r.location?.name ?? ''} ${r.item?.number ?? ''} ${r.item?.name ?? ''} ${r.item?.type ?? ''} ${r.item?.category ?? ''} ${r.item?.subCategory ?? ''}`,
-    sortValue: (r, key) =>
-      key === 'location' ? (r.location?.name ?? '') : String(r.item?.[key as keyof CatalogItem] ?? ''),
+    sortValue: (r, key) => overviewText(r, key),
     filter: r => mode !== 'overview' || view === 'all' || r.active === (view === 'active'),
+    filterText: (r, key) => overviewText(r, key),
   });
   const st = useStockTable(
     // Stock › View: the same options as the warehouse's Stock tab (Available, Stocked, Below Reorder…)
@@ -515,54 +519,57 @@ function LocationContents({
       {mode === 'overview' && (
         <>
           {/* Volt Data Table (Figma "Data Table" page), as on the warehouse's Locations, Contacts and Printers */}
-          <DataTable
-            aria-label={`Items in ${location.name}`}
-            className={styles.statusStart}
-            columns={overviewCols.columns}
-            rows={t.pageRows}
-            rowLabel={r => `${r.item?.name ?? 'Unknown item'} in ${r.location?.name ?? 'a removed location'}`}
-            sort={t.headerProps.sort}
-            onSortChange={t.headerProps.onSortChange}
-            {...t.selectProps}
-            inactive={r => !r.active}
-            empty={rows.length === 0 ? 'Nothing is stored here yet. Use Add Item to add an item.' : 'No items match your search or view.'}
-            onMore={r => setMenuFor(m => (m === r.id ? null : r.id))}
-            renderAfterRow={r => {
-              if (menuFor !== r.id) return null;
-              const name = r.item?.name ?? 'Unknown item';
-              const where = r.location?.name ?? 'a removed location';
-              const stockRow = stockRows.find(s => s.id === r.id);
-              return (
-                <RowMenu
-                  label={`${name} in ${where}`}
-                  onClose={() => setMenuFor(null)}
-                  items={[
-                    ...(r.location && r.location.id !== location.id ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }] : []),
-                    // The item's record in Items, when it has one
-                    ...viewInItems(r.item?.name, navigate),
-                    { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
-                  ]}
-                />
-              );
-            }}
-            cells={r => ({
-              // A sublocation links to its own Location Details; this location is the page itself
-              location:
-                r.location && r.location.id !== location.id ? (
-                  <AppLink to={locationPath(code, r.location.id)} size="small">
-                    {r.location.name}
-                  </AppLink>
-                ) : (
-                  (r.location?.name ?? 'a removed location')
-                ),
-              number: r.item?.number ?? '—',
-              name: r.item?.name ?? 'Unknown item',
-              type: r.item?.type ?? '—',
-              category: r.item?.category || '—',
-              subCategory: r.item?.subCategory || '—',
-              status: <StatusPill active={r.active} />,
-            })}
-          />
+          <FilterBox table={t} columns={overviewCols.columns}>
+            <DataTable
+              aria-label={`Items in ${location.name}`}
+              className={styles.statusStart}
+              columns={overviewCols.columns}
+              rows={t.pageRows}
+              rowLabel={r => `${r.item?.name ?? 'Unknown item'} in ${r.location?.name ?? 'a removed location'}`}
+              sort={t.headerProps.sort}
+              onSortChange={t.headerProps.onSortChange}
+              {...t.selectProps}
+              {...t.filterProps}
+              inactive={r => !r.active}
+              empty={rows.length === 0 ? 'Nothing is stored here yet. Use Add Item to add an item.' : 'No items match your search, view or filters.'}
+              onMore={r => setMenuFor(m => (m === r.id ? null : r.id))}
+              renderAfterRow={r => {
+                if (menuFor !== r.id) return null;
+                const name = r.item?.name ?? 'Unknown item';
+                const where = r.location?.name ?? 'a removed location';
+                const stockRow = stockRows.find(s => s.id === r.id);
+                return (
+                  <RowMenu
+                    label={`${name} in ${where}`}
+                    onClose={() => setMenuFor(null)}
+                    items={[
+                      ...(r.location && r.location.id !== location.id ? [{ label: 'View Location', onSelect: () => navigate(locationPath(code, r.location!.id)) }] : []),
+                      // The item's record in Items, when it has one
+                      ...viewInItems(r.item?.name, navigate),
+                      { label: 'Remove from Location', onSelect: () => stockRow && setRemoving(stockRow) },
+                    ]}
+                  />
+                );
+              }}
+              cells={r => ({
+                // A sublocation links to its own Location Details; this location is the page itself
+                location:
+                  r.location && r.location.id !== location.id ? (
+                    <AppLink to={locationPath(code, r.location.id)} size="small">
+                      {r.location.name}
+                    </AppLink>
+                  ) : (
+                    (r.location?.name ?? 'a removed location')
+                  ),
+                number: r.item?.number ?? '—',
+                name: r.item?.name ?? 'Unknown item',
+                type: r.item?.type ?? '—',
+                category: r.item?.category || '—',
+                subCategory: r.item?.subCategory || '—',
+                status: <StatusPill active={r.active} />,
+              })}
+            />
+          </FilterBox>
           <Pager table={t} label="Item pages" />
         </>
       )}

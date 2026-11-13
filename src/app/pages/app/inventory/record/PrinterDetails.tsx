@@ -38,6 +38,9 @@ import type { Warehouse } from '../warehouseData';
 import { setPrintJobs, usePrintJobs } from '../warehouseStore';
 import { RowMenu } from './RowMenu';
 import { nextSort, Segmented } from './tableKit';
+import { useColumnFilters } from '../ColumnFilter';
+import { useProfilePhoto } from '../../../../auth/useProfilePhoto';
+import listStyles from '../warehouses.module.css';
 import styles from './printers.module.css';
 import type { DataSort } from '../../../../../components/DataHeader/DataHeader';
 
@@ -437,12 +440,13 @@ function SettingsView({
 
 // Default Printer and Prints Automatically When keep room for their whole value and header on one line ("CJ3000 ·
 // Shipping Office", "Prints Automatically When" + its icons); on a narrow card Size, then Copies, hide first
+// A short list with no filters wired; Default Printer, Size and Default Here are the columns whose values repeat
 const DEFAULT_COLUMNS: DataColumn[] = [
-  { key: 'document', label: 'Document', width: 'fill', minWidth: 175, filterable: true },
+  { key: 'document', label: 'Document', width: 'fill', minWidth: 175 },
   { key: 'printer', label: 'Default Printer', width: 'fill', minWidth: 205, filterable: true },
   { key: 'size', label: 'Size', width: 120, priority: 2, filterable: true },
-  { key: 'copies', label: 'Copies', width: 100, priority: 1, filterable: true },
-  { key: 'trigger', label: 'Prints Automatically When', width: 'fill', minWidth: 200, filterable: true },
+  { key: 'copies', label: 'Copies', width: 100, priority: 1 },
+  { key: 'trigger', label: 'Prints Automatically When', width: 'fill', minWidth: 200 },
   { key: 'here', label: 'Default Here', width: 130, filterable: true },
 ];
 /*
@@ -620,15 +624,19 @@ function DefaultUseView({
 /* ---------- Print Jobs (901:26381) ---------- */
 
 // The text columns keep room for one line; on a narrow card Size, then Copies, then Sent By hide first
+// Status and Document filter from the toolbar (Figma's dropdowns), so the column filters are Sent By and Size, the
+// other columns whose values repeat
 const JOB_COLUMNS: DataColumn[] = [
-  { key: 'time', label: 'Time', width: 100, filterable: true },
-  { key: 'document', label: 'Document', width: 'fill', minWidth: 150, filterable: true },
-  { key: 'record', label: 'Order / Record', width: 'fill', minWidth: 150, filterable: true },
+  { key: 'time', label: 'Time', width: 100 },
+  { key: 'document', label: 'Document', width: 'fill', minWidth: 150 },
+  { key: 'record', label: 'Order / Record', width: 'fill', minWidth: 150 },
   { key: 'sentBy', label: 'Sent By', width: 120, priority: 1, filterable: true },
-  { key: 'copies', label: 'Copies', width: 90, priority: 2, filterable: true },
+  { key: 'copies', label: 'Copies', width: 90, priority: 2 },
   { key: 'size', label: 'Size', width: 80, priority: 3, filterable: true },
-  { key: 'status', label: 'Status', width: 110, filterable: true },
+  { key: 'status', label: 'Status', width: 110 },
 ];
+/** A print job's cell text for the Sent By and Size filters. */
+const jobText = (j: PrintJob, key: string) => (key === 'size' ? String(j.size) : j.sentBy);
 const JOB_COLOR: Record<PrintJobStatus, BadgeColor> = { Printed: 'green', Failed: 'red', Held: 'amber', Queued: 'blue', Cancelled: 'black' };
 
 /** What the failed-job alert tells people to do about each error */
@@ -694,6 +702,8 @@ function PrintJobsView({
   jobs: PrintJob[];
   onNotice: (text: string) => void;
 }) {
+  // Every sender shows the current profile photo (initials when there is none)
+  const photo = useProfilePhoto();
   const [day, setDay] = useState('Today');
   const [status, setStatus] = useState('All');
   const [doc, setDoc] = useState('All');
@@ -713,8 +723,13 @@ function PrintJobsView({
   const update = (fn: (j: PrintJob) => PrintJob) => setPrintJobs(warehouse.code, list => list.map(j => (j.printerId === printer.id ? fn(j) : j)));
   const docs = [...new Set(jobs.map(j => j.document))];
   const q = query.trim().toLowerCase();
+  const colFilters = useColumnFilters(jobs, jobText);
   let rows = jobs.filter(
-    j => (status === 'All' || j.status === status) && (doc === 'All' || j.document === doc) && (!q || `${j.record} ${j.document}`.toLowerCase().includes(q)),
+    j =>
+      (status === 'All' || j.status === status) &&
+      (doc === 'All' || j.document === doc) &&
+      (!q || `${j.record} ${j.document}`.toLowerCase().includes(q)) &&
+      colFilters.matches(j),
   );
   // Every sample job is from today; other days show none
   if (day !== 'Today') rows = [];
@@ -770,65 +785,70 @@ function PrintJobsView({
         <SearchInput className={styles.toolbarSearch} aria-label="Search order # or document" placeholder="Search order # or document" value={query} onChange={e => setQuery(e.target.value)} />
       </div>
 
-      <DataTable
-        aria-label={`Print jobs on ${printerLabel(printer)}`}
-        columns={JOB_COLUMNS}
-        rows={rows}
-        rowLabel={j => `${j.document} ${j.time}`}
-        sort={sort}
-        onSortChange={key => setSort(s => nextSort(s, key))}
-        empty={<p className={`text-medium-regular ${styles.muted}`}>No print jobs match. Try another day, status or document.</p>}
-        onMore={j => setMenuFor(m => (m === j.id ? null : j.id))}
-        renderAfterRow={j =>
-          menuFor === j.id && (
-            <RowMenu
-              label={`${j.document} ${j.time}`}
-              onClose={() => setMenuFor(null)}
-              items={[
-                {
-                  label: j.status === 'Failed' ? 'Retry' : 'Reprint',
-                  disabled: j.status === 'Held' || j.status === 'Queued',
-                  onSelect: () => {
-                    if (j.status === 'Failed') retry();
-                    else {
-                      setPrintJobs(warehouse.code, list => [{ ...j, id: `j${Date.now()}`, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }), sentBy: 'You', status: 'Printed' }, ...list]);
-                      onNotice(`${j.document} for ${j.record} reprinted.`);
-                    }
+      <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+        {colFilters.popover(JOB_COLUMNS)}
+        <DataTable
+          aria-label={`Print jobs on ${printerLabel(printer)}`}
+          columns={JOB_COLUMNS}
+          rows={rows}
+          rowLabel={j => `${j.document} ${j.time}`}
+          sort={sort}
+          onSortChange={key => setSort(s => nextSort(s, key))}
+          {...colFilters.tableProps}
+          totalRows={jobs.length}
+          empty={<p className={`text-medium-regular ${styles.muted}`}>No print jobs match. Try another day, status, document or filter.</p>}
+          onMore={j => setMenuFor(m => (m === j.id ? null : j.id))}
+          renderAfterRow={j =>
+            menuFor === j.id && (
+              <RowMenu
+                label={`${j.document} ${j.time}`}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  {
+                    label: j.status === 'Failed' ? 'Retry' : 'Reprint',
+                    disabled: j.status === 'Held' || j.status === 'Queued',
+                    onSelect: () => {
+                      if (j.status === 'Failed') retry();
+                      else {
+                        setPrintJobs(warehouse.code, list => [{ ...j, id: `j${Date.now()}`, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }), sentBy: 'You', status: 'Printed' }, ...list]);
+                        onNotice(`${j.document} for ${j.record} reprinted.`);
+                      }
+                    },
                   },
-                },
-                {
-                  label: 'Cancel',
-                  disabled: !(j.status === 'Held' || j.status === 'Queued' || j.status === 'Failed'),
-                  onSelect: () => {
-                    // A Helper job isn't in the data: cancelling it turns its switch off
-                    if (j.id.startsWith(HELPER_JOB)) setHelperFlag(flagFor(j), false);
-                    else update(x => (x.id === j.id ? { ...x, status: 'Cancelled', error: undefined } : x));
-                    onNotice(`${j.document} for ${j.record} was cancelled.`);
+                  {
+                    label: 'Cancel',
+                    disabled: !(j.status === 'Held' || j.status === 'Queued' || j.status === 'Failed'),
+                    onSelect: () => {
+                      // A Helper job isn't in the data: cancelling it turns its switch off
+                      if (j.id.startsWith(HELPER_JOB)) setHelperFlag(flagFor(j), false);
+                      else update(x => (x.id === j.id ? { ...x, status: 'Cancelled', error: undefined } : x));
+                      onNotice(`${j.document} for ${j.record} was cancelled.`);
+                    },
                   },
-                },
-              ]}
-            />
-          )
-        }
-        cells={j => ({
-          time: j.time,
-          document: <strong>{j.document}</strong>,
-          record: j.record,
-          sentBy: (
-            <span className={styles.sender}>
-              <Avatar size="small" type="initial" initials={initials(j.sentBy)} label={j.sentBy} />
-              {j.sentBy}
-            </span>
-          ),
-          copies: j.copies,
-          size: j.size,
-          status: (
-            <Badge shape="pill" color={JOB_COLOR[j.status]}>
-              {j.status}
-            </Badge>
-          ),
-        })}
-      />
+                ]}
+              />
+            )
+          }
+          cells={j => ({
+            time: j.time,
+            document: <strong>{j.document}</strong>,
+            record: j.record,
+            sentBy: (
+              <span className={styles.sender}>
+                <Avatar size="small" src={photo} initials={initials(j.sentBy)} label={j.sentBy} />
+                {j.sentBy}
+              </span>
+            ),
+            copies: j.copies,
+            size: j.size,
+            status: (
+              <Badge shape="pill" color={JOB_COLOR[j.status]}>
+                {j.status}
+              </Badge>
+            ),
+          })}
+        />
+      </div>
 
       <AppModal
         open={moving}

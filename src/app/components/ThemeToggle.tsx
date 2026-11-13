@@ -14,10 +14,14 @@ export function ThemeToggle({ contained = false, className }: ThemeToggleProps) 
   return (
     <Toggle
       className={className}
-      // An on / off switch labeled "Dark mode": its icon matches the label (Volt Mode Dark), and the switch shows whether it's on
+      // An on / off switch labeled "Dark mode". Its icon shows the theme: Volt's Mode Light (sun) when off, Mode Dark
+      // (moon) when on; toggling turns one into the other (ThemeToggle.module.css)
       label={
         <span className={styles.label}>
-          <Icon name="mode-dark" size={20} />
+          <span className={styles.icons} data-dark={dark || undefined} aria-hidden>
+            <Icon name="mode-light" size={20} className={styles.sun} />
+            <Icon name="mode-dark" size={20} className={styles.moon} />
+          </span>
           Dark mode
         </span>
       }

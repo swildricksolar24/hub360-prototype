@@ -8,6 +8,7 @@ import { Icon } from '../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../components/SearchBar/SearchBar';
 import { Tile } from '../../../../components/Tile/Tile';
 import { useWarehouses } from './warehouseStore';
+import type { Warehouse } from './warehouseData';
 import styles from './dashboard.module.css';
 import { Toast } from '../../../../components/Toast/Toast';
 
@@ -77,10 +78,80 @@ const VALUE_BY_WAREHOUSE = [
 const RANGES = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year'];
 const dollars = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
+/* ---------- Figures per warehouse (sample data) ---------- */
+
+type Status = { label: string; count: number; color: (typeof STATUSES)[number]['color'] };
+type Figures = { kpis: typeof KPIS; attention: Attention[]; statuses: Status[]; lowStock: typeof LOW_STOCK_ROWS; belowReorder: number };
+
+/** Figma's sample figures: what All warehouses shows. */
+const ALL_FIGURES: Figures = { kpis: KPIS, attention: ATTENTION, statuses: [...STATUSES], lowStock: LOW_STOCK_ROWS, belowReorder: 14 };
+
+/**
+ * A warehouse's own figures, so switching warehouses changes the dashboard. They're sample numbers made from the
+ * warehouse's code (the same every time it's picked), scaled from Figma's All-warehouses figures, except Inventory
+ * Value, which is the warehouse's own (Warehouses list).
+ */
+function figuresFor(w: Warehouse): Figures {
+  // A repeatable 0–1 number per warehouse and figure
+  let seed = 0;
+  for (const ch of w.code) seed = (seed * 31 + ch.charCodeAt(0)) % 100003;
+  const rand = (i: number) => (((seed + 1) * (i + 7) * 9301 + 49297) % 233280) / 233280;
+  const share = 0.3 + rand(0) * 0.6;
+  const scaled = (n: number, i: number, min = 0) => Math.max(min, Math.round(n * share * (0.6 + rand(i) * 0.8)));
+
+  const statuses = STATUSES.map((s, i) => ({ ...s, count: scaled(s.count, i + 1) }));
+  const count = (label: string) => statuses.find(s => s.label === label)?.count ?? 0;
+  const open = statuses.reduce((sum, s) => sum + s.count, 0);
+  const belowReorder = scaled(14, 10, 1);
+  const noPo = Math.min(belowReorder, scaled(5, 11));
+  const short = scaled(3, 12);
+  const change = (rand(13) * 8 - 3).toFixed(1);
+
+  const kpis = KPIS.map(k => {
+    switch (k.label) {
+      case 'Inventory Value':
+        return { ...k, value: dollars(w.value), note: `${Number(change) >= 0 ? '+' : ''}${change}% vs last 30 days · cost roles only` };
+      case 'Below Reorder Point':
+        return { ...k, value: `${belowReorder} ${belowReorder === 1 ? 'item' : 'items'}`, note: `${noPo} with no open PO` };
+      case 'Open Orders':
+        return { ...k, value: String(open), note: `${Math.round(open * 0.3)} due this week` };
+      case 'Waiting for Approval':
+        return { ...k, value: String(count('Pending Approval')), note: `${Math.min(count('Pending Approval'), scaled(2, 14))} older than 3 days` };
+      case 'Pending Review':
+        return { ...k, value: String(count('Pending Review')), note: `${Math.min(count('Pending Review'), scaled(1, 15))} with a discrepancy` };
+      case 'In Transit':
+        return { ...k, value: String(count('In Transit')), note: `${Math.min(count('In Transit'), scaled(2, 16))} arriving tomorrow` };
+      default:
+        return { ...k, value: `${short} short` };
+    }
+  });
+
+  const approvals = count('Pending Approval');
+  const attention = ATTENTION.map(a =>
+    a.title.includes('waiting for your approval')
+      ? { ...a, title: `${approvals} ${approvals === 1 ? 'order' : 'orders'} waiting for your approval` }
+      : a.title.includes('below reorder point')
+        ? { ...a, title: `${noPo} ${noPo === 1 ? 'item' : 'items'} below reorder point with no open PO`, detail: `${w.name}: ${noPo}` }
+        : a,
+  );
+
+  // Its Low Stock: some of the sample items, with this warehouse's quantities
+  const lowStock = LOW_STOCK_ROWS.filter((_, i) => rand(20 + i) < 0.75)
+    .slice(0, Math.max(1, Math.min(5, belowReorder)))
+    .map((r, i) => {
+      const reorderPoint = Math.max(2, Math.round(r.reorderPoint * (0.5 + rand(30 + i))));
+      const onHand = Math.max(0, Math.round(reorderPoint * rand(40 + i) * 0.8));
+      const onOrder = rand(50 + i) < 0.4 ? Math.round(reorderPoint * 1.5) : 0;
+      return { ...r, warehouse: w.code, reorderPoint, onHand, onOrder, suggested: onOrder ? 0 : reorderPoint * 2 - onHand };
+    });
+
+  return { kpis, attention, statuses, lowStock, belowReorder };
+}
+
 /**
  * Inventory › Dashboard (Figma "Inventory / Dashboard", 819:7974): a toolbar (warehouse, Export, date range, and a
- * search box filling the rest), seven KPI tiles, Needs Your Attention, Open Orders by Status, Low Stock and Value by Warehouse. The
- * figures are Figma's sample values; the cards link to the Items and Orders lists. Purchasing and Receiving aren't
+ * search box filling the rest), seven KPI tiles, Needs Your Attention, Open Orders by Status, Low Stock and Value by Warehouse. All
+ * warehouses shows Figma's sample figures; a single warehouse shows its own (figuresFor), so switching changes them. The cards link to the Items and Orders lists. Purchasing and Receiving aren't
  * designed yet, so their actions explain that instead.
  */
 export function InventoryDashboardPage() {
@@ -99,8 +170,11 @@ export function InventoryDashboardPage() {
     ...warehouses.map(w => ({ value: w.code, label: `${w.code} ${w.name}${w.code === HOME_WAREHOUSE ? ' (home)' : ''}` })),
     { value: ALL, label: 'All warehouses' },
   ];
-  const statusMax = Math.max(...STATUSES.map(s => s.count));
-  const openCount = STATUSES.reduce((sum, s) => sum + s.count, 0);
+  // The chosen warehouse's figures (All shows Figma's)
+  const chosen = warehouses.find(w => w.code === warehouse);
+  const figures = chosen ? figuresFor(chosen) : ALL_FIGURES;
+  const statusMax = Math.max(1, ...figures.statuses.map(s => s.count));
+  const openCount = figures.statuses.reduce((sum, s) => sum + s.count, 0);
   const valueMax = Math.max(...VALUE_BY_WAREHOUSE.map(v => v.value));
   const valueTotal = VALUE_BY_WAREHOUSE.reduce((sum, v) => sum + v.value, 0);
 
@@ -109,13 +183,13 @@ export function InventoryDashboardPage() {
   const toggleLowSort = (key: string) =>
     setLowSort(s => ({ key, direction: s?.key === key && s.direction === 'ascending' ? 'descending' : 'ascending' }));
   const lowStockRows = lowSort
-    ? [...LOW_STOCK_ROWS].sort((a, b) => {
+    ? [...figures.lowStock].sort((a, b) => {
         const x = a[lowSort.key as keyof LowStock];
         const y = b[lowSort.key as keyof LowStock];
         const order = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
         return lowSort.direction === 'ascending' ? order : -order;
       })
-    : LOW_STOCK_ROWS;
+    : figures.lowStock;
 
   return (
     <div className={styles.page}>
@@ -150,7 +224,7 @@ export function InventoryDashboardPage() {
 
       {/* Design-system Tile (Figma "Tile / KPI") */}
       <ul className={styles.kpis} aria-label="Key figures">
-        {KPIS.map(k => (
+        {figures.kpis.map(k => (
           <li key={k.label}>
             <Tile icon={k.icon} label={k.label} value={k.value} note={k.note} onClick={() => navigate(k.to)} />
           </li>
@@ -163,7 +237,7 @@ export function InventoryDashboardPage() {
             Needs Your Attention
           </h2>
           <ul className={styles.attention}>
-            {ATTENTION.map(a => (
+            {figures.attention.map(a => (
               <li key={a.title} className={styles.attentionItem}>
                 <Icon name={a.icon} size={24} color="currentColor" />
                 <span className={styles.attentionText}>
@@ -195,7 +269,7 @@ export function InventoryDashboardPage() {
             </span>
           </div>
           <ul className={styles.bars}>
-            {STATUSES.map(s => (
+            {figures.statuses.map(s => (
               <li key={s.label}>
                 <button type="button" className={styles.statusBar} onClick={() => navigate(ORDERS_PATH)} aria-label={`${s.label}: ${s.count} orders`}>
                   <span className={styles.statusLabel}>
@@ -223,7 +297,7 @@ export function InventoryDashboardPage() {
             </h2>
             {/* Design-system Figma "Brand / Small / Outline" (3290:6405) */}
             <Button size="small" variant="brand-outline" onClick={() => navigate(ITEMS_PATH)}>
-              View All 14
+              View All {figures.belowReorder}
             </Button>
           </div>
           {/*

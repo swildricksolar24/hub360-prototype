@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
-import { columnMinWidth, type DataColumn } from './columns';
+import { columnMinWidth, isFixedColumn, type DataColumn } from './columns';
 
 export type FittingColumnsOptions = {
   /** Extra room needed before a hidden column comes back, so it doesn't flicker at the boundary. Default 16. */
@@ -35,9 +35,18 @@ export function useFittingColumns(
     .sort((a, b) => b.column.priority! - a.column.priority! || b.index - a.index)
     .map(({ column }) => column.key);
   const orderKey = hideOrder.join('\n');
-  const columnsKey = columns.map(c => `${c.key}:${c.width ?? ''}:${c.minWidth ?? ''}`).join('\n');
+  // Includes what changes a header's need (its filter / sort icons), so it's measured again when they come or go
+  const columnsKey = columns
+    .map(c => `${c.key}:${c.width ?? ''}:${c.minWidth ?? ''}:${c.filterable ? 'f' : ''}${c.sortable === false ? '' : 's'}`)
+    .join('\n');
   const [hiddenCount, setHiddenCount] = useState(0);
   const hiddenRef = useRef(0);
+  /*
+   * Each column's header need: its label in full plus its sort / filter icons and padding, measured from the header
+   * row. Kept per key, so a hidden column's need is known when deciding whether it can come back.
+   */
+  const [headerNeeds, setHeaderNeeds] = useState<Record<string, number>>({});
+  const needsRef = useRef<Record<string, number>>({});
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -51,12 +60,40 @@ export function useFittingColumns(
       const chrome = [...row.children].filter(cell => !cell.hasAttribute('data-column')) as HTMLElement[];
       const chromeWidth = chrome.reduce((sum, cell) => sum + cell.getBoundingClientRect().width, 0);
       const available = container.clientWidth;
+      // Header needs: the item's content width with its (possibly ellipsized) label at full length
+      let changed = false;
+      const needs = { ...needsRef.current };
+      row.querySelectorAll<HTMLElement>('[role="columnheader"][data-column]').forEach(item => {
+        const label = item.querySelector<HTMLElement>('[data-header-label]');
+        if (!label || getComputedStyle(label).position === 'absolute') return; // a hidden label: nothing to fit
+        // Sum of the parts (not the item's own width, which grows with the table): padding, its children, the gaps
+        // between them, and whatever of the label is cut off by its ellipsis
+        const s = getComputedStyle(item);
+        const parts = [...item.children] as HTMLElement[];
+        const content = parts.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
+        const value = Math.ceil(
+          (parseFloat(s.paddingLeft) || 0) +
+            (parseFloat(s.paddingRight) || 0) +
+            content +
+            (label.scrollWidth - label.clientWidth) +
+            (parseFloat(s.columnGap) || 0) * (parts.length - 1),
+        );
+        if (needs[item.dataset.column!] !== value) {
+          needs[item.dataset.column!] = value;
+          changed = true;
+        }
+      });
+      if (changed) {
+        needsRef.current = needs;
+        setHeaderNeeds(needs);
+      }
+      const floor = (c: DataColumn) => Math.max(columnMinWidth(c), needs[c.key] ?? 0);
       // Narrowest table width with the first `count` hideable columns hidden
       const need = (count: number) => {
         const hidden = new Set(hideOrder.slice(0, count));
         const shown = columns.filter(c => !hidden.has(c.key));
         const cells = chrome.length + shown.length;
-        return padding + chromeWidth + gap * Math.max(0, cells - 1) + shown.reduce((sum, c) => sum + columnMinWidth(c), 0);
+        return padding + chromeWidth + gap * Math.max(0, cells - 1) + shown.reduce((sum, c) => sum + floor(c), 0);
       };
       let count = 0;
       while (count < hideOrder.length && need(count) > available) count++;
@@ -76,14 +113,30 @@ export function useFittingColumns(
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(container);
+    // Labels measured before the web font loads come out narrower; measure again once it has
+    let live = true;
+    document.fonts?.ready.then(() => live && measure());
     return () => {
+      live = false;
       observer.disconnect();
       container.style.removeProperty('--table-min-width');
     };
     // columnsKey / orderKey stand in for `columns`, which callers often rebuild on every render
   }, [containerRef, columnsKey, orderKey, hysteresis]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (hiddenCount === 0) return columns;
   const hidden = new Set(hideOrder.slice(0, hiddenCount));
-  return columns.filter(c => !hidden.has(c.key));
+  return columns.filter(c => !hidden.has(c.key)).map(c => withHeaderRoom(c, headerNeeds[c.key]));
+}
+
+/**
+ * A column widened to hold its header (label in full + icons): its minimum, and a numeric width below that, rise to
+ * the header's need, so a narrow column shows "Locations" rather than "Loca…". A fixed column with a visible header
+ * grows to it too (and stays fixed); utility columns with a hidden label have no need measured, so they keep their width.
+ */
+function withHeaderRoom(column: DataColumn, need: number | undefined): DataColumn {
+  if (!need) return column;
+  const width = column.width ?? 160;
+  if (isFixedColumn(column)) return width !== 'fill' && need > width ? { ...column, width: need } : column;
+  if (need <= columnMinWidth(column)) return column;
+  return { ...column, minWidth: need, width: width === 'fill' ? 'fill' : Math.max(width, need) };
 }

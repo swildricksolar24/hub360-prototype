@@ -5,7 +5,7 @@ import { DataTable, type DataColumn, type DataSort } from '../../../../../compon
 import { PageTracker } from '../../../../../components/PageTracker/PageTracker';
 import { TwoLineCell } from '../../../../../components/TwoLineCell/TwoLineCell';
 import { AppLink } from '../../../../components/AppLink';
-import { ColumnFilter } from '../ColumnFilter';
+import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from '../ColumnFilter';
 import { RowMenu } from '../record/RowMenu';
 import { PAGE_SIZES } from '../record/tableKit';
 import { available, type Item, type StockRow } from './itemData';
@@ -17,24 +17,26 @@ import styles from './items.module.css';
 /** One row: an item's stock in one warehouse location, or (stock null) an item with no stock anywhere. */
 export type StockLine = { item: Item; stock: StockRow | null };
 
+/** Columns whose values repeat across stock rows, so filtering by them makes sense (not the amounts). */
+const STOCK_FILTER_KEYS = new Set(['item', 'category', 'warehouse', 'location', 'status']);
 /**
  * Figma "→ Items" Stock (681:14475): Item (the number, with the name under it) · Category · Warehouse · On Hand ·
- * Allocated · Committed · Frozen · Available · Status, each with a filter and sort. Location is not in Figma; it's
+ * Allocated · Committed · Frozen · Available · Status, each with a sort (filters on Item, Category, Warehouse, Location and Status). Location is not in Figma; it's
  * offered under Columns (and shown on an item's own Stock tab).
  */
 const ALL_COLUMNS: DataColumn[] = ([
   // Never narrower than the longest full item number on one line ("PA-0002-AJ89-98HB")
   { key: 'item', label: 'Item', width: 'fill', minWidth: 172 },
-  { key: 'category', label: 'Category', width: 132, minWidth: 116 },
-  { key: 'warehouse', label: 'Warehouse', width: 124, minWidth: 120 },
-  { key: 'onHand', label: 'On Hand', width: 108, minWidth: 104 },
-  { key: 'allocated', label: 'Allocated', width: 112, minWidth: 108, priority: 3 },
-  { key: 'committed', label: 'Committed', width: 120, minWidth: 116, priority: 2 },
+  { key: 'category', label: 'Category', width: 132, minWidth: 124 },
+  { key: 'warehouse', label: 'Warehouse', width: 136, minWidth: 136 },
+  { key: 'onHand', label: 'On Hand', width: 120, minWidth: 120 },
+  { key: 'allocated', label: 'Allocated', width: 124, minWidth: 124, priority: 3 },
+  { key: 'committed', label: 'Committed', width: 136, minWidth: 136, priority: 2 },
   { key: 'frozen', label: 'Frozen', width: 96, minWidth: 92, priority: 4 },
-  { key: 'available', label: 'Available', width: 112, minWidth: 108 },
-  { key: 'location', label: 'Location', width: 112, minWidth: 104, priority: 1 },
+  { key: 'available', label: 'Available', width: 126, minWidth: 126 },
+  { key: 'location', label: 'Location', width: 120, minWidth: 120, priority: 1 },
   { key: 'status', label: 'Status', width: 156, minWidth: 152 },
-] satisfies DataColumn[]).map(c => ({ ...c, filterable: true }));
+] satisfies DataColumn[]).map(c => ({ ...c, filterable: STOCK_FILTER_KEYS.has(c.key) }));
 export const STOCK_COLUMN_OPTIONS = ALL_COLUMNS.map(c => ({ key: c.key, label: c.label, locked: c.key === 'item' || c.key === 'warehouse' }));
 /** The Items list's Stock view starts with Figma's columns (Location can be added under Columns). */
 export const DEFAULT_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k !== 'location');
@@ -59,8 +61,8 @@ const value = (line: StockLine, key: string): string | number => {
   if (key === 'available') return stock ? available(stock) : 0;
   return stock ? stock[key as (typeof NUMBERS)[number]] : 0;
 };
-/** A cell's text for the column filters ("Contains…"): the Item column matches the number or the name. */
-const filterText = (line: StockLine, key: string) => (key === 'item' ? `${line.item.id} ${line.item.name}` : String(value(line, key)));
+/** A cell's text for the column filters' value lists: the Item column lists item names. */
+const filterText = (line: StockLine, key: string) => (key === 'item' ? line.item.name : String(value(line, key)));
 const n = (v: number) => v.toLocaleString('en-US');
 
 /**
@@ -70,7 +72,7 @@ const n = (v: number) => v.toLocaleString('en-US');
 export function StockTable({ lines, columns, label, totals = false }: { lines: StockLine[]; columns?: string[]; label: string; totals?: boolean }) {
   const navigate = useNavigate();
   const [sort, setSort] = useState<DataSort | undefined>();
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<ColumnFilters>({});
   const [filterOpen, setFilterOpen] = useState<string | null>(null);
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -82,7 +84,7 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
   const shown = ALL_COLUMNS.filter(c => !columns || columns.includes(c.key));
   // Without the Item column (an item's own record), Location takes the spare width
   const cols = shown.some(c => c.width === 'fill') ? shown : shown.map(c => (c.key === 'location' ? { ...c, width: 'fill' as const, priority: undefined } : c));
-  const matching = lines.filter(l => Object.entries(filters).every(([key, text]) => filterText(l, key).toLowerCase().includes(text.toLowerCase())));
+  const matching = lines.filter(l => matchesFilters(l, filters, filterText));
   const rows = sortRows(matching, sort, value);
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, pageCount);
@@ -101,11 +103,13 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
           aria-label={label}
           columns={cols}
           rows={pageRows}
+          totalRows={lines.length}
           rowLabel={l => (l.stock ? `${l.item.name} at ${l.stock.location}` : `${l.item.name} (no stock)`)}
           sort={sort}
           onSortChange={k => setSort(nextSort(k))}
           onFilter={key => setFilterOpen(open => (open === key ? null : key))}
           activeFilters={Object.keys(filters)}
+          openFilter={filterOpen ?? undefined}
           selected={pageRows.map(l => l.id).filter(id => sel.selected.has(id))}
           onSelectedChange={ids => {
             sel.setMany(
@@ -173,14 +177,10 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
             key={filterOpen}
             anchor={tableRef.current?.querySelector<HTMLElement>(`[role="columnheader"][data-column="${filterOpen}"]`)}
             label={cols.find(c => c.key === filterOpen)?.label ?? ''}
-            value={filters[filterOpen] ?? ''}
-            onApply={text => {
-              setFilters(f => {
-                const next = { ...f };
-                if (text.trim()) next[filterOpen] = text.trim();
-                else delete next[filterOpen];
-                return next;
-              });
+            options={filterOptions(lines, l => filterText(l, filterOpen))}
+            value={filters[filterOpen] ?? []}
+            onApply={values => {
+              setFilters(f => withFilter(f, filterOpen, values));
               setFilterOpen(null);
             }}
             onClose={() => setFilterOpen(null)}

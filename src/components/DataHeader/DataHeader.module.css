@@ -106,6 +106,118 @@
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
 }
 
+/*
+ * Figma Header Item State=Stretched (the Data Table Header, 3131:247), space-between:
+ * - the label group: the label and, 4px after it (Figma 2px, doubled), a 16px sort chevron in Gray Fill/Weak
+ * - at the far edge: the Preferences (filter) icon on a tile with 4px corners (Figma: a 24px icon on Gray Fill/Weaker,
+ *   10%; here the same 16px icon, 20px tile and 5% gray as the sort chevron's)
+ * In an end-aligned column (numbers, dates) the sides swap, so the label sits over the values. The label ellipsizes
+ * before the icons give way. Figma has no states for the icons: hover gives the sort chevron the 5% gray tile (the same
+ * as a sorted column's) and leaves the filter tile at 5%; press takes either to Gray Fill/Press; an active filter's tile
+ * takes Brand Teal Fill/Weak with a white icon. A sorted column's chevron also highlights its
+ * direction (see .sortIcon).
+ */
+.item[data-stretched] {
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+.item[data-stretched][data-align='end'] {
+  flex-direction: row-reverse;
+}
+.labelGroup {
+  display: flex;
+  align-items: center;
+  /* Twice Figma's 2px between the label and the sort tile */
+  gap: var(--space-4);
+  min-width: 0;
+}
+.item[data-stretched] .labelGroup :is(.iconButton, .icon) {
+  flex: none;
+  /* 2px around the 16px icon: about twice the room its arrows had inside their tile (20px tile) */
+  box-sizing: content-box;
+  padding: var(--space-2);
+  border-radius: var(--radius-4);
+  color: var(--color-gray-fill-weak);
+}
+.item[data-stretched] .labelGroup .iconButton:hover {
+  background: color-mix(in srgb, var(--color-gray-fill-disabled) 50%, transparent); /* 5%, as the sorted tile */
+  color: var(--color-gray-fill-strong);
+}
+.item[data-stretched] .labelGroup .iconButton:active {
+  background: var(--color-gray-fill-press);
+}
+/* The active sort: the chevron sits on a 5% gray tile, half of Gray Fill/Disabled (10%); there is no 5% token yet, so it is mixed from that one, as the rows' 5% hover is. Hover is the same 5%; press steps up to Gray Fill/Press. */
+.item[data-stretched]:is([aria-sort='ascending'], [aria-sort='descending']) .labelGroup [data-icon='sort']:not(:active) {
+  background: color-mix(in srgb, var(--color-gray-fill-disabled) 50%, transparent);
+}
+/* The filter tile: the same size (a 16px icon, 2px around it: 20px) and 5% gray as the sort chevron's, at rest and on hover */
+.item[data-stretched] > :is(.iconButton, .icon) {
+  flex: none;
+  box-sizing: content-box;
+  padding: var(--space-2);
+  border-radius: var(--radius-4);
+  background: color-mix(in srgb, var(--color-gray-fill-disabled) 50%, transparent);
+  /* The icon at 20%: the 20% gray primitive (Gray Fill/Hover is 20% too, but it's the hover fill) */
+  color: var(--color-foundation-transparent-200);
+}
+/*
+ * The filter button shows only while its header item is hovered (or has keyboard focus); it stays on a column whose
+ * filter is on (so it can be seen and cleared) and while its pop-over is open. It only fades, so the header never moves.
+ */
+.item[data-stretched] > :is(.iconButton, .icon) {
+  opacity: 0;
+  transition:
+    opacity 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.item[data-stretched]:is(:hover, :focus-within) > :is(.iconButton, .icon),
+.item[data-stretched] > :is([aria-pressed='true'], [aria-expanded='true']) {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .item[data-stretched] > :is(.iconButton, .icon) {
+    transition: none;
+  }
+}
+/* Hover brings the icon to full strength, as the sort chevron's */
+.item[data-stretched] > .iconButton:hover {
+  color: var(--color-gray-fill-strong);
+}
+.item[data-stretched] > .iconButton:active {
+  background: var(--color-gray-fill-press);
+}
+/* An active filter: Brand Teal Fill/Weak with a white icon, as the selected Tag */
+.item[data-stretched] [data-icon='filter'][aria-pressed='true'] {
+  background: var(--color-brand-teal-fill-weak);
+  color: var(--color-foundation-solid-white); /* white on brand fill; no semantic token (design-system.md) */
+}
+
+/*
+ * Sort icon (both header styles): its two arrows take the icon's color. On a sorted column the arrow for the current
+ * direction turns Gray Fill/Strong (up = ascending, down = descending) and the other fades to Gray Fill/Disabled.
+ */
+.sortIcon {
+  display: block;
+  flex: none;
+}
+.sortIcon path {
+  fill: currentColor;
+  transition: fill 150ms ease;
+}
+.sortIcon[data-direction] path {
+  fill: var(--color-gray-fill-disabled);
+}
+.sortIcon[data-direction='ascending'] [data-arrow='up'],
+.sortIcon[data-direction='descending'] [data-arrow='down'] {
+  fill: var(--color-gray-fill-strong);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sortIcon path {
+    transition: none;
+  }
+}
+
 .srOnly {
   position: absolute;
   width: 1px;

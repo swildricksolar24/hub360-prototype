@@ -13,6 +13,11 @@ export type NavPage = {
   icon: string;
   /** Name of a record opened under this page (/app/<section>/<page>/<id>), shown on its tab. */
   recordLabel?: (id: string) => string | undefined;
+  /**
+   * Leaves the page out of Tier 2 (and the header search). Its route still works, so its records open from links
+   * inside the app and keep their tab names.
+   */
+  hidden?: boolean;
 };
 export type NavSection = { id: string; label: string; icon: string; pages?: NavPage[] };
 
@@ -33,7 +38,8 @@ export const SECTIONS: NavSection[] = [
       { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
       { id: 'warehouses', label: 'Warehouses', icon: 'warehouse', recordLabel: code => findWarehouse(code)?.name },
       { id: 'items', label: 'Items', icon: 'tasks', recordLabel: id => findItem(id)?.name },
-      { id: 'orders', label: 'Orders', icon: 'orders', recordLabel: id => findOrder(id)?.number },
+      // Hidden from Tier 2 for now; order records still open from links inside the app
+      { id: 'orders', label: 'Orders', icon: 'orders', recordLabel: id => findOrder(id)?.number, hidden: true },
     ],
   },
 ];

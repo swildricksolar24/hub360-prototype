@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { NumericInput } from '../../../../../../components/NumericInput/NumericInput';
 import { AppLink } from '../../../../../components/AppLink';
 import { AppModal } from '../../../../../components/AppModal';
@@ -9,14 +8,16 @@ import { HelperToggle, PrototypeHelper } from '../../../../../shell/PrototypeHel
 import { money, type BuildLine, type Item } from '../itemData';
 import { buildCandidates, itemPath, unitCostOf, updateItem, useItems } from '../itemStore';
 import { Card, ItemPicker, nextSort, sortRows, TrashButton } from '../shared';
+import { useColumnFilters } from '../../ColumnFilter';
 import record from '../../record.module.css';
-import table from '../../table.module.css';
+import listStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
 
 /** The columns: full size on the Build tab; `compact` inside an 800px modal. */
 function buildColumns(costs: boolean, editable: boolean, removable: boolean, compact: boolean): DataColumn[] {
   const columns: DataColumn[] = [
-    { key: 'type', label: 'Item Type', width: compact ? 96 : 110 },
+    // Item Type repeats (Part / Assembly), so it filters
+    { key: 'type', label: 'Item Type', width: compact ? 96 : 110, filterable: true },
     { key: 'number', label: 'Item #', width: compact ? 150 : 160 },
     { key: 'name', label: 'Item Name', width: 'fill' },
     { key: 'quantity', label: 'Quantity', width: editable ? QTY_WIDTH : compact ? 96 : 110, align: 'end' },
@@ -75,8 +76,9 @@ export function BuildTable({
   const rows = lines.map(line => {
     const item = all.find(i => i.id === line.itemId);
     const unit = item ? unitCostOf(item, all) : 0;
-    return { line, item, unit, net: unit * line.quantity };
+    return { id: line.itemId, line, item, unit, net: unit * line.quantity };
   });
+  const colFilters = useColumnFilters(rows, r => r.item?.type ?? '');
   const sorted = sortRows(rows, sort, (r, key) =>
     key === 'quantity'
       ? r.line.quantity
@@ -92,50 +94,50 @@ export function BuildTable({
   );
 
   return (
-    <div className={table.tableScroll}>
-      <div role="table" aria-label={label} className={table.table}>
-        <DataHeader className={table.head} corners="none" columns={columns} leading="none" actions={false} sort={sort} onSortChange={k => setSort(nextSort(k))} />
-        {rows.length === 0 && <p className={`text-medium-regular ${record.emptyRow}`}>{empty}</p>}
-        {sorted.map(({ line, item, unit, net }, i) => (
-          <div key={line.itemId} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={(item && !item.active) || undefined}>
-            <DataRow
-              className={table.row}
-              columns={columns}
-              leading="none"
-              actions={false}
-              cells={{
-                type: item?.type ?? '—',
-                number: link ? (
-                  <AppLink to={itemPath(line.itemId)} size="small">
-                    {line.itemId}
-                  </AppLink>
-                ) : (
-                  line.itemId
-                ),
-                name: item?.name ?? 'A deleted item',
-                quantity: onQuantityChange ? (
-                  <div className={styles.cellField} style={{ width: QTY_FIELD_WIDTH }}>
-                    <NumericInput
-                      label={`Quantity of ${item?.name ?? line.itemId}`}
-                      min={1}
-                      step={1}
-                      required
-                      value={line.quantity || null}
-                      onValueChange={v => onQuantityChange(line.itemId, Math.max(0, Math.round(v ?? 0)))}
-                      error={line.quantity < 1 ? 'Enter at least 1' : undefined}
-                    />
-                  </div>
-                ) : (
-                  line.quantity.toLocaleString('en-US')
-                ),
-                unitCost: money(unit),
-                netCost: money(net),
-                remove: onRemove && <TrashButton label={`Remove ${item?.name ?? line.itemId}`} onClick={() => onRemove(line, item)} />,
-              }}
-            />
-          </div>
-        ))}
-      </div>
+    // Volt Data Table (Figma "Data Table" page); Item Type filters once a build has more than 10 lines
+    <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+      <DataTable
+        aria-label={label}
+        columns={columns}
+        rows={sorted.filter(r => colFilters.matches(r))}
+        rowLabel={r => r.item?.name ?? r.line.itemId}
+        sort={sort}
+        onSortChange={k => setSort(nextSort(k))}
+        {...colFilters.tableProps}
+        totalRows={rows.length}
+        inactive={r => !!r.item && !r.item.active}
+        empty={rows.length === 0 ? empty : 'No lines match the filter.'}
+        cells={({ line, item, unit, net }) => ({
+          type: item?.type ?? '—',
+          number: link ? (
+            <AppLink to={itemPath(line.itemId)} size="small">
+              {line.itemId}
+            </AppLink>
+          ) : (
+            line.itemId
+          ),
+          name: item?.name ?? 'A deleted item',
+          quantity: onQuantityChange ? (
+            <div className={styles.cellField} style={{ width: QTY_FIELD_WIDTH }}>
+              <NumericInput
+                label={`Quantity of ${item?.name ?? line.itemId}`}
+                min={1}
+                step={1}
+                required
+                value={line.quantity || null}
+                onValueChange={v => onQuantityChange(line.itemId, Math.max(0, Math.round(v ?? 0)))}
+                error={line.quantity < 1 ? 'Enter at least 1' : undefined}
+              />
+            </div>
+          ) : (
+            line.quantity.toLocaleString('en-US')
+          ),
+          unitCost: money(unit),
+          netCost: money(net),
+          remove: onRemove && <TrashButton label={`Remove ${item?.name ?? line.itemId}`} onClick={() => onRemove(line, item)} />,
+        })}
+      />
+      {colFilters.popover(columns)}
     </div>
   );
 }

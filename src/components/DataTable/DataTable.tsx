@@ -12,6 +12,8 @@ const SELECT_CELL_WIDTH = 28;
 const MORE_CELL_WIDTH = 44;
 const SUMMARY_LEAD = '__summary-lead';
 const SUMMARY_END = '__summary-end';
+/** A list this long or shorter shows no column filter icons, only sort (see `totalRows`). */
+export const FILTER_MIN_ROWS = 10;
 
 /** Props DataTable spreads onto a row's wrapper (see `rowProps`): any div attributes, plus `data-*` flags. */
 export type RowWrapperProps = HTMLAttributes<HTMLDivElement> & { [key: `data-${string}`]: string | boolean | undefined };
@@ -61,6 +63,14 @@ export type DataTableProps<T extends { id: string }> = {
   onFilter?: (key: string) => void;
   /** Keys of the columns with an active filter (their icon shows "Filter - Active"). Passed to DataHeader. */
   activeFilters?: string[];
+  /** The column whose filter pop-over is open: its filter button stays shown and gets `aria-expanded`. */
+  openFilter?: string;
+  /**
+   * How many rows the whole list has, before paging, search and filters (default `rows.length`). A table of
+   * FILTER_MIN_ROWS (10) rows or fewer shows only the sort icons: its columns' filter icons hide, except on a column
+   * whose filter is on (so it can be cleared). Pass it when `rows` is one page or a filtered list.
+   */
+  totalRows?: number;
   /**
    * While loading: skeleton rows (Volt Skeleton bars on the row background) in place of the rows, empty message and
    * summary, and `aria-busy` on the table.
@@ -105,6 +115,8 @@ export function DataTable<T extends { id: string }>({
   summaryLabel = 'Totals',
   onFilter,
   activeFilters,
+  openFilter,
+  totalRows,
   loading = false,
   loadingRows = 5,
   striped = true,
@@ -118,7 +130,14 @@ export function DataTable<T extends { id: string }>({
   const ids = rows.map(r => r.id);
   const setRow = (id: string, on: boolean) => onSelectedChange?.(on ? [...selected, id] : selected.filter(s => s !== id));
   const scrollRef = useRef<HTMLDivElement>(null);
-  const shown = useFittingColumns(columns, scrollRef);
+  // Filter buttons show only where they work and help: the table handles filters (`onFilter`; without it a filter
+  // button would open nothing), and the list is longer than 10 rows (a short one needs only sort). A column whose
+  // filter is on keeps its button, so it can be cleared.
+  const withFilters = !!onFilter && (totalRows ?? rows.length) > FILTER_MIN_ROWS;
+  const headerColumns = withFilters
+    ? columns
+    : columns.map(c => (c.filterable && !activeFilters?.includes(c.key) ? { ...c, filterable: false } : c));
+  const shown = useFittingColumns(headerColumns, scrollRef);
   // The summary row has no checkbox or •••: empty spacer cells of their widths keep its values under the headers
   const summaryColumns: DataColumn[] = [
     ...(withCheckbox ? [{ key: SUMMARY_LEAD, label: '', width: SELECT_CELL_WIDTH, fixed: true }] : []),
@@ -140,6 +159,7 @@ export function DataTable<T extends { id: string }>({
         <DataHeader
           className={styles.head}
           corners="none"
+          stretched
           columns={shown}
           leading={leading}
           actions={withActions}
@@ -147,6 +167,7 @@ export function DataTable<T extends { id: string }>({
           onSortChange={onSortChange}
           onFilter={onFilter}
           activeFilters={activeFilters}
+          openFilter={openFilter}
           allSelected={ids.length > 0 && ids.every(id => selected.includes(id))}
           onSelectAllChange={onSelectedChange && (on => onSelectedChange(on ? [...new Set([...selected, ...ids])] : selected.filter(s => !ids.includes(s))))}
         />

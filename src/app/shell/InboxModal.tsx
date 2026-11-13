@@ -5,7 +5,8 @@ import { Badge } from '../../components/Badge/Badge';
 import { IconButton } from '../../components/IconButton/IconButton';
 import { AppModal } from '../components/AppModal';
 import { useHelperFlag } from './helperFlags';
-import { INBOX_TITLES, SAMPLE_INBOX, senderPhoto, type InboxItem, type InboxKind } from './inbox';
+import { INBOX_TITLES, SAMPLE_INBOX, type InboxItem, type InboxKind } from './inbox';
+import { useProfilePhoto } from '../auth/useProfilePhoto';
 import styles from './InboxModal.module.css';
 
 /** Each item's place in the sample data, so an item whose bookmark is removed can go back to it. */
@@ -99,6 +100,8 @@ export type InboxModalProps = {
  * the time, and Bookmark / Archive / Delete buttons. Clicking a card expands it to the whole message.
  */
 export function InboxModal({ kind, items, onClose, onToggleBookmark, onRemove }: InboxModalProps) {
+  // Every sender shows the current profile photo (initials when there is none)
+  const senderPhoto = useProfilePhoto();
   // After Archive / Delete, keyboard focus moves to the row that took its place (or the modal's buttons)
   const listRef = useRef<HTMLUListElement>(null);
   const [refocus, setRefocus] = useState<number | null>(null);
@@ -240,7 +243,7 @@ export function InboxModal({ kind, items, onClose, onToggleBookmark, onRemove }:
                   {kind === 'notifications' ? (
                     <Avatar type="icon" icon="notification" className={styles.alertAvatar} />
                   ) : (
-                    <Avatar src={senderPhoto(item.from ?? '')} initials={initialsOf(item.from ?? '')} label={item.from} />
+                    <Avatar src={senderPhoto} initials={initialsOf(item.from ?? '')} label={item.from} />
                   )}
                 </div>
                 <div className={styles.text}>

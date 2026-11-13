@@ -655,7 +655,8 @@ function fromSeed(s: Seed, i: number): Item {
     buyUnit: units.length > 2 ? 'Case' : units[units.length - 1].unit,
     sellUnit: 'Pack',
     countUnit: 'Pack',
-    images: solar ? ['Front View.png', 'Back View.png', 'Junction Box.png', 'Label.png', 'Frame Corner.png', 'Installed.png'] : [],
+    // Real photos for these names live in assets/item-photos (see its CREDITS.md)
+    images: solar ? ['Front View.jpg', 'Back View.jpg', 'Junction Box.jpg', 'Label.jpg', 'Cell Close-up.jpg', 'Installed.jpg'] : [],
     specSheet: s.model ? `${s.model} Spec Sheet.pdf` : '',
     weight,
     length: solar ? 65.6 : +(1 + rnd() * 10).toFixed(1),

@@ -17,7 +17,7 @@ import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper
 import { RowMenu } from '../record/RowMenu';
 import { PAGE_SIZES } from '../record/tableKit';
 import { available, blankItem, ITEM_TYPES, unitLabel, type Item, type ItemType } from './itemData';
-import { ColumnFilter } from '../ColumnFilter';
+import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from '../ColumnFilter';
 import { NEW_TAB_STATE } from '../../../../shell/navigation';
 import warehouseStyles from '../warehouses.module.css';
 import { deactivateItem, deleteItems, itemPath, mergeItems, setItems, usedIn, useItems } from './itemStore';
@@ -30,17 +30,18 @@ import { Toast } from '../../../../../components/Toast/Toast';
 
 
 // Figma "→ Items" Overview (681:14463): Item (the number, with the name under it) · Type · Category · Unit · On Hand ·
-// Available · Warehouses · Status, each with a filter and sort. On a narrow card the columns shrink to their minWidth.
+// Available · Warehouses · Status, each with a filter and sort. On a narrow card the columns shrink to their minWidth, then
+// Unit, Type and Warehouses hide in that order (their header labels need room for the filter and sort icons).
 const OVERVIEW_COLUMNS: DataColumn[] = [
   // Never narrower than the longest full item number on one line ("PA-0002-AJ89-98HB": 143px, + the link's 4px and the
   // cell's 16px padding)
-  { key: 'item', label: 'Item', width: 'fill', minWidth: 172, filterable: true },
-  { key: 'type', label: 'Type', width: 116, minWidth: 96, filterable: true },
-  { key: 'category', label: 'Category', width: 140, minWidth: 116, filterable: true },
-  { key: 'unit', label: 'Unit', width: 96, minWidth: 80, filterable: true },
-  { key: 'onHand', label: 'On Hand', width: 112, minWidth: 104, filterable: true },
-  { key: 'available', label: 'Available', width: 112, minWidth: 108, filterable: true },
-  { key: 'warehouses', label: 'Warehouses', width: 128, minWidth: 124, filterable: true },
+  { key: 'item', label: 'Item', width: 'fill', minWidth: 172 },
+  { key: 'type', label: 'Type', width: 116, minWidth: 100, priority: 2, filterable: true },
+  { key: 'category', label: 'Category', width: 140, minWidth: 128, filterable: true },
+  { key: 'unit', label: 'Unit', width: 100, minWidth: 96, priority: 3, filterable: true },
+  { key: 'onHand', label: 'On Hand', width: 124, minWidth: 124 },
+  { key: 'available', label: 'Available', width: 126, minWidth: 126 },
+  { key: 'warehouses', label: 'Warehouses', width: 146, minWidth: 146, priority: 1 },
 ];
 const OVERVIEW_OPTIONS = OVERVIEW_COLUMNS.map(c => ({ key: c.key, label: c.label, locked: c.key === 'item' }));
 const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 120, minWidth: 108, filterable: true };
@@ -77,9 +78,9 @@ const cellValue = (i: Item, key: string): string | number =>
             : key === 'warehouses'
               ? warehousesOf(i)
               : String(i[key as 'type' | 'category'] ?? '');
-/** A cell's text for the column filters ("Contains…"): the Item column matches the number or the name. */
+/** A cell's text for the column filters' value lists: the Item column lists item names. */
 const filterText = (i: Item, key: string) =>
-  key === 'item' ? `${i.id} ${i.name}` : key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(cellValue(i, key));
+  key === 'item' ? i.name : key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(cellValue(i, key));
 
 /**
  * Inventory › Items (ITEMS.md §1; Figma "→ Items" 681:14463 Overview, 681:14475 Stock): one list of parts, assemblies
@@ -94,8 +95,8 @@ export function ItemsPage() {
   const [mode, setMode] = useState<'overview' | 'stock'>('overview');
   const [view, setView] = useState('all');
   const [query, setQuery] = useState('');
-  // Column filters (each header's filter icon): "Contains…" text per column
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  // Column filters (each header's filter icon): the values checked per column
+  const [filters, setFilters] = useState<ColumnFilters>({});
   const [filterOpen, setFilterOpen] = useState<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<DataSort | undefined>();
@@ -135,7 +136,7 @@ export function ItemsPage() {
       i =>
         test(i) &&
         (!q || `${i.id} ${i.customNumber} ${i.name} ${i.type} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) &&
-        Object.entries(filters).every(([key, text]) => filterText(i, key).toLowerCase().includes(text.toLowerCase())),
+        matchesFilters(i, filters, filterText),
     );
   }, [shown, query, view, filters]);
   const rows = sortRows(filtered, sort, cellValue);
@@ -295,12 +296,14 @@ export function ItemsPage() {
               className={record.statusStart}
               columns={tableColumns}
               rows={pageRows}
+              totalRows={shown.length}
               rowLabel={item => item.name}
               loading={showLoading}
               sort={sort}
               onSortChange={key => setSort(nextSort(key))}
               onFilter={key => setFilterOpen(open => (open === key ? null : key))}
               activeFilters={Object.keys(filters)}
+              openFilter={filterOpen ?? undefined}
               selected={[...sel.selected]}
               onSelectedChange={ids => {
                 sel.setMany([...sel.selected], false);
@@ -360,14 +363,10 @@ export function ItemsPage() {
                 key={filterOpen}
                 anchor={tableRef.current?.querySelector<HTMLElement>(`[role="columnheader"][data-column="${filterOpen}"]`)}
                 label={tableColumns.find(c => c.key === filterOpen)?.label ?? ''}
-                value={filters[filterOpen] ?? ''}
-                onApply={text => {
-                  setFilters(f => {
-                    const next = { ...f };
-                    if (text.trim()) next[filterOpen] = text.trim();
-                    else delete next[filterOpen];
-                    return next;
-                  });
+                options={filterOptions(shown, i => filterText(i, filterOpen))}
+                value={filters[filterOpen] ?? []}
+                onApply={values => {
+                  setFilters(f => withFilter(f, filterOpen, values));
                   setFilterOpen(null);
                 }}
                 onClose={() => setFilterOpen(null)}

@@ -100,6 +100,7 @@ export function AddItemsModal({
           <DataHeader
             className={table.head}
             corners="none"
+            stretched
             columns={COLUMNS}
             leading="checkbox"
             actions={false}

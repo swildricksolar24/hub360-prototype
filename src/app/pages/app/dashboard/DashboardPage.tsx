@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useHref, useLinkClickHandler } from 'react-router-dom';
 import { Avatar } from '../../../../components/Avatar/Avatar';
 import { Icon } from '../../../../components/Icon/Icon';
 import { Badge } from '../../../../components/Badge/Badge';
+import { Tag } from '../../../../components/Tag/Tag';
 import { useAuth } from '../../../auth/AuthContext';
 import { INBOX_TITLES, type InboxKind } from '../../../shell/inbox';
 import { useShellInbox } from '../../../shell/InboxModal';
-import { findSection, sectionPath } from '../../../shell/navigation';
+import { findSection, NEW_TAB_STATE, sectionPath } from '../../../shell/navigation';
+import { readLastPage, visitedWhen } from '../../../shell/lastPage';
 import { useHelperFlag } from '../../../shell/helperFlags';
 import { HelperToggle, PrototypeHelper } from '../../../shell/PrototypeHelper';
 import styles from './DashboardPage.module.css';
@@ -15,11 +17,31 @@ import styles from './DashboardPage.module.css';
  * A section card that is one big link: icon tile, name and description. Hover and keyboard focus fill
  * it with light brand teal; pressing deepens its stroke.
  */
-function SectionCard({ to, icon, title, description }: { to: string; icon: string; title: string; description: string }) {
+function SectionCard({
+  to,
+  icon,
+  title,
+  description,
+  state,
+  tag,
+}: {
+  to: string;
+  icon: string;
+  title: string;
+  description: string;
+  state?: unknown;
+  /** A Volt Tag in the card's top right corner (e.g. "Last Viewed") */
+  tag?: string;
+}) {
   const href = useHref(to);
-  const onClick = useLinkClickHandler<HTMLAnchorElement>(to);
+  const onClick = useLinkClickHandler<HTMLAnchorElement>(to, { state });
   return (
     <a href={href} onClick={onClick} className={styles.module}>
+      {tag && (
+        <Tag size="tiny" selected className={styles.cardTag}>
+          {tag}
+        </Tag>
+      )}
       <span className={styles.tile} aria-hidden>
         <Icon name={icon} size={32} color="currentColor" />
       </span>
@@ -76,6 +98,11 @@ export function DashboardPage() {
   // Helper switch (set on the Account page): "No profile photo" shows initials here too
   const noPhoto = useHelperFlag('account.noPhoto');
   const inventory = findSection('inventory');
+  // The last page visited (kept across sign-outs and reloads), read once as the Dashboard opens.
+  // Helper switch: "No last page" shows the Dashboard as on a first sign-in.
+  const [saved] = useState(() => (user ? readLastPage(user.id) : null));
+  const noLastPage = useHelperFlag('dashboard.noLastPage');
+  const lastPage = noLastPage ? null : saved;
   const now = new Date();
   const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -86,9 +113,10 @@ export function DashboardPage() {
   return (
     <div className={styles.page}>
       {/* Applied in useInbox (InboxModal.tsx), so they reach the header badges and lists too */}
-      <PrototypeHelper title="Inbox">
+      <PrototypeHelper title="Dashboard">
         <HelperToggle flag="inbox.empty" label="Empty inbox" />
         <HelperToggle flag="inbox.allRead" label="All read" />
+        <HelperToggle flag="dashboard.noLastPage" label="No last page" />
       </PrototypeHelper>
       <section className={styles.welcome} aria-labelledby="welcome-title">
         <span className={styles.photo}>
@@ -113,16 +141,24 @@ export function DashboardPage() {
 
       {inventory && (
         <nav className={styles.sections} aria-label="Sections">
-          {/* The Inventory card four times to fill the row while it is the only section; swap in new sections here */}
-          {[1, 2, 3, 4].map(n => (
+          {/* Pick up where you left off: the last page visited, opened in a new app tab so the Dashboard stays */}
+          {lastPage && (
             <SectionCard
-              key={n}
-              to={sectionPath(inventory)}
-              icon={inventory.icon}
-              title={inventory.label}
-              description="Warehouses, items, counts, receiving and shipping across your sites."
+              to={lastPage.to}
+              state={NEW_TAB_STATE.state}
+              icon={lastPage.icon ?? 'home'}
+              tag="Last Viewed"
+              title={lastPage.name}
+              description={`Pick up where you left off: ${lastPage.where ? `${lastPage.where}, ` : ''}${visitedWhen(lastPage.at, now)}.`}
             />
-          ))}
+          )}
+          {/* One card per section that is built so far (Inventory); add new sections here */}
+          <SectionCard
+            to={sectionPath(inventory)}
+            icon={inventory.icon}
+            title={inventory.label}
+            description="Warehouses, items, counts, receiving and shipping across your sites."
+          />
         </nav>
       )}
     </div>

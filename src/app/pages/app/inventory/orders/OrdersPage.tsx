@@ -16,6 +16,8 @@ import { OrderStatusPill } from './OrderStatus';
 import { DESIGNED_TYPES, ORDER_STATUSES, ORDER_TYPES, formatDate, type Order, type OrderStatus, type OrderType } from './orderData';
 import { createOrder, orderPath, setOrders, useOrders } from './orderStore';
 import { PAGE_SIZES } from '../record/tableKit';
+import { useColumnFilters } from '../ColumnFilter';
+import listStyles from '../warehouses.module.css';
 import styles from './orders.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 import { useHelperFlag } from '../../../../shell/helperFlags';
@@ -26,9 +28,10 @@ const ALL = '__all';
 // On a narrow card the columns shrink to their minWidth (text wraps to 2 lines); nothing hides
 const COLUMNS: DataColumn[] = [
   { key: 'number', label: 'Order #', width: 150, minWidth: 110 },
-  { key: 'type', label: 'Type', width: 110, minWidth: 90 },
-  { key: 'warehouse', label: 'Warehouse', width: 'fill', minWidth: 120 },
-  { key: 'status', label: 'Status', width: 130, minWidth: 110 },
+  // Type, Warehouse and Status repeat across orders, so they filter (a checkbox list of their values)
+  { key: 'type', label: 'Type', width: 110, minWidth: 90, filterable: true },
+  { key: 'warehouse', label: 'Warehouse', width: 'fill', minWidth: 120, filterable: true },
+  { key: 'status', label: 'Status', width: 130, minWidth: 110, filterable: true },
   { key: 'created', label: 'Created', width: 124, minWidth: 100, align: 'end' },
   { key: 'due', label: 'Due', width: 124, minWidth: 100, align: 'end' },
 ];
@@ -81,22 +84,27 @@ export function OrdersPage() {
     return o[key as 'type' | 'status'];
   };
 
+  // Column filters: a cell's text as it shows (the Warehouse column reads "PHX-124 · Phoenix WH")
+  const filterText = (o: Order, key: string) => (key === 'warehouse' ? `${o.warehouse} · ${warehouseName(o.warehouse)}` : key === 'type' ? o.type : o.status);
+  const colFilters = useColumnFilters(orders, filterText);
+
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = orders.filter(o => {
       if (view !== ALL && o.status !== view) return false;
+      if (!colFilters.matches(o)) return false;
       return !q || `${o.number} ${o.id} ${o.type} ${o.warehouse} ${warehouseName(o.warehouse)} ${o.status}`.toLowerCase().includes(q);
     });
     if (!sort) return list;
     const dir = sort.direction === 'ascending' ? 1 : -1;
     return [...list].sort((a, b) => sortValue(a, sort.key).localeCompare(sortValue(b, sort.key)) * dir);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orders, warehouses, view, query, sort]);
+  }, [orders, warehouses, view, query, sort, colFilters.filters]);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, pageCount);
   const pageRows = rows.slice((current - 1) * pageSize, current * pageSize);
-  useEffect(() => setPage(1), [query, view, pageSize]);
+  useEffect(() => setPage(1), [query, view, pageSize, colFilters.filters]);
 
   const cancellable = orders.filter(o => selected.has(o.id) && o.status === 'In Process');
 
@@ -153,61 +161,67 @@ export function OrdersPage() {
 
       <div className={styles.tableCard}>
         {/* Volt Data Table (Figma "Data Table" page), as on the warehouse record's tables; its skeleton while loading */}
-        <DataTable
-          aria-label="Orders"
-          columns={COLUMNS}
-          rows={pageRows}
-          rowLabel={o => o.number}
-          loading={loading}
-          sort={sort}
-          onSortChange={key =>
-            setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
-          }
-          selected={[...selected]}
-          onSelectedChange={ids => setSelected(new Set(ids))}
-          empty={
-            <div className={styles.emptyCell}>
-              <Icon name="search" size={32} />
-              <p className="text-large-bold">No orders match your search</p>
-              <p className="text-medium-regular">Try a different word, or clear the search and view.</p>
-              <Button
-                size="small"
-                variant="outline"
-                onClick={() => {
-                  setQuery('');
-                  setView(ALL);
-                }}
-              >
-                Clear search and view
-              </Button>
-            </div>
-          }
-          onMore={o => setMenuFor(m => (m === o.id ? null : o.id))}
-          renderAfterRow={o =>
-            menuFor === o.id && (
-              <RowMenu
-                label={o.number}
-                onClose={() => setMenuFor(null)}
-                items={[
-                  { label: 'View', onSelect: () => navigate(orderPath(o)) },
-                  ...(o.status === 'In Process' ? [{ label: 'Cancel Order', onSelect: () => setCancelling([o.id]) }] : []),
-                ]}
-              />
-            )
-          }
-          cells={o => ({
-            number: (
-              <AppLink to={orderPath(o)} size="small">
-                {o.number}
-              </AppLink>
-            ),
-            type: o.type,
-            warehouse: `${o.warehouse} · ${warehouseName(o.warehouse)}`,
-            status: <OrderStatusPill status={o.status} />,
-            created: formatDate(o.created),
-            due: formatDate(o.due),
-          })}
-        />
+        <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+          {colFilters.popover(COLUMNS)}
+          <DataTable
+            aria-label="Orders"
+            columns={COLUMNS}
+            rows={pageRows}
+            rowLabel={o => o.number}
+            loading={loading}
+            sort={sort}
+            onSortChange={key =>
+              setSort(s => (s?.key === key ? { key, direction: s.direction === 'ascending' ? 'descending' : 'ascending' } : { key, direction: 'ascending' }))
+            }
+            selected={[...selected]}
+            onSelectedChange={ids => setSelected(new Set(ids))}
+            {...colFilters.tableProps}
+            totalRows={orders.length}
+            empty={
+              <div className={styles.emptyCell}>
+                <Icon name="search" size={32} />
+                <p className="text-large-bold">No orders match your search</p>
+                <p className="text-medium-regular">Try a different word, or clear the search, view and filters.</p>
+                <Button
+                  size="small"
+                  variant="outline"
+                  onClick={() => {
+                    setQuery('');
+                    setView(ALL);
+                    colFilters.clear();
+                  }}
+                >
+                  Clear search, view and filters
+                </Button>
+              </div>
+            }
+            onMore={o => setMenuFor(m => (m === o.id ? null : o.id))}
+            renderAfterRow={o =>
+              menuFor === o.id && (
+                <RowMenu
+                  label={o.number}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    { label: 'View', onSelect: () => navigate(orderPath(o)) },
+                    ...(o.status === 'In Process' ? [{ label: 'Cancel Order', onSelect: () => setCancelling([o.id]) }] : []),
+                  ]}
+                />
+              )
+            }
+            cells={o => ({
+              number: (
+                <AppLink to={orderPath(o)} size="small">
+                  {o.number}
+                </AppLink>
+              ),
+              type: o.type,
+              warehouse: `${o.warehouse} · ${warehouseName(o.warehouse)}`,
+              status: <OrderStatusPill status={o.status} />,
+              created: formatDate(o.created),
+              due: formatDate(o.due),
+            })}
+          />
+        </div>
         <PageTracker
           page={current}
           pageCount={pageCount}

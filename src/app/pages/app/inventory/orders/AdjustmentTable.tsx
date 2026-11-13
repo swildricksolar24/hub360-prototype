@@ -108,6 +108,7 @@ export function AdjustmentTable({
             <DataHeader
               className={table.head}
               corners="none"
+              stretched
               columns={COLUMNS}
               leading="none"
               actions={false}

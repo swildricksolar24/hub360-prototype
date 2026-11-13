@@ -1,8 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../../../components/Button/Button';
-import { DataHeader, type DataColumn, type DataSort } from '../../../../../../components/DataHeader/DataHeader';
-import { DataRow } from '../../../../../../components/DataRow/DataRow';
+import { DataTable, type DataColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
@@ -14,8 +13,9 @@ import { blankItem, CATEGORIES, money, TYPE_DESCRIPTION, type BuildLine, type It
 import { buildCandidates, itemPath, setItems, unitCostOf, updateItem, usedIn, useItems } from '../itemStore';
 import { ColumnsModal, ItemPicker, nextSort, options, required, requiredNote, sortRows, StatusPill, useSelection } from '../shared';
 import { BuildTable, buildTotal } from './BuildTab';
+import { useColumnFilters } from '../../ColumnFilter';
 import record from '../../record.module.css';
-import table from '../../table.module.css';
+import listStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
 
 type Kind = Extract<ItemType, 'Assembly' | 'Kit'>;
@@ -23,11 +23,12 @@ type Kind = Extract<ItemType, 'Assembly' | 'Kit'>;
 const columnsFor = (kind: Kind): DataColumn[] => [
   { key: 'number', label: `${kind} #`, width: 170 },
   { key: 'name', label: 'Name', width: 'fill' },
-  { key: 'category', label: 'Category', width: 150 },
-  { key: 'subcategory', label: 'Sub Category', width: 160 },
+  // Category, Sub Category and Status repeat, so they filter (a checkbox list of their values)
+  { key: 'category', label: 'Category', width: 150, filterable: true },
+  { key: 'subcategory', label: 'Sub Category', width: 160, filterable: true },
 ];
-// Figma: the status pill has no header, and sits right before the ••• button
-const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 110, align: 'end', labelHidden: true, sortable: false };
+// Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
+const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 110, filterable: true };
 
 const VIEWS: { value: string; label: string; test: (i: Item) => boolean }[] = [
   { value: 'all', label: 'All', test: () => true },
@@ -37,6 +38,9 @@ const VIEWS: { value: string; label: string; test: (i: Item) => boolean }[] = [
 
 const cellValue = (i: Item, key: string) =>
   key === 'number' ? i.id : key === 'status' ? (i.active ? 1 : 0) : String(i[key as 'name' | 'category' | 'subcategory'] ?? '');
+
+/** A cell's text as it shows, for the column filters' value lists. */
+const filterText = (i: Item, key: string) => (key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(cellValue(i, key)));
 
 const PLURAL: Record<Kind, string> = { Assembly: 'assemblies', Kit: 'kits' };
 
@@ -71,10 +75,11 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
   }, [item.id, kind]);
 
   const users = usedIn(item.id, all).filter(i => i.type === kind);
+  const colFilters = useColumnFilters(users, filterText);
   const q = query.trim().toLowerCase();
   const test = VIEWS.find(v => v.value === view)?.test ?? (() => true);
   const rows = sortRows(
-    users.filter(i => test(i) && (!q || `${i.id} ${i.customNumber} ${i.name} ${i.category} ${i.subcategory}`.toLowerCase().includes(q))),
+    users.filter(i => test(i) && (!q || `${i.id} ${i.customNumber} ${i.name} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) && colFilters.matches(i)),
     sort,
     cellValue,
   );
@@ -130,89 +135,80 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
           </Button>
         </div>
 
-        <div className={table.tableScroll}>
-          <div role="table" aria-label={`${kind === 'Assembly' ? 'Assemblies' : 'Kits'} that use ${item.name}`} className={table.table}>
-            <DataHeader
-              className={table.head}
-              corners="none"
-              columns={tableColumns}
-              leading="checkbox"
-              sort={sort}
-              onSortChange={k => setSort(nextSort(k))}
-              allSelected={rows.length > 0 && rows.every(i => sel.selected.has(i.id))}
-              onSelectAllChange={on => sel.setMany(rows.map(i => i.id), on)}
-            />
-            {rows.length === 0 && (
-              <div role="row" className={styles.empty}>
-                <div role="cell" className={styles.emptyCell}>
-                  <Icon name={users.length ? 'search' : kind === 'Assembly' ? 'settings' : 'archive'} size={32} />
-                  <p className="text-large-bold">{users.length ? `No ${plural} match your search` : `${item.name} isn’t in any ${plural} yet`}</p>
-                  <p className="text-medium-regular">{users.length ? 'Try a different word, or clear the search and view.' : `Add ${kind === 'Assembly' ? 'an assembly' : 'a kit'} that’s built with it.`}</p>
-                  {users.length ? (
-                    <Button
-                      size="small"
-                      variant="outline"
-                      onClick={() => {
-                        setQuery('');
-                        setView('all');
-                      }}
-                    >
-                      Clear search and view
-                    </Button>
-                  ) : (
-                    <Button size="small" variant="brand" icon="plus" onClick={() => setAdding(true)}>
-                      Add {kind}
-                    </Button>
-                  )}
-                </div>
+        {/* Volt Data Table (Figma "Data Table" page); Category, Sub Category and Status filter */}
+        <div ref={colFilters.boxRef} className={listStyles.tableBox}>
+          <DataTable
+            aria-label={`${kind === 'Assembly' ? 'Assemblies' : 'Kits'} that use ${item.name}`}
+            className={record.statusStart}
+            columns={tableColumns}
+            rows={rows}
+            rowLabel={u => u.name}
+            sort={sort}
+            onSortChange={k => setSort(nextSort(k))}
+            selected={[...sel.selected]}
+            onSelectedChange={ids => {
+              sel.setMany([...sel.selected], false);
+              sel.setMany(ids, true);
+            }}
+            {...colFilters.tableProps}
+            totalRows={users.length}
+            inactive={u => !u.active}
+            empty={
+              <div className={styles.emptyCell}>
+                <Icon name={users.length ? 'search' : kind === 'Assembly' ? 'settings' : 'archive'} size={32} />
+                <p className="text-large-bold">{users.length ? `No ${plural} match your search` : `${item.name} isn’t in any ${plural} yet`}</p>
+                <p className="text-medium-regular">{users.length ? 'Try a different word, or clear the search, view and filters.' : `Add ${kind === 'Assembly' ? 'an assembly' : 'a kit'} that’s built with it.`}</p>
+                {users.length ? (
+                  <Button
+                    size="small"
+                    variant="outline"
+                    onClick={() => {
+                      setQuery('');
+                      setView('all');
+                      colFilters.clear();
+                    }}
+                  >
+                    Clear search, view and filters
+                  </Button>
+                ) : (
+                  <Button size="small" variant="brand" icon="plus" onClick={() => setAdding(true)}>
+                    Add {kind}
+                  </Button>
+                )}
               </div>
-            )}
-            {rows.map((u, i) => {
-              const open = (
+            }
+            onMore={u => setMenuFor(m => (m === u.id ? null : u.id))}
+            renderAfterRow={u =>
+              menuFor === u.id && (
+                <RowMenu
+                  label={u.name}
+                  onClose={() => setMenuFor(null)}
+                  items={[
+                    { label: `View ${kind}`, onSelect: () => setViewing(u) },
+                    { label: `Go To ${kind}`, onSelect: () => navigate(itemPath(u.id)) },
+                    { label: u.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([u], !u.active) },
+                    { label: `Remove ${item.type} (${quantityIn(u)})`, onSelect: () => setRemoving([u]) },
+                  ]}
+                />
+              )
+            }
+            cells={(u): Record<string, ReactNode> => ({
+              number: (
+                <button type="button" className={record.cellLink} onClick={() => setViewing(u)} aria-label={`View ${u.name} (${u.id})`}>
+                  {u.id}
+                </button>
+              ),
+              name: (
                 <button type="button" className={record.cellLink} onClick={() => setViewing(u)}>
                   {u.name}
                 </button>
-              );
-              const cells: Record<string, ReactNode> = {
-                number: (
-                  <button type="button" className={record.cellLink} onClick={() => setViewing(u)} aria-label={`View ${u.name} (${u.id})`}>
-                    {u.id}
-                  </button>
-                ),
-                name: open,
-                category: u.category || '—',
-                subcategory: u.subcategory || '—',
-                status: <StatusPill active={u.active} />,
-              };
-              return (
-                <div key={u.id} className={table.rowWrap} data-stripe={i % 2 === 0 || undefined} data-inactive={!u.active || undefined}>
-                  <DataRow
-                    className={table.row}
-                    columns={tableColumns}
-                    leading="checkbox"
-                    cells={cells}
-                    selected={sel.selected.has(u.id)}
-                    onSelectedChange={on => sel.toggle(u.id, on)}
-                    selectLabel={`Select ${u.name}`}
-                    moreLabel={`More actions for ${u.name}`}
-                    onMore={() => setMenuFor(m => (m === u.id ? null : u.id))}
-                  />
-                  {menuFor === u.id && (
-                    <RowMenu
-                      label={u.name}
-                      onClose={() => setMenuFor(null)}
-                      items={[
-                        { label: `View ${kind}`, onSelect: () => setViewing(u) },
-                        { label: `Go To ${kind}`, onSelect: () => navigate(itemPath(u.id)) },
-                        { label: u.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([u], !u.active) },
-                        { label: `Remove ${item.type} (${quantityIn(u)})`, onSelect: () => setRemoving([u]) },
-                      ]}
-                    />
-                  )}
-                </div>
-              );
+              ),
+              category: u.category || '—',
+              subcategory: u.subcategory || '—',
+              status: <StatusPill active={u.active} />,
             })}
-          </div>
+          />
+          {colFilters.popover(tableColumns)}
         </div>
       </section>
 

@@ -172,6 +172,12 @@
   background: var(--color-brand-teal-fill-strong);
   color: var(--color-foundation-solid-white); /* white on brand fill; no semantic token (design-system.md) */
 }
+/* The card's Tag ("Last Viewed") sits in its top right corner, clear of the 8px stroke */
+.cardTag {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+}
 .moduleText {
   display: flex;
   flex-direction: column;

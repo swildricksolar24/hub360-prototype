@@ -62,39 +62,16 @@
 .table:has(.row > [role='cell']:first-child input[type='checkbox']) :is(.head, .row) > :first-child {
   min-width: 0;
 }
-/* Header: no fill, small bold labels in the weak text color, and a 2px Gray Stroke/Weaker line under it. (The doubled
-   class outranks DataHeader's own fill and height, whatever order the stylesheets load in.) */
+/* Header, as Volt's DataTable (Figma Data Table Header, 3131:247): Brand Teal Fill/Weaker, 16px above and below, and a
+   2px Gray Stroke/Weaker line under it. Pages pass DataHeader `stretched`, so the labels are Medium/Bold in Gray
+   Text/Strong with the icons on tiles at the column's far edge. (The doubled class outranks DataHeader's own fill and
+   height, whatever order the stylesheets load in.) */
 .head.head {
-  min-height: 44px; /* header height; component dimension, no token */
+  min-height: 0;
+  padding-block: var(--space-16);
   border-radius: 0;
-  background: none;
+  background: var(--color-brand-teal-fill-weaker);
   box-shadow: inset 0 calc(-1 * var(--stroke-width-2)) 0 var(--color-gray-stroke-weaker);
-}
-.head [role='columnheader'] {
-  color: var(--color-gray-text-weak);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
-}
-/* Sort and filter icons fade in while the pointer is over the header (or one has focus), and stay on the column that's
-   sorted or filtered. While hidden they take no width, so the label uses the whole column (as Volt's DataTable). The
-   select-all checkbox (the leading cell's first child) is never hidden. */
-.head [role='columnheader'] > :not(:first-child) {
-  flex-shrink: 0;
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition:
-    opacity 240ms cubic-bezier(0.2, 0, 0, 1),
-    max-width 240ms cubic-bezier(0.2, 0, 0, 1);
-}
-.head:is(:hover, :focus-within) [role='columnheader'] > :not(:first-child),
-.head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) > :not(:first-child),
-.head [role='columnheader'] > [aria-pressed='true'] {
-  max-width: 24px; /* the icons' own 24px (component dimension, no token) */
-  opacity: 1;
-}
-.head [role='columnheader']:is([aria-sort='ascending'], [aria-sort='descending']) {
-  color: var(--color-gray-text-strong);
 }
 
 /* Rows: 14px above and below their 36px items = 64px, with a 1px Gray Stroke/Disabled hairline between them (doubled
@@ -143,7 +120,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .rowWrap,
-  .head [role='columnheader'] > :not(:first-child),
   .row button[aria-label^='More actions'] {
     transition: none;
   }

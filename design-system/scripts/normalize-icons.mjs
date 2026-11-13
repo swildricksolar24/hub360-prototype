@@ -15,7 +15,8 @@ for (const file of readdirSync(dir).filter(f => f.endsWith('.svg'))) {
   const after = before
     // full-size translucent background from the icon component's own fill
     .replace(/<rect width="24" height="24" fill="[^"]+" fill-opacity="0\.1"\s*\/>\s*/g, '')
-    .replace(/(fill|stroke)="(?!none|url\()[^"]+"/g, '$1="currentColor"')
+    // a token paint (var(--color-…)) is kept: two-tone icons such as sort-ascending fade one part with a token
+    .replace(/(fill|stroke)="(?!none|url\(|var\()[^"]+"/g, '$1="currentColor"')
     // masks work on luminance, so their paint must stay white
     .replace(/(<mask[^>]*?)fill="currentColor"/g, '$1fill="white"')
     // the 90% opacity comes from the Gray Fill/Strong token, which the component applies instead

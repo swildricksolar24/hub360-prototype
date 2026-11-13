@@ -1,6 +1,40 @@
-/* The switch's label: Volt's Mode Dark icon, then "Dark mode" */
+/* The switch's label: the theme icon, then "Dark mode" */
 .label {
   display: inline-flex;
   align-items: center;
   gap: var(--space-8);
+}
+
+/*
+ * The theme icon: Volt's Mode Light (sun) and Mode Dark (moon) stacked in one 20px spot. The one for the current theme
+ * shows; toggling turns the other away (a quarter turn, shrinking and fading) as this one turns in.
+ */
+.icons {
+  display: inline-grid;
+  flex: none;
+}
+.icons > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 300ms ease,
+    transform 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+/* Light: the sun shows, the moon waits a quarter turn back */
+.moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+/* Dark: the moon turns in, the sun turns away */
+.icons[data-dark] .moon {
+  opacity: 1;
+  transform: none;
+}
+.icons[data-dark] .sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+@media (prefers-reduced-motion: reduce) {
+  .icons > * {
+    transition: opacity 150ms ease;
+  }
 }

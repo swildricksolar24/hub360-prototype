@@ -36,28 +36,30 @@ import {
 import { PrinterDetails, statusBadge, type PrinterDraft } from './PrinterDetails';
 import { AddPrinterModal, RemovePrinterModal, SetUpAgentModal } from './PrinterModals';
 import { RowMenu } from './RowMenu';
-import { Pager, Segmented, useTableControls } from './tableKit';
+import { FilterBox, Pager, Segmented, useTableControls } from './tableKit';
 import styles from './printers.module.css';
 
 const options = (list: readonly string[]) => list.map(v => ({ value: v, label: v }));
 
 const LIST_COLUMNS: DataColumn[] = [
   // Narrow cards: columns shrink to their minWidth, then hide by priority: Label Sizes, then Connection, then Used For
-  { key: 'name', label: 'Printer', width: 'fill', minWidth: 120, filterable: true },
+  // Area, Type and Status repeat across printers, so they filter; names, connections, sizes and uses don't
+  { key: 'name', label: 'Printer', width: 'fill', minWidth: 120 },
   { key: 'area', label: 'Area', width: 'fill', minWidth: 100, filterable: true },
   { key: 'type', label: 'Type', width: 120, minWidth: 90, filterable: true },
-  { key: 'connection', label: 'Connection', width: 'fill', minWidth: 110, priority: 2, filterable: true },
-  { key: 'sizes', label: 'Label Sizes', width: 160, minWidth: 110, priority: 3, filterable: true },
-  { key: 'usedFor', label: 'Used For', width: 'fill', minWidth: 110, priority: 1, filterable: true },
+  { key: 'connection', label: 'Connection', width: 'fill', minWidth: 140, priority: 2 },
+  { key: 'sizes', label: 'Label Sizes', width: 160, minWidth: 110, priority: 3 },
+  { key: 'usedFor', label: 'Used For', width: 'fill', minWidth: 124, priority: 1 },
   { key: 'status', label: 'Status', width: 110, filterable: true },
 ];
 
+// A short list with no filters wired; Warehouse, Version and Status are the columns that would filter
 const AGENT_COLUMNS: DataColumn[] = [
-  { key: 'computer', label: 'Computer', width: 'fill', filterable: true },
+  { key: 'computer', label: 'Computer', width: 'fill' },
   { key: 'warehouse', label: 'Warehouse', width: 'fill', filterable: true },
   { key: 'version', label: 'Version', width: 130, filterable: true },
-  { key: 'printers', label: 'Printers', width: 130, filterable: true },
-  { key: 'lastSeen', label: 'Last Seen', width: 130, filterable: true },
+  { key: 'printers', label: 'Printers', width: 130 },
+  { key: 'lastSeen', label: 'Last Seen', width: 130 },
   { key: 'status', label: 'Status', width: 150, filterable: true },
 ];
 
@@ -316,6 +318,7 @@ function PrinterList({
     sortValue: (p, key) =>
       key === 'connection' ? connectionText(p) : key === 'sizes' ? sizes(p) : key === 'usedFor' ? usedFor(p).join() : key === 'status' ? (p.online ? 'Online' : 'Offline') : String(p[key as keyof Printer] ?? ''),
     filter: p => status === 'all' || (status === 'online') === p.online,
+    filterText: (p, key) => (key === 'status' ? (p.online ? 'Online' : 'Offline') : String(p[key as keyof Printer] ?? '')),
   });
   const online = printers.filter(p => p.online).length;
 
@@ -345,59 +348,62 @@ function PrinterList({
           Add Printer
         </Button>
       </div>
-      <DataTable
-        aria-label="Printers"
-        columns={LIST_COLUMNS}
-        rows={t.pageRows}
-        rowLabel={printerLabel}
-        sort={t.headerProps.sort}
-        onSortChange={t.headerProps.onSortChange}
-        inactive={p => !p.active}
-        empty={<p className={`text-medium-regular ${styles.muted}`}>No printers match. Clear the search or choose All.</p>}
-        onMore={p => setMenuFor(m => (m === p.id ? null : p.id))}
-        renderAfterRow={p =>
-          menuFor === p.id && (
-            <RowMenu
-              label={printerLabel(p)}
-              onClose={() => setMenuFor(null)}
-              items={[
-                { label: 'View', onSelect: () => onOpen(p) },
-                {
-                  label: p.paused ? 'Resume Printing' : 'Pause Printing',
-                  onSelect: () => {
-                    onPatch(p.id, { paused: !p.paused });
-                    onNotice(p.paused ? `${printerLabel(p)} is printing again.` : `${printerLabel(p)} is paused.`);
+      <FilterBox table={t} columns={LIST_COLUMNS}>
+        <DataTable
+          aria-label="Printers"
+          columns={LIST_COLUMNS}
+          rows={t.pageRows}
+          rowLabel={printerLabel}
+          sort={t.headerProps.sort}
+          onSortChange={t.headerProps.onSortChange}
+          {...t.filterProps}
+          inactive={p => !p.active}
+          empty={<p className={`text-medium-regular ${styles.muted}`}>No printers match. Clear the search and filters, or choose All.</p>}
+          onMore={p => setMenuFor(m => (m === p.id ? null : p.id))}
+          renderAfterRow={p =>
+            menuFor === p.id && (
+              <RowMenu
+                label={printerLabel(p)}
+                onClose={() => setMenuFor(null)}
+                items={[
+                  { label: 'View', onSelect: () => onOpen(p) },
+                  {
+                    label: p.paused ? 'Resume Printing' : 'Pause Printing',
+                    onSelect: () => {
+                      onPatch(p.id, { paused: !p.paused });
+                      onNotice(p.paused ? `${printerLabel(p)} is printing again.` : `${printerLabel(p)} is paused.`);
+                    },
                   },
-                },
-                { label: 'Remove', onSelect: () => onRemove(p) },
-              ]}
-            />
-          )
-        }
-        cells={p => ({
-          name: (
-            <button type="button" className={styles.nameButton} onClick={() => onOpen(p)}>
-              {p.name}
-            </button>
-          ),
-          area: p.area,
-          type: p.type,
-          connection: connectionText(p),
-          sizes: sizes(p),
-          usedFor: usedFor(p).length ? (
-            <span className={styles.tags}>
-              {usedFor(p).map(d => (
-                <Badge key={d} shape="pill" color="blue">
-                  {d}
-                </Badge>
-              ))}
-            </span>
-          ) : (
-            <span className={styles.muted}>Not assigned</span>
-          ),
-          status: statusBadge(p),
-        })}
-      />
+                  { label: 'Remove', onSelect: () => onRemove(p) },
+                ]}
+              />
+            )
+          }
+          cells={p => ({
+            name: (
+              <button type="button" className={styles.nameButton} onClick={() => onOpen(p)}>
+                {p.name}
+              </button>
+            ),
+            area: p.area,
+            type: p.type,
+            connection: connectionText(p),
+            sizes: sizes(p),
+            usedFor: usedFor(p).length ? (
+              <span className={styles.tags}>
+                {usedFor(p).map(d => (
+                  <Badge key={d} shape="pill" color="blue">
+                    {d}
+                  </Badge>
+                ))}
+              </span>
+            ) : (
+              <span className={styles.muted}>Not assigned</span>
+            ),
+            status: statusBadge(p),
+          })}
+        />
+      </FilterBox>
       <Pager table={t} label="Printers pages" />
     </div>
   );
