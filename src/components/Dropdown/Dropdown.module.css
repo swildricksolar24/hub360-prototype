@@ -1,6 +1,6 @@
 /*
- * Values come from the Figma "Drop Down Label" (Default, chips) and "Drop Down Button"
- * (Icon, Icon and Label, Default, Small) sets.
+ * Values come from the Figma "Drop Down Label" (Default, chips) sets and the three drop down button pages (Drop Down
+ * Button, Drop Down Icon Button, Drop Down Icon + Label Button), each in Large / Medium / Small.
  */
 .dropdown {
   --bg: var(--color-gray-fill-weaker);
@@ -100,43 +100,70 @@
   padding: var(--space-12);
 }
 
-/* button: Drop Down Button › Default and Icon and Label */
-.dropdown[data-variant='button'] .trigger,
-.dropdown[data-variant='icon'] .trigger {
+/*
+ * button / icon: Figma's three drop down button families, each in Large / Medium / Small (data-size):
+ *   Drop Down Button (text): Large 56:936, Medium 478:1190, Small 3584:1718
+ *   Drop Down Icon Button (icon only): Large 56:1083, Medium 3595:3716, Small 3595:3747
+ *   Drop Down Icon + Label Button (`button` with `icon`): Large 56:1075, Medium 3595:4477, Small 3595:4555
+ * Large: 24px all round, 12px before the chevron, Heading 4 Bold, 28px icon (76px).
+ * Medium: text 12px all round, 8px before the chevron, Medium/Semi-Bold (44px); with an icon 8 / 12 and a 28px icon.
+ * Small: 8px all round, 4px gaps, 8px corners, Tiny/Medium, 16px icon and chevron (32px).
+ * The icon and chevron sizes are set in Dropdown.tsx.
+ */
+.dropdown[data-size='large']:where([data-variant='button'], [data-variant='icon']) .trigger {
   padding: var(--space-24);
+  gap: var(--space-12);
 }
-.dropdown[data-variant='button'] .trigger {
+.dropdown[data-size='large']:where([data-variant='button']) .trigger {
   font-size: var(--font-size-heading-4);
   line-height: var(--line-height-heading-4);
   font-weight: 700;
 }
-/* Icon and Label uses strong text (Figma binds Gray Fill/Strong to the text) */
+.dropdown[data-size='medium']:where([data-variant='button']) .trigger {
+  padding: var(--space-12);
+  gap: var(--space-8);
+  font-weight: 600;
+}
+.dropdown[data-size='medium'] .trigger:where(:has(.icon)) {
+  padding: var(--space-8) var(--space-12);
+}
+.dropdown[data-size='medium']:where([data-variant='icon']) .trigger {
+  gap: var(--space-8);
+}
+.dropdown[data-size='medium']:where([data-variant='button']):is([data-error], [data-disabled]) .trigger {
+  font-weight: 700;
+}
+.dropdown[data-size='small']:where([data-variant='button'], [data-variant='icon']) .trigger {
+  padding: var(--space-8);
+  gap: var(--space-4);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
+  font-weight: 500;
+}
+/* Icon + Label: 8px between the icon and the text (4px in Small) */
+.dropdown[data-size='small'] .value {
+  gap: var(--space-4);
+}
+/* Text buttons use Gray Text/Weak; Icon + Label uses strong text (Figma binds Gray Fill/Strong to it) */
 /* :where keeps the variant text colors below the state colors */
-.dropdown:where([data-variant='button'], [data-variant='small']) .trigger {
+.dropdown:where([data-variant='button']) .trigger {
   --fg: var(--color-gray-text-weak);
 }
 .dropdown:where([data-variant='button']) .trigger:where(:has(.icon)) {
   --fg: var(--color-gray-text-strong);
 }
 
-/* small: Drop Down Button › Small */
-.dropdown[data-variant='small'] .trigger {
-  padding: var(--space-12) var(--space-8) var(--space-12) var(--space-12);
-  font-weight: 600;
-}
-.dropdown[data-variant='small']:is([data-error], [data-disabled]) .trigger {
-  font-weight: 700;
-}
-
 /* ---------- States ---------- */
 
-.dropdown[data-light] .trigger:not(:hover, :active, :focus-visible) {
+.dropdown[data-light] .trigger:is([data-readonly] *, :not(:hover, :active, :focus-visible)) {
   --bg: var(--color-gray-fill-press);
 }
-.trigger:hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.trigger:not([data-readonly] *):hover {
   --bg: var(--color-gray-fill-hover);
 }
-.trigger:active {
+.trigger:not([data-readonly] *):active {
   --bg: var(--color-gray-fill-press);
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);
@@ -172,7 +199,8 @@
 .dropdown[data-selected] .trigger:focus-visible {
   --ring-w: var(--stroke-width-4);
 }
-.dropdown .trigger:disabled {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there a disabled field keeps its normal look */
+.dropdown .trigger:disabled:not([data-readonly] *) {
   --bg: var(--color-gray-fill-disabled);
   --fg: var(--color-gray-text-disabled);
   --icon: var(--color-gray-fill-disabled);
@@ -305,16 +333,16 @@
   cursor: pointer;
   outline: none;
 }
-.chip:hover {
+.chip:not([data-readonly] *):hover {
   background: var(--color-brand-teal-fill-hover);
 }
-.chip:active {
+.chip:not([data-readonly] *):active {
   background: var(--color-brand-teal-fill-press);
 }
 .chip:focus-visible {
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-gray-stroke-weaker);
 }
-.chip:disabled {
+.chip:disabled:not([data-readonly] *) {
   background: var(--color-brand-teal-fill-disabled);
   cursor: not-allowed;
 }
@@ -332,4 +360,9 @@
   .chip {
     transition: none;
   }
+}
+
+/* In a read-only region ([data-readonly], e.g. a record before Edit) the field is locked and doesn't react: a plain arrow */
+[data-readonly] :is(.trigger, .chip) {
+  cursor: default;
 }

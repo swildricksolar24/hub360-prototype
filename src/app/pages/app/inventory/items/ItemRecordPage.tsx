@@ -12,8 +12,7 @@ import { SPEC_TEMPLATES, TYPE_ICON, today, type Item, type ItemType, type Note }
 import { deactivateItem, deleteItems, itemPath, LIST_PATH, numberLabel, setItems, updateItem, useItems } from './itemStore';
 import { DeactivateItemModal, DeleteItemsModal } from './ItemModals';
 import { BuildTab } from './record/BuildTab';
-import { DetailsTab, toDraft, unsavedChanges, withBarcodes, type DetailsDraft, type DetailsErrors } from './record/DetailsTab';
-import { EditBanner } from '../record/EditBanner';
+import { CostTab, DETAILS_SECTIONS, DetailsTab, SuppliersTab, toDraft, withBarcodes, type DetailsDraft, type DetailsErrors } from './record/DetailsTab';
 import { FilesTab } from './record/FilesTab';
 import { ProfileImageFlow } from './record/FileModals';
 import { HistoryTab } from './record/HistoryTab';
@@ -24,32 +23,43 @@ import record from '../record.module.css';
 import styles from './items.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
-/** The record's tabs for each type (ITEMS.md "How the pieces relate"). */
+/**
+ * The record's tabs for each type (ITEMS.md "How the pieces relate"; Figma Part pages: Details, Suppliers, Cost, Where
+ * Used, Stock, Files, History). Assemblies and kits add Build after Details; a kit is used nowhere, so it has no Where
+ * Used.
+ */
 const TABS: Record<ItemType, { id: string; label: string }[]> = {
   Part: [
     { id: 'details', label: 'Details' },
-    { id: 'files', label: 'Files' },
-    { id: 'assemblies', label: 'Assemblies' },
-    { id: 'kits', label: 'Kits' },
+    { id: 'suppliers', label: 'Suppliers' },
+    { id: 'cost', label: 'Cost' },
+    { id: 'where-used', label: 'Where Used' },
     { id: 'stock', label: 'Stock' },
+    { id: 'files', label: 'Files' },
     { id: 'history', label: 'History' },
   ],
   Assembly: [
     { id: 'details', label: 'Details' },
     { id: 'build', label: 'Build' },
-    { id: 'files', label: 'Files' },
-    { id: 'kits', label: 'Kits' },
+    { id: 'suppliers', label: 'Suppliers' },
+    { id: 'cost', label: 'Cost' },
+    { id: 'where-used', label: 'Where Used' },
     { id: 'stock', label: 'Stock' },
+    { id: 'files', label: 'Files' },
     { id: 'history', label: 'History' },
   ],
   Kit: [
     { id: 'details', label: 'Details' },
     { id: 'build', label: 'Build' },
-    { id: 'files', label: 'Files' },
+    { id: 'suppliers', label: 'Suppliers' },
+    { id: 'cost', label: 'Cost' },
     { id: 'stock', label: 'Stock' },
+    { id: 'files', label: 'Files' },
     { id: 'history', label: 'History' },
   ],
 };
+/** Links from before Where Used (?tab=assemblies, ?tab=kits) open it. */
+const OLD_TABS: Record<string, string> = { assemblies: 'where-used', kits: 'where-used' };
 
 /** The record's Stock tab leaves out Item and Category: every row is this item, named in the header. */
 const RECORD_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k !== 'item' && k !== 'category');
@@ -83,11 +93,16 @@ export function ItemRecordPage() {
   const index = items.findIndex(i => i.id === itemId);
   const item: Item | undefined = items[index];
   const tabs = item ? TABS[item.type] : [];
-  const tab = tabs.find(t => t.id === params.get('tab'))?.id ?? 'details';
+  const asked = params.get('tab') ?? '';
+  const tab = tabs.find(t => t.id === (OLD_TABS[asked] ?? asked))?.id ?? 'details';
 
   const [draft, setDraft] = useState<DetailsDraft | null>(null);
   const [errors, setErrors] = useState<DetailsErrors>({});
+  // Details and Cost are read-only until the header's Edit; Save or Cancel ends editing
+  const [editing, setEditing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // The editing notice: a toast from the top when Edit is pressed (it replaced the Figma editing banner)
+  const [editNotice, setEditNotice] = useState(false);
   const [popups, setPopups] = useState<string[]>([]);
   const [activating, setActivating] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
@@ -101,6 +116,8 @@ export function ItemRecordPage() {
   useEffect(() => {
     setDraft(item ? toDraft(item) : null);
     setErrors({});
+    setEditing(false);
+    setEditNotice(false);
     setNotice((state as { notice?: string } | null)?.notice ?? null);
     setPopups(item ? item.notes.filter(n => n.popup).map(n => n.id) : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,14 +152,31 @@ export function ItemRecordPage() {
       setParams({}, { replace: true });
       return;
     }
+    setEditing(false);
     setErrors({});
     const ready = withBarcodes(draft);
     updateItem(it.id, i => ({ ...i, ...ready, name: draft.name.trim(), customNumber: draft.customNumber.trim(), modified: today() }));
     setDraft({ ...ready, name: draft.name.trim(), customNumber: draft.customNumber.trim() });
+    setEditNotice(false);
     setNotice(`${draft.name.trim()} was saved.`);
   }
-  // Figma "Editing Banner": shown while Details has unsaved changes
-  const changes = unsavedChanges(draft, it);
+  // The header's Edit: the fields unlock; on a tab without them it opens Details, with the cursor in Item Name
+  function startEditing() {
+    setEditing(true);
+    // One toast at a time: the editing notice replaces any other notice
+    setNotice(null);
+    setEditNotice(true);
+    if (tab !== 'details' && tab !== 'cost') setParams({}, { replace: true });
+    if (tab !== 'cost')
+      window.setTimeout(() => document.getElementById('item-identification')?.closest('section')?.querySelector<HTMLElement>('input, textarea')?.focus(), 0);
+  }
+  // Cancel: back to what's saved, read-only again
+  function cancelEditing() {
+    setDraft(toDraft(it));
+    setErrors({});
+    setEditing(false);
+    setEditNotice(false);
+  }
 
   // Previous / next item in the list's order, on the same tab when the type has it, reusing this app tab
   const go = (to: Item | undefined) =>
@@ -162,14 +196,18 @@ export function ItemRecordPage() {
         <Message key={n.id} type="info" title={`Note from ${n.author}`} body={n.text} onClose={() => closePopup(n)} />
       ))}
       {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
+      {editNotice && (
+        <Toast type="info" title={`You’re editing ${it.name}.`} body="Save or Cancel at the top of the page when you’re done." onClose={() => setEditNotice(false)} />
+      )}
     </>
   );
   const content: Record<string, ReactNode> = {
-    details: <DetailsTab item={it} draft={draft} errors={errors} onDraftChange={setDraft} onNotice={setNotice} />,
+    details: <DetailsTab item={it} draft={draft} errors={errors} onDraftChange={setDraft} onNotice={setNotice} editing={editing} />,
     build: <BuildTab item={it} onNotice={setNotice} />,
+    suppliers: <SuppliersTab item={it} onNotice={setNotice} />,
+    cost: <CostTab draft={draft} onDraftChange={setDraft} editing={editing} />,
     files: <FilesTab item={it} onNotice={setNotice} />,
-    assemblies: <UsedInTab item={it} kind="Assembly" onNotice={setNotice} />,
-    kits: <UsedInTab item={it} kind="Kit" onNotice={setNotice} />,
+    'where-used': <UsedInTab item={it} kinds={it.type === 'Part' ? ['Assembly', 'Kit'] : ['Kit']} onNotice={setNotice} />,
     stock: (
       <Card id={`Stock for ${it.name}`}>
         <StockTable lines={it.stock.map(stock => ({ item: it, stock }))} columns={RECORD_STOCK_COLUMNS} label={`Stock for ${it.name}`} totals />
@@ -216,7 +254,10 @@ export function ItemRecordPage() {
               else if (value === 'deactivate') setDeactivating(true);
               else if (value === 'delete') setDeleting(true);
             }}
-            onSave={save}
+            // Details is read-only until Edit; then Edit turns into Save (with Cancel before it) and the fields unlock
+            saveLabel={editing ? 'Save' : 'Edit'}
+            onSave={editing ? save : startEditing}
+            onCancel={editing ? cancelEditing : undefined}
             onPrevious={go(items[index - 1])}
             onNext={go(items[index + 1])}
           />
@@ -230,19 +271,8 @@ export function ItemRecordPage() {
             </>
           ),
         }))}
-        banner={
-          changes > 0 ? (
-            <EditBanner
-              what={it.name}
-              changes={changes}
-              onDiscard={() => {
-                setDraft(toDraft(it));
-                setErrors({});
-              }}
-              onSave={save}
-            />
-          ) : undefined
-        }
+        // Figma's second header row on Details: links to its cards
+        jumpLinks={tab === 'details' ? { items: DETAILS_SECTIONS, 'aria-label': 'Details sections' } : undefined}
         section={tab}
         onSectionChange={id => setParams(id === 'details' ? {} : { tab: id }, { replace: true })}
       />

@@ -7,11 +7,18 @@ import styles from './Dropdown.module.css';
 
 /**
  * field = Drop Down Label › Default (44px, label above) ·
- * button = Drop Down Button › Default / Icon and Label (76px, Heading 4 Bold) ·
- * small = Drop Down Button › Small (44px, Medium Semi-Bold) ·
- * icon = Drop Down Button › Icon (40px icon, no text).
+ * button = Drop Down Button (text), or with `icon` Drop Down Icon + Label Button, in the `size` given ·
+ * icon = Drop Down Icon Button (icon, no text), in the `size` given.
+ * Deprecated aliases: small = button + size medium · tiny = button + size small.
  */
-export type DropdownVariant = 'field' | 'button' | 'small' | 'icon';
+export type DropdownVariant = 'field' | 'button' | 'icon' | 'small' | 'tiny';
+
+/**
+ * Figma's sizes for the button and icon kinds (each family has a Large, Medium and Small set):
+ * large = 76px, Heading 4 Bold, 28px icon · medium = 44px, Medium/Semi-Bold, 28px icon · small = 32px, Tiny/Medium,
+ * 16px icon and chevron, 8px corners.
+ */
+export type DropdownSize = 'large' | 'medium' | 'small';
 
 export type DropdownProps = DropdownOpenProps & {
   options: ListBoxOption[];
@@ -22,7 +29,9 @@ export type DropdownProps = DropdownOpenProps & {
   /** Figma `Select` text shown while nothing is chosen. */
   placeholder?: string;
   variant?: DropdownVariant;
-  /** Leading icon. With `variant="button"` this is Figma "Icon and Label"; required for `variant="icon"`. */
+  /** Size of a `button` or `icon` dropdown (Figma Large / Medium / Small sets). Defaults to large. */
+  size?: DropdownSize;
+  /** Leading icon. With `variant="button"` this is Figma "Icon + Label"; required for `variant="icon"`. */
   icon?: string;
   /** Figma `State=Default - Light` (Gray Fill/Press field). */
   light?: boolean;
@@ -55,7 +64,10 @@ export type DropdownProps = DropdownOpenProps & {
   className?: string;
 };
 
-const CHEVRON: Record<DropdownVariant, number> = { field: 20, small: 20, button: 24, icon: 24 };
+/** Chevron and leading-icon sizes from the Figma sets */
+const chevronSize = (kind: 'field' | 'button' | 'icon', size: DropdownSize, withIcon: boolean) =>
+  kind === 'field' ? 20 : size === 'small' ? 16 : size === 'medium' && kind === 'button' && !withIcon ? 20 : 24;
+const ICON: Record<DropdownSize, number> = { large: 28, medium: 28, small: 16 };
 
 /**
  * Select-style dropdown (Figma Drop Down Label and Drop Down Button pages): a button with
@@ -68,6 +80,7 @@ export function Dropdown({
   hideLabel = false,
   placeholder = 'Select',
   variant = 'field',
+  size: sizeProp,
   icon,
   light = false,
   error,
@@ -108,14 +121,18 @@ export function Dropdown({
   };
 
   const shown = renderValue ? renderValue(selected) : selected.length ? selected.map(o => o.label).join(', ') : placeholder;
-  const showLabel = !!label && !hideLabel && variant === 'field';
-  const iconSize = variant === 'icon' ? 40 : 24;
+  // The old `small` / `tiny` variants are the button kind at medium / small
+  const kind = variant === 'small' || variant === 'tiny' ? 'button' : variant;
+  const size: DropdownSize = variant === 'small' ? 'medium' : variant === 'tiny' ? 'small' : (sizeProp ?? 'large');
+  const showLabel = !!label && !hideLabel && kind === 'field';
+  const iconSize = ICON[size];
 
   return (
     <div
       ref={dd.rootRef}
       className={[styles.dropdown, className].filter(Boolean).join(' ')}
-      data-variant={variant}
+      data-variant={kind}
+      data-size={kind === 'field' ? undefined : size}
       data-light={light || undefined}
       data-error={error ? true : undefined}
       data-required={required || undefined}
@@ -144,13 +161,13 @@ export function Dropdown({
         >
           <span className={styles.value}>
             {icon && <Icon name={icon} size={iconSize} color="currentColor" className={styles.icon} />}
-            {variant !== 'icon' && (
+            {kind !== 'icon' && (
               <span id={valueId} className={styles.text}>
                 {shown}
               </span>
             )}
           </span>
-          <Icon name="chevron-down" size={CHEVRON[variant]} color="currentColor" className={styles.chevron} />
+          <Icon name="chevron-down" size={chevronSize(kind, size, !!icon)} color="currentColor" className={styles.chevron} />
         </button>
         {dd.isOpen && (
           <div className={styles.popup}>

@@ -101,7 +101,8 @@
 }
 
 /* States */
-.cell:is([data-type='input'], [data-type='select']):hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.cell:is([data-type='input'], [data-type='select']):not([data-readonly] *):hover {
   --bg: var(--color-gray-fill-hover);
 }
 /* Figma has no focus state; the input-family focus ring keeps keyboard focus visible (and stays while the select's
@@ -117,11 +118,21 @@
   /* Figma uses an unbound 1.5px stroke; the nearest token is 2px */
   --ring-w: var(--stroke-width-2);
 }
-.cell[data-type='read-only'] {
+/*
+ * Not inside a read-only region ([data-readonly]): there every field is locked, so a read-only cell looks like the rest
+ * and only stands out once the region can be edited
+ */
+.cell[data-type='read-only']:not([data-readonly] *) {
   --bg: var(--color-gray-fill-press);
   --text: var(--color-gray-text-weak);
 }
-.field:disabled {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there a disabled field keeps its normal look */
+.field:disabled:not([data-readonly] *) {
   color: var(--color-gray-text-disabled);
   cursor: not-allowed;
+}
+
+/* In a read-only region ([data-readonly], e.g. a record before Edit) the field is locked and doesn't react: a plain arrow */
+[data-readonly] .cell {
+  cursor: default;
 }

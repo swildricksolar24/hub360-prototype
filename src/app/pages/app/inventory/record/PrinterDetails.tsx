@@ -779,9 +779,9 @@ function PrintJobsView({
       )}
 
       <div className={styles.toolbar} role="toolbar" aria-label="Print job filters">
-        <Dropdown variant="small" label="Day" hideLabel options={options(['Today', 'Yesterday', 'Last 7 days'])} value={day} onChange={v => setDay(v as string)} />
-        <Dropdown variant="small" label="Status" hideLabel options={options(['All', 'Printed', 'Failed', 'Held', 'Queued', 'Cancelled'])} value={status} onChange={v => setStatus(v as string)} renderValue={s => `Status: ${s[0]?.label}`} />
-        <Dropdown variant="small" label="Document" hideLabel options={options(['All', ...docs])} value={doc} onChange={v => setDoc(v as string)} renderValue={s => `Document: ${s[0]?.label}`} />
+        <Dropdown variant="button" size="medium" label="Day" hideLabel options={options(['Today', 'Yesterday', 'Last 7 days'])} value={day} onChange={v => setDay(v as string)} />
+        <Dropdown variant="button" size="medium" label="Status" hideLabel options={options(['All', 'Printed', 'Failed', 'Held', 'Queued', 'Cancelled'])} value={status} onChange={v => setStatus(v as string)} renderValue={s => `Status: ${s[0]?.label}`} />
+        <Dropdown variant="button" size="medium" label="Document" hideLabel options={options(['All', ...docs])} value={doc} onChange={v => setDoc(v as string)} renderValue={s => `Document: ${s[0]?.label}`} />
         <SearchInput className={styles.toolbarSearch} aria-label="Search order # or document" placeholder="Search order # or document" value={query} onChange={e => setQuery(e.target.value)} />
       </div>
 

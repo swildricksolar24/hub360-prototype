@@ -12,7 +12,11 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chi
   /** default = Figma "Icon" · brand = Figma "Brand". */
   variant?: 'default' | 'brand';
   /** base = 80px (Figma) · compact = 40px, as used by Message's close button. */
-  size?: 'base' | 'compact';
+  /**
+   * small = 44px, the height of the Small buttons beside it (Figma Tier 3 Expanded's icon buttons) · tiny = 32px with an
+   * 18px icon (Figma "Button Icon Tiny" › Icon, e.g. Tier 3 Collapsed / Sticky).
+   */
+  size?: 'base' | 'compact' | 'small' | 'tiny';
   /** Figma `State=Selected`. Rendered as a toggle button (`aria-pressed`). */
   selected?: boolean;
 };
@@ -38,7 +42,7 @@ export function IconButton({
       aria-pressed={selected}
       {...rest}
     >
-      {number !== undefined ? <span className={styles.number}>{number}</span> : <Icon name={icon} size={32} color="currentColor" />}
+      {number !== undefined ? <span className={styles.number}>{number}</span> : <Icon name={icon} size={size === 'tiny' ? 18 : 32} color="currentColor" />}
     </button>
   );
 }

@@ -31,6 +31,10 @@ export const Playground: Story = {};
 export const Icon = figmaSet('25:355', 'Button Icon › Icon', { variant: 'default' });
 export const Brand = figmaSet('2388:4991', 'Button Icon › Brand', { variant: 'brand' });
 export const Number = figmaSet('692:1041', 'Button Icon › Number', { variant: 'default', number: 1, label: 'Page 1' });
+/** Not its own Figma set: 44px, the height of the Small buttons beside it, as Tier 3 Expanded draws its icon buttons. */
+export const Small = figmaSet('2644:3738', 'Tier 3 (Expanded icon buttons)', { size: 'small', icon: 'chevron-right', label: 'Next' });
+/** 32px with an 18px icon: the icon buttons in Tier 3 Collapsed and Sticky. */
+export const Tiny = figmaSet('3580:1325', 'Button Icon Tiny › Icon', { size: 'tiny', icon: 'chevron-right', label: 'Next' });
 
 /** Not a Figma set: the 40px size used by Message's close button (padding `--space-4`). */
 export const Compact = figmaSet('503:3072', 'Message › Close Button', { size: 'compact', icon: 'close-small', label: 'Close' });

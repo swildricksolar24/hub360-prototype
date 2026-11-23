@@ -5,6 +5,7 @@ import { ButtonGroup, ButtonGroupItem } from '../../../../../components/ButtonGr
 import { DataTable, type DataColumn, type DataSort } from '../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../components/Icon/Icon';
+import { JumpLinks } from '../../../../../components/JumpLinks/JumpLinks';
 import { Message } from '../../../../../components/Message/Message';
 import { PageTracker } from '../../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
@@ -15,7 +16,7 @@ import { AppModal } from '../../../../components/AppModal';
 import { useHelperFlag } from '../../../../shell/helperFlags';
 import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 import { RowMenu } from '../record/RowMenu';
-import { PAGE_SIZES } from '../record/tableKit';
+import { changing, checkFirst, PAGE_SIZES, statusActions } from '../record/tableKit';
 import { available, blankItem, ITEM_TYPES, unitLabel, type Item, type ItemType } from './itemData';
 import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from '../ColumnFilter';
 import { NEW_TAB_STATE } from '../../../../shell/navigation';
@@ -23,7 +24,7 @@ import warehouseStyles from '../warehouses.module.css';
 import { deactivateItem, deleteItems, itemPath, mergeItems, setItems, usedIn, useItems } from './itemStore';
 import { AddItemModal, DeactivateItemModal, DeleteItemsModal, MergeItemsModal } from './ItemModals';
 import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection } from './shared';
-import { DEFAULT_STOCK_COLUMNS, STOCK_COLUMN_OPTIONS, StockTable, type StockLine } from './StockTable';
+import { DEFAULT_STOCK_COLUMNS, lineId, rollUpStock, STOCK_COLUMN_OPTIONS, StockTable, type StockLine } from './StockTable';
 import record from '../record.module.css';
 import styles from './items.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
@@ -62,6 +63,13 @@ const VIEWS: { value: string; label: string; test: (i: Item) => boolean }[] = [
 ];
 
 const NO_ITEMS: Item[] = [];
+
+/** Stock's By Warehouse | By Item tabs (Figma 681:14475: Volt Jump Links as tabs). */
+const STOCK_VIEWS = [
+  { id: 'warehouse', label: 'By Warehouse' },
+  { id: 'item', label: 'By Item' },
+];
+const STOCK_PANEL = 'items-stock-panel';
 
 /** A cell's value for sorting (numbers stay numbers). */
 const cellValue = (i: Item, key: string): string | number =>
@@ -104,7 +112,10 @@ export function ItemsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [columns, setColumns] = useState(OVERVIEW_COLUMNS.map(c => c.key));
   const [stockColumns, setStockColumns] = useState(DEFAULT_STOCK_COLUMNS);
+  const [stockView, setStockView] = useState('warehouse');
   const sel = useSelection();
+  // The Stock view's checked lines (its own selection: a line is an item in one warehouse location, or a whole item)
+  const stockSel = useSelection();
 
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [adding, setAdding] = useState<ItemType | null>(null);
@@ -135,7 +146,7 @@ export function ItemsPage() {
     return shown.filter(
       i =>
         test(i) &&
-        (!q || `${i.id} ${i.customNumber} ${i.name} ${i.type} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) &&
+        (!q || `${i.id} ${(i.aliases ?? []).join(' ')} ${i.customNumber} ${i.name} ${i.type} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) &&
         matchesFilters(i, filters, filterText),
     );
   }, [shown, query, view, filters]);
@@ -156,8 +167,30 @@ export function ItemsPage() {
 
   const tableColumns: DataColumn[] = [...OVERVIEW_COLUMNS.filter(c => columns.includes(c.key)), STATUS_COLUMN];
 
-  // Stock view: one line per item and warehouse location; an item with no stock still gets a line (Figma's KT-0042: "—")
-  const stockLines = filtered.flatMap((item): StockLine[] => (item.stock.length ? item.stock.map(stock => ({ item, stock })) : [{ item, stock: null }]));
+  // Stock view. By Warehouse: one line per item and warehouse location. By Item: one line per item, added up across its
+  // warehouses. Either way an item with no stock still gets a line (Figma's KT-0042: "—")
+  const linesOf = (list: Item[]) =>
+    stockView === 'item'
+      ? list.map(rollUpStock)
+      : list.flatMap((item): StockLine[] => (item.stock.length ? item.stock.map(stock => ({ item, stock })) : [{ item, stock: null }]));
+  const stockLines = linesOf(filtered);
+  const checkedLines = mode === 'stock' ? linesOf(items).filter(l => stockSel.selected.has(lineId(l))) : [];
+
+  // Actions ▾ acts on the checked items: in Stock, the items of the checked lines (each once)
+  const checked = mode === 'stock' ? items.filter(i => checkedLines.some(l => l.item.id === i.id)) : selectedRows;
+  const checkedCount = mode === 'stock' ? checkedLines.length : selectedRows.length;
+  const clearChecked = () => (mode === 'stock' ? stockSel.clear() : sel.clear());
+  // Merging folds items into one of them, so it needs two or more of one type (parts with parts, and so on)
+  const mergeable = checked.length >= 2 && new Set(checked.map(i => i.type)).size === 1;
+  function exportCsv() {
+    if (mode === 'stock') {
+      const what = stockView === 'item' ? 'item' : 'stock record';
+      const n = checkedLines.length || stockLines.length;
+      return setNotice(`Exported ${n} ${what}${n === 1 ? '' : 's'} to CSV.`);
+    }
+    const n = selectedRows.length || rows.length;
+    setNotice(`Exported ${n} item${n === 1 ? '' : 's'} to CSV.`);
+  }
 
   const named = (names: string[]) => (names.length === 1 ? names[0] : `${names.length} items`);
   function setActive(chosen: Item[], active: boolean) {
@@ -219,7 +252,8 @@ export function ItemsPage() {
           </ButtonGroupItem>
         </ButtonGroup>
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="View"
           hideLabel
           options={VIEWS.map(v => ({ value: v.value, label: v.label }))}
@@ -234,34 +268,35 @@ export function ItemsPage() {
           Upload
         </Button>
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Actions"
           hideLabel
           placeholder="Actions"
           options={[
-            // Like the warehouse tables' Actions: on the checked rows, and disabled until a row is checked
-            { value: 'activate', label: 'Activate', disabled: selectedRows.length === 0 },
-            { value: 'deactivate', label: 'Deactivate', disabled: selectedRows.length === 0 },
-            // Merging combines checked items into one of them, so it needs at least two
-            { value: 'merge', label: 'Merge', disabled: selectedRows.length < 2 },
-            { value: 'delete', label: 'Delete', disabled: selectedRows.length === 0 },
+            // On only when they fit the checked items: Activate needs an inactive one and Deactivate an active one,
+            // Merge two or more of one type, Delete one or more. Export takes the checked rows, or the whole list.
+            ...statusActions(checked, i => i.active),
+            { value: 'merge', label: 'Merge', disabled: !mergeable },
+            { value: 'delete', label: 'Delete', ...checkFirst(checked.length) },
             { value: 'export', label: 'Export to CSV' },
           ]}
           value={null}
           onChange={v => {
-            if (v === 'export') return setNotice(`Exported ${rows.length} items to CSV.`);
+            if (v === 'export') return exportCsv();
+            // Only the checked items that change; the ones already in that state are left alone
             if (v === 'activate') {
-              setActive(selectedRows, true);
-              sel.clear();
+              setActive(changing(checked, i => i.active, true), true);
+              clearChecked();
             }
             if (v === 'deactivate') {
-              startDeactivating(selectedRows);
-              sel.clear();
+              startDeactivating(changing(checked, i => i.active, false));
+              clearChecked();
             }
-            if (v === 'merge') setMerging(selectedRows);
-            if (v === 'delete') setDeleting(selectedRows);
+            if (v === 'merge') setMerging(checked);
+            if (v === 'delete') setDeleting(checked);
           }}
-          renderValue={() => (selectedRows.length ? `Actions (${selectedRows.length})` : 'Actions')}
+          renderValue={() => (checkedCount ? `Actions (${checkedCount})` : 'Actions')}
         />
         <SearchInput className={styles.search} aria-label="Search items" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
         {addMenu}
@@ -276,7 +311,13 @@ export function ItemsPage() {
 
       <div className={styles.tableCard}>
         {mode === 'stock' ? (
-          <StockTable lines={stockLines} columns={stockColumns} label="Item stock" />
+          <div className={styles.stockView}>
+            {/* Figma: the tabs' 56px row is the 44px tabs and 12px under them */}
+            <JumpLinks as="tabs" aria-label="Stock view" panelId={STOCK_PANEL} items={STOCK_VIEWS} value={stockView} onChange={setStockView} />
+            <div id={STOCK_PANEL} role="tabpanel" aria-labelledby={`${STOCK_PANEL}-${stockView}`}>
+              <StockTable lines={stockLines} columns={stockColumns} label={stockView === 'item' ? 'Item stock by item' : 'Item stock by warehouse'} view={stockView} selection={stockSel} />
+            </div>
+          </div>
         ) : (
           <>
             <div className={styles.overview}>
@@ -400,6 +441,7 @@ export function ItemsPage() {
             target.id,
           );
           sel.clear();
+          stockSel.clear();
           setMerging(null);
           setNotice(`${sources.length === 1 ? sources[0].name : `${sources.length} items`} merged into ${target.name}.`);
         }}
@@ -413,6 +455,7 @@ export function ItemsPage() {
           const list = deleting ?? [];
           deleteItems(list.map(i => i.id));
           sel.clear();
+          stockSel.clear();
           setDeleting(null);
           setNotice(`${list.length === 1 ? list[0].name : `${list.length} items`} deleted.`);
         }}

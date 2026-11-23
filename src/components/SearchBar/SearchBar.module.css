@@ -48,7 +48,8 @@
   cursor: pointer;
 }
 
-.field:hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.field:not([data-readonly] *):hover {
   --bg: var(--color-gray-fill-hover);
 }
 .field:focus-within {

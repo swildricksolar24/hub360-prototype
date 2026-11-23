@@ -327,7 +327,8 @@ function PrinterList({
       <div className={styles.toolbar} role="toolbar" aria-label="Printers">
         {/* The View ▾ filter the other record tables use (as Contacts) */}
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="View"
           hideLabel
           options={[

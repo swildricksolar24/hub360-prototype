@@ -7,7 +7,7 @@ import { useHelperFlag } from '../../../../shell/helperFlags';
 import { availableOf, belowReorder, type CatalogItem, type StockRow, type WarehouseLocation } from '../warehouseRecordData';
 import { locationPath, setStock, useCatalog, useLocations, useStock } from '../warehouseStore';
 import { RowMenu } from './RowMenu';
-import { FilterBox, Pager, StatusPill, TableToolbar, count, useColumns, useTableControls, viewInItems, type TableControls } from './tableKit';
+import { changing, FilterBox, Pager, StatusPill, statusActions, TableToolbar, count, useColumns, useTableControls, viewInItems, type TableControls } from './tableKit';
 import styles from '../record.module.css';
 import table from '../table.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
@@ -227,16 +227,16 @@ export function StockTab({ code, onNotice }: { code: string; onNotice: (text: st
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
-              // Like the other tables' Actions: on the checked rows, and disabled until a row is checked
-              { value: 'activate', label: 'Activate', disabled: t.selectedRows.length === 0 },
-              { value: 'deactivate', label: 'Deactivate', disabled: t.selectedRows.length === 0 },
+              // Like the other tables' Actions: each one on only when it would change a checked row
+              ...statusActions(t.selectedRows, s => s.active),
               { value: 'export', label: 'Export to CSV' },
             ],
             onAction: v => {
               if (v === 'export') return onNotice(`Exported ${t.selectedRows.length || t.rows.length} stock records to CSV.`);
               const active = v === 'activate';
-              const n = t.selectedRows.length;
-              setStockActive(code, t.selectedRows.map(s => s.id), active);
+              const list = changing(t.selectedRows, s => s.active, active);
+              const n = list.length;
+              setStockActive(code, list.map(s => s.id), active);
               onNotice(`${n} stock record${n === 1 ? '' : 's'} ${active ? 'activated' : 'deactivated'}.`);
               t.clearSelection();
             },

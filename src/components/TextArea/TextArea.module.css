@@ -79,10 +79,11 @@
   --ring: var(--color-brand-teal-stroke-weak);
   --ring-w: var(--stroke-width-2);
 }
-.control:hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.control:not([data-readonly] *):hover {
   --bg: var(--color-gray-fill-hover);
 }
-.control:active {
+.control:not([data-readonly] *):active {
   --bg: var(--color-gray-fill-press);
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);

@@ -30,3 +30,40 @@
 .placeholder p {
   margin: 0;
 }
+
+/*
+ * Figma Tier 3 State=Sticky (pages with jump links): a 0-high anchor right under the header (the negative margin takes
+ * back the page's gap above it) that sticks to the top of the page, flush with its top edge (--sticky-top, set by
+ * RecordPage). The bar hangs from it over the content, shown once the full header has scrolled away. Square top
+ * corners, since it sits against the page's top edge.
+ */
+.stickyAnchor {
+  position: sticky;
+  top: var(--sticky-top, 0px);
+  z-index: 2;
+  height: 0;
+  margin-top: calc(var(--space-24) * -1);
+}
+.stickyBar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 150ms ease-out,
+    visibility 150ms;
+}
+.stickyBar[data-shown] {
+  visibility: visible;
+  opacity: 1;
+}
+.stickyBar > section {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stickyBar {
+    transition: none;
+  }
+}

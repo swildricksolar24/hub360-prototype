@@ -14,6 +14,7 @@ import { updateItem } from '../itemStore';
 import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection } from '../shared';
 import { DeleteFilesModal, EditFileModal, FileTypeLabel, NewFolderModal, newFile, UploadFilesModal, UrlFileModal, useMe, useShownProfileImage, ViewFileModal } from './FileModals';
 import { useColumnFilters } from '../../ColumnFilter';
+import { changing, checkFirst, statusActions } from '../../record/tableKit';
 import record from '../../record.module.css';
 import listStyles from '../../warehouses.module.css';
 import styles from '../items.module.css';
@@ -190,7 +191,8 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
 
         <div className={styles.toolbar} data-inset role="toolbar" aria-label="Files">
           <Dropdown
-            variant="small"
+            variant="button"
+            size="medium"
             label="View"
             hideLabel
             options={VIEWS.map(v => ({ value: v.value, label: v.label }))}
@@ -205,21 +207,22 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
             Upload
           </Button>
           <Dropdown
-            variant="small"
+            variant="button"
+            size="medium"
             label="Actions"
             hideLabel
             placeholder="Actions"
             options={[
-              { value: 'download', label: 'Download', disabled: selected.length === 0 },
-              { value: 'activate', label: 'Activate', disabled: selected.length === 0 },
-              { value: 'deactivate', label: 'Deactivate', disabled: selected.length === 0 },
-              { value: 'delete', label: 'Delete', disabled: selected.length === 0 },
+              { value: 'download', label: 'Download', ...checkFirst(selected.length) },
+              // Each on only when it would change a checked file (Activate needs an inactive one, and the reverse)
+              ...statusActions(selected, f => f.active),
+              { value: 'delete', label: 'Delete', ...checkFirst(selected.length) },
             ]}
             value={null}
             onChange={v => {
               if (v === 'download') onNotice(`${selected.length === 1 ? selected[0].name : `${selected.length} files`} would download here; this prototype doesn’t store file contents.`);
-              if (v === 'activate') setActive(selected, true);
-              if (v === 'deactivate') setActive(selected, false);
+              if (v === 'activate') setActive(changing(selected, f => f.active, true), true);
+              if (v === 'deactivate') setActive(changing(selected, f => f.active, false), false);
               if (v === 'delete') setDeleting(selected);
             }}
             renderValue={() => (selected.length ? `Actions (${selected.length})` : 'Actions')}

@@ -6,7 +6,9 @@ designed.
 It's built in `orders/`:
 - the Move Request and Adjustment records (`OrderRecordPage`, `/app/inventory/orders/:orderId`), with the Add Items
   picker;
-- a stand-in orders list (`OrdersPage`), because Figma has no list design. Review it with the designer.
+- a stand-in orders list (`OrdersPage`), because Figma has no list design. Review it with the designer. Its Actions ▾:
+  - **Cancel** is on only when a checked order is In Process, and cancels those only.
+  - **Export to CSV** exports the checked orders, or the whole list when none are checked.
 
 The other order types open a record that says they aren't designed yet.
 

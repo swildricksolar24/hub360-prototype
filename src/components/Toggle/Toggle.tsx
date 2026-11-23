@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import styles from './Toggle.module.css';
 
-export type ToggleSize = 'small' | 'large';
+export type ToggleSize = 'small' | 'large' | 'tiny';
 
 export type ToggleProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> & {
   /**
@@ -9,7 +9,10 @@ export type ToggleProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | '
    * (Figma "Small" / "Large" sets) and needs an `aria-label`.
    */
   label?: ReactNode;
-  /** Figma `Size`: small = 54×24 track, large = 98×44 track. */
+  /**
+   * Figma `Size`: small = 54×24 track, large = 98×44 track, tiny = the small track with Tiny text (with `contained`:
+   * Figma "Toggle Button Tiny", 32px tall, e.g. Tier 3 Collapsed / Sticky).
+   */
   size?: ToggleSize;
   /** Figma `Position`: which side of the label the switch sits on. */
   position?: 'left' | 'right';

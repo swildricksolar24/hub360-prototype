@@ -42,18 +42,29 @@ export const available = (s: StockRow) => Math.max(0, s.onHand - s.allocated - s
 export type BuildLine = { itemId: string; quantity: number };
 
 export type WarrantyKind = 'standard' | 'extended';
-export type WarrantyPrice = { id: string; type: string; value: number | null; unitCost: number | null };
+/** Extended warranty pricing (Figma Add Warranty 1152:23496): one flat price, a price per kW by system size tier, or a price per unit. */
+export type WarrantyPricing = 'flat' | 'size' | 'unit';
+/** A system size range and its price per kW; bigger systems cost less per kW. */
+export type WarrantyTier = { id: string; from: number | null; to: number | null; price: number | null };
 export type Warranty = {
   id: string;
+  /** Standard is included with the item; extended is sold separately and has a price. */
   kind: WarrantyKind;
-  category: string;
+  /** What it covers: Product, Performance or Workmanship. */
+  covers: string;
+  /** Who stands behind it: Manufacturer or Installer. */
+  providedBy: string;
   term: number;
   termUnit: string;
-  /** A link or an uploaded file's name. */
+  /** A link or an uploaded file name. */
   document: string;
   documentKind: 'link' | 'file';
-  offeredByInstaller?: boolean;
-  prices?: WarrantyPrice[];
+  /** Extended only. */
+  pricedBy?: WarrantyPricing;
+  /** Extended, priced flat or per unit. */
+  price?: number | null;
+  /** Extended, priced by system size. */
+  tiers?: WarrantyTier[];
 };
 
 export type PackageCost = { quantity: number | null; cost: number | null; leadTime: number | null };
@@ -144,6 +155,8 @@ export type HistoryEntry = {
 export type Item = {
   /** The system #, also the route id (e.g. PA-0002-AJ89-98HB). */
   id: string;
+  /** The numbers of items merged into this one (Merge Items): searching for one finds this item. */
+  aliases?: string[];
   type: ItemType;
   customNumber: string;
   name: string;
@@ -278,9 +291,9 @@ export const unitLabel = (unitType: string) => unitType.replace(/\s*\(.*\)$/, ''
 export const WEIGHT_UNITS = ['LB', 'KG', 'G', 'OZ'];
 export const DIMENSION_UNITS = ['Inches', 'Feet', 'Millimeters'];
 export const PACKAGE_UNITS = ['Box', 'Bag', 'Case', 'Carton', 'Crate', 'Pallet'];
-export const WARRANTY_CATEGORIES = ['Manufacturer', 'Product', 'Performance', 'Workmanship', 'Labor'];
+export const WARRANTY_COVERS = ['Product', 'Performance', 'Workmanship'];
+export const WARRANTY_PROVIDERS = ['Manufacturer', 'Installer'];
 export const TERM_UNITS = ['Months', 'Years'];
-export const WARRANTY_PRICE_TYPES = ['kW', 'Panel', 'System'];
 export const PEOPLE = ['Kendal Ozzel', 'Orson Krennic', 'TK-421', 'Arihnda Pryce', 'Lorth Needa', 'Rae Sloane'];
 export const WAREHOUSE_CODES = ['PHX-124', 'PHX-126', 'MES-201', 'TEM-301', 'GIL-401', 'CHD-501', 'TUC-901'];
 
@@ -682,22 +695,25 @@ function fromSeed(s: Seed, i: number): Item {
     warranties:
       s.type === 'Part'
         ? [
-            { id: `${s.id}-w1`, kind: 'standard', category: 'Manufacturer', term: solar ? 120 : 12, termUnit: 'Months', document: 'https://www.example.com/warranty', documentKind: 'link' },
+            { id: `${s.id}-w1`, kind: 'standard', covers: 'Product', providedBy: 'Manufacturer', term: solar ? 10 : 1, termUnit: 'Years', document: 'https://www.example.com/warranty', documentKind: 'link' },
             ...(solar
               ? [
-                  { id: `${s.id}-w2`, kind: 'standard' as const, category: 'Performance', term: 300, termUnit: 'Months', document: 'Performance Warranty.pdf', documentKind: 'file' as const },
+                  { id: `${s.id}-w2`, kind: 'standard' as const, covers: 'Performance', providedBy: 'Manufacturer', term: 25, termUnit: 'Years', document: 'Performance Warranty.pdf', documentKind: 'file' as const },
                   {
                     id: `${s.id}-w3`,
                     kind: 'extended' as const,
-                    category: 'Workmanship',
-                    term: 25,
+                    covers: 'Workmanship',
+                    providedBy: 'Installer',
+                    term: 10,
                     termUnit: 'Years',
                     document: 'Extended Warranty Terms.pdf',
                     documentKind: 'file' as const,
-                    offeredByInstaller: true,
-                    prices: [
-                      { id: `${s.id}-wp1`, type: 'kW', value: 10, unitCost: 120 },
-                      { id: `${s.id}-wp2`, type: 'kW', value: 20, unitCost: 95 },
+                    // Figma 1152:23496: the price per kW drops as the system gets bigger
+                    pricedBy: 'size' as const,
+                    tiers: [
+                      { id: `${s.id}-wt1`, from: 0, to: 9.99, price: 55 },
+                      { id: `${s.id}-wt2`, from: 10, to: 19.99, price: 45 },
+                      { id: `${s.id}-wt3`, from: 20, to: 99.99, price: 35 },
                     ],
                   },
                 ]

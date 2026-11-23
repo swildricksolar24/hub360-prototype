@@ -18,7 +18,7 @@ import {
 } from '../warehouseStore';
 import { CloneWarehouseModal, ConfirmCloneModal, ItemFormModal, RemoveItemsModal, SearchItemsModal } from './ItemModals';
 import { RowMenu } from './RowMenu';
-import { FilterBox, MenuButton, Pager, StatusPill, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
+import { changing, checkFirst, FilterBox, MenuButton, Pager, StatusPill, statusActions, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
 import styles from '../record.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
 
@@ -112,17 +112,18 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
-              { value: 'activate', label: 'Activate', disabled: t.selectedRows.length === 0 },
-              { value: 'deactivate', label: 'Deactivate', disabled: t.selectedRows.length === 0 },
-              { value: 'remove', label: 'Remove', disabled: t.selectedRows.length === 0 },
+              ...statusActions(t.selectedRows, i => i.active),
+              { value: 'remove', label: 'Remove', ...checkFirst(t.selectedRows.length) },
               { value: 'export', label: 'Export to CSV' },
             ],
             onAction: v => {
-              if (v === 'export') return onNotice(`Exported ${plural(t.rows.length, 'item')} to CSV.`);
+              // The checked rows when there are any, otherwise the whole list
+              if (v === 'export') return onNotice(`Exported ${plural(t.selectedRows.length || t.rows.length, 'item')} to CSV.`);
               if (v === 'remove') return setRemoving(t.selectedRows);
+              const active = v === 'activate';
               setActive(
-                t.selectedRows.map(i => i.id),
-                v === 'activate',
+                changing(t.selectedRows, i => i.active, active).map(i => i.id),
+                active,
               );
               t.clearSelection();
             },

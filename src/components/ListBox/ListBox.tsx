@@ -30,6 +30,12 @@ export type ListBoxOption = {
   initials?: string;
   /** Leading icon for the `selector` appearance (Figma "Show Icon"). */
   icon?: string;
+  /**
+   * A short line under the label, e.g. why a disabled action is off ("All checked items are already active"). Small
+   * Regular in Gray Text/Weak, readable even on a disabled option, and read out with it (`aria-describedby`). Not in
+   * Figma.
+   */
+  hint?: string;
 };
 
 /* ------------------------------------------------------------------------------------------ */
@@ -57,6 +63,8 @@ export type ListBoxItemProps = Omit<HTMLAttributes<HTMLLIElement>, 'children'> &
   initials?: string;
   /** Leading icon (selector appearance, Figma "Show Icon"). */
   icon?: string;
+  /** A short line under the label (see ListBoxOption `hint`). */
+  hint?: ReactNode;
 };
 
 /** Small round avatar used by List Item / Avatar (32px) and Searched List Type (50px). */
@@ -81,10 +89,12 @@ export function ListBoxItem({
   avatarSrc,
   initials,
   icon,
+  hint,
   className,
   role = 'option',
   ...rest
 }: ListBoxItemProps) {
+  const hintId = useId();
   const iconSize = appearance === 'selector' ? 20 : 24;
   let lead: ReactNode = null;
   let trail: ReactNode = null;
@@ -129,10 +139,20 @@ export function ListBoxItem({
       aria-selected={role === 'option' ? !!selected : undefined}
       aria-disabled={disabled || undefined}
       style={level && appearance === 'list' ? { ['--level' as string]: level } : undefined}
+      aria-describedby={hint ? hintId : undefined}
       {...rest}
     >
       {lead}
-      <span className={styles.label}>{label}</span>
+      {hint ? (
+        <span className={styles.labelStack}>
+          <span className={styles.label}>{label}</span>
+          <span id={hintId} className={styles.hint}>
+            {hint}
+          </span>
+        </span>
+      ) : (
+        <span className={styles.label}>{label}</span>
+      )}
       {trail}
     </li>
   );
@@ -309,6 +329,7 @@ export function ListBox({
       avatarSrc={o.avatarSrc}
       initials={o.initials}
       icon={o.icon}
+      hint={o.hint}
       tabIndex={o.value === activeValue ? 0 : -1}
       onClick={() => choose(o)}
     />

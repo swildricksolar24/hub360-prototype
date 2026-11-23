@@ -1,0 +1,141 @@
+/*
+ * Figma Base "Jump Links" 3582:13 / "Jump Link" 3582:11 (the row at the bottom of the Tier 3 card): links 12px apart,
+ * 24px in from the sides, on the header's Surfaces/Overlay. Each is 8 × 12px; Medium/Semi-Bold in Gray Text/Weak, and the
+ * current one Medium/Bold in Gray Text/Strong with a 2px Brand Teal underline, which slides from link to link.
+ * On its own it is a card bottom (16px above and below, bottom corners rounded); inside NavTier3 (`jumpLinks`) the card
+ * drops the padding below it, as Figma's Tier 3 does (16 above, 0 below).
+ */
+.links {
+  position: relative; /* the sliding underline is placed from the links' offsets */
+  display: flex;
+  /* One line: the links that don't fit go into "More" (JumpLinks.tsx) */
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-24);
+  border-radius: 0 0 var(--radius-12) var(--radius-12);
+  background: var(--color-surfaces-overlay);
+}
+.link {
+  padding: var(--space-12) var(--space-8);
+  color: var(--color-gray-text-weak);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  outline: none;
+  transition: color 150ms ease;
+}
+.link:hover {
+  color: var(--color-gray-text-strong);
+}
+.link:focus-visible {
+  border-radius: var(--radius-4);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.link:is([aria-current], [aria-selected='true']) {
+  color: var(--color-gray-text-strong);
+  font-weight: 700;
+}
+
+/*
+ * Tabs mode (`as="tabs"`, e.g. Stock's By Warehouse | By Item): the same Jump Links, as a tab list inside a card. No
+ * card-bottom padding, fill or corners: the row sits in its card's padding. The tabs are buttons with the link look.
+ */
+.links[data-as='tabs'] {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.tabList {
+  display: contents;
+}
+.tab {
+  flex: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+/*
+ * The current link's 2px Brand Teal underline: one line that slides (left, width and row) to the link picked, 250ms
+ * ease-out. JumpLinks sets its width and position; it sits on the link's bottom edge.
+ */
+.bar {
+  position: absolute;
+  top: calc(var(--stroke-width-2) * -1);
+  left: 0;
+  height: var(--stroke-width-2);
+  background: var(--color-brand-teal-fill-strong);
+  pointer-events: none;
+}
+.bar[data-ready] {
+  transition:
+    transform 250ms ease-out,
+    width 250ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .bar[data-ready] {
+    transition: none;
+  }
+}
+
+/*
+ * Not in Figma: "More ▾", the last item when the links don't all fit. It looks like a link (same padding, type, colors,
+ * hover and focus) with a 16px chevron, and opens a ContextMenu of the links that didn't fit, under it.
+ */
+.more {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.moreButton[aria-expanded='true'] {
+  color: var(--color-gray-text-strong);
+}
+.moreChevron {
+  transition: transform 120ms ease;
+}
+.moreButton[aria-expanded='true'] .moreChevron {
+  transform: rotate(180deg);
+}
+.morePopup {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--space-4));
+  left: 0;
+  min-width: max-content;
+}
+.links > a {
+  flex: none;
+}
+
+/* Hidden one-line copies that JumpLinks measures; 0 x 0 and clipped, so they take no space */
+.measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.measure > * {
+  position: absolute;
+  width: max-content;
+}
+@media (prefers-reduced-motion: reduce) {
+  .moreChevron {
+    transition: none;
+  }
+}

@@ -12,7 +12,8 @@ const meta = {
   component: Dropdown,
   args: { options: STATE_OPTIONS, label: 'Label', placeholder: 'Select', variant: 'field' },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['field', 'button', 'small', 'icon'] },
+    variant: { control: 'inline-radio', options: ['field', 'button', 'icon'] },
+    size: { control: 'inline-radio', options: ['large', 'medium', 'small'] },
     icon: { control: 'select', options: [undefined, ...iconNames] },
     listType: { control: 'inline-radio', options: [undefined, 'default', 'chevron', 'avatar', 'checkbox'] },
     error: { control: 'text' },
@@ -74,10 +75,21 @@ const buttonSet = (nodeId: string, figmaName: string, props: Partial<DropdownPro
   parameters: { ...figma(nodeId, figmaName), ...pseudoStates, controls: { disable: true } },
 });
 
-export const ButtonIcon = buttonSet('56:1083', 'Drop Down Button › Icon*', { variant: 'icon', icon: 'account', 'aria-label': 'Account' });
-export const ButtonIconAndLabel = buttonSet('56:1075', 'Drop Down Button › Icon and Label', { variant: 'button', icon: 'account' });
-export const ButtonDefault = buttonSet('56:936', 'Drop Down Button › Default', { variant: 'button' });
-export const ButtonSmall = buttonSet('478:1190', 'Drop Down Button › Small', { variant: 'small' });
+/* Drop Down Button (text): `variant="button"` with `size` */
+export const ButtonLarge = buttonSet('56:936', 'Drop Down Button › Large', { variant: 'button', size: 'large' });
+export const ButtonMedium = buttonSet('478:1190', 'Drop Down Button › Medium', { variant: 'button', size: 'medium' });
+export const ButtonSmall = buttonSet('3584:1718', 'Drop Down Button › Small', { variant: 'button', size: 'small' });
+
+/* Drop Down Icon Button (icon only): `variant="icon"` with `size` */
+const account = { variant: 'icon', icon: 'account', 'aria-label': 'Account' } as const;
+export const IconButtonLarge = buttonSet('56:1083', 'Drop Down Icon Button › Large', { ...account, size: 'large' });
+export const IconButtonMedium = buttonSet('3595:3716', 'Drop Down Icon Button › Medium', { ...account, size: 'medium' });
+export const IconButtonSmall = buttonSet('3595:3747', 'Drop Down Icon Button › Small', { ...account, size: 'small' });
+
+/* Drop Down Icon + Label Button: `variant="button"` with an `icon` and `size` */
+export const IconLabelLarge = buttonSet('56:1075', 'Drop Down Icon + Label Button › Large', { variant: 'button', icon: 'account', size: 'large' });
+export const IconLabelMedium = buttonSet('3595:4477', 'Drop Down Icon + Label Button › Medium', { variant: 'button', icon: 'account', size: 'medium' });
+export const IconLabelSmall = buttonSet('3595:4555', 'Drop Down Icon + Label Button › Small', { variant: 'button', icon: 'account', size: 'small' });
 
 /**
  * Figma Drop Down Menu (Drop Down Label page): the open menu every Drop Down shares, a rounded Surfaces/Overlay panel
@@ -119,10 +131,39 @@ export const Open: Story = {
           <Dropdown {...args} label="Multiple" multiple defaultOpen value={multi} onChange={setMulti} />
         </div>
         <div style={{ minHeight: 400 }}>
-          <Dropdown {...args} label={undefined} aria-label="Small" variant="small" listType="chevron" defaultOpen value={single} onChange={setSingle} />
+          <Dropdown {...args} label={undefined} aria-label="Small" variant="button" size="medium" listType="chevron" defaultOpen value={single} onChange={setSingle} />
         </div>
       </div>
     );
   },
+  parameters: { controls: { disable: true } },
+};
+
+/**
+ * Not in Figma: an option's `hint`, a short line under its label. Here an Actions menu with two active items checked:
+ * Activate and Merge are off and say why. The hint stays readable on a disabled option (Gray Text/Weak, Small Regular),
+ * wraps rather than widening the menu, and is read out with the option (`aria-describedby`).
+ */
+export const OptionHints: Story = {
+  name: 'Option hints',
+  render: () => (
+    <div style={{ minHeight: 360 }}>
+      <Dropdown
+        variant="button"
+        size="medium"
+        label="Actions"
+        hideLabel
+        placeholder="Actions (2)"
+        defaultOpen
+        options={[
+          { value: 'activate', label: 'Activate', disabled: true, hint: 'All checked items are already active' },
+          { value: 'deactivate', label: 'Deactivate' },
+          { value: 'merge', label: 'Merge', disabled: true, hint: 'Merge needs items of one type' },
+          { value: 'delete', label: 'Delete' },
+          { value: 'export', label: 'Export to CSV' },
+        ]}
+      />
+    </div>
+  ),
   parameters: { controls: { disable: true } },
 };

@@ -268,6 +268,22 @@ function ColumnsModal({
 export type ToolbarOption = { value: string; label: string; disabled?: boolean };
 
 /**
+ * Actions ▾ › Activate and Deactivate for the checked rows. Each one is on only when a checked row would change:
+ * Activate needs an inactive row, Deactivate an active one. With nothing checked, both are off. Act on
+ * `changing(rows, isActive, active)` so the rows already in that state are left alone.
+ */
+export function statusActions<T>(checked: T[], isActive: (row: T) => boolean): ToolbarOption[] {
+  return [
+    { value: 'activate', label: 'Activate', disabled: !checked.some(r => !isActive(r)) },
+    { value: 'deactivate', label: 'Deactivate', disabled: !checked.some(isActive) },
+  ];
+}
+/** For an action that needs one or more checked rows: off while none are. */
+export const checkFirst = (count: number): Pick<ToolbarOption, 'disabled'> => ({ disabled: count === 0 });
+/** The checked rows an Activate (`active` true) or Deactivate would change. */
+export const changing = <T,>(checked: T[], isActive: (row: T) => boolean, active: boolean) => checked.filter(r => isActive(r) !== active);
+
+/**
  * The record tables' toolbar, as in the Warehouses list: an optional lead (the Overview / Structure switch and its
  * divider), View ▾, Columns, Upload, Actions ▾, Search and a trailing brand button. Leave a prop out to drop its control.
  */
@@ -300,7 +316,8 @@ export function TableToolbar({
       )}
       {view && (
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="View"
           hideLabel
           options={view.options}
@@ -321,7 +338,8 @@ export function TableToolbar({
       )}
       {actions && (
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Actions"
           hideLabel
           placeholder="Actions"

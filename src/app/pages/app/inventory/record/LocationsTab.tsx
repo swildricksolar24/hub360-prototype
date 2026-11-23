@@ -12,7 +12,7 @@ import { locationPath, setLocations, setStock, useLocations, useStock } from '..
 import { AddLocationsModal, RemoveLocationModal, type LocationFields } from './LocationModals';
 import { canMoveUnder, childrenOf, codeOf, depthOf, descendantIds, flattenTree, itemsIn, moveUnder, pathOf, slotsOf, usedOf, utilizationText } from './locationTree';
 import { RowMenu } from './RowMenu';
-import { FilterBox, Pager, Segmented, StatusPill, TableToolbar, useColumns, useTableControls } from './tableKit';
+import { changing, checkFirst, FilterBox, Pager, Segmented, StatusPill, statusActions, TableToolbar, useColumns, useTableControls } from './tableKit';
 import { MAX_LOCATION_DEPTH } from '../warehouseRecordData';
 import styles from '../record.module.css';
 import table from '../table.module.css';
@@ -260,20 +260,24 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
           actions={{
             selectedCount: t.selectedRows.length,
             options: [
-              { value: 'activate', label: 'Activate', disabled: t.selectedRows.length === 0 },
-              { value: 'deactivate', label: 'Deactivate', disabled: t.selectedRows.length === 0 },
-              { value: 'labels', label: 'Print barcode labels', disabled: t.selectedRows.length === 0 },
+              ...statusActions(t.selectedRows, l => l.active),
+              { value: 'labels', label: 'Print barcode labels', ...checkFirst(t.selectedRows.length) },
               { value: 'export', label: 'Export to CSV' },
             ],
             onAction: v => {
-              if (v === 'export') return onNotice(`Exported ${locations.length} locations to CSV.`);
+              // The checked rows when there are any, otherwise every location
+              if (v === 'export') {
+                const n = t.selectedRows.length || locations.length;
+                return onNotice(`Exported ${n} location${n === 1 ? '' : 's'} to CSV.`);
+              }
               if (v === 'labels') {
                 onNotice(`Sent ${t.selectedRows.length} barcode label${t.selectedRows.length === 1 ? '' : 's'} to the label printer.`);
                 return t.clearSelection();
               }
+              const active = v === 'activate';
               setActive(
-                t.selectedRows.map(l => l.id),
-                v === 'activate',
+                changing(t.selectedRows, l => l.active, active).map(l => l.id),
+                active,
               );
               t.clearSelection();
             },

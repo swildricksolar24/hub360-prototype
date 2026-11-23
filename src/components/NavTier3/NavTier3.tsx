@@ -144,8 +144,9 @@ const RESIZE_MS = 320;
 
 /**
  * Collapsed layout (not in Figma): title · section buttons · actions, kept inside the card at every width.
- * h2 / h3 / h4 = Sub Menu Default (Button Small) with the title in Heading 2, 3 or 4 Bold, the largest that fits ·
- * compact = Sub Menu Tiny (Button Tiny) for the section buttons only (the actions keep their look), the Heading 4 title
+ * The section buttons are always Sub Menu Tiny (32px, Figma Collapsed's Button Small), as are Figma's Collapsed actions.
+ * h2 / h3 / h4 = the title in Heading 2, 3 or 4 Bold, the largest that fits ·
+ * compact = the Heading 4 title
  * cut with an ellipsis down to 48px, and the sections that don't fit in a "More" menu · icon = the same with the
  * title text hidden (screen readers still read it) · picker = one "Current section ▾" menu instead of the row ·
  * wrap = the only step that leaves one row: the actions move to a second line, right-aligned.
@@ -183,6 +184,22 @@ export type NavTier3Props = {
   items?: SubMenuItem[];
   value?: string;
   onChange?: (id: string) => void;
+  /**
+   * Figma Tier 3 `Jump Links` (on): a JumpLinks row at the bottom of the card, in every state. Expanded and Collapsed
+   * show it under the rest (16px above it, the card's 24px below); Sticky shows it beside the actions.
+   */
+  jumpLinks?: ReactNode;
+  /**
+   * Figma `State=Sticky`: a thin bar for when the full header has scrolled away: the jump links (if any) and the
+   * actions on one line, 8px above and below. No title, sections or meta. Wins over `collapsed`; its double chevron
+   * calls `onCollapsedChange(false)` (the page decides how to bring the full header back).
+   */
+  sticky?: boolean;
+  /**
+   * @deprecated Figma replaced "Attached" with Tier 3's own Jump Links: pass `jumpLinks` instead of drawing a row
+   * under the card. Still squares off the bottom (4px padding) for a row placed under it, until the app moves over.
+   */
+  attached?: boolean;
   className?: string;
 };
 
@@ -203,6 +220,9 @@ export function NavTier3({
   items,
   value,
   onChange,
+  jumpLinks,
+  sticky = false,
+  attached,
   className,
 }: NavTier3Props) {
   /*
@@ -220,7 +240,7 @@ export function NavTier3({
   const refocus = useRef(false);
 
   /*
-   * Collapsed fit: hidden copies of the title (Heading 2, 3 and 4) and of the section row (Small and Tiny) give their
+   * Collapsed fit: hidden copies of the title (Heading 2, 3 and 4) and of the section row give their
    * one-line widths, which are compared with the card's width minus the icon and the actions. The title size goes on
    * the card as data-fit (CSS, same frame as the measurement); compact is also React state, because the section
    * buttons change size with it.
@@ -258,7 +278,8 @@ export function NavTier3({
     const room = (actionsWidth: number) =>
       root.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - actionsWidth - 2 * gap;
     const width = (selector: string) => ghost.querySelector(`:scope > ${selector}`)?.getBoundingClientRect().width ?? 0;
-    const smallRow = width("nav[data-variant='default']");
+    // Figma Collapsed uses Button Small (32px) section buttons at every width, so the title steps are measured with them
+    const smallRow = width("nav[data-variant='tiny']");
     // Moving back to a roomier step than the current one needs FIT_HYSTERESIS more room
     const slack = (step: CollapsedFit) => (FIT_ORDER.indexOf(step) < FIT_ORDER.indexOf(fit.current) ? FIT_HYSTERESIS : 0);
     let next: CollapsedFit | undefined;
@@ -424,7 +445,8 @@ export function NavTier3({
       {actions}
       {onCollapsedChange && (
         <IconButton
-          size="compact"
+          /* Figma: Expanded's icon buttons are 44px like the actions; Collapsed uses Button Icon Tiny (32px) */
+          size={collapsed ? 'tiny' : 'small'}
           /* Figma: Expanded shows Double Down, Collapsed shows Double Up */
           icon={collapsed ? 'chevron-double-up' : 'chevron-double-down'}
           label={collapsed ? 'Expand header' : 'Collapse header'}
@@ -444,7 +466,7 @@ export function NavTier3({
       items={usePicker ? [] : overflow.length ? items.filter(item => !hidden.includes(item.id)) : items}
       value={value}
       onChange={onChange}
-      variant={collapsed && compact ? 'tiny' : 'default'}
+      variant={collapsed ? 'tiny' : 'default'}
       aria-label="Record sections"
       trailing={
         usePicker ? (
@@ -457,11 +479,35 @@ export function NavTier3({
     />
   );
 
+  const jumpRow = jumpLinks ? <div className={styles.jumpLinks}>{jumpLinks}</div> : null;
+
+  if (sticky) {
+    return (
+      <section ref={rootRef} className={[styles.tier3, className].filter(Boolean).join(' ')} data-sticky="">
+        {jumpRow}
+        <div className={styles.actions}>
+          {actions}
+          {onCollapsedChange && (
+            <IconButton
+              size="tiny"
+              icon="chevron-double-up"
+              label="Expand header"
+              aria-expanded={false}
+              data-tier3-toggle=""
+              onClick={() => onCollapsedChange(false)}
+            />
+          )}
+        </div>
+      </section>
+    );
+  }
+
   if (collapsed) {
     return (
       <section
         ref={rootRef}
         className={[styles.tier3, className].filter(Boolean).join(' ')}
+        data-attached={attached || undefined}
         data-collapsed=""
         data-compact={compact || undefined}
       >
@@ -497,12 +543,13 @@ export function NavTier3({
           {actionRow}
           {meta && <p className={styles.meta}>{meta}</p>}
         </div>
+        {jumpRow}
       </section>
     );
   }
 
   return (
-    <section ref={rootRef} className={[styles.tier3, className].filter(Boolean).join(' ')}>
+    <section ref={rootRef} className={[styles.tier3, className].filter(Boolean).join(' ')} data-attached={attached || undefined}>
       <div className={styles.top}>
         <div className={styles.trail}>
           {onBack && <IconButton size="compact" icon="arrow-left" label="Back" onClick={onBack} />}
@@ -524,6 +571,7 @@ export function NavTier3({
         </div>
       </div>
       {subMenu}
+      {jumpRow}
     </section>
   );
 }

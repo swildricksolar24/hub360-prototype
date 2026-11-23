@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../../../../components/Button/Button';
-import { DataTable, type DataColumn } from '../../../../../components/DataTable/DataTable';
-import { TwoLineCell } from '../../../../../components/TwoLineCell/TwoLineCell';
+import { Badge } from '../../../../../components/Badge/Badge';
+import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
 import { RadioButton } from '../../../../../components/RadioButton/RadioButton';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { AppModal } from '../../../../components/AppModal';
@@ -9,25 +9,20 @@ import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Scrollbar } from '../../../../../components/Scrollbar/Scrollbar';
 import { Tag } from '../../../../../components/Tag/Tag';
 import { blankItem, CATEGORIES, TYPE_PREFIX, UNIT_TYPES, unitLabel, type Item, type ItemType } from './itemData';
-import { usedIn } from './itemStore';
-import { ItemPicker, StatusPill } from './shared';
+import { openOrdersUsing, usedIn } from './itemStore';
+import { ItemPicker } from './shared';
+import { useOrders } from '../orders/orderStore';
+import type { Order } from '../orders/orderData';
 
 /**
- * Over 6 items, the merge table scrolls in a box 6 rows tall: DataTable's 54px header and 70px rows (TwoLineCell's two
- * lines in the 68px row, plus its 2px divider). Component dimensions, not spacing tokens.
+ * With 7 or more items, the merge cards scroll in a box 6 cards tall: each card is MERGE_CARD_HEIGHT (its two text
+ * lines and 12px padding top and bottom) with 8px between. Component dimensions, not spacing tokens.
  */
-const MERGE_VISIBLE_ROWS = 6;
+const MERGE_VISIBLE_CARDS = 6;
+const MERGE_CARD_HEIGHT = 60;
 // On a short window it gives way so Cancel / Merge Items stay on screen: the rest of the modal and its margins take
-// about 500px
-const MERGE_SCROLL_HEIGHT = `min(${54 + MERGE_VISIBLE_ROWS * 70}px, 100vh - 500px)`;
-/** The merge table: the checked items, with a Keep radio first that picks the one the others merge into. */
-const MERGE_COLUMNS: DataColumn[] = [
-  { key: 'keep', label: 'Keep', width: 72, sortable: false },
-  { key: 'item', label: 'Item', width: 'fill', minWidth: 172, sortable: false },
-  { key: 'type', label: 'Type', width: 104, sortable: false },
-  { key: 'category', label: 'Category', width: 132, sortable: false },
-  { key: 'status', label: 'Status', width: 112, sortable: false },
-];
+// about 560px
+const MERGE_SCROLL_HEIGHT = `min(${MERGE_VISIBLE_CARDS * MERGE_CARD_HEIGHT + (MERGE_VISIBLE_CARDS - 1) * 8}px, 100vh - 560px)`;
 import record from '../record.module.css';
 import styles from './items.module.css';
 
@@ -188,9 +183,10 @@ export function AddItemModal({
 }
 
 /**
- * Merging Items (ITEMS.md §1), from the Items list's Actions › Merge with two or more items checked. The checked items
- * are listed in a table; the Keep radio on each row picks the item the others merge into. The first is picked to start
- * with, so Merge Items is ready at once. `onMerge` gets the item kept and the items merged into it.
+ * Merge Items (ITEMS.md §1; Figma "Modal - Merge" 681:14487, "Merge Items (Improved)"), from the Items list's Actions ›
+ * Merge with two or more items of one type checked. One radio card per item: the kept one (the first to start with) has
+ * the Selected look and a blue Keep pill, the others "Merge & deactivate". Under the cards, what moves to the kept item,
+ * then "I understand this can't be undone", which Merge Items waits for. `onMerge` gets the item kept and the others.
  */
 export function MergeItemsModal({
   open,
@@ -203,64 +199,128 @@ export function MergeItemsModal({
   onClose: () => void;
   onMerge: (target: Item, merged: Item[]) => void;
 }) {
-  const [target, setTarget] = useState<Item | null>(null);
+  const orders = useOrders();
+  const [targetId, setTargetId] = useState<string | null>(null);
+  const [understood, setUnderstood] = useState(false);
   useEffect(() => {
-    if (open) setTarget(sources[0] ?? null);
+    // Each time it opens: the first item kept, the box unticked (closing or cancelling resets it)
+    if (open) {
+      setTargetId(sources[0]?.id ?? null);
+      setUnderstood(false);
+    }
     // Only when the modal opens: a new selection reopens it
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const table = (
-    <DataTable
-      aria-label="Items to merge"
-      columns={MERGE_COLUMNS}
-      rows={sources}
-      rowLabel={i => i.name}
-      actions={false}
-      inactive={i => !i.active}
-      cells={i => ({
-        keep: (
-          <RadioButton name="merge-keep" label="" aria-label={`Keep ${i.name}`} checked={target?.id === i.id} onChange={() => setTarget(i)} />
-        ),
-        item: <TwoLineCell title={i.id} description={i.name} />,
-        type: i.type,
-        category: i.category || '—',
-        status: <StatusPill active={i.active} />,
+  const target = sources.find(s => s.id === targetId) ?? sources[0];
+  const merged = sources.filter(s => s.id !== target?.id);
+  const others = merged.length > 1;
+  const moves = target ? mergeMoves(target, merged, orders) : [];
+
+  const cards = (
+    <div className={styles.mergeCards} role="radiogroup" aria-label="Item to keep">
+      {sources.map(i => {
+        const kept = i.id === target?.id;
+        return (
+          // A click anywhere on the card picks it; the radio inside is what the keyboard and screen readers use (the card
+          // isn't a <label>, because Volt's RadioButton is one and labels can't nest)
+          <div key={i.id} className={styles.mergeCard} data-kept={kept || undefined} onClick={() => setTargetId(i.id)}>
+            <RadioButton name="merge-keep" label="" aria-label={`Keep ${i.id} · ${i.name}`} checked={kept} onChange={() => setTargetId(i.id)} />
+            <span className={styles.mergeCardText}>
+              <span className="text-medium-bold">
+                {i.id} · {i.name}
+              </span>
+              <span className={`text-tiny-regular ${styles.mergeCardMeta}`}>{itemSummary(i)}</span>
+            </span>
+            <Badge shape="pill" color={kept ? 'blue' : 'black'}>
+              {kept ? 'Keep' : 'Merge & deactivate'}
+            </Badge>
+          </div>
+        );
       })}
-    />
+    </div>
   );
 
   return (
     <AppModal
       open={open}
       onClose={onClose}
-      title="Merging Items"
+      width={900}
+      title={`Merge ${sources.length} items into one`}
+      description={`Choose the item to keep. Everything from the other ${others ? 'items moves to it, and the other items are' : 'item moves to it, and the other item is'} deactivated.`}
       primaryAction={{
         label: 'Merge Items',
-        disabled: !target,
-        onClick: () => target && onMerge(target, sources.filter(s => s.id !== target.id)),
+        disabled: !target || !understood,
+        onClick: () => target && onMerge(target, merged),
       }}
     >
-      <div className={styles.modalBody}>
-        {/* Copy from Figma "Merging Items"; Large/Regular, the same size as the Delete Items modal */}
-        <p className="text-large-regular">
-          This Merge option allows you to combine all selected Items with the Item chosen below. All data will be
-          synchronized with the selected Item, including Assemblies, Kits, and Orders. Once the merge is complete, the
-          selected Item will replace the merged Items, and the merged Items will be deactivated.
-        </p>
-        {/* The warning one size down from the body: Volt Medium/Semi-Bold, in the error red */}
-        <p className={`text-medium-semi-bold ${styles.warning}`}>Warning: This process cannot be undone once the merge is complete.</p>
-        {sources.length > MERGE_VISIBLE_ROWS ? (
-          // More than 6 items: they scroll inside the Volt Scrollbar, which shows 6 rows at a time
-          <Scrollbar label="Items to merge" height={MERGE_SCROLL_HEIGHT}>
-            {table}
-          </Scrollbar>
-        ) : (
-          table
+      <div className={styles.mergeBody}>
+        <div className={styles.mergeKeep}>
+          <p className={`text-tiny-semi-bold ${styles.mergeEyebrow}`}>KEEP THIS ITEM</p>
+          {sources.length > MERGE_VISIBLE_CARDS ? (
+            // 7 or more items: the cards scroll inside the Volt Scrollbar, 6 at a time
+            <Scrollbar label="Items to merge" height={MERGE_SCROLL_HEIGHT}>
+              {cards}
+            </Scrollbar>
+          ) : (
+            cards
+          )}
+        </div>
+        {target && moves.length > 0 && (
+          <div className={styles.mergeMoves}>
+            <p className="text-medium-bold">What moves to {target.id}</p>
+            <ul className={`text-medium-regular ${styles.mergeMoveList}`}>
+              {moves.map(m => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+          </div>
         )}
+        {/* Volt Checkbox Small: Figma's 22px box beside the text, not the 44px default */}
+        <Checkbox
+          size="small"
+          label={<span className={styles.mergeConfirm}>I understand this can’t be undone</span>}
+          checked={understood}
+          onChange={e => setUnderstood(e.target.checked)}
+        />
       </div>
     </AppModal>
   );
+}
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
+const listOf = (names: string[]) => (names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
+
+/** A card's second line: "324 on hand · 3 warehouses · 2 suppliers · used in 2 kits" (the used-in part only when used). */
+function itemSummary(i: Item) {
+  const onHand = i.stock.reduce((t, s) => t + s.onHand, 0);
+  const parts = [`${onHand.toLocaleString('en-US')} on hand`, plural(new Set(i.stock.map(s => s.warehouse)).size, 'warehouse'), plural(i.suppliers.length, 'supplier')];
+  const users = usedIn(i.id);
+  if (users.length) {
+    const kinds = new Set(users.map(u => u.type));
+    const one = kinds.size === 1 ? [...kinds][0] : null;
+    parts.push(`used in ${one ? plural(users.length, one.toLowerCase(), one === 'Assembly' ? 'assemblies' : undefined) : plural(users.length, 'build')}`);
+  }
+  return parts.join(' · ');
+}
+
+/** "What moves to …": one line per kind of thing that moves, left out when there's none. */
+function mergeMoves(target: Item, merged: Item[], orders: Order[]) {
+  const ids = merged.map(m => m.id);
+  const lines: string[] = [];
+  const units = merged.reduce((t, m) => t + m.stock.reduce((u, s) => u + s.onHand, 0), 0);
+  const stocked = merged.filter(m => m.stock.length).map(m => m.id);
+  if (units > 0) lines.push(`${plural(units, 'unit')} of stock (${listOf(stocked)}), with cost history`);
+  const suppliers = [...new Set(merged.flatMap(m => m.suppliers.map(s => s.supplier)))];
+  if (suppliers.length) lines.push(`${plural(suppliers.length, 'supplier')} (${listOf(suppliers)}) added to the supplier list`);
+  const open = openOrdersUsing(ids, orders).length;
+  if (open) lines.push(`${plural(open, 'open order')} updated to use ${target.id}`);
+  lines.push(
+    merged.length === 1
+      ? `${ids[0]} stays as an alias of ${target.id}, so searching for ${ids[0]} (or scanning its old labels) finds ${target.id}`
+      : `${listOf(ids)} stay as aliases of ${target.id}, so searching for any of them (or scanning their old labels) finds ${target.id}`,
+  );
+  return lines;
 }
 
 /** Deleting Items / Deleting Part - Confirmation Required (ITEMS.md §1, §2). */

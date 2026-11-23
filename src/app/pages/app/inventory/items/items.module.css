@@ -42,6 +42,13 @@
   border-radius: var(--radius-12);
   background: var(--color-surfaces-overlay);
 }
+/* Stock: the By Warehouse | By Item tabs, 12px, then the table (Figma 681:14475) */
+.stockView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+}
 .tableStack {
   display: flex;
   flex-direction: column;
@@ -673,29 +680,39 @@ button.actionType:focus-visible {
   --table-fill-min: 120px; /* layout width, no token */
 }
 
-/* ---------- Details (Figma Part Details 127:6327) ---------- */
-/* Two columns, 1060 : 560 in Figma, 12px apart; one column on a narrow window */
-.detailColumns {
+/* ---------- Details (Figma "Inventory / Items / Details" 1144:7736) ---------- */
+/*
+ * Full-width rows. Identification | Images and Tracking | Compliance each make one panel: two cards side by side,
+ * 1030 : 602 in Figma, with no gap and only the panel's outer corners rounded. On a narrow window they stack.
+ */
+.panelRow {
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
-  gap: var(--space-12);
-  /* Both columns end on the same line */
+  grid-template-columns: minmax(0, 1030fr) minmax(0, 602fr);
   align-items: stretch;
 }
+.panelRow > :first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.panelRow > :last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+/*
+ * Both cards in a row get the same title row: as tall as one with buttons (a 44px small Button + the 12px under it),
+ * so a title-only card (Identification, Tracking) lines up with the one beside it (Images, Compliance)
+ */
+.panelRow > * > :first-child {
+  min-height: var(--space-56);
+}
 @media (max-width: 1279px) {
-  .detailColumns {
+  .panelRow {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-12);
   }
-}
-.detailColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
-  min-width: 0;
-}
-/* The shorter column's last card (Warranty or Replacement Items) grows to fill the gap */
-.detailColumn > :last-child {
-  flex-grow: 1;
+  .panelRow > * {
+    border-radius: var(--radius-12) !important; /* stacked cards are whole cards again */
+  }
 }
 /* Figma's Details cards: Large/Bold titles over a Gray Stroke/Strong divider */
 .detailCard h2 {
@@ -746,6 +763,8 @@ button.actionType:focus-visible {
 .inlineUnit.inlineUnit.inlineUnit button {
   --bg: transparent;
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  /* Its 24px box overlaps the field's padding 2px above and below, so Weight and Dimensions stay 44px like other fields */
+  margin-block: calc(var(--space-2) * -1);
   border-radius: var(--radius-4);
   color: var(--color-gray-text-strong);
   font-weight: 400;
@@ -791,10 +810,13 @@ button.actionType:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Images: three across, 110px tiles with the star, remove and drag handle in the corners */
+/* Images: three across, 110px tiles with the delete (top right) and drag handle (bottom left) in the corners */
 .gallery {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Tiles are 88px tall (Figma draws 110), so the gallery with its large main image stays about as tall as the
+     Identification card beside it; component dimension */
+  grid-auto-rows: 88px;
   gap: var(--space-8);
   margin: 0;
   padding: 0;
@@ -805,38 +827,50 @@ button.actionType:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 110px; /* Figma tile height; component dimension */
   border-radius: var(--radius-8);
   background: var(--color-gray-fill-weaker);
   color: var(--color-gray-text-weak);
   cursor: grab;
 }
-.tileStar,
+/*
+ * The first box holds the main image: it is twice the size of the others (two columns by two rows, 184px tall), with
+ * a "Main" tag at its bottom left. The other photos fill the column beside it, then the rows under it.
+ */
+.imageTile:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+/* On the main image the drag handle moves to the top left, so the Main tag has the bottom left */
+.imageTile:first-child .tileDrag {
+  top: var(--space-4);
+  bottom: auto;
+}
+.mainTag {
+  position: absolute;
+  bottom: var(--space-8);
+  left: var(--space-8);
+  pointer-events: none;
+}
 .tileRemove {
   position: absolute;
   top: var(--space-4);
+  right: var(--space-4);
   display: inline-flex;
   padding: var(--space-2);
   border: 0;
   border-radius: var(--radius-4);
-  background: transparent;
-  color: var(--color-gray-text-strong);
+  /*
+   * Photo controls: the trash and drag handle sit on a see-through dark backing (the black overlay token: 44% in light,
+   * 60% in dark) with white icons, so they read over any photo. No semantic token is "white over a photo". Hover
+   * darkens the trash's backing to 75%.
+   */
+  background: var(--color-foundation-transparent-black-40);
+  color: var(--color-foundation-solid-white);
   cursor: pointer;
 }
-.tileStar {
-  left: var(--space-4);
-}
-.tileStar[aria-pressed='true'] {
-  color: var(--color-brand-teal-fill-strong);
-}
-.tileRemove {
-  right: var(--space-4);
-}
-.tileStar:hover,
 .tileRemove:hover {
-  background: var(--color-gray-fill-hover);
+  background: color-mix(in srgb, var(--color-foundation-solid-black) 75%, transparent);
 }
-.tileStar:focus-visible,
 .tileRemove:focus-visible {
   outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
 }
@@ -846,7 +880,9 @@ button.actionType:focus-visible {
   left: var(--space-4);
   display: inline-flex;
   padding: var(--space-2);
-  color: var(--color-gray-text-strong);
+  border-radius: var(--radius-4);
+  background: var(--color-foundation-transparent-black-40);
+  color: var(--color-foundation-solid-white);
 }
 .srOnly {
   position: absolute;
@@ -892,10 +928,12 @@ button.actionType:focus-visible {
   width: 190px; /* Figma status menu width; component dimension */
 }
 /* Replacement Items: drag handle, "# · name", why it's offered, remove */
+/* Each row uses the list's columns (subgrid), so every row's name and reason menu line up */
 .replacementRow {
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: var(--space-12);
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-12);
   background: var(--color-surfaces-sunken);
@@ -918,13 +956,20 @@ button.actionType:focus-visible {
   box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
 }
 /* The list measures its own width, so a row lays out by the room the card gives it, not the window */
+/*
+ * The list is one grid for all rows: drag handle · name (as wide as the longest name, up to half the row) · reason menu
+ * (the rest) · delete. The rows share these columns, so the reason menus start at the same place in every row.
+ */
 .replacementList {
+  display: grid;
+  grid-template-columns: auto fit-content(50%) minmax(0, 1fr) auto;
+  column-gap: var(--space-12);
   container-type: inline-size;
 }
-/* Narrow (the right column at 1440 and below): the reason menu sits under the name, full width */
+/* Narrow (a card under 460px): the reason menu sits under the name, both across the name and reason columns */
 .replacementMain {
   display: flex;
-  flex: 1;
+  grid-column: 2 / 4;
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
@@ -937,19 +982,15 @@ button.actionType:focus-visible {
 .replacementReason {
   min-width: 0;
 }
-/* Wide: name and reason on one line */
+/* Wide: name and reason on one line; the names share one column and the reason menus stretch over the rest */
 @container (min-width: 460px) {
+  /* The name and the menu take their own columns */
   .replacementMain {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-12);
+    display: contents;
   }
   .replacementName {
-    flex: 0 1 150px;
     align-self: center;
-  }
-  .replacementReason {
-    flex: 1;
+    justify-self: start;
   }
 }
 /* The small status / reason menus fill their slot, as in Figma (the Volt small dropdown hugs its text by default) */
@@ -977,17 +1018,397 @@ button.actionType:focus-visible {
   box-shadow: 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
   background: var(--color-brand-teal-fill-weaker);
 }
-/* Images: the corner controls sit on a small card-colored backing, so they stay readable over any photo */
-.tileStar,
-.tileRemove,
-.tileDrag {
-  background: var(--color-surfaces-overlay);
+
+/* Suppliers tab: the supplier's name, with the Primary pill after it */
+.supplierName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+  font-weight: 700;
 }
-.tileStar:hover,
-.tileRemove:hover {
-  background: var(--color-surfaces-overlay);
-  box-shadow: inset 0 0 0 var(--space-24) var(--color-gray-fill-hover);
+
+/* Where Used: Figma's All / Assemblies / Kits switch (Volt small Tags) */
+.usedInSwitch {
+  display: flex;
+  flex: none;
+  gap: var(--space-8);
 }
-.tileDrag {
+/* Where Used: the number in bold over the name in small text */
+.usedInCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.usedInCell > button {
+  font-weight: 700;
+}
+
+/* ---------- Add Warranty (Figma 1152:23496) ---------- */
+
+/* Figma spaces the modal's rows 24px apart */
+.warrantyBody {
+  gap: var(--space-24);
+}
+.warrantyType {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Figma: the label sits 6px over the chips (no 6px space token) */
+}
+.chipsLabel {
+  color: var(--color-gray-text-weak);
+}
+/* Warranty Type and Priced by: Volt small Tags, 8px apart */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+/* Covers, Provided by, Term, Units: four equal columns, 16px apart */
+.fields4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-16);
+  align-items: start;
+}
+.documentRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-12);
+}
+/* The extended warranty's price: Surfaces/Sunken, 16px padding, 12px corners, rows 10px apart */
+.pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-10);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.pricingTitle {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}
+/* Tiers: a 1px Gray Stroke/Disabled box (4px corners), a Brand Teal Fill/Weaker header, Surfaces/Base rows */
+.tiers {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-radius: var(--radius-4);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+}
+.tierHead,
+.tierRow {
+  display: grid;
+  /* The last column fits the standard 40 × 40 compact IconButton */
+  grid-template-columns: repeat(3, minmax(0, 1fr)) var(--space-40);
+  align-items: center;
+  /* Items in a row sit 8px apart; rows have 16px padding (Figma 127:4953) */
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-16);
+}
+.tierHead {
+  background: var(--color-brand-teal-fill-weaker);
+  color: var(--color-gray-text-strong);
+}
+.tierRow {
+  padding: var(--space-16);
+  background: var(--color-surfaces-base);
+}
+/* A 1px Gray Stroke/Disabled line between tiers (the table outline's color) */
+.tierRow + .tierRow {
+  box-shadow: inset 0 var(--stroke-width-1) 0 var(--color-gray-stroke-disabled);
+}
+/* The tier inputs are 40px tall (10px above and below), the same as the row's 40 × 40 delete IconButton */
+.tierRow > [role='cell']:not(.tierActions) > * {
+  width: 100%;
+  padding-block: var(--space-10);
+}
+.tierActions {
+  display: flex;
+  justify-content: center;
+}
+.tierEmpty {
+  margin: 0;
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-surfaces-base);
+  color: var(--color-gray-text-weak);
+}
+.pricingNote {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.priceField {
+  max-width: 280px;
+}
+@media (max-width: 767px) {
+  .fields4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Add Replacement Item (Figma 175:4904) ---------- */
+
+/* A long list scrolls inside the modal, so the search and the footer stay put */
+.pickList {
+  max-height: 360px;
+  overflow: auto;
+}
+.pickEmpty {
+  margin: 0;
+  padding: var(--space-16);
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Spec Sheet ---------- */
+
+/* The Specifications card's spec sheet button: the file name (cut short when long) with the edit icon at its end */
+.specSheetButton {
+  max-width: 320px;
+}
+.specSheetButton > span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.currentFile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-weak);
+}
+.currentFileName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-gray-text-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Add Warranty: the price panel opens (Extended) and closes (Standard) by easing its height and fading in, 250ms. While
+ * closed it also takes back the 24px gap above it, so the footer moves up smoothly.
+ */
+.pricingReveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(var(--space-24) * -1);
+  opacity: 0;
+  transition:
+    grid-template-rows 250ms ease-out,
+    margin-top 250ms ease-out,
+    opacity 200ms ease-out;
+}
+.pricingReveal[data-open] {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  opacity: 1;
+}
+.pricingRevealInner {
+  min-height: 0;
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pricingReveal {
+    transition: none;
+  }
+}
+
+/* ---------- Read-only Details (before Edit) ---------- */
+
+/* The fieldset that locks the cards: no box of its own, the cards stack 16px apart as before */
+.lock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* Read-only: a plain arrow everywhere but links, so nothing looks clickable that isn't */
+.lock[data-readonly] :not(a, a *) {
+  cursor: default;
+}
+/* Read-only: the photo tiles drop their delete and drag controls */
+.lock[data-readonly] :is(.tileRemove, .tileDrag) {
+  display: none;
+}
+/* Read-only, the spec sheet is a link: a document icon and its name, cut short when long */
+.specSheetLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 320px;
+}
+.specSheetLink > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Matching heights in a row ---------- */
+
+/* An added spec's remove button inside its field: 24px like the unit picker, so the field stays 44px */
+.inlineRemove {
+  display: inline-flex;
+  margin-block: calc(var(--space-2) * -1);
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  color: var(--color-gray-fill-strong);
+  cursor: pointer;
+}
+.inlineRemove:hover {
+  background: var(--color-gray-fill-hover);
+}
+.inlineRemove:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-brand-teal-stroke-strong);
+}
+/* Units & Packaging: the fields are 40px (10px above and below), the same as the row's print, lock and remove buttons */
+.unitsTable :is([data-type='input'], [data-type='read-only']) {
+  padding-block: var(--space-10);
+}
+/* A select cell's padding is on its button (Unit, UoM) */
+.unitsTable.unitsTable [data-type='select'] > button {
+  padding-block: var(--space-10);
+}
+/* Replacement Items: the reason menu is 40px, the same as the row's drag and remove buttons (three classes beat the
+   Volt small dropdown's padding) */
+.replacementReason.replacementReason.replacementReason button {
+  padding-block: var(--space-10);
+}
+/*
+ * Units & Packaging table: each row has 16px around it and its fields and buttons sit 8px apart. The DataTable's cells
+ * have no side padding here (Volt's Row Item adds 8px each side), and the header uses the same spacing so its labels
+ * line up with the fields under them.
+ */
+.unitsTable.unitsTable [role='row'] {
+  gap: var(--space-8);
+  padding-inline: var(--space-16);
+}
+.unitsTable [role='row'] > :is([role='cell'], [role='columnheader']) {
+  padding-inline: 0;
+}
+/* The print / lock / remove button's cell is its 40px button, not a text line around it (which added 1px) */
+.unitsTable [role='cell'] > span:has(> button) {
+  display: flex;
+}
+/*
+ * Notes: the row's ••• menu is the standard compact IconButton size (40px: a 32px icon, 4px padding, 12px corners, Gray
+ * Fill/Weaker), the same as the pin beside it. DataTable's own ••• is a bare 32px icon.
+ */
+.notesTable [role='row'] button[aria-haspopup='menu'],
+.notesTable [role='row'] button[aria-label^='More actions'] {
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+}
+.notesTable [role='row'] button[aria-label^='More actions']:hover {
+  background: var(--color-gray-fill-hover);
+}
+.notesTable [role='row'] button[aria-label^='More actions']:active {
+  background: var(--color-gray-fill-press);
+}
+/* Notes: the pin's cell is just its 40px button, and the ••• cell is 40px, 8px after it (the row's 12px gap less 4px) */
+.notesTable [role='row'] > :nth-last-child(2) {
+  padding-inline: 0;
+}
+.notesTable.notesTable [role='row'] > :last-child {
+  flex: 0 0 40px;
+  margin-left: calc(var(--space-4) * -1);
+}
+/*
+ * Notes: a pinned note's bookmark icon is Brand Teal (pinned notes sit at the top of the list); the others are 40% gray
+ * (Foundation/Transparent/400: dark gray in light mode, light gray in dark). The button keeps the compact IconButton's box.
+ */
+.notePin.notePin:not([aria-pressed='true']) {
+  --fg: var(--color-foundation-transparent-400);
+}
+.notePin.notePin[aria-pressed='true'] {
+  --fg: var(--color-brand-teal-fill-strong);
+}
+
+/* ---------- Merge Items (Figma "Modal - Merge" 681:14487) ---------- */
+/* The body's three parts, 24px apart */
+.mergeBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+/* "KEEP THIS ITEM", 8px, then the cards */
+.mergeKeep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.mergeEyebrow {
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.mergeCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+/* A radio card: 12 / 12 / 12 / 16 padding, 12px corners, 14px between the radio, the text and the pill */
+.mergeCard {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-12) + var(--space-2));
+  padding: var(--space-12) var(--space-12) var(--space-12) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+}
+/* The kept card: the Selected look (Brand Teal Fill/Weaker, a 2px Brand Teal Stroke/Weak inset) */
+.mergeCard[data-kept] {
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-weak);
+}
+.mergeCardText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.mergeCardMeta {
+  color: var(--color-gray-text-weak);
+}
+/* What moves: 16px padding, 12px corners, Gray Fill/Weaker */
+.mergeMoves {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-text-strong);
+}
+.mergeMoves p {
+  margin: 0;
+}
+/* Bullets 6px apart */
+.mergeMoveList {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-4) + var(--space-2));
+  margin: 0;
+  padding-left: var(--space-24);
+}
+/* "I understand this can't be undone": Semantic Text/Error, Bold */
+.mergeConfirm {
+  color: var(--color-semantic-text-error);
+  font-weight: 700;
 }

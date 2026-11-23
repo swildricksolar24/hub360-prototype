@@ -13,12 +13,58 @@
   color: var(--color-gray-text-strong);
   font-family: var(--font-family-inter);
 }
+/* attached (deprecated, for a row drawn under the card): square bottom corners and 4px below the sub menu */
+.tier3[data-attached] {
+  padding-bottom: var(--space-4);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/*
+ * Jump Links (Figma Tier 3 `Jump Links` on): the JumpLinks row at the bottom of the card, full width. Its own padding
+ * is Figma's (16 above, 24 at the sides, none below), so the card's 24px padding ends it; its Surfaces/Overlay is the
+ * card's color and its bottom corners sit inside the card's.
+ */
+.jumpLinks {
+  min-width: 0;
+}
+.jumpLinks > nav {
+  padding-bottom: 0;
+}
+.tier3[data-collapsed] > .jumpLinks {
+  /* Under the one-line row (and "Last Modified"), across every column */
+  grid-column: 1 / -1;
+}
+
+/*
+ * Sticky (Figma State=Sticky, 3584:2495): one line, 8px above and below and 24px at the sides: the jump links take the
+ * width (no padding above or below them here) and the actions sit at the right. No title, sections or meta.
+ */
+.tier3[data-sticky] {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding-block: var(--space-8);
+}
+.tier3[data-sticky] > .jumpLinks {
+  flex: 1;
+}
+/* The links sit on the bar's line; when they don't all fit beside the actions, JumpLinks moves the rest into "More ▾" */
+.tier3[data-sticky] > .jumpLinks > nav {
+  padding-block: 0;
+}
+.tier3[data-sticky] > .actions {
+  flex: none;
+  margin-left: auto;
+}
 /*
  * Collapsed (not in Figma beyond its one wide example): three columns, title block · section buttons · actions, and
  * every part stays inside the card's content box at every width (nothing overflows the card or is clipped).
  * NavTier3.tsx measures and sets data-fit:
- *   h2 / h3 / h4 = Button Small sections with the title in that heading size;
- *   compact = Button Tiny sections (the actions keep their look), a Heading 4 title that takes what is left
+ *   the section buttons are always Sub Menu Tiny (32px, Figma Collapsed's Button Small);
+ *   h2 / h3 / h4 = the title in that heading size;
+ *   compact = a Heading 4 title that takes what is left
  *     (--title-room, at least 48px), and a "More" menu for the sections that still don't fit;
  *   icon = the same with the title text visually hidden;
  *   picker = one "Current section ▾" menu instead of the section row;
@@ -191,8 +237,8 @@
 }
 
 /*
- * Section buttons: one line centered between the title and the actions, never wrapped or scrolled. Sub Menu Default
- * (Button Small) while it fits; Sub Menu Tiny (Button Tiny) in compact; and when even that doesn't fit beside a 48px
+ * Section buttons: one line centered between the title and the actions, never wrapped or scrolled. Sub Menu Tiny
+ * (32px, at every width); and when the row doesn't fit beside a 48px
  * title, the buttons that don't fit move into "More".
  */
 .tier3[data-collapsed] > .subMenu {

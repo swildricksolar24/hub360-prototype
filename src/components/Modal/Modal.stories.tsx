@@ -101,7 +101,7 @@ export const ModalDynamic: Story = {
       headerActions={
         <>
           <Toggle contained label="Label" />
-          <Dropdown variant="small" aria-label="Select" placeholder="Select" options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]} />
+          <Dropdown variant="button" size="medium" aria-label="Select" placeholder="Select" options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]} />
           <Button size="small" variant="primary">Label</Button>
         </>
       }
