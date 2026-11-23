@@ -196,7 +196,8 @@ export function InventoryDashboardPage() {
       <div className={styles.toolbar} role="toolbar" aria-label="Dashboard">
         {/* Figma note: opens on the user's home warehouse (they can switch to All) */}
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Warehouse"
           hideLabel
           options={warehouseOptions}
@@ -207,7 +208,7 @@ export function InventoryDashboardPage() {
         <Button size="small" variant="primary" icon="export-download" onClick={() => setNotice(`Exported the dashboard for ${range.toLowerCase()} to CSV.`)}>
           Export
         </Button>
-        <Dropdown variant="small" label="Date range" hideLabel options={RANGES.map(r => ({ value: r, label: r }))} value={range} onChange={v => setRange(v as string)} />
+        <Dropdown variant="button" size="medium" label="Date range" hideLabel options={RANGES.map(r => ({ value: r, label: r }))} value={range} onChange={v => setRange(v as string)} />
         <SearchInput
           className={styles.search}
           aria-label="Search items, orders or suppliers"

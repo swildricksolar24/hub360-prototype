@@ -14,8 +14,40 @@ import { nextSort, sortRows, useSelection } from './shared';
 import warehouseStyles from '../warehouses.module.css';
 import styles from './items.module.css';
 
-/** One row: an item's stock in one warehouse location, or (stock null) an item with no stock anywhere. */
-export type StockLine = { item: Item; stock: StockRow | null };
+/**
+ * One row: an item's stock in one warehouse location, or (stock null) an item with no stock anywhere. A By Item line
+ * (the Items list's Stock view) also has `parts`, the item's stock rows that `stock` adds up.
+ */
+export type StockLine = { item: Item; stock: StockRow | null; parts?: StockRow[] };
+
+/** A stock line's row id: its stock record's (a By Item line's is "<item>-all"); an item with no stock gets its own. */
+export const lineId = (l: StockLine) => l.stock?.id ?? `${l.item.id}-no-stock`;
+
+const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+/**
+ * By Item (Figma 681:14475's By Item tab): one line per item, its amounts added up across its warehouses. Warehouse
+ * is the code when there's one ("N warehouses" otherwise), Location the same; an item with no stock keeps "—".
+ */
+export function rollUpStock(item: Item): StockLine {
+  const parts = item.stock;
+  if (!parts.length) return { item, stock: null, parts };
+  const warehouses = [...new Set(parts.map(s => s.warehouse))];
+  const locations = [...new Set(parts.map(s => `${s.warehouse} ${s.location}`))];
+  const sum = (k: (typeof NUMBERS)[number]) => parts.reduce((t, s) => t + s[k], 0);
+  return {
+    item,
+    parts,
+    stock: {
+      id: `${item.id}-all`,
+      warehouse: warehouses.length === 1 ? warehouses[0] : count(warehouses.length, 'warehouse', 'warehouses'),
+      location: locations.length === 1 ? parts[0].location : count(locations.length, 'location', 'locations'),
+      onHand: sum('onHand'),
+      allocated: sum('allocated'),
+      committed: sum('committed'),
+      frozen: sum('frozen'),
+    },
+  };
+}
 
 /** Columns whose values repeat across stock rows, so filtering by them makes sense (not the amounts). */
 const STOCK_FILTER_KEYS = new Set(['item', 'category', 'warehouse', 'location', 'status']);
@@ -44,21 +76,27 @@ export const DEFAULT_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter
 /** The status tag: an inactive item is "Inactive (catalog)"; otherwise its available stock against its reorder point. */
 type StockStatus = 'Stocked' | 'Below reorder pt' | 'Inactive (catalog)';
 const STATUS_COLOR: Record<StockStatus, BadgeColor> = { Stocked: 'green', 'Below reorder pt': 'amber', 'Inactive (catalog)': 'black' };
-export function stockStatus({ item, stock }: StockLine): StockStatus {
-  if (!item.active) return 'Inactive (catalog)';
+const below = (item: Item, stock: StockRow | null) => {
   const left = stock ? available(stock) : 0;
-  return left === 0 || (item.reorderPoint != null && left < item.reorderPoint) ? 'Below reorder pt' : 'Stocked';
+  return left === 0 || (item.reorderPoint != null && left < item.reorderPoint);
+};
+/** A By Item line takes the most urgent of its warehouse lines: "Below reorder pt" if any of them is. */
+export function stockStatus({ item, stock, parts }: StockLine): StockStatus {
+  if (!item.active) return 'Inactive (catalog)';
+  const urgent = parts ? parts.length === 0 || parts.some(s => below(item, s)) : below(item, stock);
+  return urgent ? 'Below reorder pt' : 'Stocked';
 }
 
 const NUMBERS = ['onHand', 'allocated', 'committed', 'frozen'] as const;
 const value = (line: StockLine, key: string): string | number => {
-  const { item, stock } = line;
+  const { item, stock, parts } = line;
   if (key === 'item') return item.id;
   if (key === 'category') return item.category;
   if (key === 'warehouse') return stock?.warehouse ?? '';
   if (key === 'location') return stock?.location ?? '';
   if (key === 'status') return stockStatus(line);
-  if (key === 'available') return stock ? available(stock) : 0;
+  // By Item adds up each warehouse line's Available (each is never below 0)
+  if (key === 'available') return parts ? parts.reduce((t, s) => t + available(s), 0) : stock ? available(stock) : 0;
   return stock ? stock[key as (typeof NUMBERS)[number]] : 0;
 };
 /** A cell's text for the column filters' value lists: the Item column lists item names. */
@@ -69,7 +107,23 @@ const n = (v: number) => v.toLocaleString('en-US');
  * The Stock table on the Volt Data Table, with column filters, a ••• per row and a pager. Used by the Items list's
  * Stock view (Figma 681:14475) and an item's Stock tab (411:44083, with `totals` for its Totals row).
  */
-export function StockTable({ lines, columns, label, totals = false }: { lines: StockLine[]; columns?: string[]; label: string; totals?: boolean }) {
+export function StockTable({
+  lines,
+  columns,
+  label,
+  totals = false,
+  view,
+  selection,
+}: {
+  lines: StockLine[];
+  columns?: string[];
+  label: string;
+  totals?: boolean;
+  /** The Items list's By Warehouse | By Item tab: a change clears the checked rows and goes back to page 1. */
+  view?: string;
+  /** The checked rows, when the page needs them (the Items list's Actions ▾); otherwise the table keeps its own. */
+  selection?: ReturnType<typeof useSelection>;
+}) {
   const navigate = useNavigate();
   const [sort, setSort] = useState<DataSort | undefined>();
   const [filters, setFilters] = useState<ColumnFilters>({});
@@ -78,8 +132,21 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const tableRef = useRef<HTMLDivElement>(null);
-  const sel = useSelection();
+  const own = useSelection();
+  const sel = selection ?? own;
   useEffect(() => setPage(1), [lines.length, filters, pageSize]);
+  const firstView = useRef(view);
+  useEffect(() => {
+    if (view === firstView.current) return;
+    firstView.current = view;
+    sel.clear();
+    setPage(1);
+    setMenuFor(null);
+    setFilterOpen(null);
+    // Warehouse and Location read differently in the two views ("PHX-124" vs "3 warehouses"), so their filters go
+    setFilters(f => withFilter(withFilter(f, 'warehouse', []), 'location', []));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
 
   const shown = ALL_COLUMNS.filter(c => !columns || columns.includes(c.key));
   // Without the Item column (an item's own record), Location takes the spare width
@@ -89,7 +156,7 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, pageCount);
   // DataTable keys rows by id: a stock line's is its stock record's (an item with no stock gets its own)
-  const pageRows = rows.slice((current - 1) * pageSize, current * pageSize).map(l => ({ ...l, id: l.stock?.id ?? `${l.item.id}-no-stock` }));
+  const pageRows = rows.slice((current - 1) * pageSize, current * pageSize).map(l => ({ ...l, id: lineId(l) }));
 
   // The Totals row (an item's Stock tab) sums every matching line, not only this page
   const sums: Record<string, string> = { warehouse: 'Totals' };
@@ -104,7 +171,7 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
           columns={cols}
           rows={pageRows}
           totalRows={lines.length}
-          rowLabel={l => (l.stock ? `${l.item.name} at ${l.stock.location}` : `${l.item.name} (no stock)`)}
+          rowLabel={l => (l.parts ? l.item.name : l.stock ? `${l.item.name} at ${l.stock.location}` : `${l.item.name} (no stock)`)}
           sort={sort}
           onSortChange={k => setSort(nextSort(k))}
           onFilter={key => setFilterOpen(open => (open === key ? null : key))}
@@ -124,11 +191,12 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
           renderAfterRow={l =>
             menuFor === l.id && (
               <RowMenu
-                label={l.stock ? `${l.item.name} at ${l.stock.warehouse}` : l.item.name}
+                label={l.stock && !l.parts ? `${l.item.name} at ${l.stock.warehouse}` : l.item.name}
                 onClose={() => setMenuFor(null)}
                 items={[
                   { label: 'View Item', onSelect: () => navigate(itemPath(l.item.id)) },
-                  ...(l.stock
+                  // By Item: the line is the whole item, so its menu only opens the item
+                  ...(l.stock && !l.parts
                     ? [{ label: 'View Warehouse Stock', onSelect: () => navigate(`/app/inventory/warehouses/${encodeURIComponent(l.stock!.warehouse)}?tab=stock`) }]
                     : []),
                 ]}
@@ -156,12 +224,13 @@ export function StockTable({ lines, columns, label, totals = false }: { lines: S
               committed: n(value(l, 'committed') as number),
               frozen: n(value(l, 'frozen') as number),
               available: n(value(l, 'available') as number),
-              location: l.stock ? (
+              // A By Item line spread over several locations ("3 locations") has no one place to link to
+              location: l.stock && (!l.parts || l.parts.length === 1) ? (
                 <AppLink to={`/app/inventory/warehouses/${encodeURIComponent(l.stock.warehouse)}?tab=locations`} size="small">
                   {l.stock.location}
                 </AppLink>
               ) : (
-                '—'
+                (l.stock?.location ?? '—')
               ),
               status: (
                 <Badge shape="pill" color={STATUS_COLOR[status]}>

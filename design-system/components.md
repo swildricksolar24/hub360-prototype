@@ -3,7 +3,7 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**190 component sets + 10 standalone components** on 81 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4). Ten of them sit on Testing and "not used" pages (Modal - Dialog* moved to one Nov 6).
+**199 component sets + 10 standalone components** on 84 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4; the Jump Links page, with Jump Link and Jump Links, added Nov 23). Ten of them sit on Testing and "not used" pages (Modal - Dialog* moved to one Nov 6).
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. Tile / KPI's `Icon` is the only INSTANCE_SWAP property in the file.
@@ -64,6 +64,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Icon | Icon | 25:355 | 6 | State¹ | — |
 | Button Icon | Brand | 2388:4991 | 6 | State¹ | — |
 | Button Icon | Number | 692:1041 | 6 | State¹ | Label |
+| Button Icon Tiny | Icon (Nov 23, 2026; IconButton `size="tiny"`: 32px, 18px icon) | 3580:1325 | 6 | State (Default, Hover, Press, Focus, Disabled, Selected) | — |
 | Button Small* | Outline / Icon* | 401:347 | 6 | State¹ | Label |
 | Button Small* | Outline / Default | 401:363 | 6 | State¹ | Label |
 | Button Small* | Primary / Icon | 401:401 | 6 | State¹ | Label |
@@ -113,6 +114,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Toggle | Large | 404:186 | 3 | State (On, Off, Disabled) | — |
 | Toggle | Small | 2283:1939 | 3 | State (Off, On, Disabled) | — |
 | Toggle | Toggle Button | 2634:295 | 1 | State × Size | — |
+| Toggle | Toggle Button Tiny (Nov 23, 2026; Toggle `size="tiny" contained`: 32px, Tiny text) | 3584:1818 | 1 | State × Size | — |
 | Scrollbar | Scrollbar | 431:266 | 1 | State | — |
 
 ## Components › Forms
@@ -126,10 +128,15 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Drop Down Label | Default ("Open (example)" frame 3459:486 on the Drop Down Menu page, Nov 10–11, 2026) | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
 | Drop Down Label | chips | 2676:6014 | 1 | State | — |
 | Drop Down Label | Drop Down Menu (component, added Nov 2, 2026; 16px inset and 8px between rows like Context Menu since Nov 6) | 3078:320 | 1 | — | — |
-| Drop Down Button* | Icon* | 56:1083 | 6 | State³ | — |
-| Drop Down Button* | Icon and Label | 56:1075 | 6 | State³ | Select |
-| Drop Down Button* | Default ("Open (example)" frame 3459:614 on the page, Nov 10–11, 2026: every Drop Down Button opens Menu Options) | 56:936 | 6 | State³ | Select |
-| Drop Down Button* | Small | 478:1190 | 6 | State³ | Select |
+| Drop Down Button* | Large (was "Default"; "Open (example)" frame 3459:614 on the page, Nov 10–11, 2026: every Drop Down Button opens Menu Options) | 56:936 | 6 | State³ | Select |
+| Drop Down Button* | Medium (was "Small"; Nov 23, 2026: 12px all round, 8px before the chevron) | 478:1190 | 6 | State³ | Select |
+| Drop Down Button* | Small (was "Tiny"; Nov 23, 2026: 8px all round, 4px gaps, 8px corners, 16px chevron) | 3584:1718 | 6 | State³ | Select |
+| Drop Down Icon Button | Large (was Drop Down Button › Icon*; Nov 23, 2026: 28px icon) | 56:1083 | 6 | State³ | — |
+| Drop Down Icon Button | Medium (Nov 23, 2026) | 3595:3716 | 6 | State³ | — |
+| Drop Down Icon Button | Small (Nov 23, 2026) | 3595:3747 | 6 | State³ | — |
+| Drop Down Icon + Label Button | Large (was Drop Down Button › Icon and Label) | 56:1075 | 6 | State³ | Select |
+| Drop Down Icon + Label Button | Medium (Nov 23, 2026) | 3595:4477 | 6 | State³ | Select |
+| Drop Down Icon + Label Button | Small (Nov 23, 2026) | 3595:4555 | 6 | State³ | Select |
 | Editable Cell | Editable Cell ("Open (example)" frame 3459:176 on the page, Nov 10–11, 2026: the select with Menu Options under it) | 2903:32 | 7 | Type (Input, Select, Read Only) × State (Default, Error, Hover) | Value |
 | ListBox* | List Item / Icon | 432:998 | 6 | State² | Label |
 | ListBox* | List Item / Avatar | 432:1109 | 6 | State² | Label |
@@ -244,10 +251,12 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Main Nav › Tier 2 | Tier 2 | 708:1647 | 3 | State (Default, Collapsed, Label) | — |
 | Main Nav › Tier 3 | Tier 3 Labels | 2642:3610 | 4 | Labels (1–4) | — |
 | Main Nav › Tier 3 | Tier 3 Label | 2642:3631 | 1 | State | Label, Value |
-| Main Nav › Tier 3 | Tier 3 | 2644:3738 | 2 | State (Expanded, Collapsed) | — |
+| Main Nav › Tier 3 | Tier 3 (Nov 23, 2026: Sticky added and Collapsed regrouped into one row; Jump Links built in, off by default) | 2644:3738 | 3 | State (Expanded, Collapsed, Sticky) | Jump Links |
 | Main Nav › Tier 3 | Tier 3 Icon | 2648:4086 | 4 | Size × State | — |
 | Interior Nav › Sub Menu | Sub Menu | 708:1502 | 3 | State (Default, Tiny, Text) | — |
 | Interior Nav › Tier 4 | Tier 4 | 3091:12939 | 3 | Property 1 (Warehouse) × Property 2 (Overview, Table View, Table View - 2) | — |
+| Interior Nav › Jump Links | Jump Link (Nov 23, 2026) | 3582:11 | 4 | State (Default, Hover, Focus, Current) | Label |
+| Interior Nav › Jump Links | Jump Links (seven exposed Jump Link instances; 16 above, 24 at the sides, 0 below; 12px gap, wraps, Surfaces/Overlay, bottom corners 12; used inside Tier 3) | 3584:2032 | 1 | Property 1 (Default) | Show Link 1–7 |
 | Interior Nav › Footer | Footer (Nov 10, 2026: the copyright text hugs, the version text fills the space between it and the links with its text centered, 24px gap) | 1544:2832 | 1 | State | — |
 
 ## Templates

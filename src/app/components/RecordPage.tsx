@@ -1,9 +1,10 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { useHref, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button/Button';
 import { Dropdown, type DropdownProps } from '../../components/Dropdown/Dropdown';
 import { Icon } from '../../components/Icon/Icon';
 import { IconButton } from '../../components/IconButton/IconButton';
+import { JumpLinks, type JumpLink } from '../../components/JumpLinks/JumpLinks';
 import { NavTier3, type NavTier3LabelProps } from '../../components/NavTier3/NavTier3';
 import { Toggle } from '../../components/Toggle/Toggle';
 import styles from './RecordPage.module.css';
@@ -42,6 +43,12 @@ export type RecordActionsProps = {
   hideArrows?: boolean;
 };
 
+/**
+ * The size RecordActions draws at. RecordPage sets "tiny" in the header's Collapsed and Sticky states (Figma Tier 3 uses
+ * Toggle Button Tiny, Drop Down Button Tiny, Button Tiny and Button Icon Tiny there, all 32px); Expanded is "default".
+ */
+const ActionsSize = createContext<'default' | 'tiny'>('default');
+
 const DEFAULT_OPTIONS: DropdownOption[] = [
   { value: 'duplicate', label: 'Duplicate' },
   { value: 'export', label: 'Export' },
@@ -67,17 +74,25 @@ export function RecordActions({
   onNext,
   hideArrows,
 }: RecordActionsProps) {
+  const tiny = useContext(ActionsSize) === 'tiny';
   return (
     <>
       {!hideActive &&
         (active === undefined ? (
-          <Toggle contained label="Active" defaultChecked />
+          <Toggle contained size={tiny ? 'tiny' : undefined} label="Active" defaultChecked />
         ) : (
-          <Toggle contained label="Active" checked={active} onChange={e => onActiveChange?.(e.target.checked)} />
+          <Toggle
+            contained
+            size={tiny ? 'tiny' : undefined}
+            label="Active"
+            checked={active}
+            onChange={e => onActiveChange?.(e.target.checked)}
+          />
         ))}
       {options.length > 0 && (
         <Dropdown
-          variant="small"
+          variant="button"
+          size={tiny ? 'small' : 'medium'}
           label="Actions"
           hideLabel
           placeholder="Actions"
@@ -88,19 +103,32 @@ export function RecordActions({
         />
       )}
       {!hideSave && onCancel && (
-        <Button size="small" variant="outline" onClick={onCancel}>
+        <Button size={tiny ? 'tiny' : 'small'} variant="outline" onClick={onCancel}>
           Cancel
         </Button>
       )}
       {!hideSave && (
-        <Button size="small" variant="brand" onClick={onSave} disabled={saveDisabled}>
+        <Button size={tiny ? 'tiny' : 'small'} variant="brand" onClick={onSave} disabled={saveDisabled}>
           {saveLabel}
         </Button>
       )}
       {!hideArrows && (
         <>
-          <IconButton size="compact" icon="chevron-left" label="Previous record" onClick={onPrevious} disabled={!onPrevious} />
-          <IconButton size="compact" icon="chevron-right" label="Next record" onClick={onNext} disabled={!onNext} />
+          {/* The same height as the Active toggle, Actions and Save beside them: 44px (small), or Button Icon Tiny (32px) */}
+          <IconButton
+            size={tiny ? 'tiny' : 'small'}
+            icon="chevron-left"
+            label="Previous record"
+            onClick={onPrevious}
+            disabled={!onPrevious}
+          />
+          <IconButton
+            size={tiny ? 'tiny' : 'small'}
+            icon="chevron-right"
+            label="Next record"
+            onClick={onNext}
+            disabled={!onNext}
+          />
         </>
       )}
     </>
@@ -132,7 +160,16 @@ export type RecordPageProps = {
   onViewPhoto?: () => void;
   /** A bar above the header, e.g. "You're editing … Discard Changes / Save Changes". */
   banner?: ReactNode;
+  /**
+   * Figma Tier 3 `Jump Links` (on): links to the section's cards (each `id` is a card heading's id), as on Item Details
+   * (1144:7748). They sit at the bottom of the header card; a click scrolls the page to that card. Once the full header
+   * has scrolled away, a Tier 3 Sticky bar (the links and the actions) stays at the top of the page.
+   */
+  jumpLinks?: { items: JumpLink[]; 'aria-label'?: string };
 };
+
+/** Space between the Sticky bar and the card a jump link scrolls to (the page's 16px gap between cards). */
+const CARD_GAP = 16;
 
 /**
  * The framework for the app's pages: the Figma "Tier 3" header (2644:3738, design-system NavTier3) with its back
@@ -153,6 +190,7 @@ export function RecordPage({
   onSectionChange,
   onViewPhoto,
   banner,
+  jumpLinks,
 }: RecordPageProps) {
   const navigate = useNavigate();
   const homeTo = '/app';
@@ -165,6 +203,70 @@ export function RecordPage({
     onSectionChange?.(id);
   }
   const section = sections.find(s => s.id === sectionId) ?? sections[0];
+
+  /*
+   * Jump links: the picked link is shared by the header's row and the Sticky bar's, and stays picked while the page
+   * scrolls (scrolling doesn't move the underline) until another is picked; the first starts picked.
+   */
+  const jumpItems = jumpLinks?.items ?? [];
+  const jumpKey = jumpItems.map(item => item.id).join(' ');
+  const [jumpId, setJumpId] = useState<string>();
+  useEffect(() => setJumpId(undefined), [jumpKey]);
+  const currentJump = jumpId && jumpItems.some(item => item.id === jumpId) ? jumpId : jumpItems[0]?.id;
+
+  /*
+   * Figma Tier 3 State=Sticky: once the full header has scrolled out of the page (AppShell's <main id="main">), the
+   * Sticky bar shows at the top, flush with the page's top edge (--sticky-top: minus <main>'s top padding, which is
+   * 24px, or 16px on smaller screens). The bar is always laid out (hidden until then), so a jump can allow for it.
+   */
+  const headerRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const [stuck, setStuck] = useState(false);
+  const hasJump = jumpItems.length > 0;
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    const anchor = anchorRef.current;
+    const scroller = document.getElementById('main');
+    if (!hasJump || !header || !anchor || !scroller) return setStuck(false);
+    const pad = () => anchor.style.setProperty('--sticky-top', `${-(parseFloat(getComputedStyle(scroller).paddingTop) || 0)}px`);
+    const check = () => {
+      pad();
+      setStuck(header.getBoundingClientRect().bottom <= scroller.getBoundingClientRect().top + 1);
+    };
+    check();
+    scroller.addEventListener('scroll', check, { passive: true });
+    const observer = new ResizeObserver(check);
+    observer.observe(header);
+    observer.observe(scroller);
+    return () => {
+      scroller.removeEventListener('scroll', check);
+      observer.disconnect();
+    };
+  }, [hasJump]);
+
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function jump(id: string) {
+    setJumpId(id);
+    const el = document.getElementById(id);
+    const card = el?.closest('section') ?? el;
+    if (!card) return;
+    const behavior = reduceMotion() ? 'auto' : 'smooth';
+    // Only the shell's content area scrolls: scrollIntoView would also scroll the shell around it when the card can't
+    // reach the top (a card near the bottom), which pushed the footer up
+    const scroller = document.getElementById('main');
+    if (!scroller) return card.scrollIntoView({ behavior, block: 'start' });
+    const offset = (stickyRef.current?.offsetHeight ?? 0) + CARD_GAP;
+    const top = card.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - offset;
+    scroller.scrollTo({ top: Math.max(0, top), behavior });
+  }
+  // The Sticky bar's double chevron brings the full header back by scrolling to the top
+  function showHeader() {
+    document.getElementById('main')?.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  }
+  const jumpRow = hasJump ? (
+    <JumpLinks items={jumpItems} value={currentJump} onChange={jump} aria-label={jumpLinks?.['aria-label']} />
+  ) : undefined;
 
   const pageName = breadcrumb.at(-1)?.label ?? title;
   useEffect(() => {
@@ -195,25 +297,43 @@ export function RecordPage({
   return (
     <div className={styles.page} onClickCapture={onClickCapture}>
       {banner}
-      <NavTier3
-        title={title}
-        icon={icon}
-        onViewPhoto={onViewPhoto}
-        collapsed={collapsed}
-        onCollapsedChange={setCollapsed}
-        onBack={back}
-        homeHref={homeHref}
-        breadcrumb={breadcrumb.map(({ label, to }) =>
-          to ? { label, href: `${base}${to}`, onClick: (e: MouseEvent<HTMLAnchorElement>) => go(e, to) } : { label },
-        )}
-        tag={tag}
-        labels={labels}
-        actions={actions}
-        meta={meta}
-        items={sections.map(({ id, label }) => ({ id, label }))}
-        value={section?.id}
-        onChange={setSectionId}
-      />
+      <div ref={headerRef}>
+        <NavTier3
+          title={title}
+          icon={icon}
+          onViewPhoto={onViewPhoto}
+          collapsed={collapsed}
+          onCollapsedChange={setCollapsed}
+          onBack={back}
+          homeHref={homeHref}
+          breadcrumb={breadcrumb.map(({ label, to }) =>
+            to ? { label, href: `${base}${to}`, onClick: (e: MouseEvent<HTMLAnchorElement>) => go(e, to) } : { label },
+          )}
+          tag={tag}
+          labels={labels}
+          actions={<ActionsSize.Provider value={collapsed ? 'tiny' : 'default'}>{actions}</ActionsSize.Provider>}
+          meta={meta}
+          items={sections.map(({ id, label }) => ({ id, label }))}
+          value={section?.id}
+          onChange={setSectionId}
+          jumpLinks={jumpRow}
+        />
+      </div>
+      {hasJump && (
+        // A 0-high sticky anchor right under the header; the bar hangs from it over the content
+        <div ref={anchorRef} className={styles.stickyAnchor}>
+          <div ref={stickyRef} className={styles.stickyBar} data-shown={stuck || undefined} inert={!stuck}>
+            <NavTier3
+              sticky
+              title={title}
+              icon={icon}
+              actions={<ActionsSize.Provider value="tiny">{actions}</ActionsSize.Provider>}
+              jumpLinks={jumpRow}
+              onCollapsedChange={showHeader}
+            />
+          </div>
+        </div>
+      )}
       {section && (
         <section className={styles.content} aria-label={section.label}>
           {section.content ?? (

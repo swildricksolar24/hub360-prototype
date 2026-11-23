@@ -6,20 +6,21 @@ import { IconButton } from '../IconButton/IconButton';
 import { Toggle } from '../Toggle/Toggle';
 import { Dropdown } from '../Dropdown/Dropdown';
 import { Chip } from '../Chip/Chip';
+import { JumpLinks } from '../JumpLinks/JumpLinks';
 import { figma } from '../../storybook/figma';
 import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 
 const noop = () => {};
 
 /**
- * Figma's actions: Toggle Button ("Active"), a small Drop Down ("Actions"), Save and record arrows. They keep the
- * same look in every state, collapsed and compact included.
+ * Expanded actions (Figma): Toggle Button ("Active"), a small Drop Down ("Actions"), Save and record arrows. Collapsed and
+ * Sticky use the tiny versions (tinyActions below).
  */
 const actions = (
   <>
     <Toggle contained label="Active" defaultChecked />
     <Dropdown
-      variant="small"
+      variant="button" size="medium"
       label="Actions"
       hideLabel
       placeholder="Actions"
@@ -31,8 +32,33 @@ const actions = (
     <Button size="small" variant="brand">
       Save
     </Button>
-    <IconButton size="compact" icon="chevron-left" label="Previous record" />
-    <IconButton size="compact" icon="chevron-right" label="Next record" />
+    <IconButton size="small" icon="chevron-left" label="Previous record" />
+    <IconButton size="small" icon="chevron-right" label="Next record" />
+  </>
+);
+
+/**
+ * Figma's Collapsed and Sticky use the tiny controls (32px): Toggle Button Tiny, Drop Down Button › Tiny, Button Tiny
+ * Brand and Button Icon Tiny. The page passes them; NavTier3 shows whatever `actions` it gets.
+ */
+const tinyActions = (
+  <>
+    <Toggle contained size="tiny" label="Active" defaultChecked />
+    <Dropdown
+      variant="button" size="small"
+      label="Actions"
+      hideLabel
+      placeholder="Actions"
+      options={[
+        { value: 'duplicate', label: 'Duplicate' },
+        { value: 'archive', label: 'Archive' },
+      ]}
+    />
+    <Button size="tiny" variant="brand">
+      Save
+    </Button>
+    <IconButton size="tiny" icon="chevron-left" label="Previous record" />
+    <IconButton size="tiny" icon="chevron-right" label="Next record" />
   </>
 );
 
@@ -48,6 +74,12 @@ const items = ['Details', 'Contacts', 'Pick / Pack', 'Printers', 'Locations', 'I
   id: label.toLowerCase(),
   label,
 }));
+
+/** Figma Tier 3's Jump Links: seven links, the first one current. */
+const jumpItems = ['Identification / Images', 'Tracking / Compliance', 'Specifications', 'Units & Packaging', 'Warranty', 'Replacement', 'Notes'].map(
+  (label, i) => ({ id: `section-${i + 1}`, label }),
+);
+const jumpLinks = <JumpLinks items={jumpItems} aria-label="Page sections" />;
 
 const base: NavTier3Props = {
   title: 'WAREHOUSE',
@@ -83,26 +115,63 @@ const Caption = ({ children }: { children: string }) => (
   </figcaption>
 );
 
-/** Interactive: the double chevron collapses and expands the header. */
+/**
+ * Interactive: the double chevron collapses and expands the header; the switches show Figma's Jump Links row and the
+ * Sticky bar (in the app, the bar a page shows once the full header has scrolled away).
+ */
 export const Playground: Story = {
-  render: args => {
+  args: { sticky: false },
+  argTypes: { sticky: { control: 'boolean' }, jumpLinks: { control: false } },
+  render: function Render(args) {
     const [collapsed, setCollapsed] = useState(false);
     const [value, setValue] = useState<string | undefined>();
-    return <NavTier3 {...args} collapsed={collapsed} onCollapsedChange={setCollapsed} value={value} onChange={setValue} />;
+    const [withLinks, setWithLinks] = useState(true);
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-16)' }}>
+        <Toggle label="Jump Links" checked={withLinks} onChange={e => setWithLinks(e.target.checked)} />
+        <NavTier3
+          {...args}
+          actions={collapsed || args.sticky ? tinyActions : args.actions}
+          jumpLinks={withLinks ? jumpLinks : undefined}
+          collapsed={collapsed}
+          onCollapsedChange={setCollapsed}
+          value={value}
+          onChange={setValue}
+        />
+      </div>
+    );
   },
 };
 
+/**
+ * Figma's three states, each with Jump Links on: Expanded and Collapsed show the links under the rest of the card;
+ * Sticky is a thin bar with the links and the actions. Without `jumpLinks` there is no links row (Figma's default).
+ */
 export const Tier3: Story = {
   name: 'Tier 3',
   render: args => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
       <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
         <Caption>State=Expanded</Caption>
-        <NavTier3 {...args} />
+        <NavTier3 {...args} jumpLinks={jumpLinks} />
       </figure>
       <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
         <Caption>State=Collapsed</Caption>
-        <NavTier3 {...args} items={items.map(i => (i.id === 'contacts' ? { ...i, label: 'Contact' } : i))} collapsed />
+        <NavTier3
+          {...args}
+          actions={tinyActions}
+          items={items.map(i => (i.id === 'contacts' ? { ...i, label: 'Contact' } : i))}
+          jumpLinks={jumpLinks}
+          collapsed
+        />
+      </figure>
+      <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+        <Caption>State=Sticky</Caption>
+        <NavTier3 {...args} actions={tinyActions} jumpLinks={jumpLinks} sticky />
+      </figure>
+      <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+        <Caption>State=Expanded, Jump Links off</Caption>
+        <NavTier3 {...args} />
       </figure>
     </div>
   ),
@@ -111,8 +180,8 @@ export const Tier3: Story = {
 
 /**
  * Not in Figma: in Collapsed everything stays inside the card. As the card narrows, the title steps down from
- * Heading 2 to Heading 3 and Heading 4; then the section buttons (only those; the actions never change) switch to
- * Button Tiny, the Heading 4 title is cut with an ellipsis down to 48px, and the sections that don't fit move into
+ * Heading 2 to Heading 3 and Heading 4 (the section buttons are always the 32px Sub Menu Tiny, as in Figma); then the
+ * Heading 4 title is cut with an ellipsis down to 48px, and the sections that don't fit move into
  * "More ▾" (the current one stays in the row; 1000 and 800px frames). Then the title text hides behind the icon
  * (tooltip on hover), then one "Stock ▾" section picker replaces the row (720px), and on the narrowest cards the
  * actions move to a second line (650px). Resize the browser to see the steps change live.
@@ -127,7 +196,7 @@ export const CollapsedNarrow: Story = {
           <figure key={width} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
             <Caption>{`${width}px`}</Caption>
             <div style={{ width, maxWidth: '100%' }}>
-              <NavTier3 {...args} collapsed value={value} onChange={setValue} />
+              <NavTier3 {...args} actions={tinyActions} collapsed value={value} onChange={setValue} />
             </div>
           </figure>
         ))}

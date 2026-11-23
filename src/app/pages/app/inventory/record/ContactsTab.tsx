@@ -94,7 +94,8 @@ export function ContactsTab({ code, warehouseName, onNotice }: { code: string; w
         <div className={styles.contactToolbar} role="toolbar" aria-label="Contacts">
           {/* The View ▾ filter the other record tables use (tableKit's TableToolbar) */}
           <Dropdown
-            variant="small"
+            variant="button"
+            size="medium"
             label="View"
             hideLabel
             options={[

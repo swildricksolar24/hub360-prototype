@@ -23,7 +23,7 @@ const TIMES = opts('5:00AM', '6:00AM', '7:00AM', '8:00AM', '9:00AM', '4:00PM', '
 
 /** Figma "Drop Down Button / Small" used for the settings' choices. */
 function Select({ label, options, defaultValue }: { label: string; options: { value: string; label: string }[]; defaultValue: string }) {
-  return <Dropdown variant="small" label={label} hideLabel options={options} defaultValue={defaultValue} />;
+  return <Dropdown variant="button" size="medium" label={label} hideLabel options={options} defaultValue={defaultValue} />;
 }
 
 function Switch({ label, defaultOn = false }: { label: string; defaultOn?: boolean }) {

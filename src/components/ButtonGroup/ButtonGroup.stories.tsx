@@ -121,7 +121,7 @@ export const SmallSwitch: Story = {
             </ButtonGroup>
             {size === 'small' && (
               <>
-                <Dropdown variant="small" label="View" hideLabel placeholder="View All" options={[{ value: 'all', label: 'View All' }]} />
+                <Dropdown variant="button" size="medium" label="View" hideLabel placeholder="View All" options={[{ value: 'all', label: 'View All' }]} />
                 <Button variant="primary" size="small" icon="upload">
                   Upload
                 </Button>

@@ -21,6 +21,16 @@
 .iconButton[data-size='compact'] {
   padding: var(--space-4);
 }
+/* small: 44px (32px icon + 6px around), the Small buttons' height; Figma's Tier 3 Expanded icon buttons */
+.iconButton[data-size='small'] {
+  padding: calc(var(--space-4) + var(--space-2));
+}
+/* Figma "Button Icon Tiny" › Icon (3580:1325): a 32px square, the 18px icon centred (component size, no size token) */
+.iconButton[data-size='tiny'] {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
 
 .number {
   display: inline-flex;

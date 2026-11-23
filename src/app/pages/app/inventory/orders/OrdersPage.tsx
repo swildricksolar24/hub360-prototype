@@ -116,7 +116,8 @@ export function OrdersPage() {
       </PrototypeHelper>
       <div className={styles.toolbar} role="toolbar" aria-label="Orders">
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="View"
           hideLabel
           options={[{ value: ALL, label: 'All' }, ...ORDER_STATUSES.map(s => ({ value: s, label: s }))]}
@@ -125,7 +126,8 @@ export function OrdersPage() {
           renderValue={sel => `View: ${sel[0]?.label ?? 'All'}`}
         />
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Actions"
           hideLabel
           placeholder="Actions"
@@ -135,7 +137,11 @@ export function OrdersPage() {
           ]}
           value={null}
           onChange={v => {
-            if (v === 'export') return setNotice(`Exported ${rows.length} orders to CSV.`);
+            // The checked orders when there are any, otherwise the whole list
+            if (v === 'export') {
+              const n = orders.filter(o => selected.has(o.id)).length || rows.length;
+              return setNotice(`Exported ${n} order${n === 1 ? '' : 's'} to CSV.`);
+            }
             setCancelling(cancellable.map(o => o.id));
           }}
           renderValue={() => (selected.size ? `Actions (${selected.size})` : 'Actions')}

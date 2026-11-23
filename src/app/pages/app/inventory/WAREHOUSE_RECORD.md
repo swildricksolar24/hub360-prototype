@@ -271,8 +271,8 @@ Other.
 ## 3. Pick / Pack
 
 **Latest Figma (899:3331 view, 84:11914 edit), as built:** five numbered cards, read-only until the header's Edit;
-the edit banner above the header ("You're editing Warehouse Pick / Pack Settings. 2 unsaved changes.") saves or
-discards. 1 · Allocation & Commit (stages, commit at or after allocation, "Start allocating N days before the order's
+Edit turns into Save with Cancel beside it, and an info toast comes down from the top ("You’re editing Warehouse
+Pick / Pack Settings."; it replaced Figma's edit banner). 1 · Allocation & Commit (stages, commit at or after allocation, "Start allocating N days before the order's
 Due date"), 2 · Picking (format, printer, auto-print, sort chips, then by, rotation chips, pick rules and scanning &
 validation switches), 3 · Packing, 4 · Labels (edit / delete and Add Label Default while editing; these save as they
 change) and 5 · Notifications. The printer menus list the Printers tab's printers. The notes below describe the first
@@ -346,7 +346,8 @@ first setup. The list view, the open printer and its view are in the URL: `?tab=
   button that opens a red confirmation). Settings (Printer, Connection with Test Connection, Labels & Print Quality,
   Maintenance), Default Use (the warehouse's document defaults, "If this printer is offline", "Who can print here") and
   Print Jobs (the failed-job notice with Send to Another Printer / Retry Job, filters, the job table with Reprint /
-  Retry / Cancel). The header's Edit edits Settings and Default Use together, with the edit banner above the header.
+  Retry / Cancel). The header's Edit edits Settings and Default Use together: it turns into Save with Cancel beside it, and
+  the editing toast comes down from the top.
 - **Helper switches (a prototype tool, not in Figma):** each tab adds on / off switches to the shell's Helper panel
   (`shell/PrototypeHelper.tsx`, `shell/helperFlags.ts`; the life preserver icon beside All tabs) for states the sample
   data doesn't show: empty lists (carriers, contacts, label defaults, locations, items, stock, history), no primary
@@ -361,7 +362,15 @@ first setup. The list view, the open printer and its view are in the URL: `?tab=
 **Latest Figma (857:28319 tree, 872:53895 flat list, 872:53690 / 857:28408 Add Location, 857:28345 Location Details),
 as built:** the warehouse's totals (Locations, In use, Empty, Utilization, Frozen, Non-pickable), Tree / Flat List,
 View (All, Active, Inactive, Frozen, Non-pickable, Empty), Columns, Upload, Actions (incl. Print barcode labels),
-search by name or code, Add Location. Columns: name (tree: indented, expand / collapse), Parent (flat list), Code,
+search by name or code, Add Location. **Actions ▾ on every record tab** (Items, Locations, Stock; tableKit's
+`statusActions`) fits the checked rows:
+- Activate is on only when a checked row is inactive, and Deactivate only when one is active. Each acts only on the
+  rows it changes.
+- Remove and Print barcode labels need one or more checked rows.
+- Export to CSV exports the checked rows, or the whole table when none are checked.
+- Contacts and Printers have no Actions menu.
+
+Columns: name (tree: indented, expand / collapse), Parent (flat list), Code,
 Type, Items (units on hand here and below), Utilization ("used/total (free)" slots), Rules badges, status, a + (add a
 location inside) and •••. Drag a row onto another to move it there (within 4 levels), or onto "Drop here to move to the
 top level". Codes come from the tree (A, A-01, A-01-01) unless set. Add Location adds one location or a numbered range

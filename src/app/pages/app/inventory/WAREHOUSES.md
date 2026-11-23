@@ -41,10 +41,10 @@ about the Tier 3 header.
 
 | Figma | Code |
 |---|---|
-| "View: All" drop-down | `Dropdown variant="small"`; options: All, plus saved views from Edit Columns |
+| "View: All" drop-down | `Dropdown variant="button" size="medium"`; options: All, plus saved views from Edit Columns |
 | "Columns" (icon) | `Button size="small" variant="primary" icon="view-column"` → opens 4 |
 | "Upload" (icon) | `Button size="small" variant="primary" icon="upload"` → opens 8 |
-| "Actions" drop-down | `Dropdown variant="small"`; options for the selected rows: Activate, Deactivate, Export |
+| "Actions" drop-down | `Dropdown variant="button" size="medium"`; options for the selected rows: Activate (on when a checked row is inactive), Deactivate (on when one is active) |
 | "Search" | `SearchInput` (fills the remaining width); filters by code, name and address |
 | "Add Warehouse" | `Button size="small" variant="brand" icon="plus"` → opens 15 |
 
@@ -75,7 +75,9 @@ about the Tier 3 header.
 **Pagination** — `PageTracker`: `pageSizeOptions={[10, 25, 50]}`, `maxPageButtons={5}`, shows "2 of 13".
 
 **States to cover:** loading (`Skeleton` rows with `aria-busy`), empty ("No warehouses yet" + Add Warehouse),
-no search results, and rows selected (Actions enabled only when at least one row is selected).
+no search results, and rows selected. Actions is enabled only when at least one row is selected. Activate is on only
+when a checked warehouse is inactive, and Deactivate only when one is active. Each acts only on the warehouses it
+changes.
 
 ## 2–3. Confirm Activation / Deactivation
 

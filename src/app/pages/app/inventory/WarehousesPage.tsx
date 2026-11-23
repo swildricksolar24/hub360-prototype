@@ -13,7 +13,7 @@ import { EditColumnsModal } from './EditColumnsModal';
 import { UploadFlow } from './UploadFlow';
 import { DEFAULT_COLUMNS, FIELDS, SAMPLE_VIEWS, fieldByKey, type SavedView, type Warehouse } from './warehouseData';
 import { RowMenu } from './record/RowMenu';
-import { PAGE_SIZES, StatusPill } from './record/tableKit';
+import { PAGE_SIZES, StatusPill, statusActions } from './record/tableKit';
 import { recordPath, setWarehouses, useWarehouses } from './warehouseStore';
 import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from './ColumnFilter';
 import { WarehouseStatusModal, applyWarehouseStatus, type ActivateOptions } from './WarehouseStatusModal';
@@ -146,7 +146,8 @@ export function WarehousesPage() {
     <div className={styles.page}>
       <div className={styles.toolbar} role="toolbar" aria-label="Warehouses">
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="View"
           hideLabel
           options={viewOptions}
@@ -161,7 +162,8 @@ export function WarehousesPage() {
           Upload
         </Button>
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Actions"
           hideLabel
           placeholder="Actions"
@@ -170,9 +172,8 @@ export function WarehousesPage() {
           disabled={selectedRows.length === 0}
           selected={selectedRows.length > 0}
           options={[
-            // Disabled when every checked warehouse already has that status
-            { value: 'activate', label: 'Activate', disabled: selectedRows.every(w => w.active) },
-            { value: 'deactivate', label: 'Deactivate', disabled: selectedRows.every(w => !w.active) },
+            // Disabled (saying why) when every checked warehouse already has that status
+            ...statusActions(selectedRows, w => w.active),
           ]}
           value={null}
           // Only the checked warehouses that change: activating skips the ones already active, and the reverse

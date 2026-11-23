@@ -9,9 +9,8 @@ import { DetailsTab, type DetailsDraft, type DetailsErrors } from './record/Deta
 import { HistoryTab } from './record/HistoryTab';
 import { ItemsTab } from './record/ItemsTab';
 import { LocationsTab } from './record/LocationsTab';
-import { EditBanner, countChanges } from './record/EditBanner';
 import { PickPackTab, commitError, emailError } from './record/PickPackTab';
-import { changeCount, type PrinterDraft } from './record/PrinterDetails';
+import { type PrinterDraft } from './record/PrinterDetails';
 import { PrintersTab } from './record/PrintersTab';
 import { StockTab } from './record/StockTab';
 import { addressDraftOf, addressErrors, addressFromDraft } from './AddressFields';
@@ -56,6 +55,13 @@ export function WarehouseRecordPage() {
   // Figma 18:11145: Warehouse Details is read-only until the header's Edit
   const [editing, setEditing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // The editing notice: a toast from the top when Edit is pressed (it replaced the Figma editing banner); names what's being edited
+  const [editNotice, setEditNotice] = useState<string | null>(null);
+  // Opening an edit: the editing toast replaces any other notice
+  const announceEdit = (what: string) => {
+    setNotice(null);
+    setEditNotice(what);
+  };
   const [statusChange, setStatusChange] = useState<boolean | null>(null);
   // The dialog keeps showing Activate or Deactivate while it closes
   const shownActive = useRef(false);
@@ -118,6 +124,7 @@ export function WarehouseRecordPage() {
       ),
     );
     setEditing(false);
+    setEditNotice(null);
     setNotice(`${draft.name.trim()} was saved.`);
   }
 
@@ -132,6 +139,7 @@ export function WarehouseRecordPage() {
     setPrinters(code, list => list.map(x => (x.id === p.id ? { ...p, name: p.name.trim() } : x)));
     setPrintDefaults(code, () => printerDraft.defaults);
     setPrinterDraft(null);
+    setEditNotice(null);
     setNotice(`${p.name.trim()} · ${p.area} was saved.`);
   }
 
@@ -144,11 +152,23 @@ export function WarehouseRecordPage() {
     }
     setPickPack(code, () => ({ ...pickPackDraft, exceptionsEmail: pickPackDraft.exceptionsEmail.trim(), packedEmail: pickPackDraft.packedEmail.trim() }));
     setPickPackDraft(null);
+    setEditNotice(null);
     setNotice(`${w.name}’s Pick / Pack settings were saved.`);
+  }
+
+  // Cancel: the settings go back to what's saved
+  function cancelPrinter() {
+    setPrinterDraft(null);
+    setEditNotice(null);
+  }
+  function cancelPickPack() {
+    setPickPackDraft(null);
+    setEditNotice(null);
   }
 
   function startEditing() {
     setEditing(true);
+    announceEdit(w.name);
     setParams({}, { replace: true });
   }
 
@@ -156,12 +176,20 @@ export function WarehouseRecordPage() {
     setDraft(toDraft(w));
     setErrors({});
     setEditing(false);
+    setEditNotice(null);
   }
 
   // Previous / next warehouse in the list's order, on the same tab, reusing this app tab
   const go = (to: Warehouse | undefined) => (to ? () => navigate(recordPath(to, tab), { state: { replaceTab: true } }) : undefined);
 
-  const notices: ReactNode = notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />;
+  const notices: ReactNode = (
+    <>
+      {notice && <Toast type="success" title={notice} onClose={() => setNotice(null)} />}
+      {editNotice && (
+        <Toast type="info" title={`You’re editing ${editNotice}.`} body="Save or Cancel at the top of the page when you’re done." onClose={() => setEditNotice(null)} />
+      )}
+    </>
+  );
   const content: Record<string, ReactNode> = {
     details: (
       <DetailsTab
@@ -212,15 +240,30 @@ export function WarehouseRecordPage() {
               else if (value === 'export') setNotice(`Exported ${w.name} to CSV.`);
               else if (value === 'delete') setDeleting(true);
             }}
-            // Edit opens the Warehouse Details form; while editing the button saves it, with Cancel beside it
+            // Edit opens the tab's form for editing; while editing the button saves it, with Cancel beside it
             {...(tab === 'printers'
               ? // Printers: the list has no Edit (Figma 886:64894); a printer's Edit opens its settings for editing
                 openPrinter
-                ? { saveLabel: 'Edit', saveDisabled: printerDraft !== null, onSave: () => setPrinterDraft({ printer: { ...openPrinter }, defaults: printDefaults.map(d => ({ ...d })) }) }
+                ? printerDraft
+                  ? { saveLabel: 'Save', onSave: savePrinter, onCancel: cancelPrinter }
+                  : {
+                      saveLabel: 'Edit',
+                      onSave: () => {
+                        setPrinterDraft({ printer: { ...openPrinter }, defaults: printDefaults.map(d => ({ ...d })) });
+                        announceEdit('Warehouse Printer Settings');
+                      },
+                    }
                 : { hideSave: true }
               : tab === 'pick-pack'
-                ? // Pick / Pack: Edit opens the settings; the banner saves them, so Edit stays off meanwhile
-                  { saveLabel: 'Edit', saveDisabled: pickPackDraft !== null, onSave: () => setPickPackDraft({ ...pickPack, rules: { ...pickPack.rules } }) }
+                ? pickPackDraft
+                  ? { saveLabel: 'Save', onSave: savePickPack, onCancel: cancelPickPack }
+                  : {
+                      saveLabel: 'Edit',
+                      onSave: () => {
+                        setPickPackDraft({ ...pickPack, rules: { ...pickPack.rules } });
+                        announceEdit('Warehouse Pick / Pack Settings');
+                      },
+                    }
                 : { saveLabel: editing ? 'Save' : 'Edit', onSave: editing ? save : startEditing, onCancel: editing ? cancelEditing : undefined })}
             onPrevious={go(warehouses[index - 1])}
             onNext={go(warehouses[index + 1])}
@@ -235,13 +278,6 @@ export function WarehouseRecordPage() {
             </>
           ),
         }))}
-        banner={
-          tab === 'pick-pack' && pickPackDraft ? (
-            <EditBanner what="Warehouse Pick / Pack Settings" changes={countChanges(pickPackDraft, pickPack)} onDiscard={() => setPickPackDraft(null)} onSave={savePickPack} />
-          ) : printerDraft && openPrinter ? (
-            <EditBanner what="Warehouse Printer Settings" changes={changeCount(printerDraft, openPrinter, printDefaults)} onDiscard={() => setPrinterDraft(null)} onSave={savePrinter} />
-          ) : undefined
-        }
         section={tab}
         onSectionChange={id => setParams(id === 'details' ? {} : { tab: id }, { replace: true })}
       />

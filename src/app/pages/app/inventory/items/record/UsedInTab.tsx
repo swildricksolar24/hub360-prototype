@@ -1,17 +1,19 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '../../../../../../components/Badge/Badge';
 import { Button } from '../../../../../../components/Button/Button';
 import { DataTable, type DataColumn, type DataSort } from '../../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../../components/Icon/Icon';
 import { SearchInput } from '../../../../../../components/SearchBar/SearchBar';
+import { Tag } from '../../../../../../components/Tag/Tag';
 import { TextArea } from '../../../../../../components/TextArea/TextArea';
 import { TextInput } from '../../../../../../components/TextInput/TextInput';
 import { AppModal } from '../../../../../components/AppModal';
 import { RowMenu } from '../../record/RowMenu';
 import { blankItem, CATEGORIES, money, TYPE_DESCRIPTION, type BuildLine, type Item, type ItemType } from '../itemData';
 import { buildCandidates, itemPath, setItems, unitCostOf, updateItem, usedIn, useItems } from '../itemStore';
-import { ColumnsModal, ItemPicker, nextSort, options, required, requiredNote, sortRows, StatusPill, useSelection } from '../shared';
+import { ItemPicker, MenuButton, nextSort, options, required, requiredNote, sortRows } from '../shared';
 import { BuildTable, buildTotal } from './BuildTab';
 import { useColumnFilters } from '../../ColumnFilter';
 import record from '../../record.module.css';
@@ -20,160 +22,135 @@ import styles from '../items.module.css';
 
 type Kind = Extract<ItemType, 'Assembly' | 'Kit'>;
 
-const columnsFor = (kind: Kind): DataColumn[] => [
-  { key: 'number', label: `${kind} #`, width: 170 },
-  { key: 'name', label: 'Name', width: 'fill' },
-  // Category, Sub Category and Status repeat, so they filter (a checkbox list of their values)
-  { key: 'category', label: 'Category', width: 150, filterable: true },
-  { key: 'subcategory', label: 'Sub Category', width: 160, filterable: true },
-];
-// Figma's status pill has no header; with its filter it gets one ("Status"), and sorts. It sits right before the •••
-const STATUS_COLUMN: DataColumn = { key: 'status', label: 'Status', width: 110, filterable: true };
-
-const VIEWS: { value: string; label: string; test: (i: Item) => boolean }[] = [
-  { value: 'all', label: 'All', test: () => true },
-  { value: 'active', label: 'Active', test: i => i.active },
-  { value: 'inactive', label: 'Inactive', test: i => !i.active },
+/** Figma "Where Used" (1152:53629): Used In (number over name), Type, Category, Sub Category, Status, then the •••. */
+const COLUMNS: DataColumn[] = [
+  { key: 'usedIn', label: 'Used In', width: 'fill', minWidth: 200 },
+  // Type, Category, Sub Category and Status repeat, so they filter (a checkbox list of their values)
+  { key: 'type', label: 'Type', width: 140, minWidth: 120, filterable: true },
+  { key: 'category', label: 'Category', width: 160, minWidth: 130, filterable: true },
+  { key: 'subcategory', label: 'Sub Category', width: 170, minWidth: 140, filterable: true },
+  { key: 'status', label: 'Status', width: 130, minWidth: 110, filterable: true },
 ];
 
 const cellValue = (i: Item, key: string) =>
-  key === 'number' ? i.id : key === 'status' ? (i.active ? 1 : 0) : String(i[key as 'name' | 'category' | 'subcategory'] ?? '');
+  key === 'usedIn' ? i.id : key === 'type' ? i.type : key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(i[key as 'category' | 'subcategory'] ?? '');
 
-/** A cell's text as it shows, for the column filters' value lists. */
-const filterText = (i: Item, key: string) => (key === 'status' ? (i.active ? 'Active' : 'Inactive') : String(cellValue(i, key)));
-
-const PLURAL: Record<Kind, string> = { Assembly: 'assemblies', Kit: 'kits' };
+const PLURAL: Record<Kind, string> = { Assembly: 'Assemblies', Kit: 'Kits' };
 
 /**
- * Part record › Assemblies and Kits (ITEMS.md §4; Figma 629:74896, 636:20618), and an Assembly's Kits tab: the
- * assemblies or kits whose build uses this item. A name opens View Assembly / View Kit; Add Assembly / Add Kit starts
- * a new one with this item already in its build.
+ * Item record › Where Used (ITEMS.md §4; Figma "Where Used" 1152:53629): the assemblies and kits whose build uses this
+ * item. A Part sees both, with Figma's All / Assemblies / Kits switch; an Assembly sees the kits that use it. Then a
+ * search and "Create New Assembly or Kit" (a menu for the two), and the Volt Data Table. A number opens View Assembly /
+ * View Kit; ••• has View, Go To, Activate or Deactivate, and Remove from its build.
  */
-export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; onNotice: (text: string) => void }) {
+export function UsedInTab({ item, kinds, onNotice }: { item: Item; kinds: Kind[]; onNotice: (text: string) => void }) {
   const all = useItems();
   const navigate = useNavigate();
-  const columnsAll = columnsFor(kind);
-  const [view, setView] = useState('all');
+  const [show, setShow] = useState<'all' | Kind>('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<DataSort | undefined>();
-  const [columns, setColumns] = useState(columnsAll.map(c => c.key));
-  const [columnsOpen, setColumnsOpen] = useState(false);
-  const sel = useSelection();
   const [menuFor, setMenuFor] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<Kind | null>(null);
   const [viewing, setViewing] = useState<Item | null>(null);
-  const [removing, setRemoving] = useState<Item[] | null>(null);
-  const plural = PLURAL[kind];
-  const lower = kind.toLowerCase();
+  const [removing, setRemoving] = useState<Item | null>(null);
 
-  // A different item or tab starts with a clean selection
+  // A different item starts on All with no search
   useEffect(() => {
-    sel.clear();
     setQuery('');
-    setView('all');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.id, kind]);
+    setShow('all');
+  }, [item.id]);
 
-  const users = usedIn(item.id, all).filter(i => i.type === kind);
-  const colFilters = useColumnFilters(users, filterText);
+  const users = usedIn(item.id, all).filter(i => (kinds as ItemType[]).includes(i.type));
+  const count = (k: Kind) => users.filter(i => i.type === k).length;
+  const colFilters = useColumnFilters(users, (i, key) => String(cellValue(i, key)));
   const q = query.trim().toLowerCase();
-  const test = VIEWS.find(v => v.value === view)?.test ?? (() => true);
   const rows = sortRows(
-    users.filter(i => test(i) && (!q || `${i.id} ${i.customNumber} ${i.name} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) && colFilters.matches(i)),
+    users.filter(
+      i =>
+        (show === 'all' || i.type === show) &&
+        (!q || `${i.id} ${i.customNumber} ${i.name} ${i.category} ${i.subcategory}`.toLowerCase().includes(q)) &&
+        colFilters.matches(i),
+    ),
     sort,
     cellValue,
   );
-  const selected = users.filter(i => sel.selected.has(i.id));
-  const tableColumns = [...columnsAll.filter(c => columns.includes(c.key)), STATUS_COLUMN];
   const quantityIn = (u: Item) => u.build.find(l => l.itemId === item.id)?.quantity ?? 0;
+  const what = kinds.length > 1 ? 'assemblies and kits' : PLURAL[kinds[0]].toLowerCase();
 
-  function setActive(list: Item[], active: boolean) {
-    const ids = list.map(i => i.id);
-    setItems(items => items.map(i => (ids.includes(i.id) ? { ...i, active } : i)));
-    onNotice(`${list.length === 1 ? list[0].name : `${list.length} ${plural}`} ${active ? 'activated' : 'deactivated'}.`);
+  function setActive(u: Item, active: boolean) {
+    setItems(items => items.map(i => (i.id === u.id ? { ...i, active } : i)));
+    onNotice(`${u.name} ${active ? 'activated' : 'deactivated'}.`);
   }
+
+  const create =
+    kinds.length > 1 ? (
+      <MenuButton
+        label="Create New Assembly or Kit"
+        items={kinds.map(k => ({ label: `New ${k}`, onSelect: () => setAdding(k) }))}
+      />
+    ) : (
+      <Button size="small" variant="brand" icon="plus" onClick={() => setAdding(kinds[0])}>
+        Create New {kinds[0]}
+      </Button>
+    );
 
   return (
     <div className={record.tab}>
-      <section className={record.card} aria-label={kind === 'Assembly' ? 'Assemblies' : 'Kits'}>
-        <div className={styles.toolbar} data-inset role="toolbar" aria-label={kind === 'Assembly' ? 'Assemblies' : 'Kits'}>
-          <Dropdown
-            variant="small"
-            label="View"
-            hideLabel
-            options={VIEWS.map(v => ({ value: v.value, label: v.label }))}
-            value={view}
-            onChange={v => setView(v as string)}
-            renderValue={s => `View: ${s[0]?.label ?? 'All'}`}
+      <section className={record.card} aria-label="Where Used">
+        <div className={styles.toolbar} data-inset role="toolbar" aria-label="Where Used">
+          {/* Figma's switch: All (n), Assemblies (n), Kits (n), as Volt small Tags */}
+          {kinds.length > 1 && (
+            <div className={styles.usedInSwitch} role="group" aria-label="Show">
+              <Tag size="small" selected={show === 'all'} onClick={() => setShow('all')}>
+                All ({users.length})
+              </Tag>
+              {kinds.map(k => (
+                <Tag key={k} size="small" selected={show === k} onClick={() => setShow(k)}>
+                  {PLURAL[k]} ({count(k)})
+                </Tag>
+              ))}
+            </div>
+          )}
+          <SearchInput
+            className={styles.search}
+            aria-label={`Search ${what} that use this ${item.type.toLowerCase()}`}
+            placeholder={`Search ${what} that use this ${item.type.toLowerCase()}`}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
           />
-          <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
-            Columns
-          </Button>
-          <Dropdown
-            variant="small"
-            label="Actions"
-            hideLabel
-            placeholder="Actions"
-            options={[
-              { value: 'activate', label: 'Activate', disabled: selected.length === 0 },
-              { value: 'deactivate', label: 'Deactivate', disabled: selected.length === 0 },
-              { value: 'remove', label: `Remove ${item.type}`, disabled: selected.length === 0 },
-              { value: 'export', label: 'Export to CSV' },
-            ]}
-            value={null}
-            onChange={v => {
-              if (v === 'activate') setActive(selected, true);
-              if (v === 'deactivate') setActive(selected, false);
-              if (v === 'remove') setRemoving(selected);
-              if (v === 'export') onNotice(`Exported ${rows.length} ${plural} to CSV.`);
-            }}
-            renderValue={() => (selected.length ? `Actions (${selected.length})` : 'Actions')}
-          />
-          <SearchInput className={styles.search} aria-label={`Search ${plural}`} placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />
-          <Button size="small" variant="brand" icon="plus" onClick={() => setAdding(true)}>
-            Add {kind}
-          </Button>
+          {create}
         </div>
 
-        {/* Volt Data Table (Figma "Data Table" page); Category, Sub Category and Status filter */}
         <div ref={colFilters.boxRef} className={listStyles.tableBox}>
           <DataTable
-            aria-label={`${kind === 'Assembly' ? 'Assemblies' : 'Kits'} that use ${item.name}`}
-            className={record.statusStart}
-            columns={tableColumns}
+            aria-label={`${kinds.length > 1 ? 'Assemblies and kits' : PLURAL[kinds[0]]} that use ${item.name}`}
+            columns={COLUMNS}
             rows={rows}
             rowLabel={u => u.name}
             sort={sort}
             onSortChange={k => setSort(nextSort(k))}
-            selected={[...sel.selected]}
-            onSelectedChange={ids => {
-              sel.setMany([...sel.selected], false);
-              sel.setMany(ids, true);
-            }}
             {...colFilters.tableProps}
             totalRows={users.length}
             inactive={u => !u.active}
             empty={
               <div className={styles.emptyCell}>
-                <Icon name={users.length ? 'search' : kind === 'Assembly' ? 'settings' : 'archive'} size={32} />
-                <p className="text-large-bold">{users.length ? `No ${plural} match your search` : `${item.name} isn’t in any ${plural} yet`}</p>
-                <p className="text-medium-regular">{users.length ? 'Try a different word, or clear the search, view and filters.' : `Add ${kind === 'Assembly' ? 'an assembly' : 'a kit'} that’s built with it.`}</p>
+                <Icon name={users.length ? 'search' : 'settings'} size={32} />
+                <p className="text-large-bold">{users.length ? `No ${what} match your search` : `${item.name} isn’t in any ${what} yet`}</p>
+                <p className="text-medium-regular">{users.length ? 'Try a different word, or clear the search and filters.' : 'Create one that’s built with it.'}</p>
                 {users.length ? (
                   <Button
                     size="small"
                     variant="outline"
                     onClick={() => {
                       setQuery('');
-                      setView('all');
+                      setShow('all');
                       colFilters.clear();
                     }}
                   >
-                    Clear search, view and filters
+                    Clear search and filters
                   </Button>
                 ) : (
-                  <Button size="small" variant="brand" icon="plus" onClick={() => setAdding(true)}>
-                    Add {kind}
-                  </Button>
+                  create
                 )}
               </div>
             }
@@ -184,43 +161,51 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
                   label={u.name}
                   onClose={() => setMenuFor(null)}
                   items={[
-                    { label: `View ${kind}`, onSelect: () => setViewing(u) },
-                    { label: `Go To ${kind}`, onSelect: () => navigate(itemPath(u.id)) },
-                    { label: u.active ? 'Deactivate' : 'Activate', onSelect: () => setActive([u], !u.active) },
-                    { label: `Remove ${item.type} (${quantityIn(u)})`, onSelect: () => setRemoving([u]) },
+                    { label: `View ${u.type}`, onSelect: () => setViewing(u) },
+                    { label: `Go To ${u.type}`, onSelect: () => navigate(itemPath(u.id)) },
+                    { label: u.active ? 'Deactivate' : 'Activate', onSelect: () => setActive(u, !u.active) },
+                    { label: `Remove ${item.type} (${quantityIn(u)})`, onSelect: () => setRemoving(u) },
                   ]}
                 />
               )
             }
             cells={(u): Record<string, ReactNode> => ({
-              number: (
-                <button type="button" className={record.cellLink} onClick={() => setViewing(u)} aria-label={`View ${u.name} (${u.id})`}>
-                  {u.id}
-                </button>
+              // Figma: the number in bold over the name in small text; the number opens View Assembly / View Kit
+              usedIn: (
+                <span className={styles.usedInCell}>
+                  <button type="button" className={record.cellLink} onClick={() => setViewing(u)} aria-label={`View ${u.name} (${u.id})`}>
+                    {u.id}
+                  </button>
+                  <span className="text-small-regular">{u.name}</span>
+                </span>
               ),
-              name: (
-                <button type="button" className={record.cellLink} onClick={() => setViewing(u)}>
-                  {u.name}
-                </button>
+              type: (
+                <Badge shape="pill" color="blue">
+                  {u.type}
+                </Badge>
               ),
               category: u.category || '—',
               subcategory: u.subcategory || '—',
-              status: <StatusPill active={u.active} />,
+              status: (
+                <Badge shape="pill" color={u.active ? 'green' : 'black'}>
+                  {u.active ? 'Active' : 'Inactive'}
+                </Badge>
+              ),
             })}
           />
-          {colFilters.popover(tableColumns)}
+          {colFilters.popover(COLUMNS)}
         </div>
       </section>
 
       <AddBuildItemModal
-        open={adding}
-        kind={kind}
+        open={adding !== null}
+        kind={adding ?? kinds[0]}
         seed={item}
         all={all}
-        onClose={() => setAdding(false)}
+        onClose={() => setAdding(null)}
         onCreate={created => {
           setItems(list => [created, ...list]);
-          setAdding(false);
+          setAdding(null);
           onNotice(`${created.name} created with ${created.build.length} ${created.build.length === 1 ? 'item' : 'items'} in its build.`);
         }}
       />
@@ -236,34 +221,23 @@ export function UsedInTab({ item, kind, onNotice }: { item: Item; kind: Kind; on
       />
 
       <AppModal
-        open={!!removing && removing.length > 0}
+        open={!!removing}
         onClose={() => setRemoving(null)}
-        title={`Remove ${item.type} From ${removing?.length === 1 ? kind : kind === 'Assembly' ? 'Assemblies' : 'Kits'}`}
+        title={`Remove ${item.type} From ${removing?.type ?? ''}`}
         description={
           removing &&
-          `${item.name} will be taken out of the build of ${removing.length === 1 ? removing[0].name : `${removing.length} ${plural}`}, and ${removing.length === 1 ? 'its' : 'their'} costs will change. The ${removing.length === 1 ? lower : plural} stay${removing.length === 1 ? 's' : ''} in Items.`
+          `${item.name} will be taken out of the build of ${removing.name}, and its costs will change. The ${removing.type.toLowerCase()} stays in Items.`
         }
         primaryAction={{
           label: `Remove ${item.type}`,
           danger: true,
           onClick: () => {
-            const list = removing ?? [];
-            list.forEach(u => updateItem(u.id, x => ({ ...x, build: x.build.filter(l => l.itemId !== item.id) })));
-            list.forEach(u => sel.toggle(u.id, false));
-            onNotice(`${item.name} removed from ${list.length === 1 ? list[0].name : `${list.length} ${plural}`}.`);
+            if (removing) {
+              updateItem(removing.id, x => ({ ...x, build: x.build.filter(l => l.itemId !== item.id) }));
+              onNotice(`${item.name} removed from ${removing.name}.`);
+            }
             setRemoving(null);
           },
-        }}
-      />
-
-      <ColumnsModal
-        open={columnsOpen}
-        columns={columnsAll.map(c => ({ key: c.key, label: c.label, locked: c.key === 'number' || c.key === 'name' }))}
-        visible={columns}
-        onClose={() => setColumnsOpen(false)}
-        onApply={keys => {
-          setColumns(keys);
-          setColumnsOpen(false);
         }}
       />
     </div>

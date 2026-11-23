@@ -18,7 +18,7 @@ const TABLE_VIEW_2: NavTier4Item[] = [...TABLE_VIEW, { id: 'structure', label: '
 const toolbar = (
   <>
     <Dropdown
-      variant="small"
+      variant="button" size="medium"
       label="View"
       hideLabel
       placeholder="View All"
@@ -35,7 +35,7 @@ const toolbar = (
       Upload
     </Button>
     <Dropdown
-      variant="small"
+      variant="button" size="medium"
       label="Actions"
       hideLabel
       placeholder="Actions"

@@ -63,10 +63,11 @@
 }
 
 /* States */
-.radio:hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.radio:not([data-readonly] *):hover {
   --box-bg: var(--color-gray-fill-hover);
 }
-.radio:active {
+.radio:not([data-readonly] *):active {
   --box-bg: var(--color-gray-fill-press);
   --box-ring: var(--color-gray-stroke-weaker);
   --box-ring-w: var(--stroke-width-2);
@@ -82,7 +83,8 @@
   --dot: var(--color-semantic-fill-error-strongest);
   --text: var(--color-semantic-text-error);
 }
-.radio:has(.input:disabled) {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there a disabled field keeps its normal look */
+.radio:has(.input:disabled):not([data-readonly] *) {
   --box-bg: var(--color-gray-fill-disabled);
   --box-ring-w: 0px;
   --dot: var(--color-gray-fill-disabled);
@@ -99,4 +101,9 @@
   .box {
     transition: none;
   }
+}
+
+/* In a read-only region ([data-readonly], e.g. a record before Edit) the field is locked and doesn't react: a plain arrow */
+[data-readonly] .radio {
+  cursor: default;
 }

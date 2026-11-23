@@ -92,6 +92,27 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/*
+ * Not in Figma: an option's `hint`, a short line under its label (e.g. why a disabled action is off). Small Regular in
+ * Gray Text/Weak, so it stays readable on a disabled option whose label fades to Gray Text/Disabled. It may wrap.
+ */
+.labelStack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.hint {
+  color: var(--color-gray-text-weak);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  font-weight: 400;
+  white-space: normal;
+  /* A menu sizes to its content: a hint widens it to fit on one line, up to 256px, then wraps */
+  width: max-content;
+  max-width: var(--space-256);
+}
 
 .icon {
   color: var(--icon);

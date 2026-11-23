@@ -74,6 +74,13 @@ export const ToggleButton: Story = {
   parameters: { ...figma('2634:295', 'Toggle › Toggle Button'), controls: { disable: true } },
 };
 
+/** 32px, Tiny text: the toggle in Tier 3 Collapsed and Sticky. */
+export const ToggleButtonTiny: Story = {
+  name: 'Toggle Button Tiny',
+  render: () => states({ label: 'Label', size: 'tiny', contained: true }),
+  parameters: { ...figma('3584:1818', 'Toggle › Toggle Button Tiny'), controls: { disable: true } },
+};
+
 /** Focus ring is a code-only addition: Figma has no focus state for Toggle. */
 export const Focus: Story = {
   render: () => (

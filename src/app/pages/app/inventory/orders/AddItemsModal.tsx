@@ -86,7 +86,8 @@ export function AddItemsModal({
           onChange={e => setQuery(e.target.value)}
         />
         <Dropdown
-          variant="small"
+          variant="button"
+          size="medium"
           label="Location"
           hideLabel
           options={[{ value: ALL, label: 'All locations' }, ...LOCATIONS.map(l => ({ value: l, label: l }))]}

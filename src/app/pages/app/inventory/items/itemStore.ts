@@ -1,5 +1,14 @@
 import { useSyncExternalStore } from 'react';
 import { SAMPLE_ITEMS, type Item, type ItemType } from './itemData';
+import { setOrders } from '../orders/orderStore';
+import type { Order } from '../orders/orderData';
+
+/**
+ * The open (In Process) orders with a line for one of these items. Order lines name items by number: an Adjustment line
+ * by `itemNo`. (Move lines point at the orders' own stock records, so a merge leaves them alone.)
+ */
+export const openOrdersUsing = (ids: string[], list: Order[]) =>
+  list.filter(o => o.status === 'In Process' && o.adjustLines.some(l => ids.includes(l.itemNo)));
 
 /**
  * The in-memory items store shared by the Items list and the Part / Assembly / Kit record pages (see ITEMS.md), so
@@ -61,6 +70,13 @@ export const usedIn = (id: string, list: Item[] = items) => list.filter(i => i.b
  * the target; the sources are deactivated (ITEMS.md §1).
  */
 export function mergeItems(sourceIds: string[], targetId: string) {
+  const fromIds = sourceIds.filter(id => id !== targetId);
+  // Open orders that use a merged item now use the kept one
+  setOrders(list =>
+    list.map(o =>
+      openOrdersUsing(fromIds, [o]).length ? { ...o, adjustLines: o.adjustLines.map(l => (fromIds.includes(l.itemNo) ? { ...l, itemNo: targetId } : l)) } : o,
+    ),
+  );
   setItems(list => {
     const sources = list.filter(i => sourceIds.includes(i.id) && i.id !== targetId);
     return list.map(item => {
@@ -77,6 +93,8 @@ export function mergeItems(sourceIds: string[], targetId: string) {
         }
         return {
           ...item,
+          // The merged items' numbers (and any they already carried) find this item from now on
+          aliases: [...new Set([...(item.aliases ?? []), ...sources.flatMap(s => [s.id, ...(s.aliases ?? [])])])],
           stock,
           suppliers: [...item.suppliers, ...sources.flatMap(s => s.suppliers.map(x => ({ ...x, primary: false })))],
           notes: [...item.notes, ...sources.flatMap(s => s.notes)],

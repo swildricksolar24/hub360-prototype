@@ -64,10 +64,11 @@
 }
 
 /* States */
-.checkbox:hover {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there the field doesn't react until Edit */
+.checkbox:not([data-readonly] *):hover {
   --box-bg: var(--color-gray-fill-hover);
 }
-.checkbox:active {
+.checkbox:not([data-readonly] *):active {
   --box-bg: var(--color-gray-fill-press);
   --box-ring: var(--color-gray-stroke-weaker);
   --box-ring-w: var(--stroke-width-2);
@@ -86,7 +87,8 @@
   /* Figma uses the weak error fill for the info icon in the error state */
   --info: var(--color-semantic-fill-error-weakest);
 }
-.checkbox:has(.input:disabled) {
+/* Not inside a read-only region ([data-readonly], e.g. a record before Edit): there a disabled field keeps its normal look */
+.checkbox:has(.input:disabled):not([data-readonly] *) {
   --box-bg: var(--color-gray-fill-disabled);
   --box-ring-w: 0px;
   --check: var(--color-gray-fill-disabled);
@@ -104,4 +106,9 @@
   .box {
     transition: none;
   }
+}
+
+/* In a read-only region ([data-readonly], e.g. a record before Edit) the field is locked and doesn't react: a plain arrow */
+[data-readonly] .checkbox {
+  cursor: default;
 }

@@ -44,10 +44,10 @@ export function PageTracker({
   return (
     <nav aria-label={label} className={[styles.tracker, className].filter(Boolean).join(' ')}>
       <div className={styles.start}>
-        {/* Figma's "Small" select, as the design-system Dropdown so its menu matches the app's other menus */}
+        {/* Figma's Drop Down Button › Medium (was "Small"), as the design-system Dropdown so its menu matches the app's other menus */}
         {pageSizeOptions.length > 0 && (
           <Dropdown
-            variant="small"
+            variant="button" size="medium"
             aria-label="Rows per page"
             menuPlacement="above"
             options={pageSizeOptions.map(size => ({ value: String(size), label: `${size} rows` }))}
