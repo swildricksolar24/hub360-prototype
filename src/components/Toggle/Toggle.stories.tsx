@@ -6,9 +6,9 @@ import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 const meta = {
   title: 'Primitives/Toggle',
   component: Toggle,
-  args: { label: 'Label', size: 'small', position: 'left' },
+  args: { label: 'Label', size: 'medium', position: 'left' },
   argTypes: {
-    size: { control: 'inline-radio', options: ['small', 'large'] },
+    size: { control: 'inline-radio', options: ['large', 'medium', 'small'] },
     position: { control: 'inline-radio', options: ['left', 'right'] },
   },
 } satisfies Meta<typeof Toggle>;
@@ -44,11 +44,11 @@ export const Playground: Story = {};
 export const Label: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-32)' }}>
-      {(['small', 'large'] as const).map(size =>
+      {(['medium', 'large'] as const).map(size =>
         (['left', 'right'] as const).map(position => (
           <div key={size + position} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
             <p className="text-small-semi-bold" style={{ margin: 0, color: 'var(--color-gray-text-weak)' }}>
-              Size={size === 'small' ? 'Small' : 'Large'}, Position={position === 'left' ? 'Left' : 'Right'}
+              Size={size === 'medium' ? 'Medium' : 'Large'}, Position={position === 'left' ? 'Left' : 'Right'}
             </p>
             {states({ label: 'Label', size, position })}
           </div>
@@ -64,21 +64,23 @@ export const Large: Story = {
   parameters: { ...figma('404:186', 'Toggle › Large'), controls: { disable: true } },
 };
 
-export const Small: Story = {
-  render: () => states({ size: 'small' }),
-  parameters: { ...figma('2283:1939', 'Toggle › Small'), controls: { disable: true } },
+export const Medium: Story = {
+  render: () => states({ size: 'medium' }),
+  parameters: { ...figma('2283:1939', 'Toggle › Medium'), controls: { disable: true } },
 };
 
-export const ToggleButton: Story = {
-  render: () => states({ label: 'Label', size: 'small', contained: true }),
-  parameters: { ...figma('2634:295', 'Toggle › Toggle Button'), controls: { disable: true } },
+/** 44px, beside the toolbar's 44px buttons. */
+export const ToggleButtonMedium: Story = {
+  name: 'Toggle Button Medium',
+  render: () => states({ label: 'Label', size: 'medium', contained: true }),
+  parameters: { ...figma('2634:295', 'Toggle › Toggle Button Medium'), controls: { disable: true } },
 };
 
 /** 32px, Tiny text: the toggle in Tier 3 Collapsed and Sticky. */
-export const ToggleButtonTiny: Story = {
-  name: 'Toggle Button Tiny',
-  render: () => states({ label: 'Label', size: 'tiny', contained: true }),
-  parameters: { ...figma('3584:1818', 'Toggle › Toggle Button Tiny'), controls: { disable: true } },
+export const ToggleButtonSmall: Story = {
+  name: 'Toggle Button Small',
+  render: () => states({ label: 'Label', size: 'small', contained: true }),
+  parameters: { ...figma('3584:1818', 'Toggle › Toggle Button Small'), controls: { disable: true } },
 };
 
 /** Focus ring is a code-only addition: Figma has no focus state for Toggle. */

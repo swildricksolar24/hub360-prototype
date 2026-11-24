@@ -303,7 +303,7 @@ export function TableToolbar({
   onColumns?: () => void;
   onUpload?: () => void;
   actions?: { options: ToolbarOption[]; onAction: (value: string) => void; selectedCount: number };
-  search: { value: string; onChange: (value: string) => void; label: string };
+  search: { value: string; onChange: (value: string) => void; label: string; placeholder?: string };
   trailing?: ReactNode;
 }) {
   return (
@@ -327,12 +327,12 @@ export function TableToolbar({
         />
       )}
       {onColumns && (
-        <Button size="small" variant="primary" icon="view-column" onClick={onColumns}>
+        <Button size="medium" variant="primary" icon="view-column" onClick={onColumns}>
           Columns
         </Button>
       )}
       {onUpload && (
-        <Button size="small" variant="primary" icon="upload" onClick={onUpload}>
+        <Button size="medium" variant="primary" icon="upload" onClick={onUpload}>
           Upload
         </Button>
       )}
@@ -350,13 +350,13 @@ export function TableToolbar({
           renderValue={() => (actions.selectedCount ? `Actions (${actions.selectedCount})` : 'Actions')}
         />
       )}
-      <SearchInput className={styles.toolbarSearch} aria-label={search.label} placeholder="Search" value={search.value} onChange={e => search.onChange(e.target.value)} />
+      <SearchInput className={styles.toolbarSearch} aria-label={search.label} placeholder={search.placeholder ?? 'Search'} value={search.value} onChange={e => search.onChange(e.target.value)} />
       {trailing}
     </div>
   );
 }
 
-/** Figma's segmented switch (ButtonGroup Size=Small), at the toolbar's 44px height; the chosen part is pressed. */
+/** Figma's segmented switch (ButtonGroup Size=Medium), at the toolbar's 44px height; the chosen part is pressed. */
 export function Segmented<V extends string>({
   label,
   options,
@@ -369,7 +369,7 @@ export function Segmented<V extends string>({
   onChange: (value: V) => void;
 }) {
   return (
-    <ButtonGroup size="small" aria-label={label} className={styles.segmented}>
+    <ButtonGroup size="medium" aria-label={label} className={styles.segmented}>
       {options.map(o => (
         <ButtonGroupItem key={o.value} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
           {o.label}
@@ -403,7 +403,7 @@ export function MenuButton({
   return (
     <div ref={ref} className={styles.menuButton}>
       <Button
-        size="small"
+        size="medium"
         variant="brand"
         icon={icon ?? 'chevron-down'}
         iconPosition={icon ? 'left' : 'right'}

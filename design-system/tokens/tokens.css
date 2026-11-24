@@ -179,6 +179,8 @@
   --color-foundation-transparent-black-18: #0000002e;
   --color-shadow-drop: var(--color-foundation-transparent-black-25);
   --color-shadow-large: var(--color-foundation-transparent-black-18);
+  --color-foundation-transparent-50: #191b260d;
+  --color-gray-stroke-weakest: var(--color-foundation-transparent-50);
   /* Typography */
   --font-family-inter: "Inter", system-ui, sans-serif;
   --font-size-display: 56px;
@@ -249,6 +251,7 @@
   --color-surfaces-overlay: var(--color-foundation-solid-900);
   --color-surfaces-inverse: var(--color-foundation-solid-200);
   --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
+  --color-foundation-transparent-50: #ffffff0d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -298,6 +301,7 @@
     --color-surfaces-overlay: var(--color-foundation-solid-900);
     --color-surfaces-inverse: var(--color-foundation-solid-200);
     --color-brand-teal-text-strong: var(--color-foundation-brand-teal-800);
+    --color-foundation-transparent-50: #ffffff0d;
   }
 }
 

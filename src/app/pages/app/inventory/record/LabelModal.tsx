@@ -241,10 +241,10 @@ export function LabelModal({
             </div>
           </div>
           <div className={styles.previewActions}>
-            <Button size="small" variant="primary" icon="visibility" onClick={() => setNote('Full-size preview')}>
+            <Button size="medium" variant="primary" icon="visibility" onClick={() => setNote('Full-size preview')}>
               Full-Size Preview
             </Button>
-            <Button size="small" variant="primary" icon="document" onClick={() => setNote('Test print')}>
+            <Button size="medium" variant="primary" icon="document" onClick={() => setNote('Test print')}>
               Print Test Label
             </Button>
           </div>

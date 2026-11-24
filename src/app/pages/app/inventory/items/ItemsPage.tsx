@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../../components/Button/Button';
 import { ButtonGroup, ButtonGroupItem } from '../../../../../components/ButtonGroup/ButtonGroup';
 import { DataTable, type DataColumn, type DataSort } from '../../../../../components/DataTable/DataTable';
 import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Icon } from '../../../../../components/Icon/Icon';
-import { JumpLinks } from '../../../../../components/JumpLinks/JumpLinks';
 import { Message } from '../../../../../components/Message/Message';
 import { PageTracker } from '../../../../../components/PageTracker/PageTracker';
 import { SearchInput } from '../../../../../components/SearchBar/SearchBar';
@@ -21,7 +20,7 @@ import { available, blankItem, ITEM_TYPES, unitLabel, type Item, type ItemType }
 import { ColumnFilter, filterOptions, matchesFilters, withFilter, type ColumnFilters } from '../ColumnFilter';
 import { NEW_TAB_STATE } from '../../../../shell/navigation';
 import warehouseStyles from '../warehouses.module.css';
-import { deactivateItem, deleteItems, itemPath, mergeItems, setItems, usedIn, useItems } from './itemStore';
+import { deactivateItem, deleteOrDeactivate, itemPath, mergeItems, setItems, usedIn, useItems } from './itemStore';
 import { AddItemModal, DeactivateItemModal, DeleteItemsModal, MergeItemsModal } from './ItemModals';
 import { ColumnsModal, MenuButton, nextSort, sortRows, StatusPill, useSelection } from './shared';
 import { DEFAULT_STOCK_COLUMNS, lineId, rollUpStock, STOCK_COLUMN_OPTIONS, StockTable, type StockLine } from './StockTable';
@@ -64,12 +63,11 @@ const VIEWS: { value: string; label: string; test: (i: Item) => boolean }[] = [
 
 const NO_ITEMS: Item[] = [];
 
-/** Stock's By Warehouse | By Item tabs (Figma 681:14475: Volt Jump Links as tabs). */
+/** Stock's By Warehouse | By Item switch (a Volt ButtonGroup, size tiny). */
 const STOCK_VIEWS = [
   { id: 'warehouse', label: 'By Warehouse' },
   { id: 'item', label: 'By Item' },
 ];
-const STOCK_PANEL = 'items-stock-panel';
 
 /** A cell's value for sorting (numbers stay numbers). */
 const cellValue = (i: Item, key: string): string | number =>
@@ -98,8 +96,10 @@ const filterText = (i: Item, key: string) =>
 export function ItemsPage() {
   const items = useItems();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
-  const [notice, setNotice] = useState<string | null>(null);
+  // A notice handed over by the page that came back here (e.g. a record's Delete: "… was deleted.")
+  const [notice, setNotice] = useState<string | null>((location.state as { notice?: string } | null)?.notice ?? null);
   const [mode, setMode] = useState<'overview' | 'stock'>('overview');
   const [view, setView] = useState('all');
   const [query, setQuery] = useState('');
@@ -243,7 +243,7 @@ export function ItemsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.toolbar} role="toolbar" aria-label="Items">
-        <ButtonGroup size="small" aria-label="Show">
+        <ButtonGroup size="medium" aria-label="Show">
           <ButtonGroupItem aria-pressed={mode === 'overview'} onClick={() => setMode('overview')}>
             Overview
           </ButtonGroupItem>
@@ -261,10 +261,10 @@ export function ItemsPage() {
           onChange={v => setView(v as string)}
           renderValue={s => `View: ${s[0]?.label ?? 'All'}`}
         />
-        <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
+        <Button size="medium" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
           Columns
         </Button>
-        <Button size="small" variant="primary" icon="upload" onClick={() => setUploadOpen(true)}>
+        <Button size="medium" variant="primary" icon="upload" onClick={() => setUploadOpen(true)}>
           Upload
         </Button>
         <Dropdown
@@ -312,11 +312,15 @@ export function ItemsPage() {
       <div className={styles.tableCard}>
         {mode === 'stock' ? (
           <div className={styles.stockView}>
-            {/* Figma: the tabs' 56px row is the 44px tabs and 12px under them */}
-            <JumpLinks as="tabs" aria-label="Stock view" panelId={STOCK_PANEL} items={STOCK_VIEWS} value={stockView} onChange={setStockView} />
-            <div id={STOCK_PANEL} role="tabpanel" aria-labelledby={`${STOCK_PANEL}-${stockView}`}>
-              <StockTable lines={stockLines} columns={stockColumns} label={stockView === 'item' ? 'Item stock by item' : 'Item stock by warehouse'} view={stockView} selection={stockSel} />
-            </div>
+            {/* The tiny (32px) switch, like the toolbar's Overview | Stock: the picked view is pressed */}
+            <ButtonGroup size="small" aria-label="Stock view" className={styles.stockSwitch}>
+              {STOCK_VIEWS.map(v => (
+                <ButtonGroupItem key={v.id} aria-pressed={stockView === v.id} onClick={() => setStockView(v.id)}>
+                  {v.label}
+                </ButtonGroupItem>
+              ))}
+            </ButtonGroup>
+            <StockTable lines={stockLines} columns={stockColumns} label={stockView === 'item' ? 'Item stock by item' : 'Item stock by warehouse'} view={stockView} selection={stockSel} />
           </div>
         ) : (
           <>
@@ -451,13 +455,21 @@ export function ItemsPage() {
         open={deleting !== null}
         items={deleting ?? []}
         onClose={() => setDeleting(null)}
-        onConfirm={() => {
-          const list = deleting ?? [];
-          deleteItems(list.map(i => i.id));
+        onConfirm={replacementId => {
+          // Never-used items are deleted; the rest are deactivated (Figma "Delete Items (Improved)")
+          const { deleted, deactivated } = deleteOrDeactivate(
+            (deleting ?? []).map(i => i.id),
+            replacementId,
+          );
           sel.clear();
           stockSel.clear();
           setDeleting(null);
-          setNotice(`${list.length === 1 ? list[0].name : `${list.length} items`} deleted.`);
+          const names = (list: Item[]) => (list.length === 1 ? list[0].name : `${list.length} items`);
+          setNotice(
+            [deleted.length ? `${names(deleted)} deleted.` : '', deactivated.length ? `${names(deactivated)} deactivated, because ${deactivated.length === 1 ? 'it has' : 'they have'} history.` : '']
+              .filter(Boolean)
+              .join(' '),
+          );
         }}
       />
 
@@ -562,7 +574,7 @@ function EmptyState({ filtered, onClear, addButton }: { filtered: boolean; onCle
       <p className="text-large-bold">{filtered ? 'No items match your search' : 'No items yet'}</p>
       <p className="text-medium-regular">{filtered ? 'Try a different word, or clear the search and view.' : 'Add your first part, assembly or kit.'}</p>
       {filtered ? (
-        <Button size="small" variant="outline" onClick={onClear}>
+        <Button size="medium" variant="outline" onClick={onClear}>
           Clear search and view
         </Button>
       ) : (

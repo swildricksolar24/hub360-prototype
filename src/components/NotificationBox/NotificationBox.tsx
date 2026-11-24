@@ -36,7 +36,7 @@ export function NotificationBox({ type = 'chat', name, message, time, avatarSrc,
         <p className={styles.message}>{message}</p>
         {time && <p className={`text-super-tiny-regular ${styles.time}`}>{time}</p>}
       </div>
-      {onAction && <IconButton label={actionLabel} icon={ACTION_ICON[type]} size={type === 'alert' ? 'base' : 'compact'} className={styles.action} onClick={onAction} />}
+      {onAction && <IconButton label={actionLabel} icon={ACTION_ICON[type]} size={type === 'alert' ? 'large' : 'medium'} className={styles.action} onClick={onAction} />}
     </article>
   );
 }

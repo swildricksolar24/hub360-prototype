@@ -163,6 +163,8 @@ const stock = createRecordStore<StockRow[]>(SAMPLE_STOCK);
 
 export const useStock = stock.use;
 export const setStock = stock.set;
+/** Another warehouse's stock records, read once (Copy Items' default locations). */
+export const getStock = stock.get;
 
 const history = createRecordStore<HistoryEntry[]>(SAMPLE_HISTORY);
 

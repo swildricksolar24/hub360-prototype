@@ -101,7 +101,7 @@ export function PrototypeHelperPanel({
         <h2 id="prototype-helper-title" className="text-small-bold">
           Helper
         </h2>
-        <IconButton size="compact" icon="close" label="Close Helper" onClick={onClose} />
+        <IconButton size="medium" icon="close" label="Close Helper" onClick={onClose} />
       </div>
       <p className={`text-small-regular ${styles.helperNote}`}>Not part of the design.</p>
       {!available && <p className={`text-small-regular ${styles.helperEmpty}`}>No Settings Here</p>}
@@ -109,7 +109,7 @@ export function PrototypeHelperPanel({
       {/* Any switch left on (here or on another page) can be cleared from any page */}
       {anyOn && (
         <div className={styles.helperFoot}>
-          <Button size="small" variant="outline" onClick={resetHelperFlags}>
+          <Button size="medium" variant="outline" onClick={resetHelperFlags}>
             Turn All Off
           </Button>
         </div>

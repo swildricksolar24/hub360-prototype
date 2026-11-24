@@ -23,7 +23,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Figma `State=Current Tab` is shown as `Selected`. */
+/**
+ * Figma `State=Current Tab` is shown as `Selected`. Focus draws its 0.5px stroke on the top, right and left only; Tab /
+ * Tiny*'s Current Tab and Disabled labels have no underline.
+ */
 const STATES: StateName[] = ['Default', 'Selected', 'Disabled', 'Focus', 'Hover'];
 
 const tabSet = (nodeId: string, figmaName: string, size: TabsSize): Story => ({

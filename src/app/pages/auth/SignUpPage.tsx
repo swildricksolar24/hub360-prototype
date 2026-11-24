@@ -118,7 +118,7 @@ export function SignUpPage() {
         // Prototype shortcuts (not in Figma): fill or clear the contact and business fields; the captcha stays for the user.
         <>
           <Button
-            size="small"
+            size="medium"
             variant="outline"
             icon="edit"
             onClick={() => {
@@ -130,7 +130,7 @@ export function SignUpPage() {
             Fill sample info
           </Button>
           <Button
-            size="small"
+            size="medium"
             variant="outline"
             icon="delete"
             onClick={() => {
@@ -211,7 +211,7 @@ export function SignUpPage() {
         <div className={styles.actions}>
           <Button
             type="submit"
-            size="base"
+            size="large"
             variant="brand"
             block
             disabled={!canSubmit}
@@ -221,7 +221,7 @@ export function SignUpPage() {
           >
             Sign Up
           </Button>
-          <Button size="base" variant="outline" block onClick={() => navigate('/sign-in')}>
+          <Button size="large" variant="outline" block onClick={() => navigate('/sign-in')}>
             Cancel
           </Button>
         </div>

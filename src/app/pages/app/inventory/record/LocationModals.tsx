@@ -288,10 +288,10 @@ export function AddLocationsModal({
         <fieldset className={styles.chipField}>
           <legend className="text-medium-regular">How many?</legend>
           <div className={styles.chipRow}>
-            <Tag size="small" selected={!range} onClick={() => setRange(false)}>
+            <Tag size="medium" selected={!range} onClick={() => setRange(false)}>
               One Location
             </Tag>
-            <Tag size="small" selected={range} onClick={() => setRange(true)}>
+            <Tag size="medium" selected={range} onClick={() => setRange(true)}>
               Range
             </Tag>
           </div>

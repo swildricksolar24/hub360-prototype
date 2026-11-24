@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../../../../../components/Button/Button';
 import { Badge } from '../../../../../components/Badge/Badge';
 import { Checkbox } from '../../../../../components/Checkbox/Checkbox';
+import { Icon } from '../../../../../components/Icon/Icon';
 import { RadioButton } from '../../../../../components/RadioButton/RadioButton';
 import { TextInput } from '../../../../../components/TextInput/TextInput';
 import { AppModal } from '../../../../components/AppModal';
@@ -9,7 +10,7 @@ import { Dropdown } from '../../../../../components/Dropdown/Dropdown';
 import { Scrollbar } from '../../../../../components/Scrollbar/Scrollbar';
 import { Tag } from '../../../../../components/Tag/Tag';
 import { blankItem, CATEGORIES, TYPE_PREFIX, UNIT_TYPES, unitLabel, type Item, type ItemType } from './itemData';
-import { openOrdersUsing, usedIn } from './itemStore';
+import { itemUsage, openOrdersUsing, usedIn, useItems, type ItemUsage } from './itemStore';
 import { ItemPicker } from './shared';
 import { useOrders } from '../orders/orderStore';
 import type { Order } from '../orders/orderData';
@@ -116,7 +117,7 @@ export function AddItemModal({
           </span>
           <div className={styles.typeChips}>
             {CREATE_TYPES.map(t => (
-              <Tag key={t} size="small" selected={type === t} onClick={() => chooseType(t)}>
+              <Tag key={t} size="medium" selected={type === t} onClick={() => chooseType(t)}>
                 {t}
               </Tag>
             ))}
@@ -323,42 +324,121 @@ function mergeMoves(target: Item, merged: Item[], orders: Order[]) {
   return lines;
 }
 
-/** Deleting Items / Deleting Part - Confirmation Required (ITEMS.md §1, §2). */
+/**
+ * Delete Items (ITEMS.md §1, §2; Figma "Modal - Delete Items" 681:14500, "Delete Items (Improved)"), from the Items
+ * list's Actions › Delete and a record's Delete. Only items that were never used are deleted; any item with history
+ * (past or open orders, stock, a build that includes it) is deactivated instead, so that history is kept. The two
+ * groups are listed apart, each in-use item says why, and an optional replacement takes the deactivated items' place in
+ * open orders and builds. The red button says what will happen ("Deactivate 2 & Delete 1"). `onConfirm` gets the
+ * replacement's id, if one was picked.
+ */
 export function DeleteItemsModal({
   open,
   items,
-  noun = 'Items',
   onClose,
   onConfirm,
 }: {
   open: boolean;
   items: Item[];
-  /** "Items" from the list; "Part", "Assembly" or "Kit" from a record. */
-  noun?: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (replacementId?: string) => void;
 }) {
+  const all = useItems();
+  const orders = useOrders();
+  const [replacement, setReplacement] = useState<Item | null>(null);
+  useEffect(() => {
+    if (open) setReplacement(null);
+  }, [open]);
+
+  const usage = new Map(items.map(i => [i.id, itemUsage(i, all, orders)]));
+  const deletable = items.filter(i => usage.get(i.id)!.neverUsed);
+  const inUse = items.filter(i => !usage.get(i.id)!.neverUsed);
+  // The replacement only matters when a deactivated item is on an open order or in a build
+  const needsReplacement = inUse.some(i => usage.get(i.id)!.openOrders > 0 || usage.get(i.id)!.builds.length > 0);
+  const candidates = all.filter(i => i.active && !items.some(x => x.id === i.id) && (inUse.length === 0 || i.type === inUse[0].type));
+
+  const n = (count: number, one: string, many = `${one}s`) => `${count.toLocaleString('en-US')} ${count === 1 ? one : many}`;
+  const action =
+    deletable.length && inUse.length
+      ? `Deactivate ${inUse.length} & Delete ${deletable.length}`
+      : deletable.length
+        ? `Delete ${n(deletable.length, 'item')}`
+        : `Deactivate ${n(inUse.length, 'item')}`;
+
   return (
     <AppModal
       open={open}
       onClose={onClose}
-      title={`Deleting ${noun} - Confirmation Required`}
-      primaryAction={{ label: `Delete ${noun}`, danger: true, onClick: onConfirm }}
+      width={900}
+      title={`Delete ${items.length === 1 ? items[0].name : n(items.length, 'item')}?`}
+      description="Items with any history (past orders, stock or cost history) are always deactivated instead of deleted, for every role."
+      primaryAction={{ label: action, danger: true, onClick: () => onConfirm(needsReplacement ? replacement?.id : undefined) }}
     >
-      <div className={styles.modalBody}>
-        {/* Copy from Figma "Modal - Delete Items" (681:14500), Large/Regular; the last line is a red "Warning:" like
-            Merging Items' */}
-        <p className="text-large-regular">
-          You are about to delete the selected Item(s). Deleting these Items will remove them from any Kits, Assemblies,
-          or Orders where they are currently used. If an active replacement Item is available, it will be substituted
-          automatically where applicable.
-        </p>
-        <p className={`text-medium-semi-bold ${styles.warning}`}>
-          Warning: This action cannot be undone. Please confirm that you want to proceed with the deletion.
-        </p>
+      <div className={styles.deleteBody}>
+        {deletable.length > 0 && (
+          <section className={styles.deleteGroup} aria-label="Can be deleted">
+            <p className={`text-tiny-semi-bold ${styles.mergeEyebrow}`}>CAN BE DELETED · NEVER USED ({deletable.length})</p>
+            {deletable.map(i => (
+              <div key={i.id} className={styles.deleteRow}>
+                <Icon name="delete" size={20} color="currentColor" />
+                <span className="text-medium-regular">
+                  {i.id} · {i.name}
+                </span>
+              </div>
+            ))}
+          </section>
+        )}
+        {inUse.length > 0 && (
+          <section className={styles.deleteGroup} aria-label="In use, will be deactivated">
+            <p className={`text-tiny-semi-bold ${styles.mergeEyebrow}`}>IN USE · WILL BE DEACTIVATED ({inUse.length})</p>
+            {inUse.map(i => (
+              <div key={i.id} className={styles.deleteRow} data-in-use="">
+                <Icon name="caution" size={20} color="currentColor" />
+                <span className={styles.deleteRowText}>
+                  <span className="text-medium-regular">
+                    {i.id} · {i.name}
+                  </span>
+                  <span className={`text-tiny-regular ${styles.mergeCardMeta}`}>{usageText(usage.get(i.id)!)}</span>
+                </span>
+              </div>
+            ))}
+          </section>
+        )}
+        {needsReplacement &&
+          (replacement ? (
+            <div className={styles.segmentRow}>
+              <span className="text-medium-regular">
+                Replacement for open orders and builds: <strong>{replacement.name}</strong> ({replacement.id})
+              </span>
+              <Button size="medium" variant="outline" onClick={() => setReplacement(null)}>
+                Change
+              </Button>
+            </div>
+          ) : (
+            <div className={styles.deleteReplacement}>
+              <span className="text-medium-regular" id="delete-replacement-label">
+                Replacement item for open orders (optional)
+              </span>
+              <ItemPicker items={candidates} onPick={setReplacement} label="Replacement item for open orders" placeholder="Search items…" />
+            </div>
+          ))}
       </div>
     </AppModal>
   );
+}
+
+/** An in-use item's reason line: "Used in 14 past orders · 893 on hand · on 1 open order · used in 2 kits". */
+function usageText(u: ItemUsage) {
+  const parts: string[] = [];
+  if (u.pastOrders) parts.push(`Used in ${plural(u.pastOrders, 'past order')}`);
+  if (u.onHand) parts.push(`${u.onHand.toLocaleString('en-US')} on hand`);
+  if (u.openOrders) parts.push(`on ${plural(u.openOrders, 'open order')}`);
+  if (u.builds.length) {
+    const kinds = new Set(u.builds.map(b => b.type));
+    const one = kinds.size === 1 ? [...kinds][0] : null;
+    parts.push(`used in ${one ? plural(u.builds.length, one.toLowerCase(), one === 'Assembly' ? 'assemblies' : undefined) : plural(u.builds.length, 'build')}`);
+  }
+  return parts.length ? parts.join(' · ') : 'Has stock or cost history';
 }
 
 export type DeactivateChoice = 'replace' | 'deactivate' | 'remove';
@@ -442,7 +522,7 @@ export function DeactivateItemModal({
                   <span className="text-medium-regular">
                     Replace with <strong>{replacement.name}</strong> ({replacement.id})
                   </span>
-                  <Button size="small" variant="outline" onClick={() => setReplacement(null)}>
+                  <Button size="medium" variant="outline" onClick={() => setReplacement(null)}>
                     Change
                   </Button>
                 </div>

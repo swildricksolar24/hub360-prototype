@@ -38,7 +38,7 @@ function SectionCard({
   return (
     <a href={href} onClick={onClick} className={styles.module}>
       {tag && (
-        <Tag size="tiny" selected className={styles.cardTag}>
+        <Tag size="small" selected className={styles.cardTag}>
           {tag}
         </Tag>
       )}

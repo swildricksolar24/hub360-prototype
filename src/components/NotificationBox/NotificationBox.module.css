@@ -40,12 +40,13 @@
   color: var(--color-gray-text-weak);
 }
 
-/* Action button: IconButton base (80px) is shrunk toward Figma's 70px for Alert; compact (40px) stands in for 38px */
+/* Action button: Alert sets Figma's 70px box on IconButton large (76px); Email uses medium (44px) for Figma's 38px */
 .box .action.action {
   flex: none;
 }
 .box[data-type='alert'] .action.action {
-  padding: var(--space-20);
+  width: 70px;
+  height: 70px;
 }
 .box[data-type='email'] .action:not(:hover):not(:focus-visible):not(:active) {
   --bg: var(--color-semantic-fill-success-weak);

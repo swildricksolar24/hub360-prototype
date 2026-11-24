@@ -52,9 +52,9 @@ It uses the coded design system in this repo as the source of truth.
 | 5b | Add Location (one or a range) | Add Location (Improved) (872:53690), Add Location - Range (857:28408) | Add Location, or a row's + |
 | 5c | Location Details | Location Details (857:28345; stock 872:56252; edit 872:62836) | A location's name, or its ••• › View |
 | 6 | Items | Inventory / Warehouse / Items (335:47354 › 571:24397) | Items tab |
-| 6a | Search Items | Modal- Add Item / Search (571:41931, 571:41966) | Add Item ▾ › Add Item |
-| 6b | Add Part / Assembly / Kit | Modal Screen (571:53644, 571:53661, 571:53678) | Add New ▾ in 6a |
-| 6c | Clone Warehouse | Modal- Add Warehouse / Search (571:54749, 571:54762) | Add Item ▾ › Clone Warehouse |
+| 6a | Add Items | Add from Catalog (Improved) (1167:62250) | Add Item ▾ › Add Items |
+| 6b | Add Part / Assembly / Kit | Modal Screen (571:53644, 571:53661, 571:53678) | Removed: items are created in Items |
+| 6c | Copy Items from Another Warehouse | Copy Items from Warehouse (Improved) (1167:62298) | Add Item ▾ › Clone Warehouse |
 | 7 | Stock | Inventory / Warehouse / Stock (571:56332) | Stock tab |
 | 8 | History | 571:57601 (named ".../Items" in Figma) | History tab |
 
@@ -439,8 +439,8 @@ The pager sits below. The samples are Zone A, Zone C and Zone H as in Figma; add
 
 ## 6. Items
 
-**Toolbar:** View ▾, Columns, Upload, Actions ▾, Search, and brand `Add Item ▾` with the options Add Item and
-Clone Warehouse.
+**Toolbar:** View ▾, Columns, Upload, Actions ▾, Search, and brand `Add Item ▾` with the options Add Items (6a) and
+Clone Warehouse (6c).
 
 | Column | Sample |
 |---|---|
@@ -456,23 +456,59 @@ Clone Warehouse.
 There is a pager. Use real-looking sample items in place of Figma's placeholders, e.g. Hex Bolt (Part), Shock Build
 (Assembly), Install Kit (Kit). Share them with the Items section later.
 
-**6a Search Items**
-- Results show an icon, the item name, the item # and the type at the right.
-- Picking a result adds that item.
-- Buttons: Cancel; outline "Add All Items", which adds every result; and brand `Add New ▾`, with the options Part,
-  Assembly and Kit.
+**6a Add Items** (Figma "Add from Catalog (Improved)" 1167:62250, which replaces "Modal- Add Item - Search").
+`AddFromCatalogModal` in record/ItemModals.tsx, on the standard `AppModal` at 900px.
+- **Title:** "Add Items to {warehouse name}". **Description:** "Select items from the catalog. Items already stocked
+  here are marked."
+- **Body**, 24px apart:
+  - A search (name, item #, type, category).
+  - Type chips: All types, Part, Kit, Assembly (Volt `Tag size="medium"`, the picked one selected). Figma draws "All
+    types" with a teal outline; Volt's selected Tag is the teal fill.
+  - The results line ("4 items match “xr100” · 2 selected", Tiny/Semi-Bold), then one card per catalog item.
+    - A card has a Volt Checkbox (small), "{item #} · {name}" (Medium/Bold) over "Type · Category › Sub Category"
+      (Tiny/Regular). It has 12/12/12/16 padding, 12px corners and a 14px gap.
+    - A click anywhere on a card checks it, and checked items stay checked across searches and type changes. A checked
+      card is Brand Teal Fill/Weaker with a 2px Brand Teal Stroke/Strong line; the others are Surfaces/Sunken with a 1px
+      Gray Stroke/Disabled line.
+    - Items this warehouse already carries show checked, faded to 60%, with an "Already stocked here" tag (Volt `Tag size="small"`, static), and can't be picked.
+    - More than 3 results scroll inside the Volt Scrollbar, 3 cards tall.
+  - "Settings for the selected items (optional, can change later)", a Surfaces/Sunken box with Default location (a
+    Dropdown of the active locations, "code · name", or None) and Min, Reorder Pt and Max (whole numbers; Max can't be
+    under Min).
+- **Footer:** "{n} selected" at the left (`AppModal` `footerNote`), then Cancel and the brand "Add N Items", which is
+  disabled until something is checked.
+- **Adding:**
+  - The checked items join the warehouse with Min / Reorder Pt / Max stored on them.
+  - With a default location, each also gets a stock record there with 0 units and that reorder point, so it shows on
+    Stock and on the location.
+  - The toast says e.g. "2 items added to this warehouse at Racking aisle."
+- Figma's old Add All Items and Add New ▾ are gone. New items aren't created from a warehouse; they're made in Items
+  (Add New ▾) and then added here.
+- A location's own Add Item (Location Details) still uses the older search modal (`SearchItemsModal`).
 
-**6b Add Part / Add Assembly / Add Kit**
-- Description: "*Indicates required field".
-- Fields:
-  - Custom Part Number * (label it "Custom Part #", per the general note)
-  - Part Name *
-  - The Assembly and Kit modals ask for their own # and name in the same way.
-- Buttons: Cancel and Create Part / Create Assembly / Create Kit.
+**6b Add Part / Add Assembly / Add Kit:** removed. A warehouse no longer creates items (the user took New Part, New
+Assembly and New Kit off Add Item ▾); items are created in Items.
 
-**6c Clone Warehouse**
-- Search Warehouse: each result shows the warehouse name and its system ID. Cancel is the only button.
-- Picking a warehouse copies its items into this one: confirm first, then show a Message with the count added.
+**6c Copy Items from Another Warehouse** (Figma "Copy Items from Warehouse (Improved)" 1167:62298, which replaces "Modal-
+Add Warehouse / Search" and its confirmation). It opens from Add Item ▾ › Clone Warehouse. `CopyItemsModal` in
+record/ItemModals.tsx, on the standard `AppModal` (800px).
+- **Description:** "Copies the item list to {warehouse}. Stock quantities are never copied."
+- **Copy from \*:** a Dropdown of the other warehouses, "{name} ({code}) · {n} items".
+- **Also copy:** three Surfaces/Sunken rows (8px × 12px padding, 12px corners), each a title (Medium/Bold) over a note
+  (Tiny/Regular) with a Volt Toggle (54 × 24) at the right:
+  - Min, reorder point and max (on): the source's stocking levels.
+  - Preferred suppliers (on): each item's `preferredSupplier` for that warehouse. No sample warehouse has one yet, so
+    this copies nothing visible today.
+  - Default locations (off): each copied item gets an empty stock record here at the location with the same code as one
+    it's stocked at there, only where that code exists here.
+- **Items already at {warehouse} (n):** Volt Tags "Update their settings" (the default) or "Skip them". Updating
+  applies the switched-on extras to them.
+- **Preview** (Brand Teal Fill/Weaker, info icon, Medium/Bold), e.g. "3 items will be added. 11 already here will have
+  their settings updated." With nothing to copy it says so, and the button stays off.
+- **Footer:** Cancel and the brand "Copy N Items" ("Update N Items" when only settings change), off until a warehouse is
+  picked.
+- **On copy:** the toast says e.g. "3 items copied from Tucson WH. 11 items already here updated. 2 placed at matching
+  locations."
 
 ## 7. Stock
 

@@ -6,7 +6,7 @@ import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGr
 const meta = {
   title: 'Primitives/Checkbox',
   component: Checkbox,
-  args: { label: 'Label', size: 'default', defaultChecked: true },
+  args: { label: 'Label', size: 'medium', defaultChecked: true },
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;
@@ -26,8 +26,8 @@ const figmaSet = (nodeId: string, figmaName: string, props: Partial<CheckboxProp
 
 export const Playground: Story = {};
 
-export const Default = figmaSet('397:1330', 'Checkbox › Default', { size: 'default' });
-export const DefaultIcon = figmaSet('2499:4513', 'Checkbox › Default - Icon*', { size: 'default', infoIcon: true });
+export const Medium = figmaSet('397:1330', 'Checkbox › Medium', { size: 'medium' });
+export const MediumIcon = figmaSet('2499:4513', 'Checkbox › Medium - Icon*', { size: 'medium', infoIcon: true });
 export const Small = figmaSet('363:5386', 'Checkbox › Small', { size: 'small' });
 export const SmallIcon = figmaSet('2417:3224', 'Checkbox › Small - Icon', { size: 'small', infoIcon: true });
 

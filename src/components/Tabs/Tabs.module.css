@@ -1,6 +1,7 @@
 /*
  * Values come from the Figma Tab Bar* page (Web Components): Tab / Small, Tab / Tiny*, Tab Content, Tab Bar*.
- * The label is the Hyperlink "Medium"/"Small" instance, which is underlined in every state.
+ * The label is the Hyperlink "Medium"/"Small" instance, underlined in every state except Tab / Tiny*'s Current Tab and
+ * Disabled (Figma draws those two labels without the underline).
  * Strokes are inset box-shadows so state changes never shift layout.
  */
 .tabs {
@@ -29,7 +30,11 @@
   border-radius: var(--radius-4) var(--radius-4) 0 0;
   background: var(--bg);
   color: var(--fg);
-  box-shadow: inset 0 0 0 var(--ring-w) var(--ring);
+  /* Figma Focus: a stroke on the top, right and left only (no bottom, so the tab stays open to its panel) */
+  box-shadow:
+    inset 0 var(--ring-w) 0 0 var(--ring),
+    inset var(--ring-w) 0 0 0 var(--ring),
+    inset calc(-1 * var(--ring-w)) 0 0 0 var(--ring);
   font-family: inherit;
   font-weight: 400;
   cursor: pointer;
@@ -49,6 +54,10 @@
 .tab[data-size='tiny'] {
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
+}
+/* Figma Tab / Tiny*: Current Tab (Hyperlink Small › Hover) and Disabled have no underline */
+.tab[data-size='tiny']:is([aria-selected='true'], :disabled) .label {
+  text-decoration: none;
 }
 
 .tab:hover {

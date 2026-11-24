@@ -44,7 +44,7 @@
   background: var(--color-surfaces-overlay);
 }
 
-/* Tiny/Semi Bold, Gray Text/Weak; the 20px icon takes the text color */
+/* Tiny/Semi Bold, Gray Text/Weak; the 20px icon is Gray Fill/Strong (set in Tile.tsx) */
 .label {
   display: flex;
   align-items: center;

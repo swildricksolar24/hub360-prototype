@@ -109,15 +109,19 @@
   box-shadow: var(--shadow-drop);
 }
 
-/* Autocomplete search field: 40px, 4px radius, Small text on Surfaces/Base */
+/*
+ * Autocomplete search field ("Input"): 40px tall, 0 / 12px padding, 4px radius, on Surfaces/Base.
+ * Figma text is 16px Regular with no text style and a 26px line height; Large (16/24) is the nearest token.
+ */
 .root .popup .search {
   --bg: var(--color-surfaces-base);
   --ring-w: 0px;
   gap: var(--space-12);
-  padding: var(--space-8) var(--space-12);
+  min-height: 40px; /* Figma field height; a component dimension */
+  padding: 0 var(--space-12);
   border-radius: var(--radius-4);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
 }
 .root .popup .search:focus-within {
   --ring: var(--color-gray-stroke-weaker);
@@ -147,8 +151,8 @@
   flex: none;
   overflow: hidden;
   /* Figma thumbnail size; a component dimension with no token */
-  width: 43px;
-  height: 43px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-4);
   background: var(--color-gray-fill-strong);
   cursor: pointer;
@@ -177,12 +181,15 @@
 /* ---------- Selected chips under the button (Autocomplete / Dropdown / Chips › Selected) ---------- */
 
 .root .selectedChips {
-  --chips-ring-w: 0px;
+  /* Figma overrides the chips panel here: no fill, 4 / 8 padding */
+  --chips-bg: transparent;
   padding: var(--space-4) var(--space-8);
 }
 
 /* ---------- Chip ---------- */
 
+/* Figma Chip text is 16px Regular with no text style and a 26px line height (a 34px chip); Large (16/24) is the
+   nearest token, so the chip is 32px */
 .chip {
   display: inline-flex;
   flex: none;
@@ -193,8 +200,8 @@
   background: var(--color-surfaces-overlay);
   color: var(--color-gray-text-strong);
   font-family: var(--font-family-inter);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
   font-weight: 400;
   cursor: pointer;
   outline: none;

@@ -36,13 +36,13 @@
   background: var(--color-gray-fill-weaker);
 }
 
-/* tiny: the small track with Tiny text. Contained = Toggle Button Tiny (3584:1818): 32px tall, 8 / 12 at the sides, 8px gap */
-.toggle[data-size='tiny'] {
+/* small: the 54x24 track with Tiny text. Contained = Toggle Button Small (3584:1818, was Toggle Button Tiny): 32px tall, 8 / 12 at the sides, 8px gap */
+.toggle[data-size='small'] {
   gap: var(--space-8);
   font-size: var(--font-size-tiny);
   line-height: var(--line-height-tiny);
 }
-.toggle[data-size='tiny'][data-contained] {
+.toggle[data-size='small'][data-contained] {
   padding: var(--space-4) var(--space-12) var(--space-4) var(--space-8);
   gap: var(--space-8);
 }

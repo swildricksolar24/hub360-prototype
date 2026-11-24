@@ -9,7 +9,8 @@ const meta = {
   component: Chip,
   args: { children: 'Label', variant: 'default', icon: 'arrow-up', iconPosition: 'left' },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['default', 'secondary', 'outline', 'tiny'] },
+    variant: { control: 'inline-radio', options: ['default', 'secondary', 'outline'] },
+    size: { control: 'inline-radio', options: [undefined, 'large', 'medium', 'small'] },
     icon: { control: 'select', options: [undefined, ...iconNames] },
     iconPosition: { control: 'inline-radio', options: ['left', 'right'] },
   },
@@ -43,5 +44,5 @@ export const SecondaryLeftIcon = figmaSet('342:4942', 'Chip › Secondary / Left
 export const SecondaryRightIcon = figmaSet('342:4973', 'Chip › Secondary / Right Icon', { variant: 'secondary', icon: 'arrow-up', iconPosition: 'right' });
 export const OutlineLeftIcon = figmaSet('342:5005', 'Chip › Outline / Left Icon*', { variant: 'outline', icon: 'arrow-up', iconPosition: 'left' });
 export const OutlineRightIcon = figmaSet('342:5036', 'Chip › Outline / Right Icon*', { variant: 'outline', icon: 'arrow-up', iconPosition: 'right' });
-export const TinyIconLeft = figmaSet('2644:4046', 'Chip › Tiny / Icon Left', { variant: 'tiny', icon: 'arrow-up', iconPosition: 'left' });
-export const TinyIconRight = figmaSet('2673:5696', 'Chip › Tiny / Icon Right', { variant: 'tiny', icon: 'arrow-up', iconPosition: 'right' });
+export const SmallIconLeft = figmaSet('2644:4046', 'Chip › Small / Icon Left', { size: 'small', icon: 'arrow-up', iconPosition: 'left' });
+export const SmallIconRight = figmaSet('2673:5696', 'Chip › Small / Icon Right', { size: 'small', icon: 'arrow-up', iconPosition: 'right' });

@@ -88,9 +88,11 @@
   display: inline-flex;
 }
 
-/* IconButton is 80px by default; the header uses a 48px box (32px icon + 8px padding) */
+/* Figma's Header resizes "Button Icon Large" (76px) to 48px and keeps its 32px icon.
+   48 isn't on the IconButton scale (76 / 44 / 32), so the header sets the box itself. */
 .actions .action {
-  padding: var(--space-8);
+  width: 48px;
+  height: 48px;
 }
 
 /* Badge overlaps the button's top-right corner */

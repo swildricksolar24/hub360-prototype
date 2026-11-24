@@ -30,9 +30,12 @@ export const Playground: Story = {
   },
 };
 
-const STATES: StateName[] = ['Default', 'Hover', 'Press', 'Focus', 'Disabled'];
+const STATES: StateName[] = ['Default', 'Hover', 'Press', 'Focus', 'Disabled', 'Selected'];
 
-/** Figma "Menu Item" `State` variants, with `Show Icon` and `Show Submenu` on. */
+/**
+ * Figma "Menu Item" `State` variants, with `Show Icon` and `Show Submenu` on. Selected is the `selected` prop (a
+ * `menuitemradio` with `aria-checked`).
+ */
 export const MenuItemStates: Story = {
   name: 'Menu Item',
   render: () => (
@@ -41,7 +44,7 @@ export const MenuItemStates: Story = {
       states={STATES}
       render={state => (
         <div role="menu" aria-label="Example" style={{ width: 240, background: 'var(--color-surfaces-overlay)' }}>
-          <MenuItem icon="account" submenu disabled={state === 'Disabled'}>
+          <MenuItem icon="account" submenu disabled={state === 'Disabled'} selected={state === 'Selected' ? true : undefined}>
             Label
           </MenuItem>
         </div>

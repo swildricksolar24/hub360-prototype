@@ -285,7 +285,7 @@ function ChipChoice({ label, options: list, later, value, onChange }: { label: s
       <legend className="text-medium-regular">{label}</legend>
       <div className={pp.chips}>
         {list.map(o => (
-          <Tag key={o} size="small" selected={value === o} onClick={() => onChange(o)}>
+          <Tag key={o} size="medium" selected={value === o} onClick={() => onChange(o)}>
             {o}
           </Tag>
         ))}
@@ -335,8 +335,8 @@ function LabelDefaults({ warehouse, editing, onNotice }: { warehouse: { code: st
             <span role="cell">{labelSizeText(l)}</span>
             {editing && (
               <span role="cell" className={pp.rowActions}>
-                <IconButton size="compact" icon="edit" label={`Edit ${l.name}`} onClick={() => setOpen(l)} />
-                <IconButton size="compact" icon="delete" label={`Delete ${l.name}`} onClick={() => setDeleting(l)} />
+                <IconButton size="medium" icon="edit" label={`Edit ${l.name}`} onClick={() => setOpen(l)} />
+                <IconButton size="medium" icon="delete" label={`Delete ${l.name}`} onClick={() => setDeleting(l)} />
               </span>
             )}
           </div>
@@ -344,7 +344,7 @@ function LabelDefaults({ warehouse, editing, onNotice }: { warehouse: { code: st
       </div>
       {editing && (
         <div>
-          <Button size="small" variant="primary" icon="plus" onClick={() => setOpen('new')}>
+          <Button size="medium" variant="primary" icon="plus" onClick={() => setOpen('new')}>
             Add Label Default
           </Button>
         </div>

@@ -38,16 +38,16 @@ type Story = StoryObj<typeof meta>;
 /** Live controls. */
 export const Playground: Story = {};
 
-/** Figma Tile / KPI: `Property 1` (Default, Hover), plus keyboard focus, which Figma doesn't draw. */
+/** Figma Tile / KPI: every `Property 1` variant (Default, Hover, Focus, Disabled). */
 export const TileKPI: Story = {
   name: 'Tile / KPI',
   decorators: [Story => <Story />],
   render: () => (
     <StateGrid
-      states={['Default', 'Hover', 'Focus']}
-      render={() => (
+      states={['Default', 'Hover', 'Focus', 'Disabled']}
+      render={state => (
         <div style={{ width: FIGMA_WIDTH }}>
-          <Tile label="Label" value="0" note="vs last 30 days" icon="dashboard" onClick={() => {}} />
+          <Tile label="Label" value="0" note="vs last 30 days" icon="dashboard" onClick={() => {}} disabled={state === 'Disabled'} />
         </div>
       )}
     />

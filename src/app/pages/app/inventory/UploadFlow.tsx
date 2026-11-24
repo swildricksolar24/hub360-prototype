@@ -331,7 +331,7 @@ export function UploadFlow({
       >
         <div className={styles.body}>
           {steps}
-          <Button className={styles.start} size="small" variant="primary" icon="export-download" onClick={() => download('warehouses-template.csv', TEMPLATE_URL)}>
+          <Button className={styles.start} size="medium" variant="primary" icon="export-download" onClick={() => download('warehouses-template.csv', TEMPLATE_URL)}>
             Download Template
           </Button>
           <UploadFile
@@ -361,7 +361,7 @@ export function UploadFlow({
                 </span>
               </div>
               <IconButton
-                size="compact"
+                size="medium"
                 icon="close"
                 label={upload.progress < 100 ? `Cancel uploading ${upload.file.name}` : `Remove ${upload.file.name}`}
                 onClick={cancelUpload}
@@ -499,7 +499,7 @@ export function UploadFlow({
                 <div className={styles.errorsHead}>
                   <h3 className="text-medium-bold">Rows with errors (skipped)</h3>
                   <Button
-                    size="small"
+                    size="medium"
                     variant="primary"
                     icon="import"
                     onClick={() => {

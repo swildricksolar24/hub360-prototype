@@ -167,10 +167,10 @@ export function WarrantyModal({
             Warranty Type *
           </span>
           <div className={styles.chips} role="group" aria-labelledby="warranty-type-label">
-            <Tag size="small" selected={d.kind === 'standard'} onClick={() => set({ kind: 'standard' })}>
+            <Tag size="medium" selected={d.kind === 'standard'} onClick={() => set({ kind: 'standard' })}>
               Standard (included)
             </Tag>
-            <Tag size="small" selected={d.kind === 'extended'} onClick={() => set({ kind: 'extended' })}>
+            <Tag size="medium" selected={d.kind === 'extended'} onClick={() => set({ kind: 'extended' })}>
               Extended (sold separately)
             </Tag>
           </div>
@@ -207,7 +207,7 @@ export function WarrantyModal({
               leftIcon={d.document ? (d.documentKind === 'file' ? 'document' : 'link-add') : undefined}
             />
           </div>
-          <Button size="small" variant="outline" icon="upload" onClick={() => file.current?.click()}>
+          <Button size="medium" variant="outline" icon="upload" onClick={() => file.current?.click()}>
             Upload
           </Button>
           <input
@@ -235,7 +235,7 @@ export function WarrantyModal({
                   Priced by:
                 </span>
                 {PRICED_BY.map(p => (
-                  <Tag key={p.value} size="small" selected={d.pricedBy === p.value} onClick={() => set({ pricedBy: p.value })}>
+                  <Tag key={p.value} size="medium" selected={d.pricedBy === p.value} onClick={() => set({ pricedBy: p.value })}>
                     {p.label}
                   </Tag>
                 ))}
@@ -268,13 +268,13 @@ export function WarrantyModal({
                           <EditableCell label={`Tier ${i + 1} price per kW`} value={t.price} placeholder="$0.00" onValueChange={v => setTier(t.id, { price: v })} />
                         </span>
                         <span role="cell" className={styles.tierActions}>
-                          <IconButton size="compact" icon="delete" label={`Remove tier ${i + 1}`} onClick={() => set({ tiers: d.tiers.filter(x => x.id !== t.id) })} />
+                          <IconButton size="medium" icon="delete" label={`Remove tier ${i + 1}`} onClick={() => set({ tiers: d.tiers.filter(x => x.id !== t.id) })} />
                         </span>
                       </div>
                     ))}
                   </div>
                   <div>
-                    <Button size="small" variant="outline" icon="plus" onClick={() => set({ tiers: [...d.tiers, blankTier()] })}>
+                    <Button size="medium" variant="outline" icon="plus" onClick={() => set({ tiers: [...d.tiers, blankTier()] })}>
                       Add Tier
                     </Button>
                   </div>
@@ -410,7 +410,7 @@ export function SupplierModal({
             <RadioButton name="break-mode" label="Percentage Off" checked={form.breakMode === 'percent'} onChange={() => setForm(f => ({ ...f, breakMode: 'percent' }))} />
             <RadioButton name="break-mode" label="Discounted Price" checked={form.breakMode === 'price'} onChange={() => setForm(f => ({ ...f, breakMode: 'price' }))} />
           </div>
-          <Button size="small" variant="outline" icon="plus" onClick={() => setBreaks([...breaks, { id: uid('pb'), upTo: null, value: null }])}>
+          <Button size="medium" variant="outline" icon="plus" onClick={() => setBreaks([...breaks, { id: uid('pb'), upTo: null, value: null }])}>
             Add Quantity
           </Button>
         </div>
@@ -706,7 +706,7 @@ export function SpecSheetModal({
           <div className={styles.currentFile}>
             <Icon name="document" size={24} />
             <span className={`text-medium-semi-bold ${styles.currentFileName}`}>{specSheet}</span>
-            <Button size="small" variant="outline" icon="visibility" onClick={onView}>
+            <Button size="medium" variant="outline" icon="visibility" onClick={onView}>
               View
             </Button>
           </div>
@@ -722,7 +722,7 @@ export function SpecSheetModal({
               error={tried && !specSheet && !value.trim() ? 'Upload a PDF or paste a link' : undefined}
             />
           </div>
-          <Button size="small" variant="outline" icon="upload" onClick={() => file.current?.click()}>
+          <Button size="medium" variant="outline" icon="upload" onClick={() => file.current?.click()}>
             Upload
           </Button>
           <input

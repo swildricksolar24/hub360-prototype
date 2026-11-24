@@ -36,6 +36,8 @@ export type AppModalProps = {
   secondaryAction?: AppModalAction | false;
   /** An action at the start of the footer, away from the others (e.g. a red outline "Remove from Warehouse"). */
   startAction?: AppModalAction;
+  /** Text at the start of the footer in place of a start action, e.g. "2 selected" (Medium/Bold). */
+  footerNote?: ReactNode;
   /** Panel width; the app's modals are 800px (narrower screens shrink it to fit). */
   width?: number | string;
   /** Long content scrolls inside the body, so the header and footer stay put. */
@@ -50,7 +52,7 @@ function ActionButton({ action, variant }: { action: AppModalAction; variant: 'o
   const shown = action.danger && variant !== 'red-outline' ? 'brand-red' : variant;
   return (
     <Button
-      size="small"
+      size="medium"
       variant={shown}
       icon={action.icon}
       onClick={action.onClick}
@@ -73,9 +75,17 @@ function ActionButton({ action, variant }: { action: AppModalAction; variant: 'o
  * - footer: a line, then the start action on the left (a destructive one is the red outline) and Cancel and the teal
  *   action on the right.
  */
-export function AppModal({ onClose, primaryAction, secondaryAction, startAction, width, scrollable, children, ...rest }: AppModalProps) {
+export function AppModal({ onClose, primaryAction, secondaryAction, startAction, footerNote, width, scrollable, children, ...rest }: AppModalProps) {
   const secondary = secondaryAction === false ? null : (secondaryAction ?? { label: 'Cancel', onClick: onClose });
-  const start = startAction && <ActionButton action={startAction} variant={startAction.danger ? 'red-outline' : startAction.icon ? 'primary' : 'outline'} />;
+  const start = startAction ? (
+    <ActionButton action={startAction} variant={startAction.danger ? 'red-outline' : startAction.icon ? 'primary' : 'outline'} />
+  ) : (
+    footerNote && (
+      <span className="text-medium-bold" aria-live="polite">
+        {footerNote}
+      </span>
+    )
+  );
   const actions =
     secondary || primaryAction ? (
       <>

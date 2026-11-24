@@ -80,7 +80,7 @@ export type DataTableProps<T extends { id: string }> = {
   loadingRows?: number;
   /** Figma `State=Striped`: tints the first, third, … rows. Default true. */
   striped?: boolean;
-  /** Rows whose values switch to the weak text color. */
+  /** Figma `State=Inactive`: rows whose checkbox and cells fade to 40% (the ••• stays at full strength). */
   inactive?: (row: T) => boolean;
   /** Shown in place of the rows when there are none. `null` shows nothing (just the header). */
   empty?: ReactNode;

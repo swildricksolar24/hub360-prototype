@@ -3,7 +3,7 @@
 Imported from [Figma: __Design System - Base](https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base) on 2026-10-29.
 Open any node with `https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/?node-id=<id with : replaced by ->`.
 
-**199 component sets + 10 standalone components** on 84 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4; the Jump Links page, with Jump Link and Jump Links, added Nov 23). Ten of them sit on Testing and "not used" pages (Modal - Dialog* moved to one Nov 6).
+**199 component sets + 11 standalone components** on 84 pages, counted in the live file on Nov 4, 2026 (Toast and Drop Down Menu added Nov 2; the Data Table page Nov 3; Tile / KPI, the Cards sets and Tier 4 added to this inventory Nov 4; the Web Breadcrumb page deleted Nov 4; the Jump Links page, with Jump Link and Jump Links, added Nov 23; Menu Options / Divider added Nov 24). Ten of them sit on Testing and "not used" pages (Modal - Dialog* moved to one Nov 6).
 A trailing `*` in a name is copied from Figma as-is (see the audit).
 
 Legend: **Variants** = variant count · **Axes** = variant properties · **Props** = TEXT / BOOLEAN properties. Tile / KPI's `Icon` is the only INSTANCE_SWAP property in the file.
@@ -61,36 +61,36 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Button Block* | Primary / Outline | 25:430 | 6 | State¹ | Label |
 | Button Block* | Brand / Default* | 1751:3585 | 6 | State¹ | — |
 | Button Block* | Brand / Icon* | 1751:3596 | 6 | State¹ | Label |
-| Button Icon | Icon | 25:355 | 6 | State¹ | — |
-| Button Icon | Brand | 2388:4991 | 6 | State¹ | — |
-| Button Icon | Number | 692:1041 | 6 | State¹ | Label |
-| Button Icon Tiny | Icon (Nov 23, 2026; IconButton `size="tiny"`: 32px, 18px icon) | 3580:1325 | 6 | State (Default, Hover, Press, Focus, Disabled, Selected) | — |
-| Button Small* | Outline / Icon* | 401:347 | 6 | State¹ | Label |
-| Button Small* | Outline / Default | 401:363 | 6 | State¹ | Label |
-| Button Small* | Primary / Icon | 401:401 | 6 | State¹ | Label |
-| Button Small* | Primary / Default | 401:417 | 6 | State¹ | Label |
-| Button Small* | Brand / Default | 1751:3632 | 6 | State¹ | Label |
-| Button Small* | Brand / Small / Outline (Button `variant="brand-outline" size="small"`) | 3290:6405 | 6 | State¹ | Label |
-| Button Small* | Solid / Red / Base (Button `variant="brand-red"`; Nov 12, 2026: rests on Error Strongest, Hover Error Stronger, Press / Selected add a 2px Gray Stroke/Weaker ring) | 3358:6168 | 6 | State¹ | Label |
-| Button Small* | Clear / Red (added Nov 9, 2026; Button `variant="red-outline"`) | 3392:197 | 6 | State¹ | Label |
-| Button Small* | Brand / Secondary* | 2548:3743 | 6 | State¹ | Label |
-| Button Small* | Brand / Secondary / Icon - Left* | 2734:1004 | 6 | State¹ | Label |
-| Button Small* | Brand / Secondary / Icon - Right* | 2734:1035 | 6 | State¹ | Label |
-| Button Small* | Brand / Default / Icon - Left* | 1751:3643 | 6 | State¹ | Label |
-| Button Small* | Brand / Default / Icon - Right* | 2392:572 | 6 | State¹ | Label |
-| Button Tiny | Primary | 2193:6401 | 6 | State¹ | Label |
-| Button Tiny | Text | 2193:6668 | 6 | State¹ | Label |
-| Button Tiny | Primary / Tiny / Brand (Button `variant="brand" size="tiny"`) | 3298:407 | 6 | State¹ | Label |
+| Button Icon Large | Icon | 25:355 | 6 | State¹ | — |
+| Button Icon Large | Brand | 2388:4991 | 6 | State¹ | — |
+| Button Icon Large | Number | 692:1041 | 6 | State¹ | Label |
+| Button Icon Small | Icon (Nov 23, 2026, was Button Icon Tiny; IconButton `size="small"`: 32px, 18px icon) | 3580:1325 | 6 | State (Default, Hover, Press, Focus, Disabled, Selected) | — |
+| Button Medium* | Outline / Icon* | 401:347 | 6 | State¹ | Label |
+| Button Medium* | Outline / Default | 401:363 | 6 | State¹ | Label |
+| Button Medium* | Primary / Icon | 401:401 | 6 | State¹ | Label |
+| Button Medium* | Primary / Default | 401:417 | 6 | State¹ | Label |
+| Button Medium* | Brand / Default | 1751:3632 | 6 | State¹ | Label |
+| Button Medium* | Brand / Small / Outline (Button `variant="brand-outline" size="medium"`) | 3290:6405 | 6 | State¹ | Label |
+| Button Medium* | Solid / Red / Base (Button `variant="brand-red"`; Nov 12, 2026: rests on Error Strongest, Hover Error Stronger, Press / Selected add a 2px Gray Stroke/Weaker ring) | 3358:6168 | 6 | State¹ | Label |
+| Button Medium* | Clear / Red (added Nov 9, 2026; Button `variant="red-outline"`) | 3392:197 | 6 | State¹ | Label |
+| Button Medium* | Brand / Secondary* | 2548:3743 | 6 | State¹ | Label |
+| Button Medium* | Brand / Secondary / Icon - Left* | 2734:1004 | 6 | State¹ | Label |
+| Button Medium* | Brand / Secondary / Icon - Right* | 2734:1035 | 6 | State¹ | Label |
+| Button Medium* | Brand / Default / Icon - Left* | 1751:3643 | 6 | State¹ | Label |
+| Button Medium* | Brand / Default / Icon - Right* | 2392:572 | 6 | State¹ | Label |
+| Button Small | Primary | 2193:6401 | 6 | State¹ | Label |
+| Button Small | Text | 2193:6668 | 6 | State¹ | Label |
+| Button Small | Primary / Tiny / Brand (Button `variant="brand" size="small"`) | 3298:407 | 6 | State¹ | Label |
 | Chip* | Outline / Right Icon* | 342:5036 | 6 | State¹ | Label |
 | Chip* | Outline / Left Icon* | 342:5005 | 6 | State¹ | Label |
 | Chip* | Secondary / Right Icon | 342:4973 | 6 | State¹ | Label |
 | Chip* | Secondary / Left Icon* | 342:4942 | 6 | State¹ | Label |
 | Chip* | Default / Right Icon* | 318:4850 | 6 | State¹ | Label |
 | Chip* | Default / Left Icon* | 318:4812 | 6 | State¹ | Label |
-| Chip* | Tiny / Icon Left | 2644:4046 | 6 | State¹ | Label |
-| Chip* | Tiny / Icon Right | 2673:5696 | 6 | State¹ | Label |
-| Checkbox | Default | 397:1330 | 6 | State² | Label, Show Checkmark |
-| Checkbox | Default - Icon* | 2499:4513 | 6 | State² | Label, Show Checkmark |
+| Chip* | Small / Icon Left (was Tiny; Chip `size="small"`) | 2644:4046 | 6 | State¹ | Label |
+| Chip* | Small / Icon Right (was Tiny; Chip `size="small"`) | 2673:5696 | 6 | State¹ | Label |
+| Checkbox | Medium (was Default; Checkbox `size="medium"`) | 397:1330 | 6 | State² | Label, Show Checkmark |
+| Checkbox | Medium - Icon* (was Default - Icon*) | 2499:4513 | 6 | State² | Label, Show Checkmark |
 | Checkbox | Small | 363:5386 | 6 | State² | Label, Show Checkmark |
 | Checkbox | Small - Icon | 2417:3224 | 6 | State² | Label, Show Checkmark |
 | Hyperlink* | Large* | 209:3842 | 5 | State (Default, Disabled, Focus, Hover, Press) | Label |
@@ -99,22 +99,22 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Last Modified | Date | 2328:3773 | 1 | State | Label |
 | Radio Button* | Default* | 397:1297 | 6 | State² | Label, Show Selected |
 | Radio Button* | Hint* | 2330:3837 | 6 | State² | Label, Show Selected, Description |
-| Tag | Base / Large (was Default*; Tag `variant="base" size="large"`) | 318:4725 | 2 | State (Default, Selected) | Label |
-| Tag | Base / Small (was Small) | 339:4909 | 2 | State (Default, Selected) | Label |
-| Tag | Base / Tiny (was Tiny) | 2610:6045 | 2 | State (Default, Selected) | Label |
+| Tag | Base / Large (was Default*; Tag `variant="base" size="large"`; Default label Gray Text/Strong since Nov 24, 2026) | 318:4725 | 2 | State (Default, Selected) | Label |
+| Tag | Base / Medium (was Base / Small, renamed Nov 24, 2026; Default label Gray Text/Strong) | 339:4909 | 2 | State (Default, Selected) | Label |
+| Tag | Base / Small (was Base / Tiny, renamed Nov 24, 2026; Default label Gray Text/Strong) | 2610:6045 | 2 | State (Default, Selected) | Label |
 | Tag | Outline / Large (was Outline*) | 339:4922 | 2 | State (Default, Selected) | Label |
-| Tag | Outline / Small (added Nov 2026) | 3404:2475 | 2 | State (Default, Selected) | Label |
-| Tag | Outline / Tiny (added Nov 2026) | 3404:2482 | 2 | State (Default, Selected) | Label |
-| Text Area | Default | 303:4524 | 6 | State² | Label, Placeholder, Error |
-| Text Input - Label* | Default | 218:3960 | 7 | State² + Required | Label, Placeholder, Error |
-| Text Input - Label* | Left Icon* | 277:4338 | 7 | State² + Required | Label, Placeholder, Error |
-| Text Input - Label* | Right Icon | 303:4430 | 7 | State² + Required | Label, Placeholder, Error |
-| Text Input - Label* | Right Double Icon | 2717:185 | 7 | State² + Required | Label, Placeholder, Error |
+| Tag | Outline / Medium (added Nov 2026, was Outline / Small) | 3404:2475 | 2 | State (Default, Selected) | Label |
+| Tag | Outline / Small (added Nov 2026, was Outline / Tiny) | 3404:2482 | 2 | State (Default, Selected) | Label |
+| Text Area | Default (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 303:4524 | 6 | State² | Label, Placeholder, Error |
+| Text Input - Label* | Default (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 218:3960 | 7 | State² + Required | Label, Placeholder, Error |
+| Text Input - Label* | Left Icon* (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 277:4338 | 7 | State² + Required | Label, Placeholder, Error |
+| Text Input - Label* | Right Icon (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 303:4430 | 7 | State² + Required | Label, Placeholder, Error |
+| Text Input - Label* | Right Double Icon (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 2717:185 | 7 | State² + Required | Label, Placeholder, Error |
 | Toggle | Label | 2282:1930 | 12 | Position × Size × State (On, Off, Disabled) | Label |
 | Toggle | Large | 404:186 | 3 | State (On, Off, Disabled) | — |
-| Toggle | Small | 2283:1939 | 3 | State (Off, On, Disabled) | — |
-| Toggle | Toggle Button | 2634:295 | 1 | State × Size | — |
-| Toggle | Toggle Button Tiny (Nov 23, 2026; Toggle `size="tiny" contained`: 32px, Tiny text) | 3584:1818 | 1 | State × Size | — |
+| Toggle | Medium (was Small; Toggle `size="medium"`) | 2283:1939 | 3 | State (Off, On, Disabled) | — |
+| Toggle | Toggle Button Medium (was Toggle Button; Toggle `size="medium" contained`: 44px) | 2634:295 | 1 | State × Size | — |
+| Toggle | Toggle Button Small (Nov 23, 2026, was Toggle Button Tiny; Toggle `size="small" contained`: 32px, Tiny text) | 3584:1818 | 1 | State × Size | — |
 | Scrollbar | Scrollbar | 431:266 | 1 | State | — |
 
 ## Components › Forms
@@ -122,15 +122,15 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Page | Component | ID | Variants | Axes | Props |
 |---|---|---|---|---|---|
 | Button Group* | Part - Vertical | 79:1642 | 6 | Position (Top, Bottom, Center) × State (Default, Hover) | — |
-| Button Group* | Part - Horizontal | 28:751 | 18 | Size (Default, Small) × State (Left, Center, Right, + Hover and Selected of each); Size=Small (44px) and the Selected states added Nov 12, 2026 | — |
-| Button Group* | Button Group / Horizontal* | 523:795 | 8 | Size (Default, Small) × Position × State; Size=Small added Nov 12, 2026 | — |
+| Button Group* | Part - Horizontal | 28:751 | 27 | Size (Large 76px, Medium 44px, Small 32px; renamed Nov 24, 2026 from Default / Small / Tiny) × State (Left, Center, Right, + Hover and Selected of each); Medium and the Selected states added Nov 12, 2026; Small (8 / 12 padding, 8px corners, Tiny/Regular) Nov 24, 2026 | — |
+| Button Group* | Button Group / Horizontal* | 523:795 | 12 | Size (Large, Medium, Small; renamed Nov 24, 2026 from Default / Small / Tiny) × Position × State | — |
 | Button Group* | Button Group / Vertical* | 523:821 | 4 | Position × State | — |
-| Drop Down Label | Default ("Open (example)" frame 3459:486 on the Drop Down Menu page, Nov 10–11, 2026) | 481:856 | 9 | State (…, Default - Light, Required, Default - No Label) | Label, Select |
+| Drop Down Button + Label (was Drop Down Label) | Default ("Open (example)" frame 3459:486 on the Drop Down Menu page, Nov 10–11, 2026; Nov 24, 2026: the box is a Drop Down Button Medium, Medium/Semi-Bold Gray Text/Weak, and Default - No Label was removed) | 481:856 | 8 | State (Default, Default - Light, Hover, Press, Focus, Error, Disabled, Required) | Label, Select |
 | Drop Down Label | chips | 2676:6014 | 1 | State | — |
 | Drop Down Label | Drop Down Menu (component, added Nov 2, 2026; 16px inset and 8px between rows like Context Menu since Nov 6) | 3078:320 | 1 | — | — |
-| Drop Down Button* | Large (was "Default"; "Open (example)" frame 3459:614 on the page, Nov 10–11, 2026: every Drop Down Button opens Menu Options) | 56:936 | 6 | State³ | Select |
-| Drop Down Button* | Medium (was "Small"; Nov 23, 2026: 12px all round, 8px before the chevron) | 478:1190 | 6 | State³ | Select |
-| Drop Down Button* | Small (was "Tiny"; Nov 23, 2026: 8px all round, 4px gaps, 8px corners, 16px chevron) | 3584:1718 | 6 | State³ | Select |
+| Drop Down Button* | Large (was "Default"; "Open (example)" frame 3459:614 on the page, Nov 10–11, 2026: every Drop Down Button opens Menu Options) | 56:936 | 7 | State³ + Required (Nov 24, 2026: 2px Brand Teal Stroke/Weak; Dropdown `required`) | Select |
+| Drop Down Button* | Medium (was "Small"; Nov 23, 2026: 12px all round, 8px before the chevron) | 478:1190 | 7 | State³ + Required (Nov 24, 2026: 2px Brand Teal Stroke/Weak; Dropdown `required`) | Select |
+| Drop Down Button* | Small (was "Tiny"; Nov 23, 2026: 8px all round, 4px gaps, 8px corners, 16px chevron) | 3584:1718 | 7 | State³ + Required (Nov 24, 2026: 2px Brand Teal Stroke/Weak; Dropdown `required`) | Select |
 | Drop Down Icon Button | Large (was Drop Down Button › Icon*; Nov 23, 2026: 28px icon) | 56:1083 | 6 | State³ | — |
 | Drop Down Icon Button | Medium (Nov 23, 2026) | 3595:3716 | 6 | State³ | — |
 | Drop Down Icon Button | Small (Nov 23, 2026) | 3595:3747 | 6 | State³ | — |
@@ -148,7 +148,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | ListBox* | Tree List* | 501:2238 | 1 | State | — |
 | OTP Input* | OTP Input* | 414:1616 | 6 | State² | Label |
 | Text Input - Autocomplete* | Text Input - Autocomplete* | 449:2189 | 4 | State (Default, Activated Search, Active Input, Selected) | — |
-| Text Input - Numeric* | Text Input - Numeric* | 397:691 | 6 | State² | Label, Placeholder, Error |
+| Text Input - Numeric* | Text Input - Numeric* (Nov 24, 2026: value text Medium/Semi-Bold Gray Text/Weak, Bold in Error / Disabled, as the field drop-down) | 397:691 | 6 | State² | Label, Placeholder, Error |
 | Drop Down - Filter Chip | Default ("Open (example)" frame 3459:384 on the page, Nov 10–11, 2026) | 2678:7113 | 10 | State (…, Default - Light, Press - Alt, Press - No Panel, Required) | Label, Select |
 | Drop Down - Selector | Autocomplete / Dropdown | 451:779 | 6 | State (Default, Hover, Active, Active Input, Selected, Disabled) | Label |
 | Drop Down - Selector | Autocomplete / Dropdown / Chips | 2747:6026 | 6 | State (same) | Label |
@@ -188,6 +188,8 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Tooltip* | Small* | 497:785 | 4 | Position | Label |
 | Context Menu* | Menu Item | 485:1008 | 6 | State (…, Selected added Nov 2, 2026) | Show Icon, Show Submenu, Label |
 | Context Menu* | Context Menu* | 486:92 | 1 | State | — |
+| Menu Options | Menu Options / Default (the drop-down menu panel: 16px inset, 12px corners, Menu Item rows; Nov 24, 2026: gap 0 with a Menu Options / Divider between rows, so they still sit 8px apart; Volt: ListBox `menu`) | 3352:6146 | 1 | Property 1 (Default) | — |
+| Menu Options | Menu Options / Divider (standalone component, Nov 24, 2026: 8px tall, a 1px Gray Stroke/Weakest (5%) line centered; between drop-down options, none under the last) | 3668:1702 | — | — | — |
 | Modal* | Dialog / Modal | 429:687 | 2 | Style (Default, Scrollbar) | Title, Body |
 | Modal* | Modal - Dynamic (Nov 10, 2026: the header is a column: "Title Row" 3438:235 holds the title and the controls, the Description 2684:8298 is its own full-width row below) | 2684:8355 | 1 | State | — |
 | Modal Screen | Modal Screen* | 805:922 | — | standalone | — |
@@ -251,7 +253,7 @@ State lists: ¹ Default, Hover, Press, Selected, Focus, Disabled · ² Default, 
 | Main Nav › Tier 2 | Tier 2 | 708:1647 | 3 | State (Default, Collapsed, Label) | — |
 | Main Nav › Tier 3 | Tier 3 Labels | 2642:3610 | 4 | Labels (1–4) | — |
 | Main Nav › Tier 3 | Tier 3 Label | 2642:3631 | 1 | State | Label, Value |
-| Main Nav › Tier 3 | Tier 3 (Nov 23, 2026: Sticky added and Collapsed regrouped into one row; Jump Links built in, off by default) | 2644:3738 | 3 | State (Expanded, Collapsed, Sticky) | Jump Links |
+| Main Nav › Tier 3 | Tier 3 (Nov 23, 2026: Sticky added and Collapsed regrouped into one row; Jump Links built in, off by default; Nov 24, 2026: Expanded Back button is Button Icon Small, 32px) | 2644:3738 | 3 | State (Expanded, Collapsed, Sticky) | Jump Links |
 | Main Nav › Tier 3 | Tier 3 Icon | 2648:4086 | 4 | Size × State | — |
 | Interior Nav › Sub Menu | Sub Menu | 708:1502 | 3 | State (Default, Tiny, Text) | — |
 | Interior Nav › Tier 4 | Tier 4 | 3091:12939 | 3 | Property 1 (Warehouse) × Property 2 (Overview, Table View, Table View - 2) | — |

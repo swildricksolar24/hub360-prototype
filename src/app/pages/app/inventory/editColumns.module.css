@@ -148,9 +148,14 @@
   cursor: grabbing;
 }
 
-/* Freeze: Figma's 44 x 36 button. Frozen = solid brand (IconButton brand); not frozen = a 1px Gray Stroke/Weaker outline */
-.freeze {
-  padding: var(--space-4) var(--space-10);
+/*
+ * Freeze: Figma's 44 x 36 button (component dimensions, no size tokens). IconButton sizes are fixed squares, so the box
+ * is set here; doubled so it outranks Volt's .iconButton[data-size='medium'] (44 x 44). Frozen = solid brand
+ * (IconButton brand); not frozen = a 1px Gray Stroke/Weaker outline.
+ */
+.freeze.freeze {
+  width: 44px;
+  height: 36px;
   border-radius: var(--radius-8);
 }
 .freeze[data-variant='default'] {

@@ -3,14 +3,16 @@ import { Icon } from '../Icon/Icon';
 import styles from './ListBox.module.css';
 
 /**
- * Figma "ListViews" `Type`, minus Category (categories come from `group` on the options):
- * default = List Item / Default · chevron = List Item / Icon · avatar = List Item / Avatar ·
- * checkbox = List Item / Checkbox.
+ * Figma "List View" `Type` (433:1231): default = List Item / Default · chevron = List Item / Icon ·
+ * avatar = List Item / Avatar · checkbox = List Item / Checkbox. Group headings (List Item / Category) come from
+ * `group` on the options.
  */
 export type ListBoxType = 'default' | 'chevron' | 'avatar' | 'checkbox';
 
 /**
- * list = the ListBox page items (List Item / *, 44–56px rows on Surfaces/Overlay).
+ * list = Figma "List View": a Surfaces/Overlay panel (16px inset, 12px corners, the drop shadow) of 40px rows
+ * (48px with an avatar), 8 x 12px with 8px corners, 8px apart, Large/Regular. A lone ListBoxItem draws the
+ * List Item / * component itself (44–56px rows on Surfaces/Overlay).
  * selector = the compact "Dropdown Selector" rows (36px) used inside "Dropdown Holder"
  * on the Drop Down - Selector, Multiselect and Dropdown Tree pages.
  */
@@ -183,7 +185,7 @@ export function moveIndex<T>(list: T[], from: number, step: 1 | -1, enabled: (x:
 
 export type ListBoxProps = {
   options: ListBoxOption[];
-  /** Figma "ListViews" `Type`. */
+  /** Figma "List View" `Type`. */
   type?: ListBoxType;
   appearance?: ListBoxAppearance;
   /** Multi-select (`aria-multiselectable`). Checkbox type implies it in the dropdowns. */
@@ -205,15 +207,17 @@ export type ListBoxProps = {
   /** Text shown when `options` is empty. */
   emptyMessage?: ReactNode;
   /**
-   * Frames the list like the row ••• menu (Figma Context Menu): a 16px inset, rows 8px by 12px with 8px corners and no
-   * dividers, on a 12px-rounded Surfaces/Overlay panel. The dropdowns turn it on for their popups, so every popup menu
-   * matches. Not part of the Figma ListViews, which run their rows edge to edge.
+   * Frames the list like the row ••• menu (Figma Context Menu): a 16px inset, rows 8px by 12px with 8px corners, on a
+   * 12px-rounded Surfaces/Overlay panel, plus a 1px Gray Stroke/Weakest (5%) divider centered in the gap under each
+   * option but the last (Figma Drop Down Menu, Nov 24, 2026; the ••• menu has none). The dropdowns turn it on for their
+   * popups, so every drop-down popup matches. The Figma List View panel has the same frame but no dividers, Large
+   * text and a teal hover.
    */
   menu?: boolean;
 };
 
 /**
- * Figma ListBox › ListViews. A keyboard-accessible listbox: roving focus on the options,
+ * Figma List View › List View. A keyboard-accessible listbox: roving focus on the options,
  * ↑/↓/Home/End to move, Enter/Space to choose, type-ahead by first letter.
  */
 export function ListBox({

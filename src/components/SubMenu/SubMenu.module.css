@@ -9,6 +9,6 @@
   list-style: none;
 }
 
-.subMenu:is([data-variant='tiny'], [data-variant='text']) .list {
+.subMenu:is([data-variant='small'], [data-variant='text']) .list {
   gap: var(--space-8);
 }

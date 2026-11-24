@@ -31,7 +31,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const photo = <Avatar type="photo" label="Jordan Davis" />;
-const changePhoto = <Button variant="primary" size="small">Change Photo</Button>;
+const changePhoto = <Button variant="primary" size="medium">Change Photo</Button>;
 
 /** Live controls for Card / Row / Small. */
 export const Playground: Story = {

@@ -933,3 +933,125 @@
   justify-content: flex-start;
   text-align: start;
 }
+
+/* ---------- Add Items to a warehouse (Figma "Add from Catalog (Improved)" 1167:62250) ---------- */
+/* Search, type chips, results and settings, 24px apart */
+.catalogBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.catalogTypes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+/* "4 items match …" then the cards, 8px apart */
+.catalogResults {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.catalogResults > p {
+  margin: 0;
+}
+.catalogCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+/* A card: 12 / 12 / 12 / 16 padding, 12px corners, 14px between the checkbox, the text and the note. Not checked:
+   Surfaces/Sunken with a 1px Gray Stroke/Disabled line */
+.catalogCard {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-12) + var(--space-2));
+  padding: var(--space-12) var(--space-12) var(--space-12) var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-gray-stroke-disabled);
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+}
+/* Checked: Brand Teal Fill/Weaker with a 2px Brand Teal Stroke/Strong line */
+.catalogCard[data-checked] {
+  background: var(--color-brand-teal-fill-weaker);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+/* Already stocked here: faded to 60% and not pickable */
+.catalogCard[data-stocked] {
+  opacity: 0.6;
+  cursor: default;
+}
+.catalogCardText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.catalogMeta {
+  color: var(--color-gray-text-weak);
+}
+/* Settings: Surfaces/Sunken, 16px padding, 12px corners; the heading 10px over four equal fields 12px apart */
+.catalogSettings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+}
+.catalogSettings > p {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}
+.catalogSettingsRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-12);
+  align-items: start;
+}
+
+/* ---------- Copy Items from Another Warehouse (Figma "Copy Items from Warehouse (Improved)" 1167:62298) ---------- */
+/* Copy from, Also copy, Items already here and the preview, 24px apart */
+.copyBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.copyBody p {
+  margin: 0;
+}
+/* "Also copy" then its rows, 8px apart */
+.copyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+/* A row: Surfaces/Sunken, 8px × 12px padding, 12px corners, the text then the switch 16px on */
+.copyOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+/* "Items already at …" 6px over its two chips */
+.copyExisting {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-4) + var(--space-2));
+}
+/* The preview: Brand Teal Fill/Weaker, 12px padding and corners, the 20px info icon then Medium/Bold text 12px on */
+.copyPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-teal-fill-weaker);
+  color: var(--color-gray-text-strong);
+}

@@ -4,19 +4,22 @@ import { DataTable, type DataColumn } from '../../../../../components/DataTable/
 import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 import { useHelperFlag } from '../../../../shell/helperFlags';
 import type { Warehouse } from '../warehouseData';
-import type { CatalogItem, ItemType, WarehouseItem } from '../warehouseRecordData';
+import type { CatalogItem, WarehouseItem } from '../warehouseRecordData';
 import {
-  addCatalogItem,
   findWarehouse,
+  getLocations,
+  getStock,
   getWarehouseItems,
   setStock,
   setWarehouseItems,
   useCatalog,
+  useLocations,
   useStock,
   useWarehouseItems,
   useWarehouses,
 } from '../warehouseStore';
-import { CloneWarehouseModal, ConfirmCloneModal, ItemFormModal, RemoveItemsModal, SearchItemsModal } from './ItemModals';
+import { AddFromCatalogModal, CopyItemsModal, RemoveItemsModal, type AddItemSettings, type CopyOptions } from './ItemModals';
+import { codeOf } from './locationTree';
 import { RowMenu } from './RowMenu';
 import { changing, checkFirst, FilterBox, MenuButton, Pager, StatusPill, statusActions, TableToolbar, useColumns, useTableControls, viewInItems } from './tableKit';
 import styles from '../record.module.css';
@@ -50,7 +53,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
  * Warehouse record › Items (Figma 571:24397): the items this warehouse carries. Add Item ▾ searches every item (6a),
- * creates a new Part / Assembly / Kit (6b) or copies another warehouse's items (6c, Clone Warehouse).
+ * or copies another warehouse's items (6c, Clone Warehouse).
  */
 export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: string) => void }) {
   const navigate = useNavigate();
@@ -61,13 +64,12 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
   const items = empty ? [] : stored;
   const catalog = useCatalog();
   const stock = useStock(code);
+  const locations = useLocations(code);
   const warehouses = useWarehouses();
   const [view, setView] = useState('all');
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
-  const [creating, setCreating] = useState<ItemType | null>(null);
   const [cloning, setCloning] = useState(false);
-  const [cloneFrom, setCloneFrom] = useState<Warehouse | null>(null);
   const [removing, setRemoving] = useState<WarehouseItem[]>([]);
   const [info, setInfo] = useState<string | null>(null);
   const cols = useColumns(COLUMNS);
@@ -81,16 +83,60 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
   });
 
   const update = (next: (list: WarehouseItem[]) => WarehouseItem[]) => setWarehouseItems(code, next);
-  function add(list: CatalogItem[]) {
+  function add(list: CatalogItem[], settings: AddItemSettings = {}) {
     const ids = new Set(stored.map(i => i.id));
     const fresh = list.filter(i => !ids.has(i.id));
-    update(current => [...current, ...fresh.map(i => ({ ...i, active: true }))]);
+    const { locationId, min, reorderPoint, max } = settings;
+    update(current => [...current, ...fresh.map(i => ({ ...i, active: true, min, reorderPoint, max }))]);
+    // A default location starts each item there with no stock yet, carrying the reorder point (Stock › Below Reorder)
+    if (locationId)
+      setStock(code, current => [
+        ...current,
+        ...fresh.map(i => ({ id: `st-${i.id}-${Date.now()}`, itemId: i.id, locationId, onHand: 0, allocated: 0, committed: 0, frozen: 0, reorderPoint })),
+      ]);
     return fresh.length;
   }
-  const missingFrom = (w: Warehouse) => {
-    const ids = new Set(stored.map(i => i.id));
-    return getWarehouseItems(w.code).filter(i => !ids.has(i.id));
-  };
+  /**
+   * Copy Items from Another Warehouse: the source's item list (never its stock), with its stocking levels and preferred
+   * suppliers when those are on. Items already here are updated or skipped. Default locations: each copied item gets an
+   * empty stock record here at the location with the same code as one it's stocked at there, where such a location exists.
+   */
+  function copyFrom(w: Warehouse, o: CopyOptions) {
+    const source = getWarehouseItems(w.code);
+    const hereIds = new Set(stored.map(i => i.id));
+    const fresh = source.filter(i => !hereIds.has(i.id));
+    const overlap = o.existing === 'update' ? source.filter(i => hereIds.has(i.id)) : [];
+    const extras = (i: WarehouseItem) => ({
+      ...(o.levels ? { min: i.min, reorderPoint: i.reorderPoint, max: i.max } : {}),
+      ...(o.suppliers ? { preferredSupplier: i.preferredSupplier } : {}),
+    });
+    update(current => [
+      ...current.map(i => {
+        const src = overlap.find(s => s.id === i.id);
+        return src ? { ...i, ...extras(src) } : i;
+      }),
+      ...fresh.map(({ id, number, name, type, category, subCategory, description, ...rest }) => ({
+        id, number, name, type, category, subCategory, description, active: true, ...extras({ ...rest, id, number, name, type, category, subCategory, description }),
+      })),
+    ]);
+    let placed = 0;
+    if (o.locations) {
+      const theirLocations = getLocations(w.code);
+      const byCode = new Map(locations.map(l => [codeOf(locations, l.id), l.id]));
+      const copied = new Set([...fresh, ...overlap].map(i => i.id));
+      const have = new Set(stock.map(s => `${s.itemId}@${s.locationId}`));
+      const rows = getStock(w.code).flatMap(s => {
+        const here = byCode.get(codeOf(theirLocations, s.locationId));
+        const key = `${s.itemId}@${here}`;
+        if (!copied.has(s.itemId) || !here || have.has(key)) return [];
+        have.add(key);
+        return [{ id: `st-${s.itemId}-${here}-${Date.now()}`, itemId: s.itemId, locationId: here, onHand: 0, allocated: 0, committed: 0, frozen: 0, reorderPoint: o.levels ? s.reorderPoint : undefined }];
+      });
+      placed = rows.length;
+      if (rows.length) setStock(code, current => [...current, ...rows]);
+    }
+    return { added: fresh.length, updated: overlap.length, placed };
+  }
   const setActive = (ids: string[], active: boolean) => {
     update(list => list.map(i => (ids.includes(i.id) ? { ...i, active } : i)));
     onNotice(`${ids.length === 1 ? (items.find(i => i.id === ids[0])?.name ?? '1 item') : plural(ids.length, 'item')} ${active ? 'activated' : 'deactivated'}.`);
@@ -134,7 +180,7 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
               label="Add Item"
               icon="plus"
               items={[
-                { label: 'Add Item', onSelect: () => setSearching(true) },
+                { label: 'Add Items', onSelect: () => setSearching(true) },
                 { label: 'Clone Warehouse', onSelect: () => setCloning(true) },
               ]}
             />
@@ -183,58 +229,39 @@ export function ItemsTab({ code, onNotice }: { code: string; onNotice: (text: st
       </section>
 
       {cols.modal}
-      <SearchItemsModal
+      <AddFromCatalogModal
         open={searching}
-        items={catalog.filter(c => !stored.some(i => i.id === c.id))}
+        warehouseName={here?.name ?? code}
+        catalog={catalog}
+        stockedIds={new Set(stored.map(i => i.id))}
+        locations={locations}
         onClose={() => setSearching(false)}
-        onPick={item => {
-          add([item]);
-          onNotice(`${item.name} added to this warehouse.`);
+        onAdd={(list, settings) => {
+          const n = add(list, settings);
+          const where = settings.locationId ? ` at ${locations.find(l => l.id === settings.locationId)?.name ?? 'the default location'}` : '';
+          onNotice(`${n === 1 ? list[0].name : plural(n, 'item')} added to this warehouse${where}.`);
           setSearching(false);
-        }}
-        onPickAll={list => {
-          const n = add(list);
-          onNotice(`${plural(n, 'item')} added to this warehouse.`);
-          setSearching(false);
-        }}
-        onAddNew={type => {
-          setSearching(false);
-          setCreating(type);
         }}
       />
-      <ItemFormModal
-        type={creating}
-        existingNumbers={catalog.map(c => c.number)}
-        onClose={() => setCreating(null)}
-        onCreate={({ number, name, type }) => {
-          const item: CatalogItem = { id: `it-${Date.now()}`, number, name, type, category: '', subCategory: '', description: '' };
-          addCatalogItem(item);
-          update(list => [...list, { ...item, active: true }]);
-          onNotice(`${type} ${name} (# ${number}) created and added to this warehouse.`);
-          setCreating(null);
-        }}
-      />
-      <CloneWarehouseModal
+      <CopyItemsModal
         open={cloning}
+        warehouseName={here?.name ?? code}
         warehouses={warehouses.filter(w => w.code !== code)}
-        newCount={w => missingFrom(w).length}
+        itemsOf={w => getWarehouseItems(w.code)}
+        hereIds={new Set(stored.map(i => i.id))}
         onClose={() => setCloning(false)}
-        onPick={w => {
+        onCopy={(w, o) => {
+          const { added, updated, placed } = copyFrom(w, o);
+          onNotice(
+            [
+              added ? `${plural(added, 'item')} copied from ${w.name}.` : '',
+              updated ? `${plural(updated, 'item')} already here updated.` : '',
+              placed ? `${placed} placed at matching locations.` : '',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          );
           setCloning(false);
-          setCloneFrom(w);
-        }}
-      />
-      <ConfirmCloneModal
-        from={cloneFrom}
-        to={here?.name ?? 'This warehouse'}
-        count={cloneFrom ? missingFrom(cloneFrom).length : 0}
-        onClose={() => setCloneFrom(null)}
-        onConfirm={() => {
-          if (cloneFrom) {
-            const n = add(missingFrom(cloneFrom));
-            onNotice(`${plural(n, 'item')} copied from ${cloneFrom.name}.`);
-          }
-          setCloneFrom(null);
         }}
       />
       <RemoveItemsModal

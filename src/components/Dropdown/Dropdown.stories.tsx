@@ -28,7 +28,7 @@ export const Playground: Story = {
   decorators: [Story => <div style={{ maxWidth: 360, minHeight: 380 }}><Story /></div>],
 };
 
-const LABEL_STATES = ['Default', 'Default - Light', 'Hover', 'Press', 'Focus', 'Error', 'Disabled', 'Required', 'Default - No Label'] as const;
+const LABEL_STATES = ['Default', 'Default - Light', 'Hover', 'Press', 'Focus', 'Error', 'Disabled', 'Required'] as const;
 
 export const LabelDefault: Story = {
   render: args => (
@@ -44,31 +44,46 @@ export const LabelDefault: Story = {
           error={state === 'Error'}
           disabled={state === 'Disabled'}
           required={state === 'Required'}
-          hideLabel={state === 'Default - No Label'}
         />
       )}
     />
   ),
-  parameters: { ...figma('481:856', 'Drop Down Label › Default'), ...pseudoStates, controls: { disable: true } },
+  parameters: { ...figma('481:856', 'Drop Down Button + Label › Default'), ...pseudoStates, controls: { disable: true } },
 };
 
 export const LabelChips: Story = {
   render: () => (
     <div style={{ width: 360 }}>
-      <DropdownChips items={Array.from({ length: 6 }, (_, i) => ({ value: String(i), label: 'Label' }))} />
+      {/* `plain` is the set's own Surfaces/Overlay fill; `brand` (the default) is the Filter Chip's teal override */}
+      <DropdownChips appearance="plain" items={Array.from({ length: 6 }, (_, i) => ({ value: String(i), label: 'Label' }))} />
     </div>
   ),
-  parameters: { ...figma('2676:6014', 'Drop Down Label › chips'), controls: { disable: true } },
+  parameters: { ...figma('2676:6014', 'Menu Options › Menu Options / Chips'), controls: { disable: true } },
 };
 
 const BUTTON_STATES = ['Default', 'Hover', 'Press', 'Focus', 'Disabled', 'Error'] as const;
+/** The Drop Down Button sets also have Required (Nov 24, 2026): the 2px Brand Teal Stroke/Weak outline */
+const BUTTON_STATES_REQUIRED = [...BUTTON_STATES, 'Required'] as const;
 
-const buttonSet = (nodeId: string, figmaName: string, props: Partial<DropdownProps>): Story => ({
+const buttonSet = (
+  nodeId: string,
+  figmaName: string,
+  props: Partial<DropdownProps>,
+  states: readonly string[] = BUTTON_STATES,
+): Story => ({
   render: args => (
     <DropdownStateGrid
-      states={BUTTON_STATES}
+      states={states}
       render={state => (
-        <Dropdown {...args} label={undefined} aria-label="Select" {...props} error={state === 'Error'} disabled={state === 'Disabled'} />
+        <Dropdown
+          {...args}
+          label={undefined}
+          aria-label="Select"
+          {...props}
+          error={state === 'Error'}
+          disabled={state === 'Disabled'}
+          required={state === 'Required'}
+        />
       )}
     />
   ),
@@ -76,9 +91,9 @@ const buttonSet = (nodeId: string, figmaName: string, props: Partial<DropdownPro
 });
 
 /* Drop Down Button (text): `variant="button"` with `size` */
-export const ButtonLarge = buttonSet('56:936', 'Drop Down Button › Large', { variant: 'button', size: 'large' });
-export const ButtonMedium = buttonSet('478:1190', 'Drop Down Button › Medium', { variant: 'button', size: 'medium' });
-export const ButtonSmall = buttonSet('3584:1718', 'Drop Down Button › Small', { variant: 'button', size: 'small' });
+export const ButtonLarge = buttonSet('56:936', 'Drop Down Button › Large', { variant: 'button', size: 'large' }, BUTTON_STATES_REQUIRED);
+export const ButtonMedium = buttonSet('478:1190', 'Drop Down Button › Medium', { variant: 'button', size: 'medium' }, BUTTON_STATES_REQUIRED);
+export const ButtonSmall = buttonSet('3584:1718', 'Drop Down Button › Small', { variant: 'button', size: 'small' }, BUTTON_STATES_REQUIRED);
 
 /* Drop Down Icon Button (icon only): `variant="icon"` with `size` */
 const account = { variant: 'icon', icon: 'account', 'aria-label': 'Account' } as const;

@@ -176,7 +176,7 @@ export function AllTabsModal({ open, tabs, previews = {}, activeId, onSelect, on
                     )}
                     <IconButton
                       className={styles.close}
-                      size="compact"
+                      size="medium"
                       icon="close"
                       label={`Close ${t.title}`}
                       title="Close tab"

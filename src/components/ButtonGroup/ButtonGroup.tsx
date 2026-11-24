@@ -1,16 +1,22 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 import styles from './ButtonGroup.module.css';
 
+export type ButtonGroupSize = 'large' | 'medium' | 'small';
+
 export type ButtonGroupProps = HTMLAttributes<HTMLDivElement> & {
   /** `ButtonGroupItem` children. */
   children: ReactNode;
   /** horizontal = Figma "Button Group / Horizontal" · vertical = "Button Group / Vertical". */
   orientation?: 'horizontal' | 'vertical';
   /**
-   * default = Figma's parts (24px × 40px padding, Heading 4 text, 76px tall). small = Figma `Size=Small`, the toolbar
-   * size, matching Button Small and Dropdown `small`: 12px × 20px padding, Medium text, 44px tall.
+   * Figma `Size` (Large / Medium / Small, renamed Nov 24, 2026 from Default / Small / Tiny):
+   * large = 24px × 40px padding, Heading 4 text, 76px tall ·
+   * medium = the toolbar size beside Button Medium and Dropdown `size="medium"`: 12px × 20px padding, Medium text, 44px ·
+   * small = beside the 32px controls (Button `small`, Dropdown `size="small"`, Toggle `small`): 8px × 12px padding, Tiny
+   * text, 8px outer corners, 32px. Medium and Small are horizontal only in Figma.
+   * Deprecated: `default` = large, `tiny` = small. (`small` used to mean 44px; that is now `medium`.)
    */
-  size?: 'default' | 'small';
+  size?: ButtonGroupSize | 'default' | 'tiny';
   /** Accessible name for the group. */
   'aria-label'?: string;
 };
@@ -20,13 +26,15 @@ export type ButtonGroupProps = HTMLAttributes<HTMLDivElement> & {
  * (Figma `Position` Left / Right or Top / Bottom); the ones in between are Center parts. Used as a switch
  * (Overview | Stock), give the chosen part `aria-pressed="true"`: it fills with Brand Teal and white text.
  */
-export function ButtonGroup({ children, orientation = 'horizontal', size = 'default', className, ...rest }: ButtonGroupProps) {
+export function ButtonGroup({ children, orientation = 'horizontal', size = 'large', className, ...rest }: ButtonGroupProps) {
+  // The deprecated names: default = large, tiny = small
+  const sized: ButtonGroupSize = size === 'default' ? 'large' : size === 'tiny' ? 'small' : size;
   return (
     <div
       role="group"
       className={[styles.group, className].filter(Boolean).join(' ')}
       data-orientation={orientation}
-      data-size={size}
+      data-size={sized}
       {...rest}
     >
       {children}

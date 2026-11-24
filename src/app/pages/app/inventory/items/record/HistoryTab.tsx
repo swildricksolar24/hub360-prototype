@@ -96,7 +96,7 @@ export function HistoryTab({ item }: { item: Item }) {
 
       <section className={record.card} aria-label="History">
         <div className={styles.toolbar} data-inset role="toolbar" aria-label="History">
-          <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
+          <Button size="medium" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
             Columns
           </Button>
           <SearchInput className={styles.search} aria-label="Search history" placeholder="Search" value={query} onChange={e => setQuery(e.target.value)} />

@@ -331,7 +331,12 @@ export type CatalogItem = {
   subCategory: string;
   description: string;
 };
-export type WarehouseItem = CatalogItem & { active: boolean };
+/**
+ * An item this warehouse carries. Min / Reorder Pt / Max are the optional stock levels set when it's added (Add Items ›
+ * "Settings for the selected items"); they can change later. preferredSupplier is the item's supplier for this warehouse
+ * (copied by Copy Items from Another Warehouse).
+ */
+export type WarehouseItem = CatalogItem & { active: boolean; min?: number; reorderPoint?: number; max?: number; preferredSupplier?: string };
 
 const I = (id: string, number: string, name: string, type: ItemType, category: string, subCategory: string, description: string): CatalogItem => ({
   id,

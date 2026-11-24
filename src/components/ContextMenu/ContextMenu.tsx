@@ -12,14 +12,20 @@ export type MenuItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'child
   ref?: Ref<HTMLButtonElement>;
   /** Figma `State=Disabled`. Uses `aria-disabled` so the item stays reachable with the arrow keys. */
   disabled?: boolean;
+  /**
+   * Figma `State=Selected` (Brand Teal Fill/Weaker): the chosen one of a set of options, e.g. the current section.
+   * Passing it (true or false) makes the item a `menuitemradio` with `aria-checked`; leave it out for a plain command.
+   */
+  selected?: boolean;
 };
 
 /** One row of a ContextMenu (Figma "Menu Item"). Render it inside a ContextMenu, which manages focus. */
-export function MenuItem({ children, icon, submenu = false, disabled = false, className, onClick, tabIndex = -1, ...rest }: MenuItemProps) {
+export function MenuItem({ children, icon, submenu = false, disabled = false, selected, className, onClick, tabIndex = -1, ...rest }: MenuItemProps) {
   return (
     <button
       type="button"
-      role="menuitem"
+      role={selected === undefined ? 'menuitem' : 'menuitemradio'}
+      aria-checked={selected}
       className={[styles.item, className].filter(Boolean).join(' ')}
       aria-disabled={disabled || undefined}
       aria-haspopup={submenu ? 'menu' : undefined}
@@ -41,6 +47,8 @@ export type ContextMenuItem = {
   icon?: string;
   submenu?: boolean;
   disabled?: boolean;
+  /** Figma `State=Selected`: marks the chosen option (see MenuItem `selected`). */
+  selected?: boolean;
   /** Called when the item is chosen with a click, Enter or Space. */
   onSelect?: () => void;
 };
@@ -113,6 +121,7 @@ export function ContextMenu({ items, onClose, autoFocus = false, className, ...a
           icon={item.icon}
           submenu={item.submenu}
           disabled={item.disabled}
+          selected={item.selected}
           tabIndex={i === active ? 0 : -1}
           onFocus={() => setActive(i)}
           onClick={() => {

@@ -63,8 +63,9 @@
   background: none;
   color: var(--color-gray-text-strong);
   font-family: inherit;
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
+  /* Figma: 16px Regular with no text style, 26px line height; Large (16/24) is the nearest token */
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
   font-weight: 400;
   outline: none;
 }

@@ -49,6 +49,10 @@
   gap: var(--space-12);
   min-width: 0;
 }
+/* The By Warehouse | By Item switch keeps its own width at the left, not the card's */
+.stockSwitch {
+  align-self: flex-start;
+}
 .tableStack {
   display: flex;
   flex-direction: column;
@@ -1411,4 +1415,251 @@ button.actionType:focus-visible {
 .mergeConfirm {
   color: var(--color-semantic-text-error);
   font-weight: 700;
+}
+
+/* ---------- Delete Items (Figma "Modal - Delete Items" 681:14500, "Delete Items (Improved)") ---------- */
+/* The groups and the replacement, 24px apart */
+.deleteBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+/* The group's label, 8px, then its rows (8px apart) */
+.deleteGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.deleteGroup p {
+  margin: 0;
+}
+/* A row: 12px padding, 12px corners, the 20px icon then the text 12px on. Never used: Surfaces/Sunken; in use: Semantic
+   Fill/Warning Weak */
+.deleteRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-strong);
+}
+.deleteRow[data-in-use] {
+  background: var(--color-semantic-fill-warning-weak);
+}
+/* The name over its reason line, 2px apart */
+.deleteRowText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+/* The replacement: its label (Medium/Regular, Gray Text/Weak) 4px over the search */
+.deleteReplacement {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.deleteReplacement > span {
+  padding-inline: var(--space-4);
+  color: var(--color-gray-text-weak);
+}
+
+/* ---------- Create Item: Assembly / Kit (Figma "Create Item (Improved)" 1160:15013, 1162:15604) ---------- */
+/* The rows, "How is this built?" and the components, 24px apart */
+.createBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+/* Row 1: Item Type · Item Name (wide) · System Item # · Custom #, at Figma's 186 / 646 / 186 / 186 proportions */
+.createRow1 {
+  display: grid;
+  grid-template-columns: 186fr 646fr 186fr 186fr;
+  gap: var(--space-16);
+  align-items: start;
+}
+/* Row 2: Category · Subcategory · Unit · Standard Build Time · Revision, five equal columns */
+.createRow2 {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-16);
+  align-items: start;
+}
+/* "How is this built?" 6px over its chips */
+.createMethods {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-4) + var(--space-2));
+}
+.createMethods > p {
+  margin: 0;
+}
+/* "Components" (Large/Bold), the search and the table, 10px apart */
+.createComponents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+.createHeading {
+  margin: 0;
+  color: var(--color-gray-text-strong);
+}
+/* The Name cell: a kit's assembly gets a 16px ▸ before its number */
+.createName {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.createToggle {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-gray-text-strong);
+  cursor: pointer;
+}
+/* An opened assembly's components, indented under its row */
+.createNested {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-8) var(--space-24) var(--space-12) calc(var(--space-40) + var(--space-8));
+  list-style: none;
+  background: var(--color-surfaces-sunken);
+  color: var(--color-gray-text-weak);
+}
+.createNested li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+/* ---------- Quick View (Figma "Assembly Quick View (Improved)" 1160:13987) ---------- */
+.quickBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  color: var(--color-gray-text-strong);
+}
+.quickBody p {
+  margin: 0;
+}
+/* "Assembly Components (n)" with the status pill at the right */
+.quickHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+/* One line per component, 16px apart: "# · name", then "× qty" (Medium/Bold) at the right */
+.quickList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.quickList li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+/* Create Item: the starting item's lock, in the trash button's place and size (32px: the 20px lock with 6px around) */
+.lockedRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--space-4) + var(--space-2));
+  color: var(--color-gray-text-weak);
+  cursor: default;
+}
+
+/* ---------- Item record › Stock (record/StockTab.tsx; Figma 1162:37738 Current, 1167:61541 Ordering) ---------- */
+/* The summary line over each table: 16px weak text, the numbers bold */
+.stockSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-12);
+  margin: 0;
+  color: var(--color-gray-text-weak);
+}
+.stockSummary strong {
+  font-weight: 700;
+  color: var(--color-gray-text-strong);
+}
+/* A warehouse row: its name opens and closes its locations; it has no checkbox (Figma) */
+.stockGroupRow > [role='row'] > [role='cell']:first-child > * {
+  display: none;
+}
+/* Figma: warehouse rows are shorter and plain; their locations sit on a light gray tint */
+.stockGroupRow.stockGroupRow > [role='row'] {
+  padding-block: var(--space-8);
+}
+.stockLocationRow:not(:hover, :has([aria-selected='true'])) {
+  background: color-mix(in srgb, var(--color-gray-fill-strong) 4%, var(--row-bg));
+}
+.stockGroupName,
+.stockLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.stockLocation {
+  color: var(--color-gray-text-strong);
+}
+.stockLocation > svg {
+  flex: none;
+  color: var(--color-gray-text-weak);
+}
+/* Ordering: the Average Demand tiles over the card, the chosen one in the teal tint with a teal outline */
+.demandTiles {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+.demandTile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-16);
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  color: var(--color-gray-text-strong);
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+.demandTile > span:first-child {
+  color: var(--color-gray-text-weak);
+}
+.demandTile > span:first-child strong {
+  color: var(--color-gray-text-strong);
+}
+.demandTile:hover {
+  box-shadow: inset 0 0 0 var(--stroke-width-1) var(--color-brand-teal-stroke-weak);
+}
+.demandTile[aria-pressed='true'] {
+  /* The teal tint over the card color (the token is see-through) */
+  background: linear-gradient(var(--color-brand-teal-fill-weaker), var(--color-brand-teal-fill-weaker)) var(--color-surfaces-overlay);
+  box-shadow: inset 0 0 0 var(--stroke-width-2) var(--color-brand-teal-stroke-strong);
+}
+.demandTile:focus-visible {
+  outline: var(--stroke-width-2) solid var(--color-gray-stroke-weak);
+  outline-offset: var(--stroke-width-2);
+}
+.addLocationBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
 }

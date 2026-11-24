@@ -9,7 +9,7 @@ const meta = {
   args: { children: 'Label', variant: 'base', size: 'large', selected: false },
   argTypes: {
     variant: { control: 'inline-radio', options: ['base', 'outline'] },
-    size: { control: 'inline-radio', options: ['large', 'small', 'tiny'] },
+    size: { control: 'inline-radio', options: ['large', 'medium', 'small'] },
   },
 } satisfies Meta<typeof Tag>;
 
@@ -37,20 +37,20 @@ const figmaSet = (nodeId: string, figmaName: string, props: Omit<TagProps, 'chil
 export const Playground: Story = {};
 
 export const BaseLarge: Story = { ...figmaSet('318:4725', 'Tag › Base / Large', { variant: 'base', size: 'large' }), name: 'Base / Large' };
-export const BaseSmall: Story = { ...figmaSet('339:4909', 'Tag › Base / Small', { variant: 'base', size: 'small' }), name: 'Base / Small' };
-export const BaseTiny: Story = { ...figmaSet('2610:6045', 'Tag › Base / Tiny', { variant: 'base', size: 'tiny' }), name: 'Base / Tiny' };
+export const BaseMedium: Story = { ...figmaSet('339:4909', 'Tag › Base / Medium', { variant: 'base', size: 'medium' }), name: 'Base / Medium' };
+export const BaseSmall: Story = { ...figmaSet('2610:6045', 'Tag › Base / Small', { variant: 'base', size: 'small' }), name: 'Base / Small' };
 export const OutlineLarge: Story = { ...figmaSet('339:4922', 'Tag › Outline / Large', { variant: 'outline', size: 'large' }), name: 'Outline / Large' };
-export const OutlineSmall: Story = { ...figmaSet('3404:2475', 'Tag › Outline / Small', { variant: 'outline', size: 'small' }), name: 'Outline / Small' };
-export const OutlineTiny: Story = { ...figmaSet('3404:2482', 'Tag › Outline / Tiny', { variant: 'outline', size: 'tiny' }), name: 'Outline / Tiny' };
+export const OutlineMedium: Story = { ...figmaSet('3404:2475', 'Tag › Outline / Medium', { variant: 'outline', size: 'medium' }), name: 'Outline / Medium' };
+export const OutlineSmall: Story = { ...figmaSet('3404:2482', 'Tag › Outline / Small', { variant: 'outline', size: 'small' }), name: 'Outline / Small' };
 
 /** With `onClick` a tag becomes a toggle button (e.g. a filter): it gets a pointer and a focus ring. */
 export const AsFilter: Story = {
   name: 'Clickable (filter)',
   render: () => (
     <div style={{ display: 'flex', gap: 'var(--space-8)' }}>
-      <Tag size="small" selected onClick={() => {}}>All</Tag>
-      <Tag size="small" onClick={() => {}}>Warehouse</Tag>
-      <Tag size="small" onClick={() => {}}>Address</Tag>
+      <Tag size="medium" selected onClick={() => {}}>All</Tag>
+      <Tag size="medium" onClick={() => {}}>Warehouse</Tag>
+      <Tag size="medium" onClick={() => {}}>Address</Tag>
     </div>
   ),
 };

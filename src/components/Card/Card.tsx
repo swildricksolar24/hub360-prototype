@@ -35,16 +35,16 @@ export function Card({ title, mode = 'edit', media, onEdit, onSave, onCancel, he
           <Heading className={styles.title}>{title}</Heading>
         </div>
         {mode === 'edit' && (
-          <Button size="small" variant="brand" onClick={onEdit}>
+          <Button size="medium" variant="brand" onClick={onEdit}>
             Edit
           </Button>
         )}
         {mode === 'save' && (
           <div className={styles.actions}>
-            <Button size="small" variant="outline" onClick={onCancel}>
+            <Button size="medium" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button size="small" variant="brand" onClick={onSave}>
+            <Button size="medium" variant="brand" onClick={onSave}>
               Save
             </Button>
           </div>
@@ -54,7 +54,7 @@ export function Card({ title, mode = 'edit', media, onEdit, onSave, onCancel, he
             label="Saving"
             icon="progress-activity"
             variant="brand"
-            size="compact"
+            size="medium"
             className={styles.busy}
             aria-busy
             aria-disabled

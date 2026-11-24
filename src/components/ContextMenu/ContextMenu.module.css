@@ -56,6 +56,13 @@
   color: var(--color-gray-fill-strong);
 }
 
+/*
+ * Figma Menu Item State=Selected: Brand Teal Fill/Weaker (label and icons as Default). Drawn from `aria-checked` (the
+ * `selected` prop makes the item a menuitemradio). Listed before hover and press so those still show on it.
+ */
+.item[aria-checked='true'] {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
 .item:is(:hover, :focus-visible) {
   --bg: var(--color-gray-fill-hover);
 }

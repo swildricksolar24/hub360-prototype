@@ -77,9 +77,9 @@ Status is a Badge pill: black **Inactive (catalog)** for an inactive item, amber
 (a link to the warehouse's Locations tab) is off by default and can be added under Columns. No Totals row on the list;
 an item's own Stock tab keeps Warehouse … Status plus Location, and a Totals row.
 
-**By Warehouse | By Item:** at the top of the Stock table card, above the table, two tabs (Volt `JumpLinks as="tabs"`;
-Figma draws them with Jump Link instances, a 56px row: the 44px tabs and 12px under them). The table under them is their
-`role="tabpanel"`. **By Warehouse** (the default) is the table above. **By Item** has one row per item, with On Hand,
+**By Warehouse | By Item:** at the top left of the Stock table card, with 12px above the table, is a switch: a Volt
+`ButtonGroup size="small"` (32px), like the toolbar's Overview | Stock, where the picked view is pressed. Figma
+681:14475 still draws Jump Links here. **By Warehouse** (the default) is the table above. **By Item** has one row per item, with On Hand,
 Allocated, Committed, Frozen and Available added up across its warehouses. Warehouse shows the code when there's one,
 otherwise "N warehouses", and "—" for none (KT-0042). Location works the same way, with a link only when there's one
 location. Status is the most urgent across its warehouse rows, so it's **Below reorder pt** if any of them is. The
@@ -133,13 +133,31 @@ no header icon.
   - The merged items' numbers become the kept item's `aliases`, so the Items search finds it by them.
   - A toast says "… merged into …".
 
-**Deleting Items - Confirmation Required** (Figma 681:14500)
-- Body, Large/Regular: "You are about to delete the selected Item(s). Deleting these Items will remove them from
-  any Kits, Assemblies, or Orders where they are currently used. If an active replacement Item is available, it will
-  be substituted automatically where applicable."
-- Then a red warning: "Warning: This action cannot be undone. Please confirm that you want to
-  proceed with the deletion." (Figma has it in plain text without "Warning:"; changed to match the Merge modal.)
-- Buttons: Cancel and a red Delete Items.
+**Delete Items** (Figma "Modal - Delete Items" 681:14500, "Delete Items (Improved)"). From Actions › Delete, in Overview
+or Stock, and from a record's Delete. Only items that were **never used** are deleted. Any item with history is
+**deactivated** instead, so its order and stock history is kept.
+- An item is never used when it has no history, no stock records, no build that includes it and no open order (its
+  History's open orders, plus open orders in the Orders store). In the sample data only items made with Add New qualify.
+- It uses the standard `AppModal` at 900px, with no header icon (Figma draws a red trash icon; left out like Merge's).
+- **Title:** "Delete {name}?" for one item, "Delete {n} items?" for several.
+- **Description:** "Items with any history (past orders, stock or cost history) are always deactivated instead of deleted,
+  for every role."
+- **Body**, 24px apart; a group with no items is left out:
+  - **"CAN BE DELETED · NEVER USED (n)"** (Tiny/Semi-Bold, Gray Text/Weak), then one row per item: Surfaces/Sunken,
+    12px padding and corners, a 20px delete icon, "{id} · {name}".
+  - **"IN USE · WILL BE DEACTIVATED (n)"**, then one row per item on Semantic Fill/Warning Weak, with a caution icon and
+    "{id} · {name}" over a Tiny/Regular reason: "Used in 14 past orders · 893 on hand · on 1 open order · used in 2
+    kits". The parts with nothing to say are left out. The sample data has no stock in transit, so Figma's "20 in
+    transit" isn't shown.
+  - **"Replacement item for open orders (optional)"**: an item search, shown only when an item being deactivated is on
+    an open order or in a build. It offers active items of the same type. The picked one shows with a Change button.
+- **Footer:** Cancel and one red button that says what happens: "Deactivate 2 & Delete 1", "Delete 1 item" or
+  "Deactivate 2 items".
+- **On confirm** (`deleteOrDeactivate` in itemStore):
+  - The never-used items are deleted.
+  - The rest are deactivated. With a replacement, they're swapped for it in the builds that include them and in open
+    orders' Adjustment lines.
+  - The toast says both, e.g. "Test Panel deleted. 2 items deactivated, because they have history."
 
 ## 2. Details (Part 1144:7736; Assembly 411:62773; Kit 411:65254)
 
@@ -286,8 +304,11 @@ compact `IconButton`, selected when pinned, its bookmark icon Brand Teal when pi
   - Buttons: Cancel and Deactivate Part.
 - **Merging Parts:** not in the prototype. Merging happens from the Items list (two or more checked), so a record has
   no Merge.
-- **Deleting Part - Confirmation Required:** the same wording as Deleting Items. Buttons: Cancel and a red Delete
-  Part.
+- **Delete:** the same Delete Items modal (§1), for this one item.
+  - Never used: the button says "Delete 1 item", the item is deleted, and the Items list comes back with "… was
+    deleted."
+  - With history: the button says "Deactivate 1 item", and the record stays, now inactive, with a toast saying it was
+    deactivated instead.
 
 **Header Actions ▾:** Deactivate, Delete.
 
@@ -318,27 +339,50 @@ compact `IconButton`, selected when pinned, its bookmark icon Brand Teal when pi
   - Upload Image from URL.
 - The prototype can't store real files: uploads add rows with sample previews.
 
-## 4. Where Used (Figma 1152:53629)
+## 4. Where Used (Figma 1152:53629, "Where Used - OK" page)
 
-**Toolbar:** on a Part, Figma's switch All (n) · Assemblies (n) · Kits (n) as small Tags; a search ("Search assemblies
-and kits that use this part"); brand "Create New Assembly or Kit ▾" (New Assembly / New Kit). An assembly's Where Used
-lists the kits that use it, with "Create New Kit".
+**Header:** the record header's Edit is disabled on this tab (Figma draws it that way): nothing here is edited from the
+header.
+
+**Toolbar:** on a Part, Figma's switch All (n) · Assemblies (n) · Kits (n) as medium Tags; a search ("Search assemblies
+and kits that use this part"); one brand "Create New Assembly or Kit" button, which opens Create Item. An assembly's
+Where Used lists the kits that use it, with "Create New Kit".
 
 **Table:** Used In (the number in bold over the name) · Type (blue pill) · Category · Sub Category · Status (green
 Active / black Inactive pill) · •••. Type, Category, Sub Category and Status filter on lists over 10 rows. ••• has View,
-Go To, Activate / Deactivate and Remove from its build.
+Go To, Activate / Deactivate and Remove from its build. The number opens Quick View.
 
-**Add Assembly / Add Kit** (the full version)
-- Custom #, Category, Subcategory, Name and Description.
-- An "Assembly Build" (or "Kit Build") section: a search ("Search to Add Items in Assembly"), then a table of
-  Item # · Item Type · Item Name · Quantity, with a trash button per row.
-- The create button stays disabled until the build has items.
+**Create Item** (Figma "Create Item (Improved)": Assembly 1160:15013, Kit 1162:15604). `CreateBuildItemModal` in
+record/UsedInTab.tsx, on the standard `AppModal` at 1300px.
+- **Row 1:** Item Type (Assembly / Kit; only Kit from an assembly's Where Used), Item Name *, the System Item # it will
+  get (bold text, not a field; its prefix follows the type), and Custom # (Optional).
+- **Row 2:** Category (required), Subcategory, Unit * (Each by default), Standard Build Time (free text, e.g. "3.5 hours")
+  and Revision ("Rev A (auto)", read-only).
+- **"How is this built?":** Volt Tags "Build from stock" (on by default) and "Pre-Built From Supplier". Both can be on.
+- **Components:**
+  - "Components" (Large/Bold), a search, then a Volt DataTable: Name (TwoLineCell: number over name) · Type (black Part
+    / blue Assembly pill) · Qty (EditableCell) · Unit · a trash button.
+  - It starts with the record's own item at quantity 1. That row can't be removed: a lock ("This is the item you started
+    from") takes the trash button's place. Its quantity can still change.
+  - Figma's rule: **an assembly holds parts only**, so its search finds parts. Switching the type to Assembly takes any
+    assemblies off the list.
+  - A kit takes parts and assemblies, and an assembly row has a ▸ that opens what it's built from ("# · name", "× qty").
+- **Footer:** Cancel and brand "Create Item", which stays disabled until there are at least 2 components. Until then a
+  note under the table says "Add at least 2 components to create this assembly (n added)." It also needs a name, a
+  category and quantities of 1 or more.
+- **Saved on the new item:** `unitType`, `buildTime`, `revision: 'Rev A'` and `buildMethods`. The toast says e.g.
+  "Kit 8.2 kW Roof Array created with 3 components."
+- **Not built yet:** Figma's notes also mention unit / line cost, on hand, cost per assembly, "can build now", "Create &
+  Build", "Add to Existing", and a new revision (Rev B) when components change later. None are drawn in the frames.
 
-**View Assembly / View Kit**
-- Read-only: System #, Custom #, Category and Subcategory.
-- A search of the items in it, then a table of Item Type · Item # · Item Name · Quantity.
-- Kits add Unit Cost and Net Cost columns, and a Net Cost total.
-- Buttons: Cancel and Go To Assembly Main Page (or Go To Kit Main Page).
+**Quick View** (Figma "Assembly Quick View (Improved)" 1160:13987). `QuickViewModal` on the standard `AppModal` at
+640px.
+- **Title:** "{#} · {name}". Under it, the record's label line (`NavTier3Labels`): ASSEMBLY # / KIT # (the custom #, or
+  the system #), CATEGORY, SUBCATEGORY.
+- **Body:** "Assembly Components (n)" (or Kit) with the Active / Inactive pill, then one line per component ("# · name",
+  and "× qty" in bold at the right), 16px apart.
+- **Footer:** only brand "Go to Item", which opens the record. Figma's grey button beside it is an empty placeholder, so
+  it's left out.
 
 ## 5. Build tab (Assembly 641:69761, Kit 641:70542)
 
@@ -348,9 +392,56 @@ Go To, Activate / Deactivate and Remove from its build.
 - Show cost columns for both types; Figma's Kit Build drops them, but its View Kit shows them.
 - Net Cost = Quantity × Unit Cost. The total sums the rows.
 
-## 6. Stock (411:44083)
+## 6. Stock (Figma 240:21744: Current 1162:37738, Ordering 1167:61541)
 
-The same as the list's Stock table, for this item only, with a Totals row and a pager.
+Code: `items/record/StockTab.tsx`, with the sample numbers in `items/stockPlanning.ts`. The header's Edit is off on this tab, as on Where Used: the levels save as you type.
+
+**Toolbar (both views):**
+- A Current | Ordering switch (tableKit `Segmented`, Volt ButtonGroup medium), then a divider.
+- View ▾ · Columns · Upload · Actions ▾ · Search ("Search by name or code (e.g. A-01-02)").
+- A brand button: **Add to Location** in Current, **Order** in Ordering.
+- Upload shows a notice: uploading stock isn't in the prototype yet.
+- Each table has a pager; it pages by warehouse.
+
+**Current:**
+- A summary line over the table: On Hand · Allocated · Committed · Frozen · Available · Open POs. It's 16px weak text with the numbers bold.
+- Table (Volt DataTable): Warehouse / Location · Lot · On Hand · Allocated · Committed · Frozen · Available · Open POs.
+- Each warehouse is a bold row, "Phoenix WH (PHX-124)", with a ▾ / ▸ that opens or closes its locations, and its locations added up.
+  - Open POs is per warehouse, so a location leaves it blank.
+  - The first warehouse starts open, the rest closed. A search or column filter opens every warehouse with a match.
+  - A warehouse row has no checkbox. Select-all checks every location on the page, those in closed warehouses too.
+- A location row has a checkbox, a pin icon and the location code, then its lot and amounts.
+  - Lot shows only for a lot-controlled item ("—" otherwise).
+  - Its ••• has View Warehouse Stock.
+- View: All · Available · None available · Frozen.
+- Actions:
+  - Remove from Location: on only when every checked location has nothing on hand.
+  - Export to CSV.
+- Add to Location opens a modal: pick a warehouse, then one of its active locations. A location already holding the item is greyed out ("already stocked here"). The item is added there with 0 on hand.
+
+**Ordering:**
+- Seven Average Demand tiles over the card: 7, 14, 30, 45, 60, 90 and 180 Day. Each tile shows the units used over that many days.
+  - The chosen tile has the Brand Teal Fill/Weaker tint and a teal outline. Figma's raw #e9f7fa / #00637c are replaced by tokens.
+- Summary line: Available · Open PO Qty · In Transit · Not Shipped · Projected Requirement.
+- Table: Warehouse · Min · Reorder Pt · Max · Available · In Transit · Projected Requirement · Status.
+  - Min, Reorder Pt and Max are EditableCells, saved to `item.warehouseLevels` as you type. A value out of order (Min ≤ Reorder Pt ≤ Max) turns red.
+  - Projected Requirement is each warehouse's share of the chosen tile, by its share of the on-hand stock (Figma's note: "based on whichever Average Demand option they select above").
+  - Status is a Badge pill: green "In stock", or amber "Below reorder pt" when Available is under the Reorder Pt (or 0).
+- View: All · In stock · Below reorder pt.
+- Actions:
+  - Reset Levels: back to the sample levels.
+  - Export to CSV.
+- Order shows a notice: purchase orders aren't in the prototype yet.
+
+**Sample data:**
+- Purchasing isn't built, so lots, open PO quantities, in-transit and not-shipped units, demand and the starting levels all come from the item id. They're the same on every load.
+- About a third of the warehouses start below their reorder point.
+- The sample stock spreads each warehouse over 1–3 locations.
+
+**Figma mistakes ignored:**
+- The Details jump-link row in the Stock header.
+- Tucson / Flagstaff numbers shifted one column.
+- Ordering rows 2–3 missing their Max and Available cells.
 
 ## 7. History (283:76194)
 

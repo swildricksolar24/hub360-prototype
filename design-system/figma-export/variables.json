@@ -1,6 +1,6 @@
 {
   "source": "https://www.figma.com/design/ieTXU4rFsUAmlEsF93zF5T/__Design-System---Base",
-  "exported": "2026-10-29 (after token fixes and the dark-mode error red fix); Shadow/Drop, Shadow/Large and their Black - 25 / Black - 18 primitives added 2026-11-03; Semantic Red dark values set to the light red #c73a3a 2026-11-03; Surfaces/Overlay dark set to Foundation/Solid/900 2026-11-03; Colors re-exported 2026-11-09: Semantic Fill/Error Strong renamed Error Strongest, the old Error Weak renamed Error Weakest, new Error Stronger / Weak / Weaker and Semantic Red/600 and /400 primitives, Solid primitive scopes; Logo Color Static added 2026-11-12 (Brand Teal 1000 in Light, #00637c in Dark)",
+  "exported": "2026-10-29 (after token fixes and the dark-mode error red fix); Shadow/Drop, Shadow/Large and their Black - 25 / Black - 18 primitives added 2026-11-03; Semantic Red dark values set to the light red #c73a3a 2026-11-03; Surfaces/Overlay dark set to Foundation/Solid/900 2026-11-03; Colors re-exported 2026-11-09: Semantic Fill/Error Strong renamed Error Strongest, the old Error Weak renamed Error Weakest, new Error Stronger / Weak / Weaker and Semantic Red/600 and /400 primitives, Solid primitive scopes; Logo Color Static added 2026-11-12 (Brand Teal 1000 in Light, #00637c in Dark); Foundation/Transparent/50 (5%) and Gray Stroke/Weakest added 2026-11-24 for the drop-down menu dividers",
   "format": "Each variable row is [name, type, scopes, ...valuePerMode], in Figma's collection order. \"{Path/To/Var}\" is an alias. Colors are #rrggbb or #rrggbbaa. An effect style's color may be a \"{Colors variable}\" alias.",
   "collections": [
     {
@@ -195,7 +195,9 @@
         ["Foundation/Transparent/Black - 25", "COLOR", [], "#00000040", "#00000040"],
         ["Foundation/Transparent/Black - 18", "COLOR", [], "#0000002e", "#0000002e"],
         ["Shadow/Drop", "COLOR", ["EFFECT_COLOR"], "{Foundation/Transparent/Black - 25}", "{Foundation/Transparent/Black - 25}"],
-        ["Shadow/Large", "COLOR", ["EFFECT_COLOR"], "{Foundation/Transparent/Black - 18}", "{Foundation/Transparent/Black - 18}"]
+        ["Shadow/Large", "COLOR", ["EFFECT_COLOR"], "{Foundation/Transparent/Black - 18}", "{Foundation/Transparent/Black - 18}"],
+        ["Foundation/Transparent/50", "COLOR", [], "#191b260d", "#ffffff0d"],
+        ["Gray Stroke/Weakest", "COLOR", ["STROKE_COLOR"], "{Foundation/Transparent/50}", "{Foundation/Transparent/50}"]
       ]
     },
     {

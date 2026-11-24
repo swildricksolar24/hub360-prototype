@@ -19,7 +19,7 @@ export function OrderStatusPill({ status }: { status: OrderStatus }) {
 /** The record header's status tag (Figma Tag "Tiny / Icon Left", the coded Chip). It shows status; it isn't a control. */
 export function OrderTag({ status }: { status: OrderStatus }) {
   return (
-    <Chip variant="tiny" icon={TAG_ICON[status]} tabIndex={-1} aria-label={`Status: ${status}`}>
+    <Chip size="small" icon={TAG_ICON[status]} tabIndex={-1} aria-label={`Status: ${status}`}>
       {status}
     </Chip>
   );

@@ -428,7 +428,7 @@ export function AddPrinterModal({
                     <legend>Label sizes loaded</legend>
                     <div className={styles.chips}>
                       {LABEL_SIZE_CHOICES.map(s => (
-                        <Tag key={s} size="small" selected={form.sizes.includes(s)} onClick={() => setForm(f => ({ ...f, sizes: toggle(f.sizes, s) }))}>
+                        <Tag key={s} size="medium" selected={form.sizes.includes(s)} onClick={() => setForm(f => ({ ...f, sizes: toggle(f.sizes, s) }))}>
                           {s}
                         </Tag>
                       ))}
@@ -444,7 +444,7 @@ export function AddPrinterModal({
                   <legend>Use as default for (optional)</legend>
                   <div className={styles.chips}>
                     {DEFAULT_FOR.map(d => (
-                      <Tag key={d} size="small" selected={defaultFor.includes(d)} onClick={() => setDefaultFor(list => toggle(list, d))}>
+                      <Tag key={d} size="medium" selected={defaultFor.includes(d)} onClick={() => setDefaultFor(list => toggle(list, d))}>
                         {d}
                       </Tag>
                     ))}
@@ -463,10 +463,10 @@ export function AddPrinterModal({
                   </p>
                 </div>
                 <div className={styles.buttonRow}>
-                  <Button size="small" variant="outline" onClick={() => setTested('printed')}>
+                  <Button size="medium" variant="outline" onClick={() => setTested('printed')}>
                     Adjust &amp; Reprint
                   </Button>
-                  <Button size="small" variant="brand" onClick={() => setTested('ok')}>
+                  <Button size="medium" variant="brand" onClick={() => setTested('ok')}>
                     Looks Right
                   </Button>
                 </div>
@@ -517,10 +517,10 @@ function LabelPreview({ warehouse, size, onTest }: { warehouse: Warehouse; size:
         <p className={styles.center}>ORD-10480-C01</p>
       </div>
       <div className={styles.previewActions}>
-        <Button size="small" variant="primary" icon="visibility" selected={full} onClick={() => setFull(f => !f)}>
+        <Button size="medium" variant="primary" icon="visibility" selected={full} onClick={() => setFull(f => !f)}>
           {full ? 'Preview Size' : 'Full-Size Preview'}
         </Button>
-        <Button size="small" variant="primary" icon="document" onClick={onTest}>
+        <Button size="medium" variant="primary" icon="document" onClick={onTest}>
           Print Test Label
         </Button>
       </div>

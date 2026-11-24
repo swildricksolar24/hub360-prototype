@@ -222,7 +222,7 @@ export function CarrierFormModal({
             {SERVICE_TYPES.map(t => (
               <Tag
                 key={t}
-                size="small"
+                size="medium"
                 selected={form.services.includes(t)}
                 onClick={() => set('services')(form.services.includes(t) ? form.services.filter(x => x !== t) : [...form.services, t])}
               >

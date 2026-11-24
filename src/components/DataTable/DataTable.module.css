@@ -112,9 +112,12 @@
   box-shadow: inset 0 calc(-1 * var(--stroke-width-1)) 0 var(--color-gray-stroke-disabled);
 }
 
-/* Inactive rows: the values switch to the weak text color */
-.rowWrap[data-inactive] .row [role='cell'] {
-  color: var(--color-gray-text-weak);
+/*
+ * Figma Data Table Row State=Inactive: the checkbox and the cells at 40%; the text stays Gray Text/Strong and the •••
+ * keeps full strength. Opacity has no token; it is the state's own value, as Tile's 50% Disabled is.
+ */
+.rowWrap[data-inactive] .row > [role='cell']:not(:has(> button[aria-label^='More actions'])) {
+  opacity: 0.4; /* Figma "Inactive": the checkbox and cells at 40% */
 }
 
 /* The ••• button appears on hover, on keyboard focus, on a checked row and while the row's menu is open */

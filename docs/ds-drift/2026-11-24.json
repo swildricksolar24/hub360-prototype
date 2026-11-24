@@ -1,0 +1,1816 @@
+{
+  "schema": "ds-drift/1",
+  "generatedAt": "2026-11-24T22:29:03.220Z",
+  "date": "2026-11-24",
+  "project": {
+    "name": "hub360-prototype",
+    "root": "."
+  },
+  "system": {
+    "componentsPkg": "src/components",
+    "catalog": "typescript",
+    "tokenSources": [
+      "design-system/tokens/tokens.css"
+    ],
+    "resolved": {}
+  },
+  "scope": {
+    "mode": "full",
+    "filesScanned": 99,
+    "styleFilesScanned": 27
+  },
+  "summary": {
+    "score": 93,
+    "gate": "review",
+    "dimensions": {
+      "imports": {
+        "score": 100,
+        "gate": "pass",
+        "findings": 0,
+        "filesChecked": 91
+      },
+      "apiFidelity": {
+        "score": null,
+        "gate": null,
+        "findings": 0,
+        "filesChecked": 0,
+        "note": "no component catalog"
+      },
+      "tokenDiscipline": {
+        "score": 90,
+        "gate": "review",
+        "findings": 102,
+        "filesChecked": 77
+      },
+      "a11yStatic": {
+        "score": 91,
+        "gate": "review",
+        "findings": 45,
+        "filesChecked": 76
+      }
+    },
+    "adoption": {
+      "uiFiles": 76,
+      "usingSystem": 0,
+      "percent": 0,
+      "notUsing": [
+        "src/app/pages/app/inventory/items/record/StockTab.tsx",
+        "src/app/App.tsx",
+        "src/app/auth/AuthContext.tsx",
+        "src/app/auth/RequireAuth.tsx",
+        "src/app/components/AppLink.tsx",
+        "src/app/components/AppModal.tsx",
+        "src/app/components/RecordPage.tsx",
+        "src/app/components/ThemeToggle.tsx",
+        "src/app/main.tsx",
+        "src/app/pages/app/HelpPage.tsx",
+        "src/app/pages/app/SectionPage.tsx",
+        "src/app/pages/app/account/AccountSections.tsx",
+        "src/app/pages/app/account/AccountSettingsPage.tsx",
+        "src/app/pages/app/account/EditPhotoModal.tsx",
+        "src/app/pages/app/account/SettingsLayout.tsx",
+        "src/app/pages/app/dashboard/DashboardPage.tsx",
+        "src/app/pages/app/help/HelpSections.tsx",
+        "src/app/pages/app/inventory/AddWarehouseModal.tsx",
+        "src/app/pages/app/inventory/AddressFields.tsx",
+        "src/app/pages/app/inventory/ColumnFilter.tsx",
+        "src/app/pages/app/inventory/EditColumnsModal.tsx",
+        "src/app/pages/app/inventory/FindAddress.tsx",
+        "src/app/pages/app/inventory/InventoryDashboardPage.tsx",
+        "src/app/pages/app/inventory/LocationDetailsPage.tsx",
+        "src/app/pages/app/inventory/UploadFlow.tsx",
+        "src/app/pages/app/inventory/WarehouseRecordPage.tsx",
+        "src/app/pages/app/inventory/WarehouseStatusModal.tsx",
+        "src/app/pages/app/inventory/WarehousesPage.tsx",
+        "src/app/pages/app/inventory/items/ItemModals.tsx",
+        "src/app/pages/app/inventory/items/ItemRecordPage.tsx",
+        "src/app/pages/app/inventory/items/ItemsPage.tsx",
+        "src/app/pages/app/inventory/items/StockTable.tsx",
+        "src/app/pages/app/inventory/items/record/BuildTab.tsx",
+        "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+        "src/app/pages/app/inventory/items/record/DetailsTab.tsx",
+        "src/app/pages/app/inventory/items/record/FileModals.tsx",
+        "src/app/pages/app/inventory/items/record/FilesTab.tsx",
+        "src/app/pages/app/inventory/items/record/HistoryTab.tsx",
+        "src/app/pages/app/inventory/items/record/UsedInTab.tsx",
+        "src/app/pages/app/inventory/items/shared.tsx",
+        "src/app/pages/app/inventory/orders/AddItemsModal.tsx",
+        "src/app/pages/app/inventory/orders/AdjustmentTable.tsx",
+        "src/app/pages/app/inventory/orders/MoveItemsTable.tsx",
+        "src/app/pages/app/inventory/orders/NewOrderModal.tsx",
+        "src/app/pages/app/inventory/orders/OrderRecordPage.tsx",
+        "src/app/pages/app/inventory/orders/OrderStatus.tsx",
+        "src/app/pages/app/inventory/orders/OrdersPage.tsx",
+        "src/app/pages/app/inventory/record/CarrierModals.tsx",
+        "src/app/pages/app/inventory/record/ContactModals.tsx",
+        "src/app/pages/app/inventory/record/ContactsTab.tsx"
+      ]
+    },
+    "counts": {
+      "total": 147,
+      "fail": 0,
+      "review": 147,
+      "info": 0
+    }
+  },
+  "coverage": {
+    "include": [
+      "src/app/**"
+    ],
+    "componentsSrc": [
+      "src/components"
+    ],
+    "folders": [
+      {
+        "folder": "src/app",
+        "uiFiles": 76,
+        "usingSystem": 0
+      }
+    ],
+    "notCounted": [
+      {
+        "folder": "src/components",
+        "files": 75,
+        "reason": "design-system-source"
+      },
+      {
+        "folder": ".storybook",
+        "files": 1,
+        "reason": "outside-include"
+      },
+      {
+        "folder": "playground",
+        "files": 1,
+        "reason": "outside-include"
+      }
+    ]
+  },
+  "notes": [
+    "Could not resolve \"src/components\". Install dependencies, or set \"componentsEntry\" / \"tsconfig\" in the config. Names imported from it are accepted without checking.",
+    "API fidelity was not measured: no component catalog available.",
+    "2 UI files in .storybook, playground are outside \"include\", so adoption does not count them. If they belong to this project, add their folders to \"include\" in the config."
+  ],
+  "topFiles": [
+    {
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "findings": 31
+    },
+    {
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "findings": 11
+    },
+    {
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "findings": 11
+    },
+    {
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "findings": 8
+    },
+    {
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "findings": 7
+    },
+    {
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "findings": 6
+    },
+    {
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "findings": 5
+    },
+    {
+      "file": "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+      "findings": 4
+    },
+    {
+      "file": "src/app/pages/app/inventory/record/ItemModals.tsx",
+      "findings": 4
+    },
+    {
+      "file": "src/app/pages/app/inventory/table.module.css",
+      "findings": 4
+    }
+  ],
+  "findings": [
+    {
+      "id": "raw-dimension:src/app/components/RecordPage.module.css:top=var(--sticky-top, 0px)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/components/RecordPage.module.css",
+      "line": 42,
+      "symbol": "top=var(--sticky-top, 0px)",
+      "message": "Declaration top: 'var(--sticky-top, 0px)' in src/app/components/RecordPage.module.css:42 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'top'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/account/AccountSettings.module.css:max-width=800px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/account/AccountSettings.module.css",
+      "line": 13,
+      "symbol": "max-width=800px",
+      "message": "Declaration max-width: '800px' in src/app/pages/app/account/AccountSettings.module.css:13 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/account/AccountSettings.module.css:max-width=800px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/account/AccountSettings.module.css",
+      "line": 29,
+      "symbol": "max-width=800px",
+      "message": "Declaration max-width: '800px' in src/app/pages/app/account/AccountSettings.module.css:29 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/account/AccountSettings.module.css:--ring-w=0px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/account/AccountSettings.module.css",
+      "line": 160,
+      "symbol": "--ring-w=0px",
+      "message": "Declaration --ring-w: '0px' in src/app/pages/app/account/AccountSettings.module.css:160 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--ring-w'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/dashboard/DashboardPage.module.css:max-width=1040px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/dashboard/DashboardPage.module.css",
+      "line": 7,
+      "symbol": "max-width=1040px",
+      "message": "Declaration max-width: '1040px' in src/app/pages/app/dashboard/DashboardPage.module.css:7 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/help/HelpSections.module.css:grid-template-columns=repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/help/HelpSections.module.css",
+      "line": 15,
+      "symbol": "grid-template-columns=repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))' in src/app/pages/app/help/HelpSections.module.css:15 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/help/HelpSections.module.css:grid-template-columns=repeat(auto-fill, minmax(min(100%, 240px), 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/help/HelpSections.module.css",
+      "line": 62,
+      "symbol": "grid-template-columns=repeat(auto-fill, minmax(min(100%, 240px), 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))' in src/app/pages/app/help/HelpSections.module.css:62 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/help/HelpSections.module.css:grid-template-columns=repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/help/HelpSections.module.css",
+      "line": 76,
+      "symbol": "grid-template-columns=repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))' in src/app/pages/app/help/HelpSections.module.css:76 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/addressFields.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/addressFields.module.css",
+      "line": 43,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/addressFields.module.css:43 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/addressFields.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/addressFields.module.css",
+      "line": 44,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/addressFields.module.css:44 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/AddressFields.tsx:select",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/AddressFields.tsx",
+      "line": 114,
+      "symbol": "select",
+      "message": "<select> form control has no accessible name in src/app/pages/app/inventory/AddressFields.tsx:114",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/AddWarehouseModal.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/AddWarehouseModal.tsx",
+      "line": 149,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/AddWarehouseModal.tsx:149",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/dashboard.module.css:grid-template-columns=minmax(0, 1fr) 403px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "line": 49,
+      "symbol": "grid-template-columns=minmax(0, 1fr) 403px",
+      "message": "Declaration grid-template-columns: 'minmax(0, 1fr) 403px' in src/app/pages/app/inventory/dashboard.module.css:49 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/dashboard.module.css:width=150px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "line": 163,
+      "symbol": "width=150px",
+      "message": "Declaration width: '150px' in src/app/pages/app/inventory/dashboard.module.css:163 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/dashboard.module.css:height=12px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "line": 168,
+      "symbol": "height=12px",
+      "message": "Declaration height: '12px' in src/app/pages/app/inventory/dashboard.module.css:168 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/dashboard.module.css:height=10px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "line": 175,
+      "symbol": "height=10px",
+      "message": "Declaration height: '10px' in src/app/pages/app/inventory/dashboard.module.css:175 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/dashboard.module.css:width=28px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/dashboard.module.css",
+      "line": 183,
+      "symbol": "width=28px",
+      "message": "Declaration width: '28px' in src/app/pages/app/inventory/dashboard.module.css:183 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:width=344px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 11,
+      "symbol": "width=344px",
+      "message": "Declaration width: '344px' in src/app/pages/app/inventory/editColumns.module.css:11 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 15,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/editColumns.module.css:15 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 16,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/editColumns.module.css:16 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:height=min(720px, 60vh)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 27,
+      "symbol": "height=min(720px, 60vh)",
+      "message": "Declaration height: 'min(720px, 60vh)' in src/app/pages/app/inventory/editColumns.module.css:27 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:min-height=320px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 28,
+      "symbol": "min-height=320px",
+      "message": "Declaration min-height: '320px' in src/app/pages/app/inventory/editColumns.module.css:28 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:width=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 157,
+      "symbol": "width=44px",
+      "message": "Declaration width: '44px' in src/app/pages/app/inventory/editColumns.module.css:157 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/editColumns.module.css:height=36px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/editColumns.module.css",
+      "line": 158,
+      "symbol": "height=36px",
+      "message": "Declaration height: '36px' in src/app/pages/app/inventory/editColumns.module.css:158 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/ItemModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/ItemModals.tsx",
+      "line": 144,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/ItemModals.tsx:144",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/ItemModals.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/ItemModals.tsx",
+      "line": 180,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/items/ItemModals.tsx:180",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "click-without-key:src/app/pages/app/inventory/items/ItemModals.tsx:div",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/ItemModals.tsx",
+      "line": 228,
+      "symbol": "div",
+      "message": "onClick without a keyboard handler on non-interactive <div> in src/app/pages/app/inventory/items/ItemModals.tsx:228",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:grid-template-columns=repeat(auto-fill, minmax(160px, 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 205,
+      "symbol": "grid-template-columns=repeat(auto-fill, minmax(160px, 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fill, minmax(160px, 1fr))' in src/app/pages/app/inventory/items/items.module.css:205 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:grid-template-columns=repeat(auto-fill, minmax(200px, 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 230,
+      "symbol": "grid-template-columns=repeat(auto-fill, minmax(200px, 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fill, minmax(200px, 1fr))' in src/app/pages/app/inventory/items/items.module.css:230 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=40px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 267,
+      "symbol": "min-height=40px",
+      "message": "Declaration min-height: '40px' in src/app/pages/app/inventory/items/items.module.css:267 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 285,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/items/items.module.css:285 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:grid-template-columns=80px repeat(3, minmax(0, 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 384,
+      "symbol": "grid-template-columns=80px repeat(3, minmax(0, 1fr))",
+      "message": "Declaration grid-template-columns: '80px repeat(3, minmax(0, 1fr))' in src/app/pages/app/inventory/items/items.module.css:384 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:grid-template-columns=80px repeat(2, minmax(0, 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 389,
+      "symbol": "grid-template-columns=80px repeat(2, minmax(0, 1fr))",
+      "message": "Declaration grid-template-columns: '80px repeat(2, minmax(0, 1fr))' in src/app/pages/app/inventory/items/items.module.css:389 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-width=240px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 425,
+      "symbol": "min-width=240px",
+      "message": "Declaration min-width: '240px' in src/app/pages/app/inventory/items/items.module.css:425 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=44px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 431,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/items/items.module.css:431 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=140px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 440,
+      "symbol": "width=140px",
+      "message": "Declaration width: '140px' in src/app/pages/app/inventory/items/items.module.css:440 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=280px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 455,
+      "symbol": "min-height=280px",
+      "message": "Declaration min-height: '280px' in src/app/pages/app/inventory/items/items.module.css:455 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=280px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 482,
+      "symbol": "min-height=280px",
+      "message": "Declaration min-height: '280px' in src/app/pages/app/inventory/items/items.module.css:482 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=200px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 496,
+      "symbol": "width=200px",
+      "message": "Declaration width: '200px' in src/app/pages/app/inventory/items/items.module.css:496 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:height=200px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 497,
+      "symbol": "height=200px",
+      "message": "Declaration height: '200px' in src/app/pages/app/inventory/items/items.module.css:497 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 554,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/items/items.module.css:554 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 555,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/items/items.module.css:555 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:outline-offset=2px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 596,
+      "symbol": "outline-offset=2px",
+      "message": "Declaration outline-offset: '2px' in src/app/pages/app/inventory/items/items.module.css:596 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'outline-offset'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:min-height=44px#3",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 630,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/items/items.module.css:630 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=200px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 651,
+      "symbol": "width=200px",
+      "message": "Declaration width: '200px' in src/app/pages/app/inventory/items/items.module.css:651 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:height=200px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 652,
+      "symbol": "height=200px",
+      "message": "Declaration height: '200px' in src/app/pages/app/inventory/items/items.module.css:652 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:--table-fill-min=120px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 684,
+      "symbol": "--table-fill-min=120px",
+      "message": "Declaration --table-fill-min: '120px' in src/app/pages/app/inventory/items/items.module.css:684 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--table-fill-min'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:max-width=180px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 811,
+      "symbol": "max-width=180px",
+      "message": "Declaration max-width: '180px' in src/app/pages/app/inventory/items/items.module.css:811 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:grid-auto-rows=88px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 823,
+      "symbol": "grid-auto-rows=88px",
+      "message": "Declaration grid-auto-rows: '88px' in src/app/pages/app/inventory/items/items.module.css:823 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-auto-rows'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=1px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 893,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/items/items.module.css:893 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:height=1px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 894,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/items/items.module.css:894 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:width=190px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 932,
+      "symbol": "width=190px",
+      "message": "Declaration width: '190px' in src/app/pages/app/inventory/items/items.module.css:932 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:gap=6px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1062,
+      "symbol": "gap=6px",
+      "message": "Declaration gap: '6px' in src/app/pages/app/inventory/items/items.module.css:1062 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'gap'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:max-width=280px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1150,
+      "symbol": "max-width=280px",
+      "message": "Declaration max-width: '280px' in src/app/pages/app/inventory/items/items.module.css:1150 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:max-height=360px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1162,
+      "symbol": "max-height=360px",
+      "message": "Declaration max-height: '360px' in src/app/pages/app/inventory/items/items.module.css:1162 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:max-width=320px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1175,
+      "symbol": "max-width=320px",
+      "message": "Declaration max-width: '320px' in src/app/pages/app/inventory/items/items.module.css:1175 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:max-width=320px#2",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1255,
+      "symbol": "max-width=320px",
+      "message": "Declaration max-width: '320px' in src/app/pages/app/inventory/items/items.module.css:1255 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/items/items.module.css:flex=0 0 40px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/items.module.css",
+      "line": 1332,
+      "symbol": "flex=0 0 40px",
+      "message": "Declaration flex: '0 0 40px' in src/app/pages/app/inventory/items/items.module.css:1332 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'flex'."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/DetailsModals.tsx:input",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+      "line": 213,
+      "symbol": "input",
+      "message": "<input> form control has no accessible name in src/app/pages/app/inventory/items/record/DetailsModals.tsx:213",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/DetailsModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+      "line": 534,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/items/record/DetailsModals.tsx:534",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/DetailsModals.tsx:#2",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+      "line": 619,
+      "symbol": "",
+      "message": "autoFocus on <TextArea> in src/app/pages/app/inventory/items/record/DetailsModals.tsx:619",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/DetailsModals.tsx:input#2",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsModals.tsx",
+      "line": 728,
+      "symbol": "input",
+      "message": "<input> form control has no accessible name in src/app/pages/app/inventory/items/record/DetailsModals.tsx:728",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/DetailsTab.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsTab.tsx",
+      "line": 553,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/DetailsTab.tsx:553",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/DetailsTab.tsx:input",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/DetailsTab.tsx",
+      "line": 956,
+      "symbol": "input",
+      "message": "<input> form control has no accessible name in src/app/pages/app/inventory/items/record/DetailsTab.tsx:956",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/FileModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 178,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/FileModals.tsx:178",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/FileModals.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 179,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/items/record/FileModals.tsx:179",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/FileModals.tsx:#2",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 229,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/FileModals.tsx:229",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/FileModals.tsx:#3",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 298,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/FileModals.tsx:298",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/FileModals.tsx:button#2",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 309,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/items/record/FileModals.tsx:309",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/FileModals.tsx:button#3",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FileModals.tsx",
+      "line": 463,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/items/record/FileModals.tsx:463",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/FilesTab.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/FilesTab.tsx",
+      "line": 304,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/FilesTab.tsx:304",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/record/UsedInTab.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/UsedInTab.tsx",
+      "line": 380,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/app/inventory/items/record/UsedInTab.tsx:380",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/items/record/UsedInTab.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/record/UsedInTab.tsx",
+      "line": 525,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/items/record/UsedInTab.tsx:525",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/shared.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/shared.tsx",
+      "line": 124,
+      "symbol": "",
+      "message": "autoFocus on <ContextMenu> in src/app/pages/app/inventory/items/shared.tsx:124",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/items/shared.tsx:#2",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/items/shared.tsx",
+      "line": 220,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/items/shared.tsx:220",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/LocationDetailsPage.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/LocationDetailsPage.tsx",
+      "line": 214,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/LocationDetailsPage.tsx:214",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/orders/orders.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/orders/orders.module.css",
+      "line": 89,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/orders/orders.module.css:89 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/orders/orders.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/orders/orders.module.css",
+      "line": 90,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/orders/orders.module.css:90 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/orders/orders.module.css:text-underline-offset=2px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/orders/orders.module.css",
+      "line": 100,
+      "symbol": "text-underline-offset=2px",
+      "message": "Declaration text-underline-offset: '2px' in src/app/pages/app/inventory/orders/orders.module.css:100 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'text-underline-offset'."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/orders/OrdersPage.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/orders/OrdersPage.tsx",
+      "line": 320,
+      "symbol": "",
+      "message": "autoFocus on <ContextMenu> in src/app/pages/app/inventory/orders/OrdersPage.tsx:320",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:min-height=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 25,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/record.module.css:25 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:grid-template-columns=repeat(auto-fit, minmax(150px, 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 45,
+      "symbol": "grid-template-columns=repeat(auto-fit, minmax(150px, 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fit, minmax(150px, 1fr))' in src/app/pages/app/inventory/record.module.css:45 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:max-height=320px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 177,
+      "symbol": "max-height=320px",
+      "message": "Declaration max-height: '320px' in src/app/pages/app/inventory/record.module.css:177 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:min-width=220px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 245,
+      "symbol": "min-width=220px",
+      "message": "Declaration min-width: '220px' in src/app/pages/app/inventory/record.module.css:245 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 358,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/record.module.css:358 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 359,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/record.module.css:359 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:margin=-1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 360,
+      "symbol": "margin=-1px",
+      "message": "Declaration margin: '-1px' in src/app/pages/app/inventory/record.module.css:360 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'margin'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:grid-template-columns=repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 501,
+      "symbol": "grid-template-columns=repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))' in src/app/pages/app/inventory/record.module.css:501 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:min-height=56px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 589,
+      "symbol": "min-height=56px",
+      "message": "Declaration min-height: '56px' in src/app/pages/app/inventory/record.module.css:589 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:height=320px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 711,
+      "symbol": "height=320px",
+      "message": "Declaration height: '320px' in src/app/pages/app/inventory/record.module.css:711 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record.module.css:grid-template-columns=minmax(0, 2fr) minmax(280px, 1fr)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record.module.css",
+      "line": 907,
+      "symbol": "grid-template-columns=minmax(0, 2fr) minmax(280px, 1fr)",
+      "message": "Declaration grid-template-columns: 'minmax(0, 2fr) minmax(280px, 1fr)' in src/app/pages/app/inventory/record.module.css:907 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/CarrierModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/CarrierModals.tsx",
+      "line": 77,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/record/CarrierModals.tsx:77",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/record/CarrierModals.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/CarrierModals.tsx",
+      "line": 239,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/record/CarrierModals.tsx:239",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/ContactModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ContactModals.tsx",
+      "line": 75,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/record/ContactModals.tsx:75",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/record/ContactModals.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ContactModals.tsx",
+      "line": 258,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/record/ContactModals.tsx:258",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "click-without-key:src/app/pages/app/inventory/record/DetailsTab.tsx:div",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/DetailsTab.tsx",
+      "line": 220,
+      "symbol": "div",
+      "message": "onClick without a keyboard handler on non-interactive <div> in src/app/pages/app/inventory/record/DetailsTab.tsx:220",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/ItemModals.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ItemModals.tsx",
+      "line": 58,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/record/ItemModals.tsx:58",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "click-without-key:src/app/pages/app/inventory/record/ItemModals.tsx:div",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ItemModals.tsx",
+      "line": 340,
+      "symbol": "div",
+      "message": "onClick without a keyboard handler on non-interactive <div> in src/app/pages/app/inventory/record/ItemModals.tsx:340",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    },
+    {
+      "id": "click-without-key:src/app/pages/app/inventory/record/ItemModals.tsx:span",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ItemModals.tsx",
+      "line": 347,
+      "symbol": "span",
+      "message": "onClick without a keyboard handler on non-interactive <span> in src/app/pages/app/inventory/record/ItemModals.tsx:347",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/ItemModals.tsx:#2",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/ItemModals.tsx",
+      "line": 392,
+      "symbol": "",
+      "message": "autoFocus on <SearchInput> in src/app/pages/app/inventory/record/ItemModals.tsx:392",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/record/LabelModal.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/LabelModal.tsx",
+      "line": 192,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/record/LabelModal.tsx:192",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/record/LocationModals.tsx:button",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/LocationModals.tsx",
+      "line": 126,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/record/LocationModals.tsx:126",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "control-has-name:src/app/pages/app/inventory/record/LocationModals.tsx:button#2",
+      "dimension": "a11yStatic",
+      "rule": "control-has-name",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/LocationModals.tsx",
+      "line": 322,
+      "symbol": "button",
+      "message": "<button> icon-only or empty control has no accessible name in src/app/pages/app/inventory/record/LocationModals.tsx:322",
+      "fix": "Associate a <label htmlFor> / aria-label, or put the control inside FormField."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:width=96px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 59,
+      "symbol": "width=96px",
+      "message": "Declaration width: '96px' in src/app/pages/app/inventory/record/pickPack.module.css:59 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:min-width=140px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 63,
+      "symbol": "min-width=140px",
+      "message": "Declaration min-width: '140px' in src/app/pages/app/inventory/record/pickPack.module.css:63 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:grid-template-columns=repeat(auto-fit, minmax(min(100%, 610px), 1fr))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 70,
+      "symbol": "grid-template-columns=repeat(auto-fit, minmax(min(100%, 610px), 1fr))",
+      "message": "Declaration grid-template-columns: 'repeat(auto-fit, minmax(min(100%, 610px), 1fr))' in src/app/pages/app/inventory/record/pickPack.module.css:70 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:grid-template-columns=minmax(0, 1.4fr) minmax(0, 1.2fr) 72px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 145,
+      "symbol": "grid-template-columns=minmax(0, 1.4fr) minmax(0, 1.2fr) 72px",
+      "message": "Declaration grid-template-columns: 'minmax(0, 1.4fr) minmax(0, 1.2fr) 72px' in src/app/pages/app/inventory/record/pickPack.module.css:145 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:min-height=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 154,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/record/pickPack.module.css:154 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:grid-template-columns=minmax(0, 1.4fr) minmax(0, 1.2fr) 72px auto",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 160,
+      "symbol": "grid-template-columns=minmax(0, 1.4fr) minmax(0, 1.2fr) 72px auto",
+      "message": "Declaration grid-template-columns: 'minmax(0, 1.4fr) minmax(0, 1.2fr) 72px auto' in src/app/pages/app/inventory/record/pickPack.module.css:160 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 168,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/record/pickPack.module.css:168 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/pickPack.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/pickPack.module.css",
+      "line": 169,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/record/pickPack.module.css:169 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "click-without-key:src/app/pages/app/inventory/record/PrinterModals.tsx:div",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/PrinterModals.tsx",
+      "line": 332,
+      "symbol": "div",
+      "message": "onClick without a keyboard handler on non-interactive <div> in src/app/pages/app/inventory/record/PrinterModals.tsx:332",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:min-height=40px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 32,
+      "symbol": "min-height=40px",
+      "message": "Declaration min-height: '40px' in src/app/pages/app/inventory/record/printers.module.css:32 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:max-width=1300px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 64,
+      "symbol": "max-width=1300px",
+      "message": "Declaration max-width: '1300px' in src/app/pages/app/inventory/record/printers.module.css:64 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:min-width=200px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 119,
+      "symbol": "min-width=200px",
+      "message": "Declaration min-width: '200px' in src/app/pages/app/inventory/record/printers.module.css:119 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:text-underline-offset=3px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 135,
+      "symbol": "text-underline-offset=3px",
+      "message": "Declaration text-underline-offset: '3px' in src/app/pages/app/inventory/record/printers.module.css:135 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'text-underline-offset'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:min-height=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 166,
+      "symbol": "min-height=44px",
+      "message": "Declaration min-height: '44px' in src/app/pages/app/inventory/record/printers.module.css:166 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:width=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 416,
+      "symbol": "width=1px",
+      "message": "Declaration width: '1px' in src/app/pages/app/inventory/record/printers.module.css:416 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:height=1px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 417,
+      "symbol": "height=1px",
+      "message": "Declaration height: '1px' in src/app/pages/app/inventory/record/printers.module.css:417 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:grid-template-columns=minmax(0, 1fr) 368px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 440,
+      "symbol": "grid-template-columns=minmax(0, 1fr) 368px",
+      "message": "Declaration grid-template-columns: 'minmax(0, 1fr) 368px' in src/app/pages/app/inventory/record/printers.module.css:440 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:width=212px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 493,
+      "symbol": "width=212px",
+      "message": "Declaration width: '212px' in src/app/pages/app/inventory/record/printers.module.css:493 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:height=64px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 512,
+      "symbol": "height=64px",
+      "message": "Declaration height: '64px' in src/app/pages/app/inventory/record/printers.module.css:512 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/record/printers.module.css:max-width=640px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/printers.module.css",
+      "line": 545,
+      "symbol": "max-width=640px",
+      "message": "Declaration max-width: '640px' in src/app/pages/app/inventory/record/printers.module.css:545 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/RowMenu.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/RowMenu.tsx",
+      "line": 60,
+      "symbol": "",
+      "message": "autoFocus on <ContextMenu> in src/app/pages/app/inventory/record/RowMenu.tsx:60",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/app/inventory/record/tableKit.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/record/tableKit.tsx",
+      "line": 418,
+      "symbol": "",
+      "message": "autoFocus on <ContextMenu> in src/app/pages/app/inventory/record/tableKit.tsx:418",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/table.module.css:--table-fill-min=80px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/table.module.css",
+      "line": 29,
+      "symbol": "--table-fill-min=80px",
+      "message": "Declaration --table-fill-min: '80px' in src/app/pages/app/inventory/table.module.css:29 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--table-fill-min'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/table.module.css:--table-fill-min=64px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/table.module.css",
+      "line": 32,
+      "symbol": "--table-fill-min=64px",
+      "message": "Declaration --table-fill-min: '64px' in src/app/pages/app/inventory/table.module.css:32 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--table-fill-min'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/table.module.css:min-width=var(--table-fill-min, 100px)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/table.module.css",
+      "line": 35,
+      "symbol": "min-width=var(--table-fill-min, 100px)",
+      "message": "Declaration min-width: 'var(--table-fill-min, 100px)' in src/app/pages/app/inventory/table.module.css:35 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'min-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/table.module.css:--data-leading-width=28px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/table.module.css",
+      "line": 56,
+      "symbol": "--data-leading-width=28px",
+      "message": "Declaration --data-leading-width: '28px' in src/app/pages/app/inventory/table.module.css:56 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--data-leading-width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/uploadFlow.module.css:height=6px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/uploadFlow.module.css",
+      "line": 73,
+      "symbol": "height=6px",
+      "message": "Declaration height: '6px' in src/app/pages/app/inventory/uploadFlow.module.css:73 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/warehouses.module.css:width=280px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/warehouses.module.css",
+      "line": 57,
+      "symbol": "width=280px",
+      "message": "Declaration width: '280px' in src/app/pages/app/inventory/warehouses.module.css:57 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/warehouses.module.css:max-height=calc(8 * 24px + 7 * var(--space-12) + 2 * var(--space-16))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/warehouses.module.css",
+      "line": 72,
+      "symbol": "max-height=calc(8 * 24px + 7 * var(--space-12) + 2 * var(--space-16))",
+      "message": "Declaration max-height: 'calc(8 * 24px + 7 * var(--space-12) + 2 * var(--space-16))' in src/app/pages/app/inventory/warehouses.module.css:72 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/app/inventory/warehouses.module.css:--table-fill-min=320px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/app/inventory/warehouses.module.css",
+      "line": 112,
+      "symbol": "--table-fill-min=320px",
+      "message": "Declaration --table-fill-min: '320px' in src/app/pages/app/inventory/warehouses.module.css:112 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for '--table-fill-min'."
+    },
+    {
+      "id": "raw-dimension:src/app/pages/auth/auth.module.css:max-width=640px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/pages/auth/auth.module.css",
+      "line": 41,
+      "symbol": "max-width=640px",
+      "message": "Declaration max-width: '640px' in src/app/pages/auth/auth.module.css:41 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-width'."
+    },
+    {
+      "id": "autofocus:src/app/pages/auth/PasswordResetPages.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/auth/PasswordResetPages.tsx",
+      "line": 95,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/auth/PasswordResetPages.tsx:95",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/auth/PasswordResetPages.tsx:#2",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/auth/PasswordResetPages.tsx",
+      "line": 174,
+      "symbol": "",
+      "message": "autoFocus on <TextInput> in src/app/pages/auth/PasswordResetPages.tsx:174",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/auth/PasswordResetPages.tsx:#3",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/auth/PasswordResetPages.tsx",
+      "line": 271,
+      "symbol": "",
+      "message": "autoFocus on <PasswordField> in src/app/pages/auth/PasswordResetPages.tsx:271",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/pages/auth/PasswordResetPages.tsx:#4",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/pages/auth/PasswordResetPages.tsx",
+      "line": 310,
+      "symbol": "",
+      "message": "autoFocus on <Button> in src/app/pages/auth/PasswordResetPages.tsx:310",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "autofocus:src/app/shell/AccountMenu.tsx:",
+      "dimension": "a11yStatic",
+      "rule": "autofocus",
+      "severity": "review",
+      "file": "src/app/shell/AccountMenu.tsx",
+      "line": 57,
+      "symbol": "",
+      "message": "autoFocus on <ContextMenu> in src/app/shell/AccountMenu.tsx:57",
+      "fix": "Remove autoFocus; it disorients screen-reader and keyboard users."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AllTabsModal.module.css:height=120px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AllTabsModal.module.css",
+      "line": 198,
+      "symbol": "height=120px",
+      "message": "Declaration height: '120px' in src/app/shell/AllTabsModal.module.css:198 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AllTabsModal.module.css:width=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AllTabsModal.module.css",
+      "line": 272,
+      "symbol": "width=44px",
+      "message": "Declaration width: '44px' in src/app/shell/AllTabsModal.module.css:272 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AllTabsModal.module.css:height=44px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AllTabsModal.module.css",
+      "line": 273,
+      "symbol": "height=44px",
+      "message": "Declaration height: '44px' in src/app/shell/AllTabsModal.module.css:273 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'height'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AppShell.module.css:grid-template-columns=minmax(1024px, 1fr)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AppShell.module.css",
+      "line": 10,
+      "symbol": "grid-template-columns=minmax(1024px, 1fr)",
+      "message": "Declaration grid-template-columns: 'minmax(1024px, 1fr)' in src/app/shell/AppShell.module.css:10 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'grid-template-columns'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AppShell.module.css:width=280px",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AppShell.module.css",
+      "line": 176,
+      "symbol": "width=280px",
+      "message": "Declaration width: '280px' in src/app/shell/AppShell.module.css:176 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'width'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/AppShell.module.css:max-height=calc(100vh - var(--space-40) - var(--space-4) - 42px - var(--space-16))",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/AppShell.module.css",
+      "line": 178,
+      "symbol": "max-height=calc(100vh - var(--space-40) - var(--space-4) - 42px - var(--space-16))",
+      "message": "Declaration max-height: 'calc(100vh - var(--space-40) - var(--space-4) - 42px - var(--space-16))' in src/app/shell/AppShell.module.css:178 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-height'."
+    },
+    {
+      "id": "raw-dimension:src/app/shell/InboxModal.module.css:max-height=min(706px, 60vh)",
+      "dimension": "tokenDiscipline",
+      "rule": "raw-dimension",
+      "severity": "review",
+      "file": "src/app/shell/InboxModal.module.css",
+      "line": 7,
+      "symbol": "max-height=min(706px, 60vh)",
+      "message": "Declaration max-height: 'min(706px, 60vh)' in src/app/shell/InboxModal.module.css:7 bypasses design tokens",
+      "fix": "Use a design system spacing/sizing token instead of a raw value for 'max-height'."
+    },
+    {
+      "id": "click-without-key:src/app/shell/InboxModal.tsx:li",
+      "dimension": "a11yStatic",
+      "rule": "click-without-key",
+      "severity": "review",
+      "file": "src/app/shell/InboxModal.tsx",
+      "line": 234,
+      "symbol": "li",
+      "message": "onClick without a keyboard handler on non-interactive <li> in src/app/shell/InboxModal.tsx:234",
+      "fix": "Add onKeyDown (Enter/Space) or use a native interactive element like <button>."
+    }
+  ],
+  "delta": null,
+  "interpretation": "This is the first run, so there is no change to compare against. Two of the four checks could not run the way they were designed. The app imports Volt by relative path (\"../../components/Button/Button\"), not from a package name or path alias. So adoption reads 0% even though the app uses Volt everywhere, and API fidelity (invented components or props) was not measured. Treat both as \"not measured\", not as a pass or a fail.\n\nThe 147 findings that were measured are all \"review\", with no fails:\n- Raw dimensions (102): almost all are layout sizes in the Inventory CSS modules (widths, heights, grid columns, 44px control heights, 1px visually-hidden labels). Volt has spacing, radius and stroke tokens but no size tokens, and most of these lines already carry a comment saying so. items.module.css alone has 31. Colors are clean: no raw hex values were found.\n- Accessibility (45): mostly noise. The 23 autoFocus findings are each modal's first field, on purpose. Most \"no accessible name\" hits are hidden submit buttons, hidden file inputs and a hidden autofill select. The 6 \"click without a keyboard handler\" hits are the clickable radio cards and inbox rows, worth a quick look.\n\nFixes to do first:\n- Add a path alias such as \"@volt\" for src/components (tsconfig and Vite) plus a barrel file. Then set componentsPkg to it, so adoption and API fidelity can be measured.\n- Decide whether repeated layout sizes (44px, 320px, 280px) should become tokens in Figma. If not, leave them; the comments explain them.\n- Check the 6 click-handler cards for keyboard access."
+}

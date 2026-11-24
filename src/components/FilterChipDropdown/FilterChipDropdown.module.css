@@ -1,4 +1,4 @@
-/* Values come from the Figma "Drop Down - Filter Chip › Default" set; the field itself is Dropdown. */
+/* Values come from the Figma "Drop Down - Filter Chip › Default" set (2678:7113); the field itself is Dropdown. */
 
 /* Figma stacks the chip panel directly under the field (no gap); the root's 4px gap is cancelled */
 .root .chips {
@@ -10,13 +10,22 @@
 }
 
 /*
- * Figma `State=Press`: while the chip panel is shown the field carries a 2px Gray Stroke/Weaker outline that joins it
- * to the panel. Without a panel ("none") the field keeps its normal look.
+ * Figma `State=Press` and `Press - Alt`: while the chip panel is shown the field carries a 2px Gray Stroke/Weaker
+ * outline that joins it to the panel. Without a panel ("none") the field keeps its normal look.
  */
 .root:has(.chips:not([data-appearance='none'])) button[aria-haspopup]:not(:focus-visible, :disabled) {
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);
 }
-.root[data-required]:has(.chips:not([data-appearance='none'])) button[aria-haspopup]:not(:focus-visible, :disabled) {
+/*
+ * Figma `State=Required`: a 2px Brand Teal Stroke/Strong outline on the field (Dropdown's own required line is
+ * Stroke/Weak), with or without chips. In a read-only region the field keeps its normal look, so the line stays.
+ */
+.root[data-required] button[aria-haspopup]:not(:focus-visible, :disabled:not([data-readonly] *)) {
   --ring: var(--color-brand-teal-stroke-strong);
+  --ring-w: var(--stroke-width-2);
+}
+/* Figma `State=Focus`: the field fills with Gray Fill/Press (Dropdown uses Gray Fill/Hover); the 4px ring is Dropdown's */
+.root:not([data-error]) button[aria-haspopup]:focus-visible:not(:disabled) {
+  --bg: var(--color-gray-fill-press);
 }

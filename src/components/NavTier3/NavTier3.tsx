@@ -65,7 +65,7 @@ export function NavTier3Icon({ icon, size = 'large', onViewPhoto, viewPhotoLabel
     <span className={[styles.recordIcon, className].filter(Boolean).join(' ')} data-size={size}>
       <Icon name={icon} size={size === 'large' ? 65 : 41} color="currentColor" />
       {onViewPhoto && (
-        <Button className={styles.viewPhoto} size="tiny" variant="brand" onClick={onViewPhoto}>
+        <Button className={styles.viewPhoto} size="small" variant="brand" onClick={onViewPhoto}>
           {viewPhotoLabel}
         </Button>
       )}
@@ -77,7 +77,7 @@ export function NavTier3Icon({ icon, size = 'large', onViewPhoto, viewPhotoLabel
 
 /** A menu button in the Sub Menu Tiny style: Button Tiny / Primary with a trailing chevron ("More ▾", "History ▾"). */
 function MenuButton(props: Omit<ButtonProps, 'size' | 'variant' | 'icon' | 'iconPosition'>) {
-  return <Button size="tiny" variant="primary" icon="chevron-down" iconPosition="right" {...props} />;
+  return <Button size="small" variant="primary" icon="chevron-down" iconPosition="right" {...props} />;
 }
 
 /**
@@ -170,7 +170,7 @@ export type NavTier3Props = {
   /** Breadcrumb trail (Expanded only). */
   breadcrumb?: BreadcrumbItem[];
   homeHref?: string;
-  /** Shows the back button before the breadcrumb (Expanded only). */
+  /** Shows the back button before the breadcrumb (Expanded only): Button Icon Small, 32px, as Figma since Nov 24, 2026. */
   onBack?: () => void;
   /** Element after the title, e.g. a Tag (Figma: Tag "Tiny / Icon Left"). Expanded only. */
   tag?: ReactNode;
@@ -279,7 +279,7 @@ export function NavTier3({
       root.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - actionsWidth - 2 * gap;
     const width = (selector: string) => ghost.querySelector(`:scope > ${selector}`)?.getBoundingClientRect().width ?? 0;
     // Figma Collapsed uses Button Small (32px) section buttons at every width, so the title steps are measured with them
-    const smallRow = width("nav[data-variant='tiny']");
+    const smallRow = width("nav[data-variant='small']");
     // Moving back to a roomier step than the current one needs FIT_HYSTERESIS more room
     const slack = (step: CollapsedFit) => (FIT_ORDER.indexOf(step) < FIT_ORDER.indexOf(fit.current) ? FIT_HYSTERESIS : 0);
     let next: CollapsedFit | undefined;
@@ -304,7 +304,7 @@ export function NavTier3({
        * wrap: still too narrow, so the actions (which never change size) move to a second line, right-aligned.
        * Every step keeps all of the card's content inside its padding box: nothing overflows or is clipped.
        */
-      const tiny = ghost.querySelector(":scope > nav[data-variant='tiny']");
+      const tiny = ghost.querySelector(":scope > nav[data-variant='small']");
       const tinyButtons = [...(tiny?.querySelectorAll('li') ?? [])].map(li => li.getBoundingClientRect().width);
       const buttonWidth = new Map(ids.map((id, i) => [id, tinyButtons[i] ?? 0]));
       const list = tiny?.querySelector('ul');
@@ -446,7 +446,7 @@ export function NavTier3({
       {onCollapsedChange && (
         <IconButton
           /* Figma: Expanded's icon buttons are 44px like the actions; Collapsed uses Button Icon Tiny (32px) */
-          size={collapsed ? 'tiny' : 'small'}
+          size={collapsed ? 'small' : 'medium'}
           /* Figma: Expanded shows Double Down, Collapsed shows Double Up */
           icon={collapsed ? 'chevron-double-up' : 'chevron-double-down'}
           label={collapsed ? 'Expand header' : 'Collapse header'}
@@ -466,7 +466,7 @@ export function NavTier3({
       items={usePicker ? [] : overflow.length ? items.filter(item => !hidden.includes(item.id)) : items}
       value={value}
       onChange={onChange}
-      variant={collapsed ? 'tiny' : 'default'}
+      variant={collapsed ? 'small' : 'medium'}
       aria-label="Record sections"
       trailing={
         usePicker ? (
@@ -489,7 +489,7 @@ export function NavTier3({
           {actions}
           {onCollapsedChange && (
             <IconButton
-              size="tiny"
+              size="small"
               icon="chevron-double-up"
               label="Expand header"
               aria-expanded={false}
@@ -525,8 +525,8 @@ export function NavTier3({
               {title}
             </span>
           ))}
-          {hasItems && <SubMenu items={items} value={value} variant="default" aria-label="Measure" />}
-          {hasItems && <SubMenu items={items} value={value} variant="tiny" aria-label="Measure" />}
+          {hasItems && <SubMenu items={items} value={value} variant="medium" aria-label="Measure" />}
+          {hasItems && <SubMenu items={items} value={value} variant="small" aria-label="Measure" />}
           {hasItems && (
             <MenuButton data-more="" tabIndex={-1}>
               More
@@ -552,7 +552,7 @@ export function NavTier3({
     <section ref={rootRef} className={[styles.tier3, className].filter(Boolean).join(' ')} data-attached={attached || undefined}>
       <div className={styles.top}>
         <div className={styles.trail}>
-          {onBack && <IconButton size="compact" icon="arrow-left" label="Back" onClick={onBack} />}
+          {onBack && <IconButton size="small" icon="arrow-left" label="Back" onClick={onBack} />}
           {breadcrumb && <Breadcrumb items={breadcrumb} homeHref={homeHref} />}
         </div>
         <div className={styles.end}>

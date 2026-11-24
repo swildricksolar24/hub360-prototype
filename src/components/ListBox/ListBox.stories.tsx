@@ -22,7 +22,8 @@ const meta = {
     type: { control: 'inline-radio', options: ['default', 'chevron', 'avatar', 'checkbox'] },
     appearance: { control: 'inline-radio', options: ['list', 'selector'] },
   },
-  decorators: [Story => <div style={{ width: 200 }}><Story /></div>],
+  /* Figma List View is 232px wide: 200px rows plus the 16px inset */
+  decorators: [Story => <div style={{ width: 232 }}><Story /></div>],
 } satisfies Meta<typeof ListBox>;
 
 export default meta;
@@ -61,15 +62,15 @@ export const Playground: Story = {
   },
 };
 
-export const ListItemIcon = itemSet('432:998', 'ListBox › List Item / Icon', { type: 'chevron' });
-export const ListItemAvatar = itemSet('432:1109', 'ListBox › List Item / Avatar', { type: 'avatar' });
-export const ListItemTree = itemSet('500:2049', 'ListBox › List Item / Tree', { type: 'tree', expanded: true });
-export const ListItemCheckbox = itemSet('432:1053', 'ListBox › List Item / Checkbox', { type: 'checkbox', selected: true });
-export const ListItemDefault = itemSet('433:1149', 'ListBox › List Item / Default', { type: 'default' });
+export const ListItemIcon = itemSet('432:998', 'List View › List Item / Icon', { type: 'chevron' });
+export const ListItemAvatar = itemSet('432:1109', 'List View › List Item / Avatar', { type: 'avatar' });
+export const ListItemTree = itemSet('500:2049', 'List View › List Item / Tree', { type: 'tree', expanded: true });
+export const ListItemCheckbox = itemSet('432:1053', 'List View › List Item / Checkbox', { type: 'checkbox', selected: true });
+export const ListItemDefault = itemSet('433:1149', 'List View › List Item / Default', { type: 'default' });
 
 export const ListItemCategory: Story = {
   render: () => <ListBoxCategory>Category</ListBoxCategory>,
-  parameters: { ...figma('433:1484', 'ListBox › List Item / Category'), controls: { disable: true } },
+  parameters: { ...figma('433:1484', 'List View › List Item / Category'), controls: { disable: true } },
 };
 
 const SIX = OPTIONS.map(o => ({ ...o, disabled: false }));
@@ -78,13 +79,17 @@ const GROUPED: ListBoxOption[] = [
   ...SIX.slice(2).map(o => ({ ...o, group: 'Category' })),
 ];
 
-/** Figma `Type`: Default, Category, Checkbox, Avatar, Chevron. */
+/**
+ * Figma `Type`: Default, Checkbox, Avatar, Chevron, each a 232px Surfaces/Overlay panel (16px inset, 8px between
+ * rows, 12px corners, the drop shadow). Hover a row for Brand Teal Fill/Weaker. The grouped list isn't in Figma.
+ */
 export const ListViews: Story = {
+  name: 'List View',
   render: function Render() {
     const [single, setSingle] = useState<string | string[]>('');
     const [multi, setMulti] = useState<string | string[]>(['al', 'ak', 'az', 'ar', 'ca', 'co']);
     const cell = (title: string, el: ReactNode) => (
-      <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', width: 200 }}>
+      <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', width: 232 }}>
         <figcaption className="text-small-regular" style={{ color: 'var(--color-gray-text-weak)' }}>{title}</figcaption>
         {el}
       </figure>
@@ -92,15 +97,15 @@ export const ListViews: Story = {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-24)', alignItems: 'flex-start' }}>
         {cell('Type=Default', <ListBox aria-label="Default" options={SIX} value={single} onChange={setSingle} />)}
-        {cell('Type=Category', <ListBox aria-label="Category" options={GROUPED} value={single} onChange={setSingle} />)}
         {cell('Type=Checkbox', <ListBox aria-label="Checkbox" type="checkbox" multiple options={SIX} value={multi} onChange={setMulti} />)}
         {cell('Type=Avatar', <ListBox aria-label="Avatar" type="avatar" options={SIX} value={single} onChange={setSingle} />)}
         {cell('Type=Chevron', <ListBox aria-label="Chevron" type="chevron" options={SIX} value={single} onChange={setSingle} />)}
+        {cell('With groups (not in Figma)', <ListBox aria-label="Grouped" options={GROUPED} value={single} onChange={setSingle} />)}
       </div>
     );
   },
   decorators: [Story => <Story />],
-  parameters: { ...figma('433:1231', 'ListBox › ListViews*'), controls: { disable: true } },
+  parameters: { ...figma('433:1231', 'List View › List View'), controls: { disable: true } },
 };
 
 const TREE: TreeNode[] = [
@@ -123,5 +128,6 @@ export const TreeListSet: Story = {
     const [value, setValue] = useState<string | null>('tx');
     return <TreeList aria-label="Regions" nodes={TREE} defaultExpanded={['south']} value={value} onChange={id => setValue(id)} />;
   },
-  parameters: { ...figma('501:2238', 'ListBox › Tree List*'), controls: { disable: true } },
+  decorators: [Story => <div style={{ width: 200 }}><Story /></div>],
+  parameters: { ...figma('501:2238', 'List View › Tree List'), controls: { disable: true } },
 };

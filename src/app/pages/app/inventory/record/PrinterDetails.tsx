@@ -151,7 +151,7 @@ export function PrinterDetails({
         </div>
         <div className={styles.detailActions}>
           <Button
-            size="small"
+            size="medium"
             variant="outline"
             onClick={() => {
               addJob('Test page', '—');
@@ -161,7 +161,7 @@ export function PrinterDetails({
             Print Test Page
           </Button>
           <Button
-            size="small"
+            size="medium"
             variant="outline"
             onClick={() => {
               onPrinterChange({ paused: !printer.paused });
@@ -171,7 +171,7 @@ export function PrinterDetails({
             {printer.paused ? 'Resume Printing' : 'Pause Printing'}
           </Button>
           {/* Figma: the red outline (Clear / Red); it asks before removing */}
-          <Button size="small" variant="red-outline" onClick={onRemove}>
+          <Button size="medium" variant="red-outline" onClick={onRemove}>
             Remove from Warehouse
           </Button>
         </div>
@@ -310,7 +310,7 @@ function SettingsView({
           title="Connection"
           actions={
             <Button
-              size="small"
+              size="medium"
               variant="outline"
               onClick={() => {
                 onPrinterChange({ lastChecked: printer.online ? 'Just now · responded in 36 ms' : 'Just now · no response' });
@@ -367,7 +367,7 @@ function SettingsView({
                 <legend>Label sizes loaded</legend>
                 <div className={styles.chips}>
                   {LABEL_SIZE_CHOICES.map(s => (
-                    <Tag key={s} size="small" selected={p.labelSizes.includes(s)} onClick={() => set({ labelSizes: toggle(p.labelSizes, s) })}>
+                    <Tag key={s} size="medium" selected={p.labelSizes.includes(s)} onClick={() => set({ labelSizes: toggle(p.labelSizes, s) })}>
                       {s}
                     </Tag>
                   ))}
@@ -401,7 +401,7 @@ function SettingsView({
           actions={
             <>
               <Button
-                size="small"
+                size="medium"
                 variant="outline"
                 onClick={() => {
                   onPrinterChange({ lastCalibrated: `${today} · You` });
@@ -411,7 +411,7 @@ function SettingsView({
                 Calibrate Labels
               </Button>
               <Button
-                size="small"
+                size="medium"
                 variant="outline"
                 onClick={() => {
                   addJob('Configuration label', '—');
@@ -600,7 +600,7 @@ function DefaultUseView({
             <legend>Roles</legend>
             <div className={styles.chips}>
               {PRINT_ROLES.map(r => (
-                <Tag key={r} size="small" selected={p.roles.includes(r)} onClick={() => set({ roles: p.roles.includes(r) ? p.roles.filter(x => x !== r) : [...p.roles, r] })}>
+                <Tag key={r} size="medium" selected={p.roles.includes(r)} onClick={() => set({ roles: p.roles.includes(r) ? p.roles.filter(x => x !== r) : [...p.roles, r] })}>
                   {r}
                 </Tag>
               ))}
@@ -758,7 +758,7 @@ function PrintJobsView({
           actions={
             <>
               <Button
-                size="small"
+                size="medium"
                 variant="outline"
                 onClick={() => {
                   setMoveTo(printers.find(x => x.id !== printer.id && x.labelSizes.includes(`${failed.size} in`))?.id ?? printers.find(x => x.id !== printer.id)?.id ?? null);
@@ -767,7 +767,7 @@ function PrintJobsView({
               >
                 Send to Another Printer
               </Button>
-              <Button size="small" variant="brand" onClick={retry}>
+              <Button size="medium" variant="brand" onClick={retry}>
                 Retry Job
               </Button>
             </>

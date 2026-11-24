@@ -189,7 +189,7 @@ export function OrdersPage() {
                 <p className="text-large-bold">No orders match your search</p>
                 <p className="text-medium-regular">Try a different word, or clear the search, view and filters.</p>
                 <Button
-                  size="small"
+                  size="medium"
                   variant="outline"
                   onClick={() => {
                     setQuery('');
@@ -305,7 +305,7 @@ function NewOrderMenu({
   return (
     <div ref={ref} className={styles.menuAnchor}>
       <Button
-        size="small"
+        size="medium"
         variant="brand"
         icon="chevron-down"
         iconPosition="right"

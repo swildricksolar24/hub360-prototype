@@ -74,7 +74,7 @@ export function SideSubMenu({ title, items, value, onChange, 'aria-label': ariaL
           <li key={item.id}>
             <Button
               className={styles.subItem}
-              size="small"
+              size="medium"
               variant="primary"
               icon={item.icon}
               selected={item.id === value}
@@ -108,7 +108,7 @@ export type TopNavigationProps = {
   className?: string;
 };
 
-const SUB_MENU_VARIANT = { large: 'default', medium: 'tiny', small: 'text' } as const;
+const SUB_MENU_VARIANT = { large: 'medium', medium: 'small', small: 'text' } as const;
 
 /** Figma Main Nav "Top Navigation" (2172:4052): breadcrumb over a Sub Menu, on an overlay card. */
 export function TopNavigation({

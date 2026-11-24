@@ -4,7 +4,8 @@
   --ring: transparent;
   --ring-w: 0px;
   --label: var(--color-gray-text-weak);
-  --text: var(--color-gray-text-strong);
+  /* Nov 24, 2026: value text matches the field drop-down (Gray Text/Weak, Semi-Bold) */
+  --text: var(--color-gray-text-weak);
   --icon: var(--color-gray-fill-strong);
   --divider: var(--color-gray-stroke-weaker);
 
@@ -49,7 +50,12 @@
   background: none;
   color: var(--text);
   font: inherit;
+  /* Figma Text Input value: Medium/Semi-Bold; Medium/Bold in Error and Disabled (as the field drop-down) */
+  font-weight: 600;
   outline: none;
+}
+.field:is([data-error], [data-disabled]) .input {
+  font-weight: 700;
 }
 /* Figma shows placeholder text in the same color as entered text */
 .input::placeholder {

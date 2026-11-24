@@ -118,7 +118,7 @@ export function ContactsTab({ code, warehouseName, onNotice }: { code: string; w
             onChange={e => t.setQuery(e.target.value)}
           />
           {/* Same as Add Carrier: Button Small Brand with the plus icon */}
-          <Button size="small" variant="brand" icon="plus" onClick={() => setSearching(true)}>
+          <Button size="medium" variant="brand" icon="plus" onClick={() => setSearching(true)}>
             Add Contact
           </Button>
         </div>
@@ -183,7 +183,7 @@ export function ContactsTab({ code, warehouseName, onNotice }: { code: string; w
               additionalRoles: c.additionalRoles.length ? (
                 <span className={table.tags}>
                   {c.additionalRoles.map(r => (
-                    <Tag key={r} size="tiny" selected>
+                    <Tag key={r} size="small" selected>
                       {r}
                     </Tag>
                   ))}

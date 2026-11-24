@@ -80,7 +80,7 @@ export const DataRows: Story = {
   parameters: { ...figma('707:5559', 'Data Rows* › Data Rows'), controls: { disable: true } },
 };
 
-/** Figma Row Item: `Value`, and `Show Slot` with a Slot* after the value. */
+/** Figma Row Item: `Value`, and `Show Slot` with the slot's Tag "Base / Small" labels after the value. */
 export const RowItems: Story = {
   render: () => (
     <div role="row" style={{ display: 'flex', gap: 'var(--space-24)', alignItems: 'flex-start' }}>
@@ -88,21 +88,39 @@ export const RowItems: Story = {
         <RowItem value="Value" />
       </Variant>
       <Variant caption="Show Value + Show Slot">
-        <RowItem value="Value" slot={<RowSlot>Slot</RowSlot>} />
+        <RowItem
+          value="Value"
+          slot={
+            <>
+              <RowSlot>Label</RowSlot>
+              <RowSlot>Label</RowSlot>
+            </>
+          }
+        />
       </Variant>
     </div>
   ),
   parameters: { ...figma('759:2011', 'Data Rows* › Row Item'), controls: { disable: true } },
 };
 
-/** Figma Slot*: the gray pill placed in a Row Item slot. */
+/**
+ * Row Item's slot on its own (`Show Slot` on, `Show Value` off): Figma fills it with Tag "Base / Small" instances
+ * (RowSlot renders Volt's Tag), 4px apart. The old Slot* set was deleted from Figma.
+ */
 export const Slot: Story = {
   render: () => (
     <div role="row">
-      <RowItem slot={<RowSlot>Slot</RowSlot>} />
+      <RowItem
+        slot={
+          <>
+            <RowSlot>Label</RowSlot>
+            <RowSlot>Label</RowSlot>
+          </>
+        }
+      />
     </div>
   ),
-  parameters: { ...figma('765:10067', 'Data Rows* › Slot*'), controls: { disable: true } },
+  parameters: { ...figma('759:2011', 'Data Rows* › Row Item (Show Slot)'), controls: { disable: true } },
 };
 
 /** Figma Tenant Rows*: avatar with initials ("JR"). */

@@ -195,7 +195,7 @@ export function ContactFormModal({
         contact && (
           <>
             <Toggle contained label="Active" checked={form.active} onChange={e => set('active')(e.target.checked)} />
-            <Button size="small" variant="brand" icon="link-add" type="button" onClick={() => setCrmNote(true)}>
+            <Button size="medium" variant="brand" icon="link-add" type="button" onClick={() => setCrmNote(true)}>
               View in CRM
             </Button>
           </>

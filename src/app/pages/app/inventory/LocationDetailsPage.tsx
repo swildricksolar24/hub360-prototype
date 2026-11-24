@@ -173,7 +173,7 @@ export function LocationDetailsPage() {
             <h2 id="loc-details-title" className={styles.cardTitle}>
               Location Details
             </h2>
-            <Button size="small" variant="primary" icon="document" onClick={() => setNotice(`The barcode label for ${l.name} (${codeOf(locations, l.id)}) was sent to the label printer.`)}>
+            <Button size="medium" variant="primary" icon="document" onClick={() => setNotice(`The barcode label for ${l.name} (${codeOf(locations, l.id)}) was sent to the label printer.`)}>
               Print Label
             </Button>
           </div>
@@ -492,11 +492,11 @@ function LocationContents({
         search={search}
         trailing={
           mode === 'structure' ? (
-            <Button size="small" variant="brand" icon="plus" disabled={!canAddSub} onClick={() => onAddSublocation(location.id)}>
+            <Button size="medium" variant="brand" icon="plus" disabled={!canAddSub} onClick={() => onAddSublocation(location.id)}>
               Add Sublocation
             </Button>
           ) : (
-            <Button size="small" variant="brand" icon="plus" onClick={() => setSearching(true)}>
+            <Button size="medium" variant="brand" icon="plus" onClick={() => setSearching(true)}>
               Add Item
             </Button>
           )

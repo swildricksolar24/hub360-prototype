@@ -2,8 +2,7 @@
  * Figma "- Tag" page (Base 2895:7438): six sets, Base / Outline × Large / Small / Tiny, each with
  * State = Default | Selected. Tags are static read-only labels, so Figma has no hover, press or focus states.
  * Strokes are inset box-shadows so selecting never shifts layout.
- * Labels (Figma, Nov 2026): Base uses fixed Foundation colors, Solid/100 and Solid/White when selected, the same in
- * light and dark; Outline uses Gray Text/Disabled and Gray Text/Strong when selected.
+ * Labels: Base uses Gray Text/Strong and Foundation/Solid/White when selected; Outline uses Gray Text/Disabled and Gray Text/Strong when selected.
  */
 .tag {
   --bg: transparent;
@@ -33,14 +32,14 @@
   font-weight: 400;
 }
 /* Small: 8 / 20 padding, Medium Regular (36px tall) */
-.tag[data-size='small'] {
+.tag[data-size='medium'] {
   padding: var(--space-8) var(--space-20);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
   font-weight: 400;
 }
 /* Tiny: 4 / 16 padding, Tiny Semi Bold (24px tall) */
-.tag[data-size='tiny'] {
+.tag[data-size='small'] {
   padding: var(--space-4) var(--space-16);
   font-size: var(--font-size-tiny);
   line-height: var(--line-height-tiny);
@@ -50,12 +49,13 @@
 /* ---------- Base: Brand Teal Fill/Weaker, Selected Brand Teal Fill/Weak ---------- */
 
 /*
- * Labels are Foundation/Solid/100 and, when selected, Foundation/Solid/White in both themes, exactly as in Figma. In
- * light mode the unselected label is near-white on a pale teal pill (about 1.1:1 contrast), so it is hard to read there.
+ * The unselected label is Gray Text/Strong, which switches with the theme (Figma since Nov 24, 2026). It used to be the
+ * fixed Foundation/Solid/100 (near-white), which read at about 1.2:1 on the pale teal pill in light mode. Gray
+ * Text/Strong is 13:1 in light, and in dark it is white, so dark looks as it did. Selected is Foundation/Solid/White.
  */
 .tag[data-variant='base'] {
   --bg: var(--color-brand-teal-fill-weaker);
-  --fg: var(--color-foundation-solid-100);
+  --fg: var(--color-gray-text-strong);
 }
 .tag[data-variant='base'][data-selected] {
   --bg: var(--color-brand-teal-fill-weak);

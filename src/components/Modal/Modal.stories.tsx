@@ -15,8 +15,8 @@ const LONG_BODY =
 
 const DefaultActions = () => (
   <>
-    <Button size="small" variant="outline">Label</Button>
-    <Button size="small" variant="primary">Label</Button>
+    <Button size="medium" variant="outline">Label</Button>
+    <Button size="medium" variant="primary">Label</Button>
   </>
 );
 
@@ -25,7 +25,7 @@ function ModalDemo(args: Omit<ModalProps, 'open' | 'onClose'>) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button size="small" variant="brand" onClick={() => setOpen(true)}>
+      <Button size="medium" variant="brand" onClick={() => setOpen(true)}>
         Open modal
       </Button>
       <Modal
@@ -35,8 +35,8 @@ function ModalDemo(args: Omit<ModalProps, 'open' | 'onClose'>) {
         actions={
           args.actions ?? (
             <>
-              <Button size="small" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button size="small" variant="brand" onClick={() => setOpen(false)}>Confirm</Button>
+              <Button size="medium" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button size="medium" variant="brand" onClick={() => setOpen(false)}>Confirm</Button>
             </>
           )
         }
@@ -102,15 +102,15 @@ export const ModalDynamic: Story = {
         <>
           <Toggle contained label="Label" />
           <Dropdown variant="button" size="medium" aria-label="Select" placeholder="Select" options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]} />
-          <Button size="small" variant="primary">Label</Button>
+          <Button size="medium" variant="primary">Label</Button>
         </>
       }
       onClose={() => {}}
-      footerStart={<Button size="small" variant="brand-red">Label</Button>}
+      footerStart={<Button size="medium" variant="brand-red">Label</Button>}
       actions={
         <>
-          <Button size="small" variant="outline">Label</Button>
-          <Button size="small" variant="brand">Label</Button>
+          <Button size="medium" variant="outline">Label</Button>
+          <Button size="medium" variant="brand">Label</Button>
         </>
       }
     >
@@ -140,14 +140,14 @@ export const LongDescription: Story = {
       headerActions={
         <>
           <Toggle contained label="Active" defaultChecked />
-          <Button size="small" variant="outline">View in CRM</Button>
+          <Button size="medium" variant="outline">View in CRM</Button>
         </>
       }
       onClose={() => {}}
       actions={
         <>
-          <Button size="small" variant="outline">Cancel</Button>
-          <Button size="small" variant="brand">Save</Button>
+          <Button size="medium" variant="outline">Cancel</Button>
+          <Button size="medium" variant="brand">Save</Button>
         </>
       }
     >
@@ -166,8 +166,8 @@ export const ModalDialog: Story = {
       description="Description"
       actions={
         <>
-          <Button size="small" variant="outline">Cancel</Button>
-          <Button size="small" variant="brand">Confirm</Button>
+          <Button size="medium" variant="outline">Cancel</Button>
+          <Button size="medium" variant="brand">Confirm</Button>
         </>
       }
     />

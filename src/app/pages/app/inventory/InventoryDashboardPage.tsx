@@ -205,7 +205,7 @@ export function InventoryDashboardPage() {
           onChange={v => setWarehouse(v as string)}
           renderValue={sel => `Warehouse: ${sel[0]?.label ?? 'All warehouses'}`}
         />
-        <Button size="small" variant="primary" icon="export-download" onClick={() => setNotice(`Exported the dashboard for ${range.toLowerCase()} to CSV.`)}>
+        <Button size="medium" variant="primary" icon="export-download" onClick={() => setNotice(`Exported the dashboard for ${range.toLowerCase()} to CSV.`)}>
           Export
         </Button>
         <Dropdown variant="button" size="medium" label="Date range" hideLabel options={RANGES.map(r => ({ value: r, label: r }))} value={range} onChange={v => setRange(v as string)} />
@@ -247,7 +247,7 @@ export function InventoryDashboardPage() {
                 </span>
                 {/* Design-system Figma "Brand / Small / Outline" (3290:6405) */}
                 <Button
-                  size="small"
+                  size="medium"
                   variant="brand-outline"
                   onClick={() => (a.to ? navigate(a.to) : setNotice(a.notice ?? null))}
                   aria-label={`${a.action}: ${a.title}`}
@@ -297,7 +297,7 @@ export function InventoryDashboardPage() {
               Low Stock
             </h2>
             {/* Design-system Figma "Brand / Small / Outline" (3290:6405) */}
-            <Button size="small" variant="brand-outline" onClick={() => navigate(ITEMS_PATH)}>
+            <Button size="medium" variant="brand-outline" onClick={() => navigate(ITEMS_PATH)}>
               View All {figures.belowReorder}
             </Button>
           </div>
@@ -321,7 +321,7 @@ export function InventoryDashboardPage() {
               suggested: r.suggested,
               action: (
                 <Button
-                  size="tiny"
+                  size="small"
                   variant="brand"
                   aria-label={`${r.onOrder > 0 ? 'View PO' : 'Create PO'} for ${r.item}`}
                   onClick={() =>
