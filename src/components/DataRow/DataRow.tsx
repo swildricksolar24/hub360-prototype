@@ -1,5 +1,6 @@
 import { isValidElement, type CSSProperties, type ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
+import { Tag } from '../Tag/Tag';
 import { DataCheckbox } from '../DataHeader/DataCheckbox';
 import { LEADING_WIDTH, columnStyle, isFlexibleColumn, type DataColumn, type DataLeading } from '../DataHeader/columns';
 import styles from './DataRow.module.css';
@@ -54,11 +55,19 @@ export function RowItem({ value, slot, align = 'start', wrap = false, flush = fa
   );
 }
 
-/* ---------- Slot* ---------- */
+/* ---------- Row Item slot ---------- */
 
-/** Figma "Slot*": a small gray pill placed in a Row Item's slot (e.g. a count or extra label). */
+/**
+ * One label in a Row Item's slot (Figma Row Item `Show Slot`): Figma fills the slot with Tag "Base / Small" instances
+ * (Brand Teal Fill/Weaker, 4 / 16 padding, 24px tall, Tiny Semi Bold in Gray Text/Strong), so this renders Volt's Tag.
+ * Put several in one `slot` and they sit 4px apart, as in Figma.
+ */
 export function RowSlot({ children }: { children: ReactNode }) {
-  return <span className={styles.slot}>{children}</span>;
+  return (
+    <Tag variant="base" size="small">
+      {children}
+    </Tag>
+  );
 }
 
 /* ---------- Status pill (Figma Tag "Small" as used in Data Rows) ---------- */

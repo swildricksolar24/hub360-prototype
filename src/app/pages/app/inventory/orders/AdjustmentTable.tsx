@@ -152,7 +152,7 @@ export function AdjustmentTable({
                       unitCost: money(item?.unitCost ?? 0),
                       netCost: <span className={net < 0 ? styles.negative : undefined}>{money(net)}</span>,
                       remove: readOnly ? null : (
-                        <IconButton size="compact" icon="delete" label={`Remove ${line.itemNo} ${item?.name ?? ''}`} onClick={() => setRemoving(line)} />
+                        <IconButton size="medium" icon="delete" label={`Remove ${line.itemNo} ${item?.name ?? ''}`} onClick={() => setRemoving(line)} />
                       ),
                     }}
                   />

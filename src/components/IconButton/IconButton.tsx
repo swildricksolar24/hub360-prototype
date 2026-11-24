@@ -2,6 +2,24 @@ import type { ButtonHTMLAttributes } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './IconButton.module.css';
 
+export type IconButtonSize = 'large' | 'medium' | 'small';
+
+const resolveSize = (size: IconButtonProps['size']): IconButtonSize => {
+  switch (size) {
+    case 'base':
+      return 'large';
+    case 'compact':
+      return 'medium';
+    case 'tiny':
+      return 'small';
+    default:
+      return size ?? 'large';
+  }
+};
+
+/** Icon sizes from Figma: Large 32px, Medium 32px (Volt keeps the 32px glyph its 44px buttons always had), Small 18px */
+const ICON: Record<IconButtonSize, number> = { large: 32, medium: 32, small: 18 };
+
 export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   /** Accessible name; the button has no visible text. */
   label: string;
@@ -11,12 +29,13 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chi
   number?: string | number;
   /** default = Figma "Icon" · brand = Figma "Brand". */
   variant?: 'default' | 'brand';
-  /** base = 80px (Figma) · compact = 40px, as used by Message's close button. */
   /**
-   * small = 44px, the height of the Small buttons beside it (Figma Tier 3 Expanded's icon buttons) · tiny = 32px with an
-   * 18px icon (Figma "Button Icon Tiny" › Icon, e.g. Tier 3 Collapsed / Sticky).
+   * Figma's Button Icon pages: large = "Button Icon Large" (76px square, 32px icon) · medium = "Button Icon Medium"
+   * (44px, beside the toolbar's 44px buttons) · small = "Button Icon Small" (32px, 18px icon, 8px corners, e.g. Tier 3
+   * Collapsed / Sticky).
+   * Deprecated: `base` = large (it was 80px) · `compact` = medium (it was 40px) · `tiny` = small.
    */
-  size?: 'base' | 'compact' | 'small' | 'tiny';
+  size?: IconButtonSize | 'base' | 'compact' | 'tiny';
   /** Figma `State=Selected`. Rendered as a toggle button (`aria-pressed`). */
   selected?: boolean;
 };
@@ -26,23 +45,24 @@ export function IconButton({
   icon = 'arrow-up',
   number,
   variant = 'default',
-  size = 'base',
+  size = 'large',
   selected,
   type = 'button',
   className,
   ...rest
 }: IconButtonProps) {
+  const sized = resolveSize(size);
   return (
     <button
       type={type}
       className={[styles.iconButton, className].filter(Boolean).join(' ')}
       data-variant={variant}
-      data-size={size}
+      data-size={sized}
       aria-label={label}
       aria-pressed={selected}
       {...rest}
     >
-      {number !== undefined ? <span className={styles.number}>{number}</span> : <Icon name={icon} size={size === 'tiny' ? 18 : 32} color="currentColor" />}
+      {number !== undefined ? <span className={styles.number}>{number}</span> : <Icon name={icon} size={ICON[sized]} color="currentColor" />}
     </button>
   );
 }

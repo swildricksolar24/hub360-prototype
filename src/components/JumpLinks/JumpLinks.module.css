@@ -2,8 +2,8 @@
  * Figma Base "Jump Links" 3582:13 / "Jump Link" 3582:11 (the row at the bottom of the Tier 3 card): links 12px apart,
  * 24px in from the sides, on the header's Surfaces/Overlay. Each is 8 × 12px; Medium/Semi-Bold in Gray Text/Weak, and the
  * current one Medium/Bold in Gray Text/Strong with a 2px Brand Teal underline, which slides from link to link.
- * On its own it is a card bottom (16px above and below, bottom corners rounded); inside NavTier3 (`jumpLinks`) the card
- * drops the padding below it, as Figma's Tier 3 does (16 above, 0 below).
+ * It is a card bottom: Figma Jump Links' padding is 16 above, 24 at the sides and 0 below (the link's 12px padding and the
+ * underline end the row), with the bottom corners rounded. Inside NavTier3 (`jumpLinks`) the card's own padding ends it.
  */
 .links {
   position: relative; /* the sliding underline is placed from the links' offsets */
@@ -12,7 +12,8 @@
   flex-wrap: nowrap;
   min-width: 0;
   gap: var(--space-12);
-  padding: var(--space-16) var(--space-24);
+  /* Figma Jump Links (3584:2032): 16 / 24 / 0 / 24 */
+  padding: var(--space-16) var(--space-24) 0;
   border-radius: 0 0 var(--radius-12) var(--radius-12);
   background: var(--color-surfaces-overlay);
 }

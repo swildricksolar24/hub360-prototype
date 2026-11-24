@@ -243,7 +243,7 @@ function DeleteAllButton({ what, count, detail, onConfirm }: { what: string; cou
   const [asking, setAsking] = useState(false);
   return (
     <>
-      <Button size="small" variant="brand-red" icon="delete" disabled={count === 0} onClick={() => setAsking(true)}>
+      <Button size="medium" variant="brand-red" icon="delete" disabled={count === 0} onClick={() => setAsking(true)}>
         Delete All
       </Button>
       <AppModal
@@ -439,7 +439,7 @@ function SpecificationsCard({
             </Hyperlink>
           ) : draft.specSheet ? (
             <Button
-              size="small"
+              size="medium"
               variant="primary"
               icon="edit"
               iconPosition="right"
@@ -451,7 +451,7 @@ function SpecificationsCard({
               {draft.specSheet}
             </Button>
           ) : (
-            <Button size="small" variant="brand" icon="plus" onClick={() => setSheetOpen(true)}>
+            <Button size="medium" variant="brand" icon="plus" onClick={() => setSheetOpen(true)}>
               Add Spec Sheet
             </Button>
           )}
@@ -509,7 +509,7 @@ function SpecificationsCard({
       {/* Figma note: Add Spec adds a general spec to this item only */}
       <div className={styles.addSpecRow}>
         <Button
-          size="small"
+          size="medium"
           variant="primary"
           icon="plus"
           onClick={() => {
@@ -616,7 +616,7 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
         {/* The base unit (the first row) always stays */}
         <DeleteAllButton what="Units" count={Math.max(0, units.length - 1)} detail="The base unit stays." onConfirm={() => set('units', units.slice(0, 1))} />
         <Button
-          size="small"
+          size="medium"
           variant="brand"
           icon="plus"
           // A new row starts on the top choice of each menu: the first unit not yet in the table, counted in the base unit
@@ -692,11 +692,11 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
               />
             ),
             weight: <EditableCell label={`${u.unit || 'Unit'} weight`} value={u.weight} placeholder="0 lbs" onValueChange={v => update(u.id, { weight: v })} />,
-            print: <IconButton size="compact" icon="export-download" label={`Print the ${u.unit || 'unit'} label`} onClick={() => onNotice(`${u.unit || 'Unit'} label sent to the printer.`)} />,
+            print: <IconButton size="medium" icon="export-download" label={`Print the ${u.unit || 'unit'} label`} onClick={() => onNotice(`${u.unit || 'Unit'} label sent to the printer.`)} />,
             remove: base ? (
               // The base unit stays: a lock in the same button as the rows' remove, which says why when pressed
               <IconButton
-                size="compact"
+                size="medium"
                
                 icon="lock"
                 label={`${u.unit || 'The base unit'} is the base unit and can’t be removed`}
@@ -705,7 +705,7 @@ function UnitsCard({ item, draft, set, onNotice }: { item: Item; draft: DetailsD
               />
             ) : (
               <IconButton
-                size="compact"
+                size="medium"
                
                 icon="delete"
                 label={`Remove ${u.unit || 'this unit'}`}
@@ -781,7 +781,7 @@ function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
           }}
         />
         {/* Figma 1152:23496: one Add Warranty; the type (standard or extended) is chosen in the modal */}
-        <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
+        <Button size="medium" variant="brand" icon="plus" onClick={() => setEditing('new')}>
           Add Warranty
         </Button>
         </>
@@ -798,8 +798,8 @@ function WarrantyCard({ item, onNotice }: { item: Item; onNotice: (t: string) =>
             <span className="text-medium-regular">{termText(w)}</span>
             <span className={`text-tiny-regular ${styles.warrantyNote}`}>{warrantyNote(w)}</span>
             {/* Figma note: Edit opens the warranty pop-up (the same as Add Warranty) */}
-            <IconButton size="compact" icon="edit" label={`Edit the ${warrantyTitle(w)} warranty`} onClick={() => setEditing(w)} />
-            <IconButton size="compact" icon="delete" label={`Remove the ${warrantyTitle(w)} warranty`} onClick={() => setRemoving(w)} />
+            <IconButton size="medium" icon="edit" label={`Edit the ${warrantyTitle(w)} warranty`} onClick={() => setEditing(w)} />
+            <IconButton size="medium" icon="delete" label={`Remove the ${warrantyTitle(w)} warranty`} onClick={() => setRemoving(w)} />
           </li>
         ))}
       </ul>
@@ -950,7 +950,7 @@ function ImagesCard({ draft, set, onNotice }: { draft: DetailsDraft; set: SetFie
       action={
         <>
           <DeleteAllButton what="Images" count={images.length} detail="Save to keep the change." onConfirm={() => set('images', [])} />
-          <Button size="small" variant="brand" icon="upload" onClick={() => file.current?.click()}>
+          <Button size="medium" variant="brand" icon="upload" onClick={() => file.current?.click()}>
             Upload
           </Button>
           <input
@@ -983,7 +983,7 @@ function ImagesCard({ draft, set, onNotice }: { draft: DetailsDraft; set: SetFie
               {/* The first image is the main one; drag another to the front to make it the main image */}
               <span className={styles.srOnly}>{i === 0 ? `${name} (main image)` : name}</span>
               {i === 0 && (
-                <Tag size="tiny" selected className={styles.mainTag} aria-hidden>
+                <Tag size="small" selected className={styles.mainTag} aria-hidden>
                   Main
                 </Tag>
               )}
@@ -1106,7 +1106,7 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
               onNotice(`All replacement items were removed from ${item.name}.`);
             }}
           />
-          <Button size="small" variant="brand" icon="plus" onClick={() => setOpen(true)}>
+          <Button size="medium" variant="brand" icon="plus" onClick={() => setOpen(true)}>
             Add Replacement
           </Button>
         </>
@@ -1119,7 +1119,7 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
             {/* Drag the row to reorder; with the keyboard, focus the handle and press ↑ / ↓ */}
             {/* The same Volt compact icon button as the row's delete */}
             <IconButton
-              size="compact"
+              size="medium"
               icon="drag-indicator"
               className={styles.rowDrag}
               label={`Move ${r.name} (${i + 1} of ${shown.length}). Use the up and down arrow keys.`}
@@ -1150,7 +1150,7 @@ function ReplacementCard({ item, onNotice }: { item: Item; onNotice: (t: string)
               />
             </div>
             <IconButton
-              size="compact"
+              size="medium"
               icon="delete"
               label={`Remove ${r.name}`}
               onClick={() => {
@@ -1320,7 +1320,7 @@ export function SuppliersTab({ item, onNotice }: { item: Item; onNotice: (t: str
         actions={{ options: [{ value: 'export', label: 'Export to CSV' }], onAction: () => onNotice(`Exported ${t.rows.length} suppliers to CSV.`), selectedCount: 0 }}
         search={{ value: t.query, onChange: t.setQuery, label: 'Search suppliers' }}
         trailing={
-          <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
+          <Button size="medium" variant="brand" icon="plus" onClick={() => setEditing('new')}>
             Add Supplier
           </Button>
         }
@@ -1458,7 +1458,7 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
       title="Notes"
       className={styles.detailCard}
       action={
-        <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
+        <Button size="medium" variant="brand" icon="plus" onClick={() => setEditing('new')}>
           Add Note
         </Button>
       }
@@ -1487,7 +1487,7 @@ function NotesCard({ item, onNotice }: { item: Item; onNotice: (t: string) => vo
             ),
             pin: (
               <IconButton
-                size="compact"
+                size="medium"
                 className={styles.notePin}
                 icon="bookmark"
                 selected={pinned(n)}

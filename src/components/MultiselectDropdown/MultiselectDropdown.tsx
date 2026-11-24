@@ -78,7 +78,8 @@ export function MultiselectDropdown({
           {...dd.triggerProps}
         >
           {chosen.length === 0 && <span className={styles.text}>{placeholder}</span>}
-          <Icon name="chevron-down" size={20} color="currentColor" className={styles.chevron} />
+          {/* Figma: 20px while empty, 24px in State=Selected */}
+          <Icon name="chevron-down" size={chosen.length ? 24 : 20} color="currentColor" className={styles.chevron} />
         </button>
       </div>
       {dd.isOpen && (

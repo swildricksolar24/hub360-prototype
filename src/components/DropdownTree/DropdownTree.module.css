@@ -5,7 +5,8 @@
   font-family: var(--font-family-inter);
 }
 
-/* "Input": 8px padding, Small text, square corners */
+/* "Input": 8px padding, square corners. Figma text is 16px Regular with no text style and a 26px line height (a 42px
+   field); Large (16/24) is the nearest token, so the field is 40px */
 .field {
   --bg: var(--color-gray-fill-weaker);
   --ring: transparent;
@@ -16,8 +17,8 @@
   padding: var(--space-8);
   background: var(--bg);
   box-shadow: 0 0 0 var(--ring-w) var(--ring);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
   cursor: pointer;
 }
 .field[data-has-value] {

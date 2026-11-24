@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Button } from '../Button/Button';
 import styles from './SubMenu.module.css';
 
-export type SubMenuVariant = 'default' | 'tiny' | 'text';
+/** Figma Sub Menu `State`: Medium (was Default) · Small (was Tiny) · Text. */
+export type SubMenuVariant = 'medium' | 'small' | 'text';
 
 export type SubMenuItem = { id: string; label: ReactNode; disabled?: boolean };
 
@@ -12,10 +13,10 @@ export type SubMenuProps = {
   value?: string;
   onChange?: (id: string) => void;
   /**
-   * Figma `State` — default: Button Small / Primary (gap 12) · tiny: Button Tiny / Primary (gap 8) ·
-   * text: Button Tiny / Text (gap 8).
+   * Figma `State` — medium: Button Medium (44px) / Primary (gap 12) · small: Button Small (32px) / Primary (gap 8) ·
+   * text: Button Small / Text (gap 8). Deprecated: `default` = medium, `tiny` = small.
    */
-  variant?: SubMenuVariant;
+  variant?: SubMenuVariant | 'default' | 'tiny';
   /** Accessible name of the `<nav>` landmark. */
   'aria-label'?: string;
   /** Extra item at the end of the row, e.g. a "More" menu for the buttons that don't fit (NavTier3). */
@@ -24,13 +25,14 @@ export type SubMenuProps = {
 };
 
 const BUTTON = {
-  default: { size: 'small', variant: 'primary' },
-  tiny: { size: 'tiny', variant: 'primary' },
-  text: { size: 'tiny', variant: 'text' },
+  medium: { size: 'medium', variant: 'primary' },
+  small: { size: 'small', variant: 'primary' },
+  text: { size: 'small', variant: 'text' },
 } as const;
 
 /** Figma Interior Nav "Sub Menu": a row of buttons that switch between the sections of a page. */
-export function SubMenu({ items, value, onChange, variant = 'default', 'aria-label': ariaLabel = 'Sub menu', trailing, className }: SubMenuProps) {
+export function SubMenu({ items, value, onChange, variant: variantProp = 'medium', 'aria-label': ariaLabel = 'Sub menu', trailing, className }: SubMenuProps) {
+  const variant: SubMenuVariant = variantProp === 'default' ? 'medium' : variantProp === 'tiny' ? 'small' : variantProp;
   return (
     <nav aria-label={ariaLabel} className={[styles.subMenu, className].filter(Boolean).join(' ')} data-variant={variant}>
       <ul className={styles.list}>

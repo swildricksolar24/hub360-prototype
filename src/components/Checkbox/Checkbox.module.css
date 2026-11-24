@@ -59,8 +59,23 @@
   visibility: visible;
 }
 
+/* Label + info icon: Figma "Medium - Icon" (2499:4513) puts them in a 4px-gap frame; "Small - Icon" (2417:3224) has
+   them as direct children 12px apart */
+.labelGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.checkbox[data-size='small'] .labelGroup {
+  gap: var(--space-12);
+}
+
 .info {
   color: var(--info);
+}
+/* Small - Icon: the info icon is Gray Fill/Strong in every state (Default through Disabled and Error) */
+.checkbox[data-size='small'] .info {
+  color: var(--color-gray-fill-strong);
 }
 
 /* States */
@@ -77,7 +92,7 @@
   --box-ring: var(--color-gray-stroke-weaker);
   --box-ring-w: var(--stroke-width-4);
 }
-.checkbox[data-size='default']:has(.input:focus-visible) {
+.checkbox[data-size='medium']:has(.input:focus-visible) {
   --box-bg: var(--color-gray-fill-hover);
 }
 .checkbox[data-error] {

@@ -43,7 +43,7 @@ export function PersonalInformation({ user }: { user: User | null }) {
           <span className={`text-large-bold ${styles.rowLabel}`}>{user?.name}</span>
           <span className={`text-small-regular ${styles.rowDescription}`}>Operations Manager · Operations</span>
         </div>
-        <Button size="small" variant="brand" onClick={() => setEditingPhoto(true)}>
+        <Button size="medium" variant="brand" onClick={() => setEditingPhoto(true)}>
           Edit Photo
         </Button>
       </section>
@@ -92,7 +92,7 @@ export function SecurityLogin() {
         <div className={styles.inline}>
           <PasswordField label="Current Password" defaultValue="icebergLounge1" readOnly />
           <Button
-            size="small"
+            size="medium"
             variant="brand"
             onClick={() => {
               setForm({ current: '', next: '', confirm: '' });
@@ -112,7 +112,7 @@ export function SecurityLogin() {
         </SettingRow>
         <div className={styles.inline}>
           <TextInput label="SMS Backup" type="tel" defaultValue="+1 (602) 555-0187" />
-          <Button size="small" variant="brand">
+          <Button size="medium" variant="brand">
             Update
           </Button>
         </div>
@@ -406,20 +406,20 @@ export function AccountData() {
           <Chip variant="secondary">Active</Chip>
         </SettingRow>
         <SettingRow label="Download personal data" description="Export a copy of your profile, activity, and settings">
-          <Button size="small" variant="outline" onClick={() => setNotice('Your export is being prepared. We’ll email you a download link.')}>
+          <Button size="medium" variant="outline" onClick={() => setNotice('Your export is being prepared. We’ll email you a download link.')}>
             Export
           </Button>
         </SettingRow>
         <SettingRow label="Account activity log" description="View sign-ins, changes, and security events">
-          <Button size="small" variant="outline" onClick={() => setLog(true)}>
+          <Button size="medium" variant="outline" onClick={() => setLog(true)}>
             View Log
           </Button>
         </SettingRow>
         <SettingRow label="Danger zone" description="This action is permanent and cannot be reversed">
-          <Button size="small" variant="brand" className={styles.danger} onClick={() => setConfirm('deactivate')}>
+          <Button size="medium" variant="brand" className={styles.danger} onClick={() => setConfirm('deactivate')}>
             Deactivate Account
           </Button>
-          <Button size="small" variant="brand" className={styles.danger} onClick={() => setConfirm('delete')}>
+          <Button size="medium" variant="brand" className={styles.danger} onClick={() => setConfirm('delete')}>
             Delete Account
           </Button>
         </SettingRow>

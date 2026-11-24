@@ -133,7 +133,7 @@ export function LocationTree({
               </span>
               <span className={styles.treeActions}>
                 <IconButton
-                  size="compact"
+                  size="medium"
                   icon="arrow-left"
                   label={`Outdent ${l.name}`}
                   title="Outdent: move up a level"
@@ -141,7 +141,7 @@ export function LocationTree({
                   onClick={() => onChange(outdent(locations, l.id))}
                 />
                 <IconButton
-                  size="compact"
+                  size="medium"
                   icon="arrow-right"
                   label={`Indent ${l.name}`}
                   title="Indent: move into the location above"
@@ -149,14 +149,14 @@ export function LocationTree({
                   onClick={() => onChange(indent(locations, l.id))}
                 />
                 <IconButton
-                  size="compact"
+                  size="medium"
                   icon="plus"
                   label={`Add a sublocation to ${l.name}`}
                   title={depth >= MAX_LOCATION_DEPTH ? 'Locations go 4 levels deep' : 'Add sublocation'}
                   disabled={depth >= MAX_LOCATION_DEPTH}
                   onClick={() => onAddChild(l.id)}
                 />
-                <IconButton size="compact" icon="edit" label={`Edit ${l.name}`} title="Edit location" onClick={() => onEdit(l)} />
+                <IconButton size="medium" icon="edit" label={`Edit ${l.name}`} title="Edit location" onClick={() => onEdit(l)} />
               </span>
             </li>
           );

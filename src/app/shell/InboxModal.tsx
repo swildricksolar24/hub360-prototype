@@ -276,7 +276,7 @@ export function InboxModal({ kind, items, onClose, onToggleBookmark, onRemove }:
                   {/* Bookmarked: the solid brand button. The label (not aria-pressed, which would draw the brand
                       button's white Selected state) tells screen readers the state. */}
                   <IconButton
-                    size="compact"
+                    size="medium"
                     icon="bookmark"
                     data-action="bookmark"
                     variant={item.bookmarked ? 'brand' : 'default'}
@@ -284,8 +284,8 @@ export function InboxModal({ kind, items, onClose, onToggleBookmark, onRemove }:
                     title={item.bookmarked ? 'Remove bookmark' : 'Bookmark'}
                     onClick={() => toggleBookmark(item)}
                   />
-                  <IconButton size="compact" icon="archive" label={`Archive "${item.title}"`} title="Archive" onClick={() => remove(index, item.id)} />
-                  <IconButton size="compact" icon="delete" label={`Delete "${item.title}"`} title="Delete" onClick={() => remove(index, item.id)} />
+                  <IconButton size="medium" icon="archive" label={`Archive "${item.title}"`} title="Archive" onClick={() => remove(index, item.id)} />
+                  <IconButton size="medium" icon="delete" label={`Delete "${item.title}"`} title="Delete" onClick={() => remove(index, item.id)} />
                 </div>
               </li>
             );

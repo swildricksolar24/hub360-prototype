@@ -4,7 +4,8 @@
   --ring: transparent;
   --ring-w: 0px;
   --label: var(--color-gray-text-weak);
-  --text: var(--color-gray-text-strong);
+  /* Nov 24, 2026: value text matches the field drop-down (Gray Text/Weak, Semi-Bold) */
+  --text: var(--color-gray-text-weak);
   --step-bg: var(--color-gray-fill-weaker);
   --step-fg: var(--color-gray-fill-strong);
 
@@ -49,9 +50,14 @@
   background: none;
   color: var(--text);
   font: inherit;
+  /* Figma value: Medium/Semi-Bold; Medium/Bold in Error and Disabled (as the field drop-down) */
+  font-weight: 600;
   outline: none;
   -moz-appearance: textfield;
   appearance: textfield;
+}
+.field:is([data-error], [data-disabled]) .input {
+  font-weight: 700;
 }
 /* The Figma steppers replace the browser's spin buttons */
 .input::-webkit-outer-spin-button,

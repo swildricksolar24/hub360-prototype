@@ -291,7 +291,7 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
             label: 'Search by name or code (e.g. A-01-02)',
           }}
           trailing={
-            <Button size="small" variant="brand" icon="plus" onClick={() => setAdding({ parentId: null })}>
+            <Button size="medium" variant="brand" icon="plus" onClick={() => setAdding({ parentId: null })}>
               Add Location
             </Button>
           }
@@ -395,7 +395,7 @@ export function LocationsTab({ code, warehouseName, onNotice }: { code: string; 
               utilization: utilizationText(l),
               rules: rules(l),
               status: status(l),
-              add: canAddInside(l) ? <IconButton size="compact" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} /> : null,
+              add: canAddInside(l) ? <IconButton size="medium" icon="plus" label={`Add a location inside ${l.name}`} onClick={() => setAdding({ parentId: l.id })} /> : null,
             })}
           />
         </FilterBox>

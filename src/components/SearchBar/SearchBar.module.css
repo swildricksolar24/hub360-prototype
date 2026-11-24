@@ -165,17 +165,20 @@
   padding: 0 var(--space-4);
   color: var(--color-gray-text-weak);
 }
+/* Medium/Semi-Bold in Gray Text/Weak, as the Drop Down Label's value */
 .detailValue {
   padding: var(--space-12);
   border-radius: var(--radius-12);
   background: var(--color-gray-fill-weaker);
+  color: var(--color-gray-text-weak);
+  font-weight: 600;
 }
 
 /* Type=With Icon right column */
 .tag {
   flex: 1;
   padding: var(--space-8) var(--space-12);
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-8);
   color: var(--color-gray-text-weak);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);

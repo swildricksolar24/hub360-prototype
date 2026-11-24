@@ -35,7 +35,7 @@ export function NavTier4({ 'aria-label': ariaLabel, items, activeId, onSelect, t
     <div className={[styles.bar, className].filter(Boolean).join(' ')}>
       <div role="group" aria-label={ariaLabel} className={styles.items}>
         {items.map(item => (
-          <Button key={item.id} variant="primary" size="small" selected={item.id === activeId} onClick={() => onSelect(item.id)}>
+          <Button key={item.id} variant="primary" size="medium" selected={item.id === activeId} onClick={() => onSelect(item.id)}>
             {item.label}
           </Button>
         ))}

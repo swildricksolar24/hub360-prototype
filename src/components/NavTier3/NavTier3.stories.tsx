@@ -14,13 +14,38 @@ const noop = () => {};
 
 /**
  * Expanded actions (Figma): Toggle Button ("Active"), a small Drop Down ("Actions"), Save and record arrows. Collapsed and
- * Sticky use the tiny versions (tinyActions below).
+ * Sticky use the small versions (smallActions below).
  */
 const actions = (
   <>
     <Toggle contained label="Active" defaultChecked />
     <Dropdown
       variant="button" size="medium"
+      label="Actions"
+      hideLabel
+      placeholder="Actions"
+      options={[
+        { value: 'duplicate', label: 'Duplicate' },
+        { value: 'archive', label: 'Archive' },
+      ]}
+    />
+    <Button size="medium" variant="brand">
+      Save
+    </Button>
+    <IconButton size="medium" icon="chevron-left" label="Previous record" />
+    <IconButton size="medium" icon="chevron-right" label="Next record" />
+  </>
+);
+
+/**
+ * Figma's Collapsed and Sticky use the small controls (32px): Toggle Button Small, Drop Down Button › Small, Button Small
+ * Brand and Button Icon Small. The page passes them; NavTier3 shows whatever `actions` it gets.
+ */
+const smallActions = (
+  <>
+    <Toggle contained size="small" label="Active" defaultChecked />
+    <Dropdown
+      variant="button" size="small"
       label="Actions"
       hideLabel
       placeholder="Actions"
@@ -37,34 +62,9 @@ const actions = (
   </>
 );
 
-/**
- * Figma's Collapsed and Sticky use the tiny controls (32px): Toggle Button Tiny, Drop Down Button › Tiny, Button Tiny
- * Brand and Button Icon Tiny. The page passes them; NavTier3 shows whatever `actions` it gets.
- */
-const tinyActions = (
-  <>
-    <Toggle contained size="tiny" label="Active" defaultChecked />
-    <Dropdown
-      variant="button" size="small"
-      label="Actions"
-      hideLabel
-      placeholder="Actions"
-      options={[
-        { value: 'duplicate', label: 'Duplicate' },
-        { value: 'archive', label: 'Archive' },
-      ]}
-    />
-    <Button size="tiny" variant="brand">
-      Save
-    </Button>
-    <IconButton size="tiny" icon="chevron-left" label="Previous record" />
-    <IconButton size="tiny" icon="chevron-right" label="Next record" />
-  </>
-);
-
 /** Figma uses a Chip "Tiny / Icon Left" here. */
 const tag = (
-  <Chip variant="tiny" icon="arrow-up">
+  <Chip size="small" icon="arrow-up">
     Label
   </Chip>
 );
@@ -131,7 +131,7 @@ export const Playground: Story = {
         <Toggle label="Jump Links" checked={withLinks} onChange={e => setWithLinks(e.target.checked)} />
         <NavTier3
           {...args}
-          actions={collapsed || args.sticky ? tinyActions : args.actions}
+          actions={collapsed || args.sticky ? smallActions : args.actions}
           jumpLinks={withLinks ? jumpLinks : undefined}
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}
@@ -159,7 +159,7 @@ export const Tier3: Story = {
         <Caption>State=Collapsed</Caption>
         <NavTier3
           {...args}
-          actions={tinyActions}
+          actions={smallActions}
           items={items.map(i => (i.id === 'contacts' ? { ...i, label: 'Contact' } : i))}
           jumpLinks={jumpLinks}
           collapsed
@@ -167,7 +167,7 @@ export const Tier3: Story = {
       </figure>
       <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
         <Caption>State=Sticky</Caption>
-        <NavTier3 {...args} actions={tinyActions} jumpLinks={jumpLinks} sticky />
+        <NavTier3 {...args} actions={smallActions} jumpLinks={jumpLinks} sticky />
       </figure>
       <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
         <Caption>State=Expanded, Jump Links off</Caption>
@@ -196,7 +196,7 @@ export const CollapsedNarrow: Story = {
           <figure key={width} style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
             <Caption>{`${width}px`}</Caption>
             <div style={{ width, maxWidth: '100%' }}>
-              <NavTier3 {...args} actions={tinyActions} collapsed value={value} onChange={setValue} />
+              <NavTier3 {...args} actions={smallActions} collapsed value={value} onChange={setValue} />
             </div>
           </figure>
         ))}

@@ -13,6 +13,7 @@ const subscribe = (listener: () => void) => {
 };
 
 export const useOrders = () => useSyncExternalStore(subscribe, () => orders);
+export const getOrders = () => orders;
 
 export function setOrders(next: Order[] | ((current: Order[]) => Order[])) {
   orders = typeof next === 'function' ? next(orders) : next;

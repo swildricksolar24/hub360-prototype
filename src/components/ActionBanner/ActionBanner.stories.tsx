@@ -5,10 +5,10 @@ import { figma } from '../../storybook/figma';
 
 const actions = (
   <>
-    <Button size="small" variant="outline">
+    <Button size="medium" variant="outline">
       Send to Another Printer
     </Button>
-    <Button size="small" variant="brand">
+    <Button size="medium" variant="brand">
       Retry Job
     </Button>
   </>

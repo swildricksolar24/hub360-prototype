@@ -36,7 +36,12 @@ export type StockRow = {
   committed: number;
   frozen: number;
 };
-export const available = (s: StockRow) => Math.max(0, s.onHand - s.allocated - s.committed - s.frozen);
+/** An item's ordering levels in one warehouse (Stock › Ordering); null is not set. */
+export type WarehouseLevels = { min: number | null; reorderPoint: number | null; max: number | null };
+export const available = (s: StockRow) =>Math.max(0, s.onHand - s.allocated - s.committed - s.frozen);
+
+/** "How is this built?" (Create Item): built here from components in stock, or bought pre-built from a supplier. */
+export type BuildMethod = 'stock' | 'supplier';
 
 /** One line of an assembly's or kit's build. */
 export type BuildLine = { itemId: string; quantity: number };
@@ -202,7 +207,15 @@ export type Item = {
   lastPurchase: { supplier: string; date: string; quantity: number | null; unitType: string; cost: number | null };
   unitCost: number;
   stock: StockRow[];
+  /** Stock › Ordering: each warehouse's Min, Reorder Pt and Max, by warehouse code (sample values until edited). */
+  warehouseLevels?: Record<string, WarehouseLevels>;
   build: BuildLine[];
+  /** Assembly / kit only (Create Item): the standard time to build one, as typed (e.g. "3.5 hours"). */
+  buildTime?: string;
+  /** Assembly / kit only: the build revision, "Rev A" when created (Figma: changing the components later makes a new one). */
+  revision?: string;
+  /** Assembly / kit only: how it's built, "How is this built?" (both can be on): from stock, or bought pre-built from a supplier. */
+  buildMethods?: BuildMethod[];
   warranties: Warranty[];
   replacements: string[];
   /** Why each replacement is offered (shown to the person picking a substitute), by replacement item id. */
@@ -331,7 +344,36 @@ function sampleStock(id: string): StockRow[] {
     const frozen = rnd() < 0.25 ? int(1, 12) : 0;
     const location = `${warehouse.split('-')[0]}-${String.fromCharCode(65 + int(0, 5))}${int(1, 9)}-${String(int(1, 40)).padStart(2, '0')}`;
     return { id: `${id}-s${i}`, warehouse, location, onHand, allocated, committed, frozen };
-  });
+  }).flatMap(splitLocations);
+}
+
+/** A string's stable number: sample values that mustn't move the seeded random's sequence (so other samples stay put). */
+export const hashOf = (text: string) => [...text].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+
+/**
+ * Spreads a warehouse's sample stock over 1–3 locations (the item record's Stock tab groups them under the warehouse).
+ * The first location keeps the allocated, committed and frozen amounts; the others hold free stock.
+ */
+function splitLocations(row: StockRow): StockRow[] {
+  const h = hashOf(row.id);
+  const parts = 1 + (h % 3);
+  const free = row.onHand - row.allocated - row.committed - row.frozen;
+  const share = Math.floor(free / (parts * 2) / 5) * 5;
+  if (parts === 1 || share === 0) return [row];
+  const prefix = row.location.split('-')[0];
+  return Array.from({ length: parts }, (_, j) =>
+    j === 0
+      ? { ...row, onHand: row.onHand - share * (parts - 1) }
+      : {
+          id: `${row.id}-${j}`,
+          warehouse: row.warehouse,
+          location: `${prefix}-${String.fromCharCode(65 + ((h >>> (j * 3)) % 6))}${1 + ((h >>> (j * 5)) % 9)}-${String(1 + ((h >>> (j * 7)) % 40)).padStart(2, '0')}`,
+          onHand: share,
+          allocated: 0,
+          committed: 0,
+          frozen: 0,
+        },
+  );
 }
 
 function sampleSuppliers(id: string, name: string, cost: number): ItemSupplier[] {

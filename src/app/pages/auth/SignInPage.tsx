@@ -77,7 +77,7 @@ export function SignInPage() {
       subtitle="Please sign in to access your account"
       alert={alert}
       tools={
-        <Button size="small" variant="outline" icon="account" onClick={fillDemo} disabled={busy || locked}>
+        <Button size="medium" variant="outline" icon="account" onClick={fillDemo} disabled={busy || locked}>
           Use demo account
         </Button>
       }
@@ -118,13 +118,13 @@ export function SignInPage() {
           </div>
         )}
         {locked ? (
-          <Button size="base" variant="brand" block onClick={() => navigate('/forgot-password', { state: { email: identifier } })}>
+          <Button size="large" variant="brand" block onClick={() => navigate('/forgot-password', { state: { email: identifier } })}>
             Reset Password
           </Button>
         ) : (
           <Button
             type="submit"
-            size="base"
+            size="large"
             variant="brand"
             block
             disabled={!canSubmit}

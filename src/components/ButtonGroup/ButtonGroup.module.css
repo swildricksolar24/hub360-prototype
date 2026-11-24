@@ -36,13 +36,22 @@
 }
 
 /*
- * small (Figma `Size=Small`, added 2026-11-12): the toolbar size, beside Button Small and Dropdown small. 12px above
+ * medium (Figma `Size=Medium`, was Small, added 2026-11-12): the toolbar size, beside Button Small and Dropdown medium. 12px above
  * and below, 20px at the sides, Medium/Regular text = 44px.
  */
-.group[data-size='small'] > .item {
+.group[data-size='medium'] > .item {
   padding: var(--space-12) var(--space-20);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
+}
+/*
+ * small (Figma `Size=Small`, was Tiny, added 2026-11-24): beside the 32px controls (Button Small (32px), Dropdown small, Toggle
+ * tiny). 8px above and below, 12px at the sides, Tiny/Regular text = 32px, and 8px outer corners (set below).
+ */
+.group[data-size='small'] > .item {
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--font-size-tiny);
+  line-height: var(--line-height-tiny);
 }
 
 /* ---------- Horizontal: Left / Center / Right ---------- */
@@ -54,6 +63,15 @@
 .group[data-orientation='horizontal'] > .item:last-child {
   border-top-right-radius: var(--radius-12);
   border-bottom-right-radius: var(--radius-12);
+}
+/* Small rounds its outer corners to 8px, as Figma's 32px buttons do */
+.group[data-size='small'][data-orientation='horizontal'] > .item:first-child {
+  border-top-left-radius: var(--radius-8);
+  border-bottom-left-radius: var(--radius-8);
+}
+.group[data-size='small'][data-orientation='horizontal'] > .item:last-child {
+  border-top-right-radius: var(--radius-8);
+  border-bottom-right-radius: var(--radius-8);
 }
 /* Left and Center parts draw a hairline on their right edge */
 .group[data-orientation='horizontal'] > .item:not(:last-child) {
@@ -102,7 +120,7 @@
 
 /*
  * Selected (aria-pressed="true", a switch's chosen part; Figma Part - Horizontal `State=Left / Center / Right
- * Selected`): Brand Teal Fill/Strong with white text, Heading 4/Bold (Default) or Medium/Semi-Bold (Small). Figma uses
+ * Selected`): Brand Teal Fill/Strong with white text, Heading 4/Bold (Large) or Semi-Bold (Medium, Small). Figma uses
  * Foundation/Solid/White directly; there is no semantic "text on brand" token. Hover and press are code-only.
  */
 .item[aria-pressed='true'] {
@@ -110,7 +128,7 @@
   --fg: var(--color-foundation-solid-white);
   font-weight: 700;
 }
-.group[data-size='small'] > .item[aria-pressed='true'] {
+.group:is([data-size='medium'], [data-size='small']) > .item[aria-pressed='true'] {
   font-weight: 600;
 }
 .item[aria-pressed='true']:is(:hover, :focus-visible) {

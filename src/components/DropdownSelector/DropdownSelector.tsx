@@ -60,7 +60,7 @@ type GalleryProps = {
   'aria-label'?: string;
 };
 
-/** Grid of 43px thumbnails as a multi-select listbox. Arrow keys move in two dimensions. */
+/** Grid of 38px thumbnails as a multi-select listbox. Arrow keys move in two dimensions. */
 export function DropdownSelectorGallery({ options, value, onToggle, onDismiss, id, ...aria }: GalleryProps) {
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLDivElement | null)[]>([]);

@@ -162,10 +162,10 @@ export function ColumnFilter({
         )}
       </div>
       <div className={styles.filterActions}>
-        <Button size="small" variant="outline" type="button" onClick={() => onApply([])}>
+        <Button size="medium" variant="outline" type="button" onClick={() => onApply([])}>
           Clear
         </Button>
-        <Button size="small" variant="brand" type="button" onClick={() => onApply(checked)}>
+        <Button size="medium" variant="brand" type="button" onClick={() => onApply(checked)}>
           Apply
         </Button>
       </div>

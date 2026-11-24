@@ -34,7 +34,7 @@ export function Message({ title, body, type = 'neutral', onClose, className }: M
           {body && <p className={styles.body}>{body}</p>}
         </div>
       </div>
-      {onClose && <IconButton label="Close" icon="close-small" size="compact" className={styles.close} onClick={onClose} />}
+      {onClose && <IconButton label="Close" icon="close-small" size="medium" className={styles.close} onClick={onClose} />}
     </div>
   );
 }

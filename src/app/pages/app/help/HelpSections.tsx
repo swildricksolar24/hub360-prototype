@@ -140,11 +140,11 @@ export function Guides({
     <div className={styles.panel}>
       <Heading title="Guides">Step-by-step help for everyday work.</Heading>
       <div className={styles.filters} role="group" aria-label="Filter guides by topic">
-        <Tag size="small" selected={topic === null} onClick={() => onTopic(null)}>
+        <Tag size="medium" selected={topic === null} onClick={() => onTopic(null)}>
           All
         </Tag>
         {TOPICS.map(t => (
-          <Tag key={t.id} size="small" selected={topic === t.id} onClick={() => onTopic(t.id)}>
+          <Tag key={t.id} size="medium" selected={topic === t.id} onClick={() => onTopic(t.id)}>
             {t.id}
           </Tag>
         ))}
@@ -324,7 +324,7 @@ export function ContactSupport({ onSubmit, onViewTickets }: { onSubmit: (t: Omit
           error={tried && !details.trim() ? 'Add some details' : undefined}
         />
         <div className={styles.formActions}>
-          <Button size="small" variant="brand" type="submit">
+          <Button size="medium" variant="brand" type="submit">
             Submit Ticket
           </Button>
         </div>
@@ -347,7 +347,7 @@ export function MyTickets({ tickets, onNewTicket }: { tickets: Ticket[]; onNewTi
     <div className={styles.panel}>
       <div className={styles.headingRow}>
         <Heading title="My tickets">{`${tickets.filter(t => t.status !== 'Resolved').length} open`}</Heading>
-        <Button size="small" variant="outline" icon="plus" onClick={onNewTicket}>
+        <Button size="medium" variant="outline" icon="plus" onClick={onNewTicket}>
           New Ticket
         </Button>
       </div>

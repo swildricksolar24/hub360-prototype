@@ -206,7 +206,7 @@ export function EditColumnsModal({
           <SearchInput aria-label="Search fields" placeholder="Search fields" value={query} onChange={e => setQuery(e.target.value)} />
           <div className={styles.groups} role="group" aria-label="Field groups">
             {GROUPS.map(g => (
-              <Tag key={g} size="small" selected={group === g} onClick={() => setGroup(g)}>
+              <Tag key={g} size="medium" selected={group === g} onClick={() => setGroup(g)}>
                 {g}
               </Tag>
             ))}
@@ -249,13 +249,13 @@ export function EditColumnsModal({
 
         {/* Move buttons */}
         <div className={styles.moves}>
-          <Button size="small" variant="brand" disabled={picked.size === 0} onClick={() => add([...picked])}>
+          <Button size="medium" variant="brand" disabled={picked.size === 0} onClick={() => add([...picked])}>
             {picked.size ? `Add ${picked.size}` : 'Add'}
           </Button>
-          <Button size="small" variant="outline" disabled={!selected} onClick={() => selected && remove(selected)}>
+          <Button size="medium" variant="outline" disabled={!selected} onClick={() => selected && remove(selected)}>
             Remove
           </Button>
-          <Button size="small" variant="outline" disabled={available.length === 0} onClick={() => add(available.map(f => f.key))}>
+          <Button size="medium" variant="outline" disabled={available.length === 0} onClick={() => add(available.map(f => f.key))}>
             Add All
           </Button>
         </div>
@@ -301,7 +301,7 @@ export function EditColumnsModal({
                     <span className={`text-medium-bold ${styles.fieldName}`}>{label(key)}</span>
                     {/* Frozen: the solid brand button; the label tells screen readers the state */}
                     <IconButton
-                      size="compact"
+                      size="medium"
                       variant={isFrozen ? 'brand' : 'default'}
                       className={styles.freeze}
                       icon={isFrozen ? 'freeze' : 'unfreeze'}

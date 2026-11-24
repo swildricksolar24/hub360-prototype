@@ -63,17 +63,17 @@
   padding-right: var(--space-16);
 }
 
-.chip[data-variant='tiny'] {
+.chip[data-variant='small'] {
   padding: var(--space-4) var(--space-12);
   font-size: var(--font-size-tiny);
   line-height: var(--line-height-tiny);
   font-weight: 600;
   gap: var(--space-2);
 }
-.chip[data-variant='tiny'][data-icon='left'] {
+.chip[data-variant='small'][data-icon='left'] {
   padding-left: var(--space-8);
 }
-.chip[data-variant='tiny'][data-icon='right'] {
+.chip[data-variant='small'][data-icon='right'] {
   padding-right: var(--space-8);
 }
 
@@ -92,12 +92,9 @@
   --ring: var(--color-gray-stroke-weaker);
   --ring-w: var(--stroke-width-2);
 }
+/* Selected (every Chip set): Brand Teal Fill/Weaker with no stroke. Figma has no Selected + Hover state, so the fill stays. */
 .chip[aria-pressed='true'] {
-  --ring: var(--color-brand-teal-stroke-strong);
-  --ring-w: var(--stroke-width-2);
-}
-.chip[data-variant='default'][aria-pressed='true'] {
-  --ring-w: var(--stroke-width-4);
+  --bg: var(--color-brand-teal-fill-weaker);
 }
 
 /* ---------- Outline ---------- */
@@ -119,10 +116,12 @@
   --bg: var(--color-gray-fill-hover);
   --ring-w: var(--stroke-width-4);
 }
+/* Selected drops the outline's resting stroke (Press and Focus still draw theirs) */
 .chip[data-variant='outline'][aria-pressed='true'] {
-  --bg: var(--color-gray-fill-weaker);
-  --ring: var(--color-brand-teal-stroke-strong);
-  --ring-w: var(--stroke-width-4);
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+.chip[data-variant='outline'][aria-pressed='true']:not(:active, :focus-visible, :disabled) {
+  --ring-w: 0px;
 }
 
 /* ---------- Disabled ---------- */

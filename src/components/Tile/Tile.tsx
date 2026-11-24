@@ -47,7 +47,8 @@ export function Tile({ label, value, note, icon, onClick, href, target, rel, dis
   const content = (
     <>
       <span className={styles.label}>
-        {icon && <Icon name={icon} size={20} color="currentColor" />}
+        {/* Figma Tile / KPI icon: Gray Fill/Strong (the label beside it is Gray Text/Weak) */}
+        {icon && <Icon name={icon} size={20} color="var(--color-gray-fill-strong)" />}
         <span className={styles.labelText}>{label}</span>
       </span>
       <span className={styles.value}>{value}</span>

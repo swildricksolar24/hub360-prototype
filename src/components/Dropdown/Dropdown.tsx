@@ -24,7 +24,7 @@ export type DropdownProps = DropdownOpenProps & {
   options: ListBoxOption[];
   /** Figma `Label`, shown above the field. Also the accessible name. */
   label?: string;
-  /** Figma `State=Default - No Label`: keeps `label` as the accessible name but doesn't show it. */
+  /** Keeps `label` as the accessible name but doesn't show it (Figma had a `Default - No Label` state until Nov 24, 2026). */
   hideLabel?: boolean;
   /** Figma `Select` text shown while nothing is chosen. */
   placeholder?: string;

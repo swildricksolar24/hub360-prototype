@@ -125,11 +125,14 @@ const State = ({ name, className, children }: { name: string; className?: string
 
 // A no-op handler keeps the checkboxes live (without one they render read-only), so each state shows as in Figma
 const noop = () => {};
-const oneRow = (props: { striped?: boolean; selected?: string[] }) => (
+const oneRow = (props: { striped?: boolean; selected?: string[]; inactive?: () => boolean }) => (
   <DataTable aria-label="Row" columns={BLANK_COLUMNS} rows={BLANK_ROWS.slice(0, 1)} cells={blankCells} onSelectedChange={noop} actions actionsVisible {...props} />
 );
 
-/** Figma Data Table Row: Default, Striped, Hover (pointer over the row) and Selected (checked). */
+/**
+ * Figma Data Table Row: Default, Striped, Hover (pointer over the row), Selected (checked), Inactive (`inactive`: the
+ * checkbox and cells at 40%) and Total (`summary`: bold values, no checkbox or •••).
+ */
 export const RowStates: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
@@ -139,6 +142,20 @@ export const RowStates: Story = {
         {oneRow({ striped: false })}
       </State>
       <State name="Selected">{oneRow({ striped: false, selected: ['row-1'] })}</State>
+      <State name="Inactive">{oneRow({ striped: false, inactive: () => true })}</State>
+      <State name="Total">
+        <DataTable
+          aria-label="Total"
+          columns={BLANK_COLUMNS}
+          rows={BLANK_ROWS.slice(0, 1)}
+          cells={blankCells}
+          onSelectedChange={noop}
+          actions
+          actionsVisible
+          striped={false}
+          summary={blankCells()}
+        />
+      </State>
     </div>
   ),
   parameters: { ...figma('3131:246', 'Data Table › Data Table Row'), ...pseudoStates, controls: { disable: true } },
@@ -164,7 +181,7 @@ export const Empty: Story = {
   args: { rows: [], empty: 'No warehouses yet. Use Add Warehouse to create one.' },
 };
 
-/** Inactive rows: the values switch to the weak text color. */
+/** Inactive rows (Figma `State=Inactive`): the checkbox and cells fade to 40%; the ••• keeps full strength. */
 export const InactiveRows: Story = {
   args: { inactive: r => r.locations < 20 },
 };

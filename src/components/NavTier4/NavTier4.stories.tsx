@@ -28,10 +28,10 @@ const toolbar = (
         { value: 'inactive', label: 'Inactive' },
       ]}
     />
-    <Button variant="primary" size="small" icon="edit">
+    <Button variant="primary" size="medium" icon="edit">
       Columns
     </Button>
-    <Button variant="primary" size="small" icon="upload">
+    <Button variant="primary" size="medium" icon="upload">
       Upload
     </Button>
     <Dropdown
@@ -47,7 +47,7 @@ const toolbar = (
     <div style={{ flex: 1, minWidth: 200 }}>
       <SearchInput aria-label="Search" />
     </div>
-    <Button variant="brand" size="small" icon="plus">
+    <Button variant="brand" size="medium" icon="plus">
       Add New
     </Button>
   </>

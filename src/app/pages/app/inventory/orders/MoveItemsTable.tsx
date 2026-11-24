@@ -261,14 +261,14 @@ export function MoveItemsTable({
             }}
           />
           {editing.size > 0 && (
-            <Button size="small" variant="outline" icon="check" onClick={doneEditing}>
+            <Button size="medium" variant="outline" icon="check" onClick={doneEditing}>
               Done Editing
             </Button>
           )}
-          <Button size="small" variant="brand" icon="table" onClick={bulkEdit} disabled={readOnly}>
+          <Button size="medium" variant="brand" icon="table" onClick={bulkEdit} disabled={readOnly}>
             {selected.size ? `Bulk Edit (${selected.size})` : 'Bulk Edit'}
           </Button>
-          <Button size="small" variant="brand" icon="plus" onClick={() => setPicking(true)} disabled={readOnly}>
+          <Button size="medium" variant="brand" icon="plus" onClick={() => setPicking(true)} disabled={readOnly}>
             Add
           </Button>
         </div>

@@ -172,10 +172,10 @@ export function SignaturePad({
         />
       </div>
       <div className={styles.actions}>
-        <Button size="small" variant="outline" onClick={clear} disabled={disabled}>
+        <Button size="medium" variant="outline" onClick={clear} disabled={disabled}>
           {clearLabel}
         </Button>
-        <Button size="small" variant="primary" onClick={save} disabled={disabled}>
+        <Button size="medium" variant="primary" onClick={save} disabled={disabled}>
           {saveLabel}
         </Button>
       </div>

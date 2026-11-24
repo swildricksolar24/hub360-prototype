@@ -87,7 +87,7 @@ export function EditPhotoModal({ open, onClose }: { open: boolean; onClose: () =
       <div className={styles.photoEditor}>
         <div className={styles.photoPreview}>
           <Avatar size="large" src={preview || undefined} initials={user?.initials} type={preview ? 'photo' : 'initial'} label="Photo preview" />
-          <Button size="small" variant="outline" onClick={() => setDraft('')} disabled={!preview}>
+          <Button size="medium" variant="outline" onClick={() => setDraft('')} disabled={!preview}>
             Remove Photo
           </Button>
         </div>

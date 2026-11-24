@@ -8,7 +8,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-24);
+  /* Figma's Button Icon sets are fixed squares (component sizes, no size tokens): Large 76, Medium 44, Small 32 */
+  box-sizing: border-box;
+  width: 76px;
+  height: 76px;
+  padding: 0;
   border: 0;
   border-radius: var(--radius-12);
   background: var(--bg);
@@ -18,25 +22,23 @@
   outline: none;
 }
 
-.iconButton[data-size='compact'] {
-  padding: var(--space-4);
+/* medium: Figma "Button Icon Medium" (44px), the toolbar buttons' height (Tier 3 Expanded, Message's close button) */
+.iconButton[data-size='medium'] {
+  width: 44px;
+  height: 44px;
 }
-/* small: 44px (32px icon + 6px around), the Small buttons' height; Figma's Tier 3 Expanded icon buttons */
+/* small: Figma "Button Icon Small" (32px, the 18px icon centred, 8px corners), beside the 32px controls */
 .iconButton[data-size='small'] {
-  padding: calc(var(--space-4) + var(--space-2));
-}
-/* Figma "Button Icon Tiny" › Icon (3580:1325): a 32px square, the 18px icon centred (component size, no size token) */
-.iconButton[data-size='tiny'] {
   width: 32px;
   height: 32px;
-  padding: 0;
+  border-radius: var(--radius-8);
 }
 
 .number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* same box as the 32px icon, so Number matches the 80px Icon button */
+  /* same box as the 32px icon, so Number matches the Icon button at each size */
   width: 32px;
   height: 32px;
   color: var(--color-gray-text-strong);

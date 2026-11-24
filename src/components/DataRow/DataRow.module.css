@@ -1,4 +1,7 @@
-/* Values come from the Figma Data Rows* page: Data Rows, Row Item, Slot*, Tenant Rows*. */
+/*
+ * Values come from the Figma Data Rows* page: Data Rows, Row Item, Tenant Rows*. The Row Item slot holds Tag
+ * "Base / Small" instances, drawn by Volt's Tag (RowSlot), so it has no styles here.
+ */
 .row {
   display: flex;
   align-items: center;
@@ -96,23 +99,6 @@
   overflow: hidden;
   white-space: normal;
   overflow-wrap: anywhere;
-}
-
-/* ---------- Slot* ---------- */
-
-.slot {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0 var(--space-16);
-  border-radius: var(--radius-12);
-  background: var(--color-gray-fill-weaker);
-  color: var(--color-gray-text-weak);
-  font-size: var(--font-size-medium);
-  line-height: var(--line-height-medium);
-  font-weight: 400;
-  white-space: nowrap;
 }
 
 /* ---------- Status pill (Figma Tag "Small") ---------- */

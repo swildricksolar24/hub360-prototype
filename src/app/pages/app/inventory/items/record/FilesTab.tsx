@@ -200,10 +200,10 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
             onChange={v => setView(v as string)}
             renderValue={s => `View: ${s[0]?.label ?? 'All'}`}
           />
-          <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
+          <Button size="medium" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
             Columns
           </Button>
-          <Button size="small" variant="primary" icon="upload" onClick={() => setUploading('files')}>
+          <Button size="medium" variant="primary" icon="upload" onClick={() => setUploading('files')}>
             Upload
           </Button>
           <Dropdown
@@ -258,7 +258,7 @@ export function FilesTab({ item, onNotice }: { item: Item; onNotice: (text: stri
                 </p>
                 {narrowed ? (
                   <Button
-                    size="small"
+                    size="medium"
                     variant="outline"
                     onClick={() => {
                       setQuery('');

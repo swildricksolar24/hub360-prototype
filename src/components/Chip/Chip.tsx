@@ -2,16 +2,25 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import styles from './Chip.module.css';
 
-export type ChipVariant = 'default' | 'secondary' | 'outline' | 'tiny';
+export type ChipVariant = 'default' | 'secondary' | 'outline';
+export type ChipSize = 'large' | 'medium' | 'small';
+
+/** The Figma family drawn: each Chip family exists at one size (Large: Default, Outline · Medium: Secondary · Small). */
+type ChipFamily = 'default' | 'outline' | 'secondary' | 'small';
 
 export type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   /** Figma `Label` text property. */
   children: ReactNode;
   /**
-   * Figma set family — default = "Default / …" (76px) · secondary = "Secondary / …" (36px) ·
-   * outline = "Outline / …" (76px, stroked) · tiny = "Tiny / …" (24px).
+   * Figma set family at the Large size — default = "Default / …" (76px) · outline = "Outline / …" (76px, stroked).
+   * secondary = "Secondary / …" (36px, the Medium size). Deprecated: `tiny` = `size="small"`.
    */
-  variant?: ChipVariant;
+  variant?: ChipVariant | 'tiny';
+  /**
+   * large = Default / Outline (76px) · medium = Secondary (36px) · small = "Small / …" (24px, was "Tiny / …").
+   * Figma has each family at one size only, so `size` picks the family: medium is always Secondary, small has one look.
+   */
+  size?: ChipSize;
   /** Icon name from the Icon component (Figma uses `arrow-up`, and `close-small` on Default / Right Icon). */
   icon?: string;
   /** Figma "Left Icon" / "Right Icon" sets. */
@@ -20,11 +29,18 @@ export type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'
   selected?: boolean;
 };
 
-const ICON_SIZE: Record<ChipVariant, number> = { default: 24, outline: 24, secondary: 20, tiny: 16 };
+const ICON_SIZE: Record<ChipFamily, number> = { default: 24, outline: 24, secondary: 20, small: 16 };
+
+const familyOf = (variant: ChipProps['variant'], size: ChipSize | undefined): ChipFamily => {
+  if (size === 'small' || variant === 'tiny') return 'small';
+  if (size === 'medium' || variant === 'secondary') return 'secondary';
+  return variant === 'outline' ? 'outline' : 'default';
+};
 
 export function Chip({
   children,
   variant = 'default',
+  size,
   icon,
   iconPosition = 'left',
   selected,
@@ -32,12 +48,13 @@ export function Chip({
   className,
   ...rest
 }: ChipProps) {
-  const iconEl = icon && <Icon name={icon} size={ICON_SIZE[variant]} color="currentColor" className={styles.icon} />;
+  const family = familyOf(variant, size);
+  const iconEl = icon && <Icon name={icon} size={ICON_SIZE[family]} color="currentColor" className={styles.icon} />;
   return (
     <button
       type={type}
       className={[styles.chip, className].filter(Boolean).join(' ')}
-      data-variant={variant}
+      data-variant={family}
       data-icon={icon ? iconPosition : undefined}
       aria-pressed={selected}
       {...rest}

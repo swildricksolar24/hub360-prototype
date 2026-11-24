@@ -32,9 +32,11 @@
   list-style: none;
 }
 
-/* Figma uses 48px Icon / Number buttons; IconButton is 80px (base), so trim its padding: 8 + 32 + 8 */
+/* Figma uses 48px Icon / Number buttons (Button Icon Large resized), off the IconButton scale (76 / 44 / 32),
+   so the tracker sets the box itself; the 32px icon comes from size large */
 .nav .button {
-  padding: var(--space-8);
+  width: 48px;
+  height: 48px;
 }
 
 .count {

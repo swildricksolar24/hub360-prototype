@@ -9,7 +9,8 @@ export type FilterChipDropdownProps = Omit<DropdownProps, 'multiple' | 'value' |
   defaultValue?: string[];
   onChange?: (value: string[]) => void;
   /**
-   * brand = teal-tinted chip panel (Figma `State=Press`) · plain = no panel fill (Figma `State=Press - Alt`) ·
+   * brand = Brand Teal Fill/Weaker chip panel (Figma `State=Press`) · plain = Surfaces/Overlay chip panel, the
+   * Menu Options / Chips set's own fill (Figma `State=Press - Alt`) ·
    * none = no panel: the chips sit 8px under the field with no fill, ring or padding (Figma `State=Press - No Panel`).
    */
   chipsAppearance?: 'brand' | 'plain' | 'none';
@@ -17,7 +18,7 @@ export type FilterChipDropdownProps = Omit<DropdownProps, 'multiple' | 'value' |
 
 /**
  * Figma Drop Down - Filter Chip: a labelled multi-select field. The field keeps its `Select`
- * text; chosen options appear as removable chips (Drop Down Label › chips) under it.
+ * text; chosen options appear as removable chips (Menu Options / Chips) under it.
  */
 export function FilterChipDropdown({
   value,

@@ -15,10 +15,10 @@ export function EditBanner({ what, changes, onDiscard, onSave }: { what: string;
         You’re editing {what}. {changes ? `${changes} unsaved change${changes === 1 ? '' : 's'}.` : 'No changes yet.'}
       </p>
       <span className={styles.buttons}>
-        <Button size="small" variant="outline" onClick={onDiscard}>
+        <Button size="medium" variant="outline" onClick={onDiscard}>
           Discard Changes
         </Button>
-        <Button size="small" variant="brand" onClick={onSave}>
+        <Button size="medium" variant="brand" onClick={onSave}>
           Save Changes
         </Button>
       </span>

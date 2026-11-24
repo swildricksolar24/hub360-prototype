@@ -209,7 +209,7 @@ function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; ware
           Carrier Accounts
         </h2>
         {/* Figma "Solid / Teal / Icon": Button Small Brand with a left icon */}
-        <Button size="small" variant="brand" icon="plus" onClick={() => setSearching(true)}>
+        <Button size="medium" variant="brand" icon="plus" onClick={() => setSearching(true)}>
           Add Carrier
         </Button>
       </div>
@@ -283,7 +283,7 @@ function CarrierAccounts({ code, warehouseName, onNotice }: { code: string; ware
             services: (
               <span className={table.tags}>
                 {c.services.map(sv => (
-                  <Tag key={sv} size="tiny" selected>
+                  <Tag key={sv} size="small" selected>
                     {sv}
                   </Tag>
                 ))}

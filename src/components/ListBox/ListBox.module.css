@@ -1,10 +1,10 @@
 /*
- * Values come from the Figma ListBox page (List Item / Default, Icon, Avatar, Tree, Checkbox, Category,
- * ListViews, Tree List) and, for the `selector` appearance, the "Dropdown Selector" and
+ * Values come from the Figma "- List View" page (List Item / Default, Icon, Avatar, Tree, Checkbox, Category,
+ * List View, Tree List) and, for the `selector` appearance, the "Dropdown Selector" and
  * "Dropdown Holder" sets on the Drop Down - Selector page.
  */
 
-/* ---------- Container (ListViews / Tree List / Dropdown Holder) ---------- */
+/* ---------- Container (List View / Tree List / Dropdown Holder) ---------- */
 
 .listbox {
   display: flex;
@@ -19,12 +19,19 @@
   outline: none;
 }
 
-/* ListViews: 1px gaps between rows and a 0.5px Gray Stroke/Weak outline */
+/*
+ * List View (433:1231, Nov 2026): a panel. A 16px inset, rows 8px apart, 12px corners, Surfaces/Overlay with the Drop
+ * Shadow effect. The rows inside are restyled further down ("List View rows"). Tree List stays edge to edge.
+ */
 .listbox[data-appearance='list']:not([data-tree]) {
-  gap: var(--stroke-width-1);
-  /* Figma leaves the gaps transparent (the page shows through); Surfaces/Base reproduces that inside popups */
-  background: var(--color-surfaces-base);
-  box-shadow: inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-weak);
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-12);
+  background: var(--color-surfaces-overlay);
+  box-shadow: var(--shadow-drop);
+}
+.listbox[data-appearance='list']:not([data-tree]) :is(.group, .groupWrap) {
+  gap: var(--space-8);
 }
 
 /* Dropdown Holder: rows sit directly on the overlay surface, 8px apart (the Menu Options spacing, Figma Nov 2026) */
@@ -128,8 +135,15 @@
   height: 20px;
 }
 
-/* List states (List Item / *) */
-.item[data-appearance='list']:is(:hover, :focus-visible) {
+/* List states (List Item / *): Hover Brand Teal Fill/Weaker, Press Surfaces/Sunken, Focus Surfaces/Raised */
+.item[data-appearance='list']:not([aria-disabled='true'], [data-error]):hover {
+  --bg: var(--color-brand-teal-fill-weaker);
+}
+/* The `menu` frame keeps its own hover (unchanged): Surfaces/Raised, or the Dropdown popup's Gray Fill/Hover */
+:where(.listbox[data-menu]) .item[data-appearance='list']:not([aria-disabled='true']):hover {
+  --bg: var(--color-surfaces-raised);
+}
+.item[data-appearance='list']:focus-visible {
   --bg: var(--color-surfaces-raised);
 }
 .item[data-appearance='list']:active {
@@ -149,6 +163,11 @@
   --fg: var(--color-gray-text-disabled);
   --icon: var(--color-gray-fill-disabled);
   cursor: not-allowed;
+}
+/* List Item / Avatar and / Tree › Disabled: the avatar and the chevron are at 50% layer opacity (Figma, no token) */
+.item[data-type='avatar'][data-appearance='list'][aria-disabled='true']:not(.listbox[data-menu] *) .avatar,
+.item[data-type='tree'][data-appearance='list'][aria-disabled='true']:not(.listbox[data-menu] *) .icon {
+  opacity: 0.5;
 }
 
 /* ---------- Checkbox item: a decorative 24px box (the option carries the state) ---------- */
@@ -238,6 +257,23 @@
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-8);
 }
+/*
+ * Figma Drop Down Menu (Nov 24, 2026): a 1px Gray Stroke/Weakest (5%) line centered in the 8px gap under each option
+ * but the last, so the options read as separate rows. It's drawn beside the row, so the row's hover, selected and
+ * disabled fills don't change.
+ */
+.listbox[data-menu] .item {
+  position: relative;
+}
+.listbox[data-menu] .item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc((var(--space-8) + var(--stroke-width-1)) / -2);
+  height: var(--stroke-width-1);
+  background: var(--color-gray-stroke-weakest);
+  pointer-events: none;
+}
 /* A disabled option looks like Figma Menu Item State=Disabled: no fill; text and icons in Gray Fill/Disabled */
 .listbox[data-menu] .item[aria-disabled='true'] {
   --bg: transparent;
@@ -261,6 +297,29 @@
   background: linear-gradient(var(--color-gray-fill-weaker), var(--color-gray-fill-weaker)), var(--color-surfaces-base);
   /* Figma: Gray Text/Weak */
   color: var(--color-gray-text-weak);
+}
+
+/*
+ * ---------- List View rows (433:1231): the List Item instances inside the List View panel ----------
+ * Figma overrides each row to 8px by 12px with 8px corners, no fill (the panel shows through) and Large/Regular text:
+ * 40px rows (48px with an avatar). The states keep the List Item colors above. A lone ListBoxItem, outside a ListBox,
+ * still draws the List Item component itself (12px all round, Medium/Regular, Surfaces/Overlay). :where keeps these at
+ * one class, below the state rules; the `menu` frame and Tree List keep their own rows.
+ */
+:where(.listbox[data-appearance='list']:not([data-tree], [data-menu])) :is(.item, .empty) {
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+}
+:where(.listbox[data-appearance='list']:not([data-tree], [data-menu])) .item {
+  --bg: transparent;
+}
+/* Not in the List View set (it has no Category type now): group headings take the row shape, as in the menu frame */
+:where(.listbox[data-appearance='list']:not([data-tree], [data-menu])) .category {
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-8);
+  background: var(--color-gray-fill-weaker);
 }
 
 /* ---------- Selector appearance (Dropdown Selector rows) ---------- */

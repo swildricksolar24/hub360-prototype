@@ -56,7 +56,7 @@ export const UnderTier3: Story = {
           onBack={() => {}}
           onViewPhoto={() => {}}
           onCollapsedChange={() => {}}
-          tag={<Chip variant="tiny">Part</Chip>}
+          tag={<Chip size="small">Part</Chip>}
           labels={[
             { label: 'PART #', value: 'PA-0002-AJ89-98HB' },
             { label: 'CATEGORY', value: 'Solar Panels' },
@@ -66,11 +66,11 @@ export const UnderTier3: Story = {
             <>
               <Toggle contained label="Active" defaultChecked />
               <Dropdown variant="button" size="medium" label="Actions" hideLabel placeholder="Actions" options={[{ value: 'delete', label: 'Delete' }]} />
-              <Button size="small" variant="brand">
+              <Button size="medium" variant="brand">
                 Edit
               </Button>
-              <IconButton size="small" icon="chevron-left" label="Previous record" />
-              <IconButton size="small" icon="chevron-right" label="Next record" />
+              <IconButton size="medium" icon="chevron-left" label="Previous record" />
+              <IconButton size="medium" icon="chevron-right" label="Next record" />
             </>
           }
           meta="Last Modified: Apr 2, 2026"

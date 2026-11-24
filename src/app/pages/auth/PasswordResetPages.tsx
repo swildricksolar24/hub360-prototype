@@ -77,7 +77,7 @@ export function ForgotPasswordPage() {
       tools={
         // Prototype shortcut (not in Figma): fill in the demo account's email.
         <Button
-          size="small"
+          size="medium"
           variant="outline"
           icon="email"
           onClick={() => {
@@ -95,7 +95,7 @@ export function ForgotPasswordPage() {
         <TextInput label="Email Address" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} autoFocus />
         <Button
           type="submit"
-          size="base"
+          size="large"
           variant="brand"
           block
           disabled={!email.trim() || busy}
@@ -154,7 +154,7 @@ export function VerifyEmailPage() {
       tools={
         // Prototype shortcut (not in Figma): fill in the code the prototype accepts.
         <Button
-          size="small"
+          size="medium"
           variant="outline"
           icon="lock"
           onClick={() => {
@@ -204,7 +204,7 @@ export function VerifyEmailPage() {
         </div>
         <Button
           type="submit"
-          size="base"
+          size="large"
           variant="brand"
           block
           disabled={code.length !== 6 || busy}
@@ -251,7 +251,7 @@ export function ResetPasswordPage() {
       tools={
         // Prototype shortcut (not in Figma): reuse the demo account's current password in both fields.
         <Button
-          size="small"
+          size="medium"
           variant="outline"
           icon="lock"
           onClick={() => {
@@ -278,7 +278,7 @@ export function ResetPasswordPage() {
         />
         <Button
           type="submit"
-          size="base"
+          size="large"
           variant="brand"
           block
           disabled={!password || !confirm || busy}
@@ -307,7 +307,7 @@ export function ResetSuccessPage() {
         </div>
       }
     >
-      <Button size="base" variant="brand" block onClick={() => navigate('/sign-in', { replace: true })} autoFocus>
+      <Button size="large" variant="brand" block onClick={() => navigate('/sign-in', { replace: true })} autoFocus>
         Sign In
       </Button>
     </AuthLayout>

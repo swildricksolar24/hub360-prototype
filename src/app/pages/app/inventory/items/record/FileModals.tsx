@@ -123,14 +123,14 @@ function CropStage({ round = false, icon }: { round?: boolean; icon: string }) {
         />
       </div>
       <div className={styles.cropTools} role="group" aria-label="Crop">
-        <Button size="small" variant="outline" icon="drag-pan" onClick={() => setMove(m => (m + 1) % MOVES.length)}>
+        <Button size="medium" variant="outline" icon="drag-pan" onClick={() => setMove(m => (m + 1) % MOVES.length)}>
           Move
         </Button>
-        <Button size="small" variant="outline" icon="scale" onClick={() => setScale(s => (s + 1) % SCALES.length)}>
+        <Button size="medium" variant="outline" icon="scale" onClick={() => setScale(s => (s + 1) % SCALES.length)}>
           Scale
         </Button>
         <Button
-          size="small"
+          size="medium"
           variant="outline"
           icon="reset"
           onClick={() => {
@@ -365,11 +365,11 @@ export function ViewFileModal({
           }}
         >
           <div className={styles.previewNav}>
-            <IconButton size="compact" icon="arrow-left" label="Previous file" disabled={index <= 0} onClick={() => step(-1)} />
+            <IconButton size="medium" icon="arrow-left" label="Previous file" disabled={index <= 0} onClick={() => step(-1)} />
             <span className="text-medium-regular" aria-live="polite">
               {index + 1} of {files.length}
             </span>
-            <IconButton size="compact" icon="arrow-right" label="Next file" disabled={index >= files.length - 1} onClick={() => step(1)} />
+            <IconButton size="medium" icon="arrow-right" label="Next file" disabled={index >= files.length - 1} onClick={() => step(1)} />
           </div>
           <Preview file={file} />
           <div className={styles.previewMeta}>
@@ -390,14 +390,14 @@ export function ViewFileModal({
             </span>
           </div>
           <div className={styles.previewActions}>
-            <Button size="small" variant="outline" icon="edit" onClick={() => onEdit(file)}>
+            <Button size="medium" variant="outline" icon="edit" onClick={() => onEdit(file)}>
               Edit
             </Button>
-            <Button size="small" variant="outline" icon="export-download" onClick={() => onDownload(file)}>
+            <Button size="medium" variant="outline" icon="export-download" onClick={() => onDownload(file)}>
               Download
             </Button>
             {isImage(file.type) && (
-              <Button size="small" variant="outline" icon="photo" disabled={profileImage === file.name} onClick={() => onSetProfile(file)}>
+              <Button size="medium" variant="outline" icon="photo" disabled={profileImage === file.name} onClick={() => onSetProfile(file)}>
                 {profileImage === file.name ? 'Profile Image' : 'Set as Profile Image'}
               </Button>
             )}
@@ -581,16 +581,16 @@ export function ProfileImageFlow({ open, item, onClose, onNotice }: { open: bool
             {profileImage ?? 'No profile image yet'}
           </div>
           <div className={styles.previewActions}>
-            <Button size="small" variant="outline" icon="edit" disabled={!profileImage} onClick={() => setStep('edit')}>
+            <Button size="medium" variant="outline" icon="edit" disabled={!profileImage} onClick={() => setStep('edit')}>
               Edit
             </Button>
-            <Button size="small" variant="outline" icon="folder" onClick={() => setStep('library')}>
+            <Button size="medium" variant="outline" icon="folder" onClick={() => setStep('library')}>
               Upload From Library
             </Button>
-            <Button size="small" variant="outline" icon="file-upload" onClick={() => setStep('upload')}>
+            <Button size="medium" variant="outline" icon="file-upload" onClick={() => setStep('upload')}>
               Upload File
             </Button>
-            <Button size="small" variant="outline" icon="url-upload" onClick={() => setStep('url')}>
+            <Button size="medium" variant="outline" icon="url-upload" onClick={() => setStep('url')}>
               Upload a URL
             </Button>
           </div>

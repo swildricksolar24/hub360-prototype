@@ -79,11 +79,11 @@ export function RecordActions({
     <>
       {!hideActive &&
         (active === undefined ? (
-          <Toggle contained size={tiny ? 'tiny' : undefined} label="Active" defaultChecked />
+          <Toggle contained size={tiny ? 'small' : undefined} label="Active" defaultChecked />
         ) : (
           <Toggle
             contained
-            size={tiny ? 'tiny' : undefined}
+            size={tiny ? 'small' : undefined}
             label="Active"
             checked={active}
             onChange={e => onActiveChange?.(e.target.checked)}
@@ -103,12 +103,12 @@ export function RecordActions({
         />
       )}
       {!hideSave && onCancel && (
-        <Button size={tiny ? 'tiny' : 'small'} variant="outline" onClick={onCancel}>
+        <Button size={tiny ? 'small' : 'medium'} variant="outline" onClick={onCancel}>
           Cancel
         </Button>
       )}
       {!hideSave && (
-        <Button size={tiny ? 'tiny' : 'small'} variant="brand" onClick={onSave} disabled={saveDisabled}>
+        <Button size={tiny ? 'small' : 'medium'} variant="brand" onClick={onSave} disabled={saveDisabled}>
           {saveLabel}
         </Button>
       )}
@@ -116,14 +116,14 @@ export function RecordActions({
         <>
           {/* The same height as the Active toggle, Actions and Save beside them: 44px (small), or Button Icon Tiny (32px) */}
           <IconButton
-            size={tiny ? 'tiny' : 'small'}
+            size={tiny ? 'small' : 'medium'}
             icon="chevron-left"
             label="Previous record"
             onClick={onPrevious}
             disabled={!onPrevious}
           />
           <IconButton
-            size={tiny ? 'tiny' : 'small'}
+            size={tiny ? 'small' : 'medium'}
             icon="chevron-right"
             label="Next record"
             onClick={onNext}

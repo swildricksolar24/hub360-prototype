@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { SAMPLE_ITEMS, type Item, type ItemType } from './itemData';
-import { setOrders } from '../orders/orderStore';
+import { getOrders, setOrders } from '../orders/orderStore';
 import type { Order } from '../orders/orderData';
 
 /**
@@ -142,6 +142,55 @@ export function deleteItems(ids: string[]) {
         return { ...item, build, replacements: item.replacements.filter(r => !ids.includes(r)) };
       });
   });
+}
+
+/**
+ * What an item has been used for (Figma "Delete Items (Improved)" 681:14500): its past and open orders (its History's
+ * orders, plus open orders in the Orders store), the units on hand and the builds that include it. An item with no
+ * history, no stock records, no builds and no open orders was never used, so it can be deleted; any other item is
+ * deactivated instead, so its history is kept.
+ */
+export type ItemUsage = { neverUsed: boolean; pastOrders: number; openOrders: number; onHand: number; builds: Item[] };
+export function itemUsage(item: Item, list: Item[] = items, orderList: Order[] = getOrders()): ItemUsage {
+  const ordersIn = (open: boolean) => new Set(item.history.filter(h => h.order && (h.order.status !== 'Complete') === open).map(h => h.order!.number)).size;
+  const openOrders = ordersIn(true) + openOrdersUsing([item.id], orderList).length;
+  const builds = usedIn(item.id, list);
+  const onHand = item.stock.reduce((t, s) => t + s.onHand, 0);
+  return {
+    neverUsed: item.history.length === 0 && item.stock.length === 0 && builds.length === 0 && openOrders === 0,
+    pastOrders: ordersIn(false),
+    openOrders,
+    onHand,
+    builds,
+  };
+}
+
+/**
+ * Delete Items (Improved): deletes the never-used items and deactivates the rest. With a replacement, the deactivated
+ * items are swapped for it in the builds that include them and in open orders' Adjustment lines. Returns what happened.
+ */
+export function deleteOrDeactivate(ids: string[], replacementId?: string): { deleted: Item[]; deactivated: Item[] } {
+  const chosen = items.filter(i => ids.includes(i.id));
+  const deleted = chosen.filter(i => itemUsage(i).neverUsed);
+  const deactivated = chosen.filter(i => !deleted.includes(i));
+  const off = deactivated.map(i => i.id);
+  if (deleted.length) deleteItems(deleted.map(i => i.id));
+  if (off.length) {
+    setItems(list =>
+      list.map(item => {
+        if (off.includes(item.id)) return { ...item, active: false };
+        if (replacementId && item.build.some(b => off.includes(b.itemId))) return { ...item, build: replaceInBuild(item.build, off, replacementId) };
+        return item;
+      }),
+    );
+    if (replacementId)
+      setOrders(list =>
+        list.map(o =>
+          openOrdersUsing(off, [o]).length ? { ...o, adjustLines: o.adjustLines.map(l => (off.includes(l.itemNo) ? { ...l, itemNo: replacementId } : l)) } : o,
+        ),
+      );
+  }
+  return { deleted, deactivated };
 }
 
 /** Deactivating an item that builds use (Deactivating Part - Active Assemblies or Kits Error). */

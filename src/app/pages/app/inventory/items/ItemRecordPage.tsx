@@ -9,7 +9,7 @@ import { RecordActions, RecordPage } from '../../../../components/RecordPage';
 import { useHelperFlag } from '../../../../shell/helperFlags';
 import { HelperToggle, PrototypeHelper } from '../../../../shell/PrototypeHelper';
 import { SPEC_TEMPLATES, TYPE_ICON, today, type Item, type ItemType, type Note } from './itemData';
-import { deactivateItem, deleteItems, itemPath, LIST_PATH, numberLabel, setItems, updateItem, useItems } from './itemStore';
+import { deactivateItem, deleteOrDeactivate, itemPath, LIST_PATH, numberLabel, setItems, updateItem, useItems } from './itemStore';
 import { DeactivateItemModal, DeleteItemsModal } from './ItemModals';
 import { BuildTab } from './record/BuildTab';
 import { CostTab, DETAILS_SECTIONS, DetailsTab, SuppliersTab, toDraft, withBarcodes, type DetailsDraft, type DetailsErrors } from './record/DetailsTab';
@@ -17,8 +17,7 @@ import { FilesTab } from './record/FilesTab';
 import { ProfileImageFlow } from './record/FileModals';
 import { HistoryTab } from './record/HistoryTab';
 import { UsedInTab } from './record/UsedInTab';
-import { STOCK_COLUMN_OPTIONS, StockTable } from './StockTable';
-import { Card } from './shared';
+import { StockTab } from './record/StockTab';
 import record from '../record.module.css';
 import styles from './items.module.css';
 import { Toast } from '../../../../../components/Toast/Toast';
@@ -60,9 +59,6 @@ const TABS: Record<ItemType, { id: string; label: string }[]> = {
 };
 /** Links from before Where Used (?tab=assemblies, ?tab=kits) open it. */
 const OLD_TABS: Record<string, string> = { assemblies: 'where-used', kits: 'where-used' };
-
-/** The record's Stock tab leaves out Item and Category: every row is this item, named in the header. */
-const RECORD_STOCK_COLUMNS = STOCK_COLUMN_OPTIONS.map(c => c.key).filter(k => k !== 'item' && k !== 'category');
 
 const PLURAL: Record<ItemType, string> = { Part: 'Parts', Assembly: 'Assemblies', Kit: 'Kits' };
 
@@ -208,11 +204,7 @@ export function ItemRecordPage() {
     cost: <CostTab draft={draft} onDraftChange={setDraft} editing={editing} />,
     files: <FilesTab item={it} onNotice={setNotice} />,
     'where-used': <UsedInTab item={it} kinds={it.type === 'Part' ? ['Assembly', 'Kit'] : ['Kit']} onNotice={setNotice} />,
-    stock: (
-      <Card id={`Stock for ${it.name}`}>
-        <StockTable lines={it.stock.map(stock => ({ item: it, stock }))} columns={RECORD_STOCK_COLUMNS} label={`Stock for ${it.name}`} totals />
-      </Card>
-    ),
+    stock: <StockTab item={it} onNotice={setNotice} />,
     history: <HistoryTab item={it} />,
   };
 
@@ -230,7 +222,7 @@ export function ItemRecordPage() {
         onViewPhoto={() => setPhotoOpen(true)}
         breadcrumb={[{ label: 'Inventory' }, { label: 'Items', to: LIST_PATH }, { label: it.name }]}
         tag={
-          <Chip variant="tiny" tabIndex={-1}>
+          <Chip size="small" tabIndex={-1}>
             {word}
           </Chip>
         }
@@ -258,6 +250,8 @@ export function ItemRecordPage() {
             saveLabel={editing ? 'Save' : 'Edit'}
             onSave={editing ? save : startEditing}
             onCancel={editing ? cancelEditing : undefined}
+            // Figma's Where Used draws Edit disabled: nothing on that tab is edited from the header
+            saveDisabled={!editing && (tab === 'where-used' || tab === 'stock')}
             onPrevious={go(items[index - 1])}
             onNext={go(items[index + 1])}
           />
@@ -313,12 +307,13 @@ export function ItemRecordPage() {
       <DeleteItemsModal
         open={deleting}
         items={[it]}
-        noun={word}
         onClose={() => setDeleting(false)}
-        onConfirm={() => {
+        onConfirm={replacementId => {
           setDeleting(false);
-          navigate(LIST_PATH, { state: { replaceTab: true } });
-          deleteItems([it.id]);
+          // Never used: it's deleted and the list comes back. Any history: it's deactivated and the record stays
+          const { deleted } = deleteOrDeactivate([it.id], replacementId);
+          if (deleted.length) navigate(LIST_PATH, { state: { replaceTab: true, notice: `${it.name} was deleted.` } });
+          else setNotice(`${it.name} has history, so it was deactivated instead of deleted.`);
         }}
       />
 

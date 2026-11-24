@@ -54,7 +54,7 @@ const STOCK_FILTER_KEYS = new Set(['item', 'category', 'warehouse', 'location', 
 /**
  * Figma "→ Items" Stock (681:14475): Item (the number, with the name under it) · Category · Warehouse · On Hand ·
  * Allocated · Committed · Frozen · Available · Status, each with a sort (filters on Item, Category, Warehouse, Location and Status). Location is not in Figma; it's
- * offered under Columns (and shown on an item's own Stock tab).
+ * offered under Columns.
  */
 const ALL_COLUMNS: DataColumn[] = ([
   // Never narrower than the longest full item number on one line ("PA-0002-AJ89-98HB")
@@ -105,7 +105,7 @@ const n = (v: number) => v.toLocaleString('en-US');
 
 /**
  * The Stock table on the Volt Data Table, with column filters, a ••• per row and a pager. Used by the Items list's
- * Stock view (Figma 681:14475) and an item's Stock tab (411:44083, with `totals` for its Totals row).
+ * Stock view (Figma 681:14475); `totals` adds a Totals row. (An item's own Stock tab is record/StockTab.tsx.)
  */
 export function StockTable({
   lines,

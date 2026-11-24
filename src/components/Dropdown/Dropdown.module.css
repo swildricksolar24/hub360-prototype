@@ -95,9 +95,21 @@
   transform: rotate(180deg);
 }
 
-/* field: Drop Down Label › Default */
+/*
+ * field: Drop Down Button + Label › Default (481:856). Since Nov 24, 2026 its box is a Drop Down Button Medium: 12px
+ * all round, 8px before the chevron, Medium/Semi-Bold in Gray Text/Weak; Error and Disabled switch to Medium/Bold.
+ */
 .dropdown[data-variant='field'] .trigger {
   padding: var(--space-12);
+  gap: var(--space-8);
+  font-weight: 600;
+}
+.dropdown[data-variant='field']:is([data-error], [data-disabled]) .trigger {
+  font-weight: 700;
+}
+/* :where keeps this below the state colors (error, disabled, selected) */
+.dropdown:where([data-variant='field']) .trigger {
+  --fg: var(--color-gray-text-weak);
 }
 
 /*
@@ -235,8 +247,8 @@
  * The open menu looks like the app's other small menus (ContextMenu: the account menu, row ••• menus): a rounded
  * Surfaces/Overlay panel (Figma Drop Down Menu) with the drop shadow. The inset (16px) and the 8px between rows come
  * from ListBox `menu`, shared with every popup menu; here the rows get Large text and the Context Menu's hover / press
- * fills, and a selected option keeps a teal tint. Figma's ListViews (square, 1px gaps on Surfaces/Base) stay in
- * ListBox itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own rules whatever the
+ * fills, and a selected option keeps a teal tint. ListBox's page-list look (Figma List View) stays in ListBox
+ * itself; this only restyles it inside a Dropdown. Doubled class: outranks ListBox's own rules whatever the
  * CSS order.
  */
 .popup.popup {
@@ -276,27 +288,25 @@
   }
 }
 
-/* ---------- chips (Drop Down Label › chips) ---------- */
-
+/*
+ * ---------- chips (Menu Options / Chips, 2676:6014) ----------
+ * A 16px inset all round, chips 8px apart both ways, no stroke. The set's own fill is Surfaces/Overlay (`plain`, the
+ * Filter Chip's Press - Alt); `brand` is the Filter Chip's Press, which overrides it to Brand Teal Fill/Weaker.
+ * The error and disabled fills are not in Figma.
+ */
 .chips {
   --chips-bg: var(--color-brand-teal-fill-weaker);
-  --chips-ring: var(--color-gray-stroke-weaker);
-  --chips-ring-w: var(--stroke-width-1);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-8);
   margin: 0;
-  padding: var(--space-12) var(--space-8);
+  padding: var(--space-16);
   list-style: none;
   background: var(--chips-bg);
-  box-shadow: inset 0 0 0 var(--chips-ring-w) var(--chips-ring);
 }
 .chips[data-appearance='plain'] {
-  --chips-bg: transparent;
-}
-.chips[data-required] {
-  --chips-ring: var(--color-brand-teal-stroke-weak);
+  --chips-bg: var(--color-surfaces-overlay);
 }
 .chips[data-error] {
   --chips-bg: var(--color-semantic-fill-error-weakest);
@@ -305,13 +315,11 @@
   --chips-bg: var(--color-gray-fill-disabled);
 }
 /*
- * none (Filter Chip `Press - No Panel`): just the chips, wrapping with their 8px gap; no panel fill, ring or padding. Required, error and
+ * none (Filter Chip `Press - No Panel`): just the chips, wrapping with their 8px gap; no panel fill or padding. Error and
  * disabled add no box either: the field shows those states, and disabled chips use their own disabled fill.
  */
 .chips[data-appearance='none'] {
   --chips-bg: transparent;
-  --chips-ring: transparent;
-  --chips-ring-w: 0px;
   padding: 0;
 }
 

@@ -155,10 +155,10 @@ export function WarehousesPage() {
           onChange={v => setStatusView(v as StatusView)}
           renderValue={() => viewLabel}
         />
-        <Button size="small" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
+        <Button size="medium" variant="primary" icon="view-column" onClick={() => setColumnsOpen(true)}>
           Columns
         </Button>
-        <Button size="small" variant="primary" icon="upload" onClick={() => setUploadOpen(true)}>
+        <Button size="medium" variant="primary" icon="upload" onClick={() => setUploadOpen(true)}>
           Upload
         </Button>
         <Dropdown
@@ -190,7 +190,7 @@ export function WarehousesPage() {
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
-        <Button size="small" variant="brand" icon="plus" onClick={() => setEditing('new')}>
+        <Button size="medium" variant="brand" icon="plus" onClick={() => setEditing('new')}>
           Add Warehouse
         </Button>
       </div>
@@ -391,11 +391,11 @@ function EmptyState({ filtered, onAdd, onClear }: { filtered: boolean; onAdd: ()
         {filtered ? 'Try a different word, or clear the search and filters.' : 'Add your first warehouse, or upload a spreadsheet.'}
       </p>
       {filtered ? (
-        <Button size="small" variant="outline" onClick={onClear}>
+        <Button size="medium" variant="outline" onClick={onClear}>
           Clear search and filters
         </Button>
       ) : (
-        <Button size="small" variant="brand" icon="plus" onClick={onAdd}>
+        <Button size="medium" variant="brand" icon="plus" onClick={onAdd}>
           Add Warehouse
         </Button>
       )}

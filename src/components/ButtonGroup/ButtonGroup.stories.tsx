@@ -9,10 +9,10 @@ import { StateGrid, pseudoStates } from '../../storybook/StateGrid';
 const meta = {
   title: 'Components/Forms/ButtonGroup',
   component: ButtonGroup,
-  args: { orientation: 'horizontal', size: 'default', 'aria-label': 'Options', children: null },
+  args: { orientation: 'horizontal', size: 'large', 'aria-label': 'Options', children: null },
   argTypes: {
     orientation: { control: 'inline-radio', options: ['horizontal', 'vertical'] },
-    size: { control: 'inline-radio', options: ['default', 'small'] },
+    size: { control: 'inline-radio', options: ['large', 'medium', 'small'] },
     children: { control: false },
   },
 } satisfies Meta<typeof ButtonGroup>;
@@ -102,15 +102,17 @@ export const Vertical: Story = {
 };
 
 /**
- * Figma Part - Horizontal `Size=Small` and the Selected states: the toolbar switch (Overview | Stock) at 44px, beside a
- * small Button and Dropdown so the heights can be compared. The chosen part has `aria-pressed="true"`.
+ * Figma Part - Horizontal `Size=Large / Medium / Small` and the Selected states, used as a switch or to filter a table
+ * (e.g. All | Active | Inactive): one choice, the chosen part with `aria-pressed="true"`. Medium (44px) sits beside the
+ * toolbar's Button Medium and Dropdown medium; Small (32px) beside the 32px controls (Button small, Dropdown small).
  */
 export const SmallSwitch: Story = {
+  name: 'Switch sizes',
   render: function Render() {
     const [mode, setMode] = useState('overview');
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)', alignItems: 'flex-start' }}>
-        {(['default', 'small'] as const).map(size => (
+        {(['large', 'medium', 'small'] as const).map(size => (
           <div key={size} style={{ display: 'flex', gap: 'var(--space-12)', alignItems: 'center' }}>
             <ButtonGroup aria-label={`Show (${size})`} size={size}>
               {['overview', 'stock', 'structure'].map(v => (
@@ -119,10 +121,18 @@ export const SmallSwitch: Story = {
                 </ButtonGroupItem>
               ))}
             </ButtonGroup>
-            {size === 'small' && (
+            {size === 'medium' && (
               <>
                 <Dropdown variant="button" size="medium" label="View" hideLabel placeholder="View All" options={[{ value: 'all', label: 'View All' }]} />
-                <Button variant="primary" size="small" icon="upload">
+                <Button variant="primary" size="medium" icon="upload">
+                  Upload
+                </Button>
+              </>
+            )}
+            {size === 'small' && (
+              <>
+                <Dropdown variant="button" size="small" label="View" hideLabel placeholder="View All" options={[{ value: 'all', label: 'View All' }]} />
+                <Button variant="primary" size="small">
                   Upload
                 </Button>
               </>

@@ -257,7 +257,7 @@ function FirstSetup({
             <span className="text-large-bold">Install the print agent</span>
           </span>
           <p className="text-small-regular">A small app on a warehouse computer that sends jobs to your printers.</p>
-          <Button size="small" variant="brand" onClick={onSetUpAgent}>
+          <Button size="medium" variant="brand" onClick={onSetUpAgent}>
             Set Up Print Agent
           </Button>
         </li>
@@ -269,7 +269,7 @@ function FirstSetup({
             <span className="text-large-bold">Add printers</span>
           </span>
           <p className="text-small-regular">Find them on the network, enter an IP address, or pick a USB printer.</p>
-          <Button size="small" variant={paired ? 'brand' : 'outline'} icon="plus" disabled={!paired} onClick={onAddPrinter}>
+          <Button size="medium" variant={paired ? 'brand' : 'outline'} icon="plus" disabled={!paired} onClick={onAddPrinter}>
             Add Printer
           </Button>
         </li>
@@ -281,7 +281,7 @@ function FirstSetup({
             <span className="text-large-bold">Choose what each one prints</span>
           </span>
           <p className="text-small-regular">Pick tickets, packing slips and label defaults are set on Pick / Pack.</p>
-          <Button size="small" variant="outline" disabled onClick={() => setParams({ tab: 'pick-pack' })}>
+          <Button size="medium" variant="outline" disabled onClick={() => setParams({ tab: 'pick-pack' })}>
             Go to Pick / Pack
           </Button>
         </li>
@@ -345,7 +345,7 @@ function PrinterList({
         />
         <SearchInput className={styles.toolbarSearch} aria-label="Search printers" placeholder="Search printers" value={t.query} onChange={e => t.setQuery(e.target.value)} />
         {/* Same as Add Carrier and Add Contact: Button Small Brand with the plus icon */}
-        <Button size="small" variant="brand" icon="plus" onClick={onAdd}>
+        <Button size="medium" variant="brand" icon="plus" onClick={onAdd}>
           Add Printer
         </Button>
       </div>
@@ -453,7 +453,7 @@ function PrinterSettings({
           <h3 id="print-agents" className="text-large-bold">
             Print Agents
           </h3>
-          <Button size="small" variant="brand" onClick={onSetUpAgent}>
+          <Button size="medium" variant="brand" onClick={onSetUpAgent}>
             Set Up Print Agent
           </Button>
         </div>

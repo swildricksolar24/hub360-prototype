@@ -7,7 +7,7 @@ export type DropdownChipsProps = {
   /** Called with the chip's value when its close icon (the whole chip) is pressed. */
   onRemove?: (value: string) => void;
   /**
-   * brand = teal-tinted panel (Figma "chips", Filter Chip `Press`) · plain = no fill (Filter Chip `Press - Alt`) ·
+   * brand = teal-tinted panel (Figma "chips", Filter Chip `Press`) · plain = Surfaces/Overlay panel (Filter Chip `Press - Alt`) ·
    * none = no panel at all: no fill, ring or padding, just the chips (Filter Chip `Press - No Panel`).
    */
   appearance?: 'brand' | 'plain' | 'none';

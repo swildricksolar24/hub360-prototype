@@ -7,7 +7,7 @@ import { StateGrid, pseudoStates, type StateName } from '../../storybook/StateGr
 const meta = {
   title: 'Primitives/IconButton',
   component: IconButton,
-  args: { label: 'Go up', icon: 'arrow-up', variant: 'default', size: 'base' },
+  args: { label: 'Go up', icon: 'arrow-up', variant: 'default', size: 'large' },
   argTypes: { icon: { control: 'select', options: iconNames } },
 } satisfies Meta<typeof IconButton>;
 
@@ -28,13 +28,11 @@ const figmaSet = (nodeId: string, figmaName: string, props: Partial<IconButtonPr
 
 export const Playground: Story = {};
 
-export const Icon = figmaSet('25:355', 'Button Icon › Icon', { variant: 'default' });
-export const Brand = figmaSet('2388:4991', 'Button Icon › Brand', { variant: 'brand' });
-export const Number = figmaSet('692:1041', 'Button Icon › Number', { variant: 'default', number: 1, label: 'Page 1' });
-/** Not its own Figma set: 44px, the height of the Small buttons beside it, as Tier 3 Expanded draws its icon buttons. */
-export const Small = figmaSet('2644:3738', 'Tier 3 (Expanded icon buttons)', { size: 'small', icon: 'chevron-right', label: 'Next' });
-/** 32px with an 18px icon: the icon buttons in Tier 3 Collapsed and Sticky. */
-export const Tiny = figmaSet('3580:1325', 'Button Icon Tiny › Icon', { size: 'tiny', icon: 'chevron-right', label: 'Next' });
-
-/** Not a Figma set: the 40px size used by Message's close button (padding `--space-4`). */
-export const Compact = figmaSet('503:3072', 'Message › Close Button', { size: 'compact', icon: 'close-small', label: 'Close' });
+/** Large: Figma "Button Icon Large (76px)", a 76px square with a 32px icon. */
+export const Icon = figmaSet('25:355', 'Button Icon Large › Icon', { variant: 'default' });
+export const Brand = figmaSet('2388:4991', 'Button Icon Large › Brand', { variant: 'brand' });
+export const Number = figmaSet('692:1041', 'Button Icon Large › Number', { variant: 'default', number: 1, label: 'Page 1' });
+/** Medium: Figma "Button Icon Medium (44px)", beside the toolbar's 44px buttons (Tier 3 Expanded, Message's close button). */
+export const Medium = figmaSet('3580:1204', 'Button Icon Medium › Icon', { size: 'medium', icon: 'chevron-right', label: 'Next' });
+/** Small: Figma "Button Icon Small (32px)", an 18px icon with 8px corners: Tier 3 Collapsed and Sticky. */
+export const Small = figmaSet('3580:1325', 'Button Icon Small › Icon', { size: 'small', icon: 'chevron-right', label: 'Next' });

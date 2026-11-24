@@ -6,7 +6,7 @@ import { figma } from '../../storybook/figma';
 const meta = {
   title: 'Components/Overlays/Tooltip',
   component: Tooltip,
-  args: { label: 'Label', size: 'small', position: 'top', open: false, children: <Button size="small" variant="outline">Hover or focus me</Button> },
+  args: { label: 'Label', size: 'small', position: 'top', open: false, children: <Button size="medium" variant="outline">Hover or focus me</Button> },
   argTypes: {
     size: { control: 'inline-radio', options: ['large', 'small'] },
     position: { control: 'inline-radio', options: ['top', 'bottom', 'left', 'right'] },
@@ -35,7 +35,7 @@ const Grid = ({ size }: { size: 'large' | 'small' }) => (
         </figcaption>
         <div style={{ ...CELL[size], display: 'grid', placeItems: 'center', boxShadow: 'inset 0 0 0 var(--stroke-width-outline) var(--color-gray-stroke-disabled)' }}>
           <Tooltip label="Label" size={size} position={position} open>
-            <Button size="tiny">Trigger</Button>
+            <Button size="small">Trigger</Button>
           </Tooltip>
         </div>
       </figure>

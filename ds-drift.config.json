@@ -1,0 +1,11 @@
+{
+  "componentsPkg": "src/components",
+  "componentsSrc": ["src/components"],
+  "foundationsCss": ["design-system/tokens/tokens.css"],
+  "include": ["src/app/**"],
+  "exclude": ["src/storybook/**", "src/docs/**"],
+  "allow": {
+    "hexIn": ["design-system/**"]
+  },
+  "reportDir": "docs/ds-drift"
+}
